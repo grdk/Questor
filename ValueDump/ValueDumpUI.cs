@@ -40,11 +40,11 @@ namespace ValueDump
 
         public string CharacterName { get; set; }
 
-        public string InvTypesPath
+        public string InvTypesXMLData
         {
             get
             {
-                return Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\InvTypes.xml";
+                return Settings.Instance.Path + "\\InvTypes.xml";
             }
         }
 
@@ -54,11 +54,19 @@ namespace ValueDump
             InitializeComponent();
 
             InvTypesById = new Dictionary<int, InvTypeMarket>();
-            XDocument invTypes = XDocument.Load(InvTypesPath);
-            if (invTypes.Root != null)
-                foreach (XElement element in invTypes.Root.Elements("invtype"))
-                    InvTypesById.Add((int)element.Attribute("id"), new InvTypeMarket(element));
-
+            Logging.Log("Valuedump", "Load InvTypes.xml from [" + InvTypesXMLData + "]", Logging.white);
+            try
+            {
+                XDocument invTypes = XDocument.Load(InvTypesXMLData);
+                if (invTypes.Root != null)
+                    foreach (XElement element in invTypes.Root.Elements("invtype"))
+                        InvTypesById.Add((int)element.Attribute("id"), new InvTypeMarket(element));
+            }
+            catch (Exception)
+            {
+                Logging.Log("ValueDumpUI","Unable to load [" + InvTypesXMLData + "]",Logging.orange);
+            }
+            
             Items = new List<ItemCacheMarket>();
             ItemsToSell = new List<ItemCacheMarket>();
             ItemsToRefine = new List<ItemCacheMarket>();
@@ -267,7 +275,7 @@ namespace ValueDump
                     XDocument xdoc = new XDocument(new XElement("invtypes"));
                     foreach (InvTypeMarket type in InvTypesById.Values.OrderBy(i => i.Id))
                         xdoc.Root.Add(type.Save());
-                    xdoc.Save(InvTypesPath);
+                    xdoc.Save(InvTypesXMLData);
 
                      _States.CurrentValueDumpState = ValueDumpState.Idle;
                     break;
