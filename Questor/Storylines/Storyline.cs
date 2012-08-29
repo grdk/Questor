@@ -76,21 +76,21 @@ namespace Questor.Storylines
                                {"Patient Zero", new GenericCombatStoryline()},
                                {"Record Cleaning", new GenericCombatStoryline()},
                                {"Shipyard Theft", new GenericCombatStoryline()},
-                               ////{"Soothe the Salvage Beast", new GenericCombatStoryline()},
+                               {"Soothe the Salvage Beast", new GenericCombatStoryline()},
                                /* COMBAT - AMARR */
                                {"Blood Farm", new GenericCombatStoryline()},
                                {"Dissidents", new GenericCombatStoryline()},
-                               ////{"Extract the Renegade", new GenericCombatStoryline()},
+                               {"Extract the Renegade", new GenericCombatStoryline()},
                                ////{"Gate to Nowhere", new GenericCombatStoryline()},
                                ////{"Racetrack Ruckus", new GenericCombatStoryline()},
                                {"The Mouthy Merc", new GenericCombatStoryline()},
                                /* COMBAT - CALDARI */
                                {"Crowd Control", new GenericCombatStoryline()},
-                               ////{"Forgotten Outpost", new GenericCombatStoryline()},
-                               ////{"Illegal Mining", new GenericCombatStoryline()},
+                               {"Forgotten Outpost", new GenericCombatStoryline()},
+                               {"Illegal Mining", new GenericCombatStoryline()},
                                ////{"Innocents in the Crossfire", new GenericCombatStoryline()},
                                ////{"Jealous Rivals", new GenericCombatStoryline()},
-                               ////{"Stem the Flow", new GenericCombatStoryline()},
+                               {"Stem the Flow", new GenericCombatStoryline()},
                                /* COMBAT - GALLENTE */
                                ////{"Kidnappers Strike - Ambush In The Dark (1 of 10)", new GenericCombatStoryline()},
                                ////{"Kidnappers Strike - The Kidnapping (3 of 10)", new GenericCombatStoryline()},
@@ -110,7 +110,7 @@ namespace Questor.Storylines
                                {"Postmodern Primitives", new GenericCombatStoryline()},
                                {"Quota Season", new GenericCombatStoryline()},
                                {"The Blood of Angry Men", new GenericCombatStoryline()},
-                               /* COMBAT - MORE THAN ONE RACE */                                                            
+                               /* COMBAT - MORE THAN ONE RACE */
                             };
         }
 
