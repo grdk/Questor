@@ -407,7 +407,7 @@ namespace Questor.Modules.Caching
 
         public string ConsoleLogRedacted { get; set; }
 
-        public bool IsAgentLoop { get; set; }
+        public bool AllAgentsStillInDeclineCoolDown { get; set; }
 
         private string _agentName = "";
 
@@ -978,10 +978,10 @@ namespace Questor.Modules.Caching
                         Logging.Log("Cache","SwitchAgent","Unable to process agent section of [" + Settings.Instance.SettingsPath + "] make sure you have a valid agent listed! Pausing so you can fix it.");
                         Cache.Instance.Paused = true;
                     }
-                    IsAgentLoop = true; //this literally means we have no agents available at the moment (decline timer likely)
+                    AllAgentsStillInDeclineCoolDown = true; //this literally means we have no agents available at the moment (decline timer likely)
                 }
                 else
-                    IsAgentLoop = false; //this literally means we DO have agents available (at least one agents decline timer has expired and is clear to use)
+                    AllAgentsStillInDeclineCoolDown = false; //this literally means we DO have agents available (at least one agents decline timer has expired and is clear to use)
 
                 return agent.Name;
             }
@@ -1990,11 +1990,12 @@ namespace Questor.Modules.Caching
             // Find the first waypoint
             List<long> currentPath = DirectEve.Navigation.GetDestinationPath();
             if (currentPath == null || !currentPath.Any()) return false;
+            if (currentPath[0] == 0) return false; //No destination set - prevents exception if somehow we've got an invalid destination
 
             for (int i = currentPath.Count - 1; i >= 0; i--)
             {
                 DirectSolarSystem solarSystemInRoute = Cache.Instance.DirectEve.SolarSystems[currentPath[i]];
-                if (solarSystemInRoute.Security < 0.5)
+                if (solarSystemInRoute.Security < 0.45)
                 {
                     //Bad bad bad
                     Cache.Instance.RouteIsAllHighSecBool = false;
