@@ -542,24 +542,7 @@ namespace Questor.Modules.Actions
             {
                 bool loadedAmmo = false;
                 GetFactionName(html);
-                if (!string.IsNullOrEmpty(Cache.Instance.FactionName))
-                {
-                    Cache.Instance.missionXmlPath = Path.Combine(Settings.Instance.MissionsPath,
-                                                                 missionName + "-" + Cache.Instance.FactionName + ".xml");
-                    if (!File.Exists(Cache.Instance.missionXmlPath))
-                    {
-                        Logging.Log("AgentInteraction",
-                                    "Unable to find faction specific [" + Cache.Instance.missionXmlPath +
-                                    "] trying generic version", Logging.white);
-                        Cache.Instance.missionXmlPath = Path.Combine(Settings.Instance.MissionsPath,
-                                                                     missionName + ".xml");
-                    }
-                }
-                else
-                {
-                    Cache.Instance.missionXmlPath = Path.Combine(Settings.Instance.MissionsPath,
-                                                                     missionName + ".xml");
-                }
+                Cache.Instance.SetmissionXmlPath(Cache.Instance.FilterPath(missionName));
 
                 Cache.Instance.MissionAmmo = new List<Ammo>();
                 if (File.Exists(Cache.Instance.missionXmlPath))
@@ -773,7 +756,7 @@ namespace Questor.Modules.Actions
                     }
 
                     //add timer to current agent
-                    if (!Cache.Instance.IsAgentLoop && Settings.Instance.MultiAgentSupport)
+                    if (!Cache.Instance.AllAgentsStillInDeclineCoolDown && Settings.Instance.MultiAgentSupport)
                     {
                         if (currentAgent != null) currentAgent.DeclineTimer = DateTime.Now.AddSeconds(secondsToWait);
                         CloseConversation();

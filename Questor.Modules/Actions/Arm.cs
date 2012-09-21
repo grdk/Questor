@@ -473,7 +473,11 @@ namespace Questor.Modules.Actions
                     //
                     if (Cache.Instance.DamagedDrones != null && Cache.Instance.DamagedDrones.Any())
                     {
-                        if (!Cache.Instance.RepairItems("Repair Function")) break; //attempt to use repair facilities if avail in station
+                        if (Settings.Instance.UseStationRepair)
+                        {
+                            if (!Cache.Instance.RepairItems("Repair Function")) break; //attempt to use repair facilities if avail in station    
+                        }
+
                         foreach (var damagedDrone in Cache.Instance.DamagedDrones.ToList())
                         {
                             Cache.Instance.DamagedDrones.ToList().Remove(damagedDrone);
@@ -633,9 +637,8 @@ namespace Questor.Modules.Actions
                                 if (mission == null)
                                     return;
 
-                                string missionName = Cache.Instance.FilterPath(mission.Name);
-                                Cache.Instance.missionXmlPath = Path.Combine(Settings.Instance.MissionsPath,
-                                                                             missionName + ".xml");
+                                Cache.Instance.SetmissionXmlPath(Cache.Instance.FilterPath(mission.Name));
+
                                 XDocument missionXml = XDocument.Load(Cache.Instance.missionXmlPath);
                                 Cache.Instance.MissionAmmo = new List<Ammo>();
                                 if (missionXml.Root != null)

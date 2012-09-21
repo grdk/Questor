@@ -1692,8 +1692,7 @@ namespace Questor.Modules.Caching
 
             if (missiondetails != null)
             {
-                string missionName = FilterPath(missiondetails.Name);
-                Cache.Instance.missionXmlPath = System.IO.Path.Combine(Settings.Instance.MissionsPath, missionName + ".xml");
+                Cache.Instance.SetmissionXmlPath(FilterPath(missiondetails.Name));
                 if (!File.Exists(Cache.Instance.missionXmlPath))
                 {
                     //No mission file but we need to set some cache settings
@@ -1798,6 +1797,28 @@ namespace Questor.Modules.Caching
             }
         }
 
+        public void SetmissionXmlPath(string missionName)
+        {
+            if (!string.IsNullOrEmpty(Cache.Instance.FactionName))
+            {
+                Cache.Instance.missionXmlPath = System.IO.Path.Combine(Settings.Instance.MissionsPath,
+                                                             missionName + "-" + Cache.Instance.FactionName + ".xml");
+                if (!File.Exists(Cache.Instance.missionXmlPath))
+                {
+                    Logging.Log("Cache.SetmissionXmlPath",
+                                "Unable to find faction specific [" + Cache.Instance.missionXmlPath +
+                                "] trying generic version", Logging.white);
+                    Cache.Instance.missionXmlPath = System.IO.Path.Combine(Settings.Instance.MissionsPath,
+                                                                 missionName + ".xml");
+                }
+            }
+            else
+            {
+                Cache.Instance.missionXmlPath = System.IO.Path.Combine(Settings.Instance.MissionsPath,
+                                                                missionName + ".xml");
+            }
+
+        }
         /// <summary>
         ///   Refresh the mission items
         /// </summary>

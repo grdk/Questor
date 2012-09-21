@@ -427,6 +427,8 @@ namespace Questor.Modules.Lookup
 
         public int SafeCapacitorPct { get; set; }
 
+        public bool UseStationRepair { get; set; }
+
         public double IskPerLP { get; set; }
 
         //
@@ -761,6 +763,7 @@ namespace Questor.Modules.Lookup
                 SafeShieldPct = 0;
                 SafeArmorPct = 0;
                 SafeCapacitorPct = 0;
+                UseStationRepair = true;
 
                 //
                 // Drone Settings
@@ -1088,6 +1091,7 @@ namespace Questor.Modules.Lookup
                     SafeShieldPct = (int?)xml.Element("safeShieldPct") ?? 0;
                     SafeArmorPct = (int?)xml.Element("safeArmorPct") ?? 0;
                     SafeCapacitorPct = (int?)xml.Element("safeCapacitorPct") ?? 0;
+                    UseStationRepair = (bool?)xml.Element("useStationRepair") ?? true;
 
                     //
                     // Drone Settings
