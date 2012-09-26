@@ -196,7 +196,7 @@ namespace Questor.Storylines
                 return;
             }
 
-            if (!highsecchecked)
+            if (!highsecchecked && storylineagent.SolarSystemId != Cache.Instance.DirectEve.Session.SolarSystemId)
             {
                 // if we haven't already done so, set Eve's autopilot
                 if (!setDestinationStation)

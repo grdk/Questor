@@ -142,9 +142,9 @@ namespace QuestorManager.Actions
                     {
                         xdoc.Save(InvTypesPath);
                     }
-                    catch (Exception Ex)
+                    catch (Exception ex)
                     {
-                        Logging.Log("ValueDump", "Unable to save [" + InvTypesPath + "], is it a file permissions issue? Is the file open and locked?", Logging.orange);
+                        Logging.Log("ValueDump", "Unable to save [" + InvTypesPath + "], is it a file permissions issue? Is the file open and locked? exception was [ " + ex.Message + "]", Logging.orange);
                     }
                     
 

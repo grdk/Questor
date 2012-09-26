@@ -649,11 +649,11 @@ namespace Questor.Modules.Actions
                                             Cache.Instance.MissionAmmo.Add(new Ammo(ammo));
                                 }
                             }
-                            catch (Exception e)
+                            catch (Exception ex)
                             {
                                 Logging.Log("Arms.WaitForItems",
                                             "Unable to load missionammo from mission XML for: [" +
-                                            Cache.Instance.MissionName + "], " + e.Message, Logging.orange);
+                                            Cache.Instance.MissionName + "], " + ex.Message, Logging.orange);
                                 Cache.Instance.MissionAmmo = new List<Ammo>();
                             }
                         }

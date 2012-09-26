@@ -607,8 +607,6 @@ namespace Questor.Modules.BackgroundTasks
                                 close |= window.Html.Contains(" units free.");
                                 close |= window.Html.Contains("already full");
                                 //windows that can be disabled, but may not yet be disabled 
-                                close |= window.Html.Contains("Are you sure you would like to decline this mission");
-                                close |= window.Html.Contains("You can decline a mission every four hours without penalty");
                                 //why are we reloading an already full weapon?
                                 close |= window.Html.Contains("All the weapons in this group are already full");
                                 //trial account
@@ -638,6 +636,8 @@ namespace Questor.Modules.BackgroundTasks
                                 sayyes |= window.Html.Contains("your ship only has space for");
                                 sayyes |= window.Html.Contains("Are you sure you want to remove location");
                                 sayyes |= window.Html.Contains("Repairing these items will cost");
+                                sayyes |= window.Html.Contains("Are you sure you would like to decline this mission");
+                                sayyes |= window.Html.Contains("You can decline a mission every four hours without penalty");
 
                                 //
                                 // LP Store "Accept offer" dialog

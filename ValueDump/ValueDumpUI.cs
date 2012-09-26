@@ -62,9 +62,9 @@ namespace ValueDump
                     foreach (XElement element in invTypes.Root.Elements("invtype"))
                         InvTypesById.Add((int)element.Attribute("id"), new InvTypeMarket(element));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Logging.Log("ValueDumpUI","Unable to load [" + InvTypesXMLData + "]",Logging.orange);
+                Logging.Log("ValueDumpUI","Unable to load [" + InvTypesXMLData + "] exception was [" + ex.Message + "]",Logging.orange);
             }
             
             Items = new List<ItemCacheMarket>();

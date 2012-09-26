@@ -374,8 +374,9 @@ namespace Questor.Modules.Caching
 
                     return ammo.Max(a => a.Range);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    if (Settings.Instance.DebugExceptions) Logging.Log("Cache.WeaponRange", "exception was:" + ex.Message, Logging.teal);
                     // Return max range
                     if (Cache.Instance.DirectEve.ActiveShip != null)
                     {
@@ -944,9 +945,9 @@ namespace Questor.Modules.Caching
                                         Logging.white);
                             Cache.Instance.CurrentAgent_text = CurrentAgent.ToString();
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            Logging.Log("Cache", "AgentId", "Unable to get agent details: trying again in a moment");
+                            Logging.Log("Cache", "AgentId", "Unable to get agent details: trying again in a moment [" + ex.Message + "]");
                             return "";
                         }
 
@@ -973,9 +974,9 @@ namespace Questor.Modules.Caching
                     {
                         agent = Settings.Instance.AgentsList.OrderBy(j => j.Priorit).FirstOrDefault();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        Logging.Log("Cache","SwitchAgent","Unable to process agent section of [" + Settings.Instance.SettingsPath + "] make sure you have a valid agent listed! Pausing so you can fix it.");
+                        Logging.Log("Cache","SwitchAgent","Unable to process agent section of [" + Settings.Instance.SettingsPath + "] make sure you have a valid agent listed! Pausing so you can fix it. [" + ex.Message + "]");
                         Cache.Instance.Paused = true;
                     }
                     AllAgentsStillInDeclineCoolDown = true; //this literally means we have no agents available at the moment (decline timer likely)
@@ -1000,9 +1001,9 @@ namespace Questor.Modules.Caching
 
                         return _agentId ?? -1;
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        Logging.Log("Cache", "AgentId", "Unable to get agent details: trying again in a moment");
+                        Logging.Log("Cache", "AgentId", "Unable to get agent details: trying again in a moment [" + ex.Message + "]");
                         return -1;
                     }
                     
@@ -1034,9 +1035,9 @@ namespace Questor.Modules.Caching
                             //Logging.Log("Cache: CurrentAgent", "AgentSolarSystemID [" + Cache.Instance.AgentSolarSystemID + "]", Logging.white);
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        Logging.Log("Cache", "Agent", "Unable to process agent section of [" + Settings.Instance.SettingsPath + "] make sure you have a valid agent listed! Pausing so you can fix it.");
+                        Logging.Log("Cache", "Agent", "Unable to process agent section of [" + Settings.Instance.SettingsPath + "] make sure you have a valid agent listed! Pausing so you can fix it. [" + ex.Message + "]");
                         Cache.Instance.Paused = true;
                     }
                     if (_agentId != null) return _agent ?? (_agent = DirectEve.GetAgentById(_agentId.Value));
@@ -1210,8 +1211,9 @@ namespace Questor.Modules.Caching
                     }
                     return false;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    if (Settings.Instance.DebugExceptions) Logging.Log("Cache.InSpace", "if (DirectEve.Session.IsInSpace && !DirectEve.Session.IsInStation && DirectEve.Session.IsReady && DirectEve.ActiveShip.Entity != null) <---must have failed exception was [" + ex.Message + "]", Logging.teal);
                     return false;
                 }
             }
@@ -1230,8 +1232,9 @@ namespace Questor.Modules.Caching
                     }
                     return false;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    if (Settings.Instance.DebugExceptions) Logging.Log("Cache.InStation", "if (DirectEve.Session.IsInStation && !DirectEve.Session.IsInSpace && DirectEve.Session.IsReady) <---must have failed exception was [" + ex.Message + "]", Logging.teal);
                     return false;
                 }
             }
@@ -3665,7 +3668,7 @@ namespace Questor.Modules.Caching
             }
             catch (Exception ex)
             {
-                Logging.Log("Cache.DeleteBookmarksOnGrid", "Delete old unprocessed salvage bookmarks: exception generated:" + ex, Logging.white);
+                Logging.Log("Cache.DeleteBookmarksOnGrid", "Delete old unprocessed salvage bookmarks: exception generated:" + ex.Message, Logging.white);
             }
             
 

@@ -242,9 +242,9 @@ namespace Questor
                         UnlootedContainersData.Text = "n/a";
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    if (Settings.Instance.DebugUI) Logging.Log("QuestorUI", "RefreshInfoDisplayedInUI: unable to update all UI labels", Logging.teal);
+                    if (Settings.Instance.DebugUI) Logging.Log("QuestorUI", "RefreshInfoDisplayedInUI: unable to update all UI labels: exception was [" + ex.Message + "]", Logging.teal);
                 }
             }
             if (DateTime.Now > _nextScheduleUpdate)
@@ -1062,9 +1062,10 @@ namespace Questor
                 LastBlacklistedMissionDeclinedData.Text = Cache.Instance.LastBlacklistMissionDeclined;
                 blacklistedmissionsdeclineddata.Text = Cache.Instance.BlackListedMissionsDeclined.ToString(CultureInfo.InvariantCulture);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 //if we get an exception here ignore it as it shouldnt effect anything, theu GUI is only displaying data collected and processed elsewhere
+                if (Settings.Instance.DebugExceptions || (Settings.Instance.DebugUI)) Logging.Log("QuestorUI","Exception was [" + ex.Message + "]",Logging.teal);
             }
         }
 

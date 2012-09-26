@@ -108,9 +108,9 @@ namespace Questor.Modules.Logging
                         currentPocketName = Cache.Instance.FilterPath(Cache.Instance.Mission.Name);
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    Logging.Log("Statistics", "PocketObjectStatistics: cache.Instance.Mission.Name is null?",
+                    Logging.Log("Statistics", "PocketObjectStatistics: is cache.Instance.Mission.Name null?: exception was [" + ex.Message + "]",
                                 Logging.white);
                 }
 

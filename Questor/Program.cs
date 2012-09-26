@@ -97,10 +97,10 @@ namespace Questor
                 extra = p.Parse(args);
                 //Logging.Log(string.Format("questor: extra = {0}", string.Join(" ", extra.ToArray())));
             }
-            catch (OptionException e)
+            catch (OptionException ex)
             {
                 Logging.Log("Startup", "questor: ", Logging.white);
-                Logging.Log("Startup", e.Message, Logging.white);
+                Logging.Log("Startup", ex.Message, Logging.white);
                 Logging.Log("Startup", "Try `questor --help' for more information.", Logging.white);
                 return;
             }
