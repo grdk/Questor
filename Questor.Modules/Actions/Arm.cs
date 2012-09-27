@@ -99,6 +99,7 @@ namespace Questor.Modules.Actions
                     TryMissionShip = true;  // Used in the event we can't find the ship specified in the missionfittings
                     UseMissionShip = false; // Were we successful in activating the mission specific ship?
                     _States.CurrentArmState = ArmState.OpenShipHangar;
+                    _States.CurrentCombatState = CombatState.Idle;
                     Cache.Instance.NextArmAction = DateTime.Now;
                     break;
 

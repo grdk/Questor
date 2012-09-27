@@ -715,6 +715,16 @@ namespace Questor.Modules.Caching
             }
         }
 
+        public bool IsStation
+        {
+            get
+            {
+                bool result = false;
+                result |= GroupId == (int)Group.Station;
+                return result;
+            }
+        }
+
         public void LockTarget()
         {
             // If the bad idea is attacking, attack back
