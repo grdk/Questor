@@ -61,10 +61,12 @@ namespace Questor.Storylines
                                {"Operation Doorstop", new GenericCourier()},
                                /* COURIER/DELIVERY - GALLENTE */
                                ////{"A Fathers Love", new GenericCourier()},
+                               ////{"A Fine Wine", new GenericCourier()}
                                ////{"A Greener World", new GenericCourier()},
                                ////{"Eradication", new GenericCourier()},
                                ////{"Evacuation", new GenericCourier()},
                                ////{"On the Run", new GenericCourier()},
+                               ////{"The Natural Way", new GenericCourier()},
                                /* COURIER/DELIVERY - MINMATAR */
                                {"A Cargo With Attitude", new GenericCourier()},
                                {"A Load of Scrap", new GenericCourier()},
