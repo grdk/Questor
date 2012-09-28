@@ -395,7 +395,7 @@ namespace Questor.Modules.Lookup
         public bool SpeedTank { get; set; }
 
         public int OrbitDistance { get; set; }
-        
+
         public bool OrbitStructure { get; set; }
 
         public int OptimalRange { get; set; }
@@ -512,9 +512,9 @@ namespace Questor.Modules.Lookup
         {
             try
             {
-                Settings.Instance.CharacterName = Cache.Instance.DirectEve.Me.Name;    
+                Settings.Instance.CharacterName = Cache.Instance.DirectEve.Me.Name;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 Settings.Instance.CharacterName = "AtLoginScreenNoCharactersLoggedInYet";
             }
@@ -852,8 +852,8 @@ namespace Questor.Modules.Lookup
                     DebugAutoStart = (bool?)xml.Element("debugAutoStart") ?? false;
                     DebugDecline = (bool?)xml.Element("debugDecline") ?? false;
                     DebugHangars = (bool?)xml.Element("debugHangars") ?? false;
-                    DebugLogging = (bool?) xml.Element("debugLogging") ?? false;
-                    DebugSalvage = (bool?) xml.Element("debugSalvage") ?? false;
+                    DebugLogging = (bool?)xml.Element("debugLogging") ?? false;
+                    DebugSalvage = (bool?)xml.Element("debugSalvage") ?? false;
                     DebugUI = (bool?)xml.Element("debugUI") ?? false;
                     DebugAttachVSDebugger = (bool?)xml.Element("debugAttachVSDebugger") ?? false;
                     DebugDroneHealth = (bool?)xml.Element("debugDroneHealth") ?? false;
@@ -986,7 +986,7 @@ namespace Questor.Modules.Lookup
                     MaximumWreckTargets = (int?)xml.Element("maximumWreckTargets") ?? 0;
                     WreckBlackListSmallWrecks = (bool?)xml.Element("WreckBlackListSmallWrecks") ?? false;
                     WreckBlackListMediumWrecks = (bool?)xml.Element("WreckBlackListMediumWrecks") ?? false;
-                    AgeofBookmarksForSalvageBehavior = (int?) xml.Element("ageofBookmarksForSalvageBehavior") ?? 45;
+                    AgeofBookmarksForSalvageBehavior = (int?)xml.Element("ageofBookmarksForSalvageBehavior") ?? 45;
                     AgeofSalvageBookmarksToExpire = (int?)xml.Element("ageofSalvageBookmarksToExpire") ?? 120;
 
                     //
@@ -1053,9 +1053,7 @@ namespace Questor.Modules.Lookup
                     MissionStats2Log = (bool?)xml.Element("MissionStats2Log") ?? true;
                     MissionStats3Log = (bool?)xml.Element("MissionStats3Log") ?? true;
                     PocketStatistics = (bool?)xml.Element("PocketStatistics") ?? true;
-                    PocketStatsUseIndividualFilesPerPocket =
-                        (bool?)xml.Element("PocketStatsUseIndividualFilesPerPocket") ??
-                                                        true;
+                    PocketStatsUseIndividualFilesPerPocket = (bool?)xml.Element("PocketStatsUseIndividualFilesPerPocket") ?? true;
                     PocketObjectStatisticsLog = (bool?)xml.Element("PocketObjectStatisticsLog") ?? true;
 
                     //
@@ -1073,7 +1071,7 @@ namespace Questor.Modules.Lookup
                     AvoidBumpingThings = (bool?)xml.Element("avoidBumpingThings") ?? true;
                     SpeedTank = (bool?)xml.Element("speedTank") ?? false;
                     OrbitDistance = (int?)xml.Element("orbitDistance") ?? 0;
-                    OrbitStructure = (bool?) xml.Element("orbitStructure") ?? false;
+                    OrbitStructure = (bool?)xml.Element("orbitStructure") ?? false;
                     OptimalRange = (int?)xml.Element("optimalRange") ?? 0;
                     NosDistance = (int?)xml.Element("NosDistance") ?? 38000;
                     MinimumPropulsionModuleDistance = (int?)xml.Element("minimumPropulsionModuleDistance") ?? 5000;
@@ -1144,21 +1142,21 @@ namespace Questor.Modules.Lookup
                             {
                                 MultiAgentSupport = true;
                                 Logging.Log(
-                                            "Settings", "Found more than one agent in your character XML: MultiAgentSupport is [" +
-                                            MultiAgentSupport.ToString(CultureInfo.InvariantCulture) + "]", Logging.white);
+                                    "Settings", "Found more than one agent in your character XML: MultiAgentSupport is [" +
+                                    MultiAgentSupport.ToString(CultureInfo.InvariantCulture) + "]", Logging.white);
                             }
                             else
                             {
                                 MultiAgentSupport = false;
                                 Logging.Log(
-                                            "Settings", "Found only one agent in your character XML: MultiAgentSupport is [" +
-                                            MultiAgentSupport.ToString(CultureInfo.InvariantCulture) + "]", Logging.white);
+                                    "Settings", "Found only one agent in your character XML: MultiAgentSupport is [" +
+                                    MultiAgentSupport.ToString(CultureInfo.InvariantCulture) + "]", Logging.white);
                             }
                         }
                         else
                         {
                             Logging.Log(
-                                       "Settings", "agentList exists in your characters config but no agents were listed.", Logging.red);
+                                "Settings", "agentList exists in your characters config but no agents were listed.", Logging.red);
                         }
                     }
                     else
@@ -1182,16 +1180,16 @@ namespace Questor.Modules.Lookup
                                 {
                                     UseFittingManager = false;
                                     Logging.Log(
-                                                 "Settings", "Error! No default fitting specified or fitting is incorrect.  Fitting manager will not be used.", Logging.orange);
+                                        "Settings", "Error! No default fitting specified or fitting is incorrect.  Fitting manager will not be used.", Logging.orange);
                                 }
                                 Logging.Log(
-                                            "Settings", "Faction Fittings defined. Fitting manager will be used when appropriate.", Logging.white);
+                                    "Settings", "Faction Fittings defined. Fitting manager will be used when appropriate.", Logging.white);
                             }
                             else
                             {
                                 UseFittingManager = false;
                                 Logging.Log(
-                                            "Settings", "Error! No default fitting specified or fitting is incorrect.  Fitting manager will not be used.", Logging.orange);
+                                    "Settings", "Error! No default fitting specified or fitting is incorrect.  Fitting manager will not be used.", Logging.orange);
                             }
                         }
                         else
@@ -1277,7 +1275,6 @@ namespace Questor.Modules.Lookup
                 WreckBlackList.Add(26934);
             }
 
-
             //"-RandomName-" + Cache.Instance.RandomNumber(1,500) + "-of-500"
             string characterNameForLogs = Cache.Instance.FilterPath(Settings.Instance.CharacterName);
             if (characterNameForLogs == "AtLoginScreenNoCharactersLoggedInYet")
@@ -1289,7 +1286,7 @@ namespace Questor.Modules.Lookup
             // Log location and log names defined here
             //
             Logpath = (System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\log\\" + characterNameForLogs + "\\");
-            
+
             //logpath_s = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\log\\";
             ConsoleLogPath = System.IO.Path.Combine(Logpath, "Console\\");
             ConsoleLogFile = System.IO.Path.Combine(ConsoleLogPath, string.Format("{0:MM-dd-yyyy}", DateTime.Today) + "-" + characterNameForLogs + "-" + "console" + ".log");

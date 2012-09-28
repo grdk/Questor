@@ -177,8 +177,8 @@ namespace Questor.Modules.Actions
                     if (Purpose != AgentInteractionPurpose.StartMission)
                     {
                         Logging.Log("Agentinteraction", "ReplyToAgent: Found accept button, Changing Purpose to StartMission", Logging.white);
-                    _agentWindowTimeStamp = DateTime.Now;
-                    Purpose = AgentInteractionPurpose.StartMission;
+                        _agentWindowTimeStamp = DateTime.Now;
+                        Purpose = AgentInteractionPurpose.StartMission;
                     }
                 }
 
@@ -219,7 +219,6 @@ namespace Questor.Modules.Actions
                     Cache.Instance.FactionName = string.Empty;
 
                     Logging.Log("AgentInteraction", "Closing conversation", Logging.yellow);
-
                     _States.CurrentAgentInteractionState = AgentInteractionState.CloseConversation;
                     _nextAgentAction = DateTime.Now.AddSeconds(Cache.Instance.RandomNumber(5, 10));
                 }
@@ -745,6 +744,9 @@ namespace Questor.Modules.Actions
                     int secondsToWait = ((hours * 3600) + (minutes * 60) + 60);
                     AgentsList currentAgent = Settings.Instance.AgentsList.FirstOrDefault(i => i.Name == Cache.Instance.CurrentAgent);
 
+                    //
+                    // standings are below the blacklist minimum and no other agents are NOT available (yet?)
+                    //
                     if (Cache.Instance.AgentEffectiveStandingtoMe <= Settings.Instance.MinAgentBlackListStandings && Cache.Instance.AllAgentsStillInDeclineCoolDown)
                     {
                         _nextAgentAction = DateTime.Now.AddSeconds(secondsToWait);
@@ -755,6 +757,22 @@ namespace Questor.Modules.Actions
                         return;
                     }
 
+                    //
+                    // standings are below the blacklist minimum and other agents are available
+                    //
+                    // add timer to current agent
+                    if (Cache.Instance.AgentEffectiveStandingtoMe <= Settings.Instance.MinAgentBlackListStandings && !Cache.Instance.AllAgentsStillInDeclineCoolDown && Settings.Instance.MultiAgentSupport)
+                    {
+                        //
+                        //
+                        // this whole section needs reworking
+                        //
+                        // we have bad standings and no agent to switch to (or only 1 configured)
+                        // we have bad standings and we DO have an agent to switch to
+                        // we have decent standings and can decline again
+                        //
+                        // what other scenerio is there?
+                    }
                     //add timer to current agent
                     if (!Cache.Instance.AllAgentsStillInDeclineCoolDown && Settings.Instance.MultiAgentSupport)
                     {

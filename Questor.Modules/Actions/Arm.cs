@@ -472,23 +472,8 @@ namespace Questor.Modules.Actions
                     //
                     // this needs a setting to enable / disable.. and it needs to be going into a freight container and or corp hangar
                     //
-                    if (Cache.Instance.DamagedDrones != null && Cache.Instance.DamagedDrones.Any())
-                    {
-                        if (Settings.Instance.UseStationRepair)
-                        {
-                            if (!Cache.Instance.RepairItems("Repair Function")) break; //attempt to use repair facilities if avail in station    
-                        }
 
-                        foreach (var damagedDrone in Cache.Instance.DamagedDrones.ToList())
-                        {
-                            Cache.Instance.DamagedDrones.ToList().Remove(damagedDrone);
-                        }
-                        break;
-                    }
-                    else
-                    {
-                        Logging.Log("Arm", "No Drones with armor damage found in your DroneBay, you must be doing something right.", Logging.green);
-                    }
+                    if (!Cache.Instance.RepairDrones("Repair Drones Function")) break; //attempt to use repair facilities if avail in station    
 
                     double neededDrones = Math.Floor((Cache.Instance.DroneBay.Capacity - Cache.Instance.DroneBay.UsedCapacity) / drone.Volume);
                     Logging.Log("Arm", "neededDrones: " + neededDrones, Logging.white);

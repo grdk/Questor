@@ -30,8 +30,20 @@ namespace Questor.Modules.Lookup
         ECCM = 202,
         CloakingDevice = 330,
 
+        TrackingLink = 209,
+        //TrackingEnhancer = 211, //no script needed
         SensorBooster = 212,
+        SensorDampener = 208,
         TrackingComputer = 213,
+        TrackingDisruptor = 291,
+
+        ProximityDrone = 97,
+        CombatDrone = 100,
+        MiningDrone = 101,
+        FighterDrone = 549,
+        ElectronicWarfareDrone = 639,
+        LogisticsDrone = 640,
+        WebbingDrone = 641,
 
         CapacitorGroupCharge = 87,
         CriminalTags = 370,

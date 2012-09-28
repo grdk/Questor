@@ -66,7 +66,7 @@ namespace Questor.Modules.Actions
                     else if ("Ship Hangar" == Hangar)
                     {
                         if (!Cache.Instance.OpenShipsHangar("Drop")) return;
-                        
+
                         if (_hangar != null && (_hangar.Window == null || !_hangar.Window.IsReady))
                             break;
                     }

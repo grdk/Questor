@@ -75,7 +75,7 @@ namespace Questor.Modules.BackgroundTasks
                 module.Click();
                 Cache.Instance.NextActivateSupportModules = DateTime.Now.AddMilliseconds(Time.Instance.DefenceDelay_milliseconds);
                 Logging.Log("Defense", "Defensive module activated: [" + ModuleNumber + "] waiting [" + Math.Round(Cache.Instance.NextActivateSupportModules.Subtract(DateTime.Now).TotalSeconds, 0) + " sec]", Logging.white);
-                
+
                 continue;
             }
             ModuleNumber = 0;
@@ -146,6 +146,12 @@ namespace Questor.Modules.BackgroundTasks
                     {
                         perc = Cache.Instance.DirectEve.ActiveShip.ArmorPercentage;
                         Logging.Log("Defense", "Armor: [" + Math.Round(perc, 0) + "%] Cap: [" + Math.Round(cap, 0) + "%] Armor Repairer: [" + ModuleNumber + "] activated", Logging.white);
+                        int aggressiveEntities = Cache.Instance.Entities.Count(e => e.Distance < (int)Distance.OnGridWithMe && e.IsAttacking && e.IsPlayer);
+                        if (aggressiveEntities == 0 && Cache.Instance.Entities.Count(e => e.Distance < (int)Distance.OnGridWithMe && e.IsStation) == 1)
+                        {
+                            Cache.Instance.NextDockAction = DateTime.Now.AddSeconds(15);
+                            Logging.Log("Defense", "Repairing Armor outside station with no aggo (yet): delaying docking for [15]seconds" , Logging.white);
+                        }
                     }
 
                     //Logging.Log("LowestShieldPercentage(pocket) [ " + Cache.Instance.lowest_shield_percentage_this_pocket + " ] ");
@@ -190,9 +196,9 @@ namespace Questor.Modules.BackgroundTasks
             {
                 if (module.GroupId != (int)Group.Afterburner)
                     continue;
-                
+
                 ModuleNumber++;
-                
+
                 if (module.InLimboState)
                     continue;
 
