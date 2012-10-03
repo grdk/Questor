@@ -10,7 +10,6 @@ namespace Questor.Storylines
     using System;
     using System.Linq;
     using DirectEve;
-    using global::Questor.Modules;
 
     public class MaterialsForWarPreparation : IStoryline
     {
@@ -37,18 +36,16 @@ namespace Questor.Storylines
             DirectItem item = Cache.Instance.ShipHangar.Items.FirstOrDefault(i => i.Quantity == -1 && i.GroupId == 31);
             if (item != null)
             {
-                Logging.Log("MaterialsForWarPreparation", "Switching to shuttle", Logging.white);
+                Logging.Log("MaterialsForWarPreparation", "Switching to shuttle", Logging.White);
 
                 _nextAction = DateTime.Now.AddSeconds(10);
 
                 item.ActivateShip();
                 return StorylineState.Arm;
             }
-            else
-            {
-                Logging.Log("MaterialsForWarPreparation", "No shuttle found, going in active ship", Logging.white);
-                return StorylineState.GotoAgent;
-            }
+
+            Logging.Log("MaterialsForWarPreparation", "No shuttle found, going in active ship", Logging.White);
+            return StorylineState.GotoAgent;
         }
 
         /// <summary>
@@ -76,7 +73,7 @@ namespace Questor.Storylines
 
             if (Cache.Instance.ItemHangar.Window == null)
             {
-                Logging.Log("MaterialsForWar", "PreacceptMission: ItemHangar is nul!", Logging.orange);
+                Logging.Log("MaterialsForWar", "PreacceptMission: ItemHangar is nul!", Logging.Orange);
                 if (!Cache.Instance.OpenItemsHangar("MaterialsForWarPreperation")) return StorylineState.PreAcceptMission;
                 return StorylineState.PreAcceptMission;
             }
@@ -90,7 +87,7 @@ namespace Questor.Storylines
             {
                 DirectItem thisOreInhangar = Cache.Instance.ItemHangar.Items.FirstOrDefault(i => i.TypeId == oreid);
                 if (thisOreInhangar != null)
-                    Logging.Log("MaterialsForWarPreparation", "We have [" + Cache.Instance.ItemHangar.Items.Where(i => i.TypeId == oreid).Sum(i => i.Quantity).ToString(CultureInfo.InvariantCulture) + "] " + thisOreInhangar.TypeName + " accepting mission", Logging.white);
+                    Logging.Log("MaterialsForWarPreparation", "We have [" + Cache.Instance.ItemHangar.Items.Where(i => i.TypeId == oreid).Sum(i => i.Quantity).ToString(CultureInfo.InvariantCulture) + "] " + thisOreInhangar.TypeName + " accepting mission", Logging.White);
 
                 // Close the market window if there is one
                 if (marketWindow != null)
@@ -104,7 +101,7 @@ namespace Questor.Storylines
             {
                 _nextAction = DateTime.Now.AddSeconds(10);
 
-                Logging.Log("MaterialsForWarPreparation", "Opening market window", Logging.white);
+                Logging.Log("MaterialsForWarPreparation", "Opening market window", Logging.White);
 
                 directEve.ExecuteCommand(DirectCmd.OpenMarket);
                 return StorylineState.PreAcceptMission;
@@ -120,7 +117,7 @@ namespace Questor.Storylines
                 // No, load the ore orders
                 marketWindow.LoadTypeId(oreid);
 
-                Logging.Log("MaterialsForWarPreparation", "Loading market window", Logging.white);
+                Logging.Log("MaterialsForWarPreparation", "Loading market window", Logging.White);
 
                 _nextAction = DateTime.Now.AddSeconds(5);
                 return StorylineState.PreAcceptMission;
@@ -134,7 +131,7 @@ namespace Questor.Storylines
             IEnumerable<DirectOrder> orders = marketWindow.SellOrders.Where(o => o.StationId == directEve.Session.StationId && o.Price < maxPrice).ToList();
             if (!orders.Any() || orders.Sum(o => o.VolumeRemaining) < orequantity)
             {
-                Logging.Log("MaterialsForWarPreparation", "Not enough (reasonably priced) ore available! Blacklisting agent for this Questor session!", Logging.orange);
+                Logging.Log("MaterialsForWarPreparation", "Not enough (reasonably priced) ore available! Blacklisting agent for this Questor session!", Logging.Orange);
 
                 // Close the market window
                 marketWindow.Close();
@@ -155,7 +152,7 @@ namespace Questor.Storylines
                     int remaining = Math.Min(neededQuantity, order.VolumeRemaining);
                     order.Buy(remaining, DirectOrderRange.Station);
 
-                    Logging.Log("MaterialsForWarPreparation", "Buying [" + remaining + "] ore", Logging.white);
+                    Logging.Log("MaterialsForWarPreparation", "Buying [" + remaining + "] ore", Logging.White);
 
                     // Wait for the order to go through
                     _nextAction = DateTime.Now.AddSeconds(10);
@@ -171,8 +168,6 @@ namespace Questor.Storylines
         public StorylineState PostAcceptMission(Storyline storyline)
         {
             // Close the market window (if its open)
-            DirectEve directEve = Cache.Instance.DirectEve;
-
             return StorylineState.CompleteMission;
         }
 

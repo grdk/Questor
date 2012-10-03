@@ -24,7 +24,7 @@ namespace Questor.Modules.Actions
                     break;
                 case ScanInteractionState.Done:
 
-                    Logging.Log("ScanInteraction", "Closing Scan Window", Logging.white);
+                    Logging.Log("ScanInteraction", "Closing Scan Window", Logging.White);
                     if (scannerWindow != null) scannerWindow.Close();
 
                     _States.CurrentScanInteractionState = ScanInteractionState.Idle;
@@ -34,7 +34,7 @@ namespace Questor.Modules.Actions
 
                     if (scannerWindow == null)
                     {
-                        Logging.Log("ScanInteraction", "Open Scan Window", Logging.white);
+                        Logging.Log("ScanInteraction", "Open Scan Window", Logging.White);
 
                         Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenScanner);
                         break;

@@ -22,6 +22,8 @@ namespace Questor.Modules.Lookup
         // Note: This includes microwarpdrives as well!
         Afterburner = 46,
 
+        CapacitorInjector = 76,
+        AncillaryShieldBooster = 1156,
         ShieldBoosters = 40,
         ShieldHardeners = 77,
         ArmorRepairer = 62,

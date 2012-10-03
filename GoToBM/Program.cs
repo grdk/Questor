@@ -19,22 +19,22 @@ namespace GoToBM
         private static Defense _defense;
         private static DirectBookmark _bookmark;
         private static DateTime _lastPulse;
-        private static bool _done = false;
-        private static string _BM;
-        private static bool _started = false;
+        private static bool _done;
+        private static string _bm;
+        private static bool _started;
 
         [STAThread]
         private static void Main(string[] args)
         {
-            Logging.Log("GoToBM", "Started", Logging.white);
+            Logging.Log("GoToBM", "Started", Logging.White);
             if (args.Length == 0 || args[0].Length < 1)
             {
-                Logging.Log("GoToBM", " You need to supply a bookmark name", Logging.white);
-                Logging.Log("GoToBM", " Ended", Logging.white);
+                Logging.Log("GoToBM", " You need to supply a bookmark name", Logging.White);
+                Logging.Log("GoToBM", " Ended", Logging.White);
                 return;
             }
-            _BM = args[0];
-            _BM = _BM.ToLower();
+            _bm = args[0];
+            _bm = _bm.ToLower();
 
             _directEve = new DirectEve();
             Cache.Instance.DirectEve = _directEve;
@@ -49,7 +49,7 @@ namespace GoToBM
             }
 
             _directEve.Dispose();
-            Logging.Log("GoToBM", " Exiting", Logging.white);
+            Logging.Log("GoToBM", " Exiting", Logging.White);
             return;
         }
 
@@ -108,25 +108,25 @@ namespace GoToBM
                 _started = true;
                 if (!Cache.Instance.DirectEve.Session.IsReady)
                 {
-                    Logging.Log("GoToBM", " Not in game, exiting", Logging.white);
+                    Logging.Log("GoToBM", " Not in game, exiting", Logging.White);
                     return;
                 }
-                Logging.Log("GoToBM", ": Attempting to find bookmark [" + _BM + "]", Logging.white);
+                Logging.Log("GoToBM", ": Attempting to find bookmark [" + _bm + "]", Logging.White);
                 foreach (var bookmark in Cache.Instance.DirectEve.Bookmarks)
                 {
-                    if (bookmark.Title.ToLower().Equals(_BM))
+                    if (bookmark.Title.ToLower().Equals(_bm))
                     {
                         _bookmark = bookmark;
                         break;
                     }
-                    if (_bookmark == null && bookmark.Title.ToLower().Contains(_BM))
+                    if (_bookmark == null && bookmark.Title.ToLower().Contains(_bm))
                     {
                         _bookmark = bookmark;
                     }
                 }
                 if (_bookmark == null)
                 {
-                    Logging.Log("GoToBM", ": Bookmark not found", Logging.white);
+                    Logging.Log("GoToBM", ": Bookmark not found", Logging.White);
                     _done = true;
                     return;
                 }
@@ -136,11 +136,11 @@ namespace GoToBM
             if (_States.CurrentTravelerState == TravelerState.AtDestination)
             {
                 _done = true;
-                Logging.Log("GoToBM", " At destination", Logging.white);
+                Logging.Log("GoToBM", " At destination", Logging.White);
             }
             else if (_States.CurrentTravelerState == TravelerState.Error)
             {
-                Logging.Log("GoToBM", " Traveler error", Logging.white);
+                Logging.Log("GoToBM", " Traveler error", Logging.White);
                 _done = true;
             }
         }

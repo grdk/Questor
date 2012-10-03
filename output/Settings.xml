@@ -229,6 +229,8 @@
   <!--                                                                                                                                                   -->
   <!--      Logging Options: All logs are in ./.Net Programs/Logs/<CharacterName>/<optionalsubdirectory> -->
   <!--                                                                                                                                                   -->
+  <!-- console logs older than this many days will be removed, it is recommended that you leave this setting as is -->
+  <consoleLogDaysOfLogsToKeep>14</consoleLogDaysOfLogsToKeep>
   <!-- Enable or Disable the SessionsLog that tracks Logins / Logoffs and overall session stats for questor -->
   <SessionsLog>true</SessionsLog><!-- default is: true -->
   <!-- Enable or Disable the DroneStatsLog that tracks drone losses -->
@@ -286,6 +288,44 @@
   <!-- Maximum number of targets per value -->
   <maximumHighValueTargets>4</maximumHighValueTargets><!-- default is 4 -->
   <maximumLowValueTargets>3</maximumLowValueTargets><!-- default is 3 -->
+
+  <!--                                                -->
+  <!--      SCRIPT SETTINGS         -->
+  <!--                                                -->
+
+  <!--                                                                                       -->
+  <!-- Script Settings - TypeIDs for the scripts you would like to use in these modules      -->
+  <!--                                                                                       -->
+  <!-- 29007 Tracking Speed Disruption Script // tracking disruptor                          -->
+  <!-- 29005 Optimal Range Disruption Script  // tracking disruptor                          -->
+  <!-- 29011 Scan Resolution Script           // sensor booster                              -->
+  <!-- 29009 Targeting Range Script           // sensor booster                              -->
+  <!-- 29015 Targeting Range Dampening Script // sensor dampner                              -->
+  <!-- 29013 Scan Resolution Dampening Script // sensor dampner                              -->
+  <!-- 29001 Tracking Speed Script            // tracking enhancer and tracking computer     -->
+  <!-- 28999 Optimal Range Script             // tracking enhancer and tracking computer     -->
+
+  <!-- 3554  Cap Booster 100 -->
+  <!-- 11283 Cap Booster 150 -->
+  <!-- 11285 Cap Booster 200 -->
+  <!-- 263   Cap Booster 25 -->
+  <!-- 11287 Cap Booster 400 -->
+  <!-- 264   Cap Booster 50 -->
+  <!-- 3552  Cap Booster 75 -->
+  <!-- 11289 Cap Booster 800 -->
+  <!-- 31982 Navy Cap Booster 100 -->
+  <!-- 31990 Navy Cap Booster 150 -->
+  <!-- 31998 Navy Cap Booster 200 -->
+  <!-- 32006 Navy Cap Booster 400 -->
+  <!-- 32014 Navy Cap Booster 800 -->
+				   
+  <trackingDisruptorScript>29007</trackingDisruptorScript>
+  <trackingComputerScript>29001</trackingComputerScript>
+  <trackingLinkScript>29001</trackingLinkScript>
+  <sensorBoosterScript>29009</sensorBoosterScript>
+  <sensorDampenerScript>29015</sensorDampenerScript>
+  <ancillaryShieldBoosterScript>11289</ancillaryShieldBoosterScript>
+  <capacitorInjectorScript>11289</capacitorInjectorScript>
 
   <!--                                                -->
   <!--      MOVEMENT SETTINGS    -->

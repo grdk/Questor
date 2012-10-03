@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 using System.Globalization;
 
@@ -9,7 +7,7 @@ namespace Valuedump
 {
     public class InvTypeMarket
     {
-        public static List<string> Minerals = new List<string>() { "Morphite", "Megacyte", "Zydrine", "Nocxium", "Isogen", "Mexallon", "Pyerite", "Tritanium" };
+        public static List<string> Minerals = new List<string> { "Morphite", "Megacyte", "Zydrine", "Nocxium", "Isogen", "Mexallon", "Pyerite", "Tritanium" };
         public InvTypeMarket(XElement element)
         {
             Id = (int)element.Attribute("id");

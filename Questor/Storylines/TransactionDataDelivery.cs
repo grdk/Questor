@@ -42,7 +42,7 @@ namespace Questor.Storylines
             DirectItem item = Cache.Instance.ShipHangar.Items.FirstOrDefault(i => i.Quantity == -1 && i.GroupId == 31);
             if (item != null)
             {
-                Logging.Log("TransactionDataDelivery", "Switching to shuttle", Logging.white);
+                Logging.Log("TransactionDataDelivery", "Switching to shuttle", Logging.White);
 
                 _nextAction = DateTime.Now.AddSeconds(10);
 
@@ -51,7 +51,7 @@ namespace Questor.Storylines
             }
             else
             {
-                Logging.Log("TransactionDataDelivery", "No shuttle found, going in active ship", Logging.orange);
+                Logging.Log("TransactionDataDelivery", "No shuttle found, going in active ship", Logging.Orange);
                 return StorylineState.GotoAgent;
             }
         }
@@ -112,7 +112,7 @@ namespace Questor.Storylines
             // Move items
             foreach (DirectItem item in from.Items.Where(i => i.GroupId == groupId))
             {
-                Logging.Log("TransactionDataDelivery", "Moving [" + item.TypeName + "][" + item.ItemId + "] to " + (pickup ? "cargo" : "hangar"), Logging.white);
+                Logging.Log("TransactionDataDelivery", "Moving [" + item.TypeName + "][" + item.ItemId + "] to " + (pickup ? "cargo" : "hangar"), Logging.White);
                 to.Add(item);
             }
             _nextAction = DateTime.Now.AddSeconds(10);

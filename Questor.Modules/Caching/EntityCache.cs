@@ -730,7 +730,7 @@ namespace Questor.Modules.Caching
             // If the bad idea is attacking, attack back
             if (IsBadIdea && !IsAttacking)
             {
-                Logging.Log("EntityCache", "Attempting to target a player or concord entity! [" + Name + "]", Logging.white);
+                Logging.Log("EntityCache", "Attempting to target a player or concord entity! [" + Name + "]", Logging.White);
                 return;
             }
 
@@ -742,7 +742,7 @@ namespace Questor.Modules.Caching
                 double seconds = DateTime.Now.Subtract(lastTargeted).TotalSeconds;
                 if (seconds < 20)
                 {
-                    Logging.Log("EntityCache", "LockTarget is ignored for [" + Name + "][" + Id + "], can retarget in [" + Math.Round(20 - seconds, 0) + "]", Logging.white);
+                    Logging.Log("EntityCache", "LockTarget is ignored for [" + Name + "][" + Id + "], can retarget in [" + Math.Round(20 - seconds, 0) + "]", Logging.White);
                     return;
                 }
             }

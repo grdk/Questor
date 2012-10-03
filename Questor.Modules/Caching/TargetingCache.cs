@@ -1,7 +1,5 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Questor.Modules.Caching
 {
@@ -21,34 +19,34 @@ namespace Questor.Modules.Caching
 
         public static IEnumerable<EntityCache> EntitiesWarpDisruptingMe { get; set; }
 
-        public static string EntitiesWarpDisruptingMe_text { get; set; }
+        public static string EntitiesWarpDisruptingMeText { get; set; }
 
         public static IEnumerable<EntityCache> EntitiesJammingMe { get; set; }
 
-        public static string EntitiesJammingMe_text { get; set; }
+        public static string EntitiesJammingMeText { get; set; }
 
         public static IEnumerable<EntityCache> EntitiesWebbingMe { get; set; }
 
-        public static string EntitiesWebbingMe_text { get; set; }
+        public static string EntitiesWebbingMeText { get; set; }
 
         public static IEnumerable<EntityCache> EntitiesNeutralizingMe { get; set; }
 
-        public static string EntitiesNeutralizingMe_text { get; set; }
+        public static string EntitiesNeutralizingMeText { get; set; }
 
         public static IEnumerable<EntityCache> EntitiesTrackingDisruptingMe { get; set; }
 
-        public static string EntitiesTrackingDisruptingMe_text { get; set; }
+        public static string EntitiesTrackingDisruptingMeText { get; set; }
 
         public static IEnumerable<EntityCache> EntitiesDampeningMe { get; set; }
 
-        public static string EntitiesDampeningMe_text { get; set; }
+        public static string EntitiesDampeningMeText { get; set; }
 
         public static IEnumerable<EntityCache> EntitiesTargetPatingingMe { get; set; }
 
-        public static string EntitiesTargetPaintingMe_text { get; set; }
+        public static string EntitiesTargetPaintingMeText { get; set; }
 
-        public TargetingCache()
-        {
-        }
+        //public TargetingCache()
+        //{
+        //}
     }
 }

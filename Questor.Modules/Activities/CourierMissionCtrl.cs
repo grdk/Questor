@@ -1,7 +1,6 @@
 ﻿
 namespace Questor.Modules.Activities
 {
-    using System;
     using System.Linq;
     using DirectEve;
     using global::Questor.Modules.Actions;
@@ -11,7 +10,7 @@ namespace Questor.Modules.Activities
 
     public class CourierMissionCtrl
     {
-        private DateTime _nextCourierAction;
+        //private DateTime _nextCourierAction;
         private readonly Traveler _traveler;
 
         /// <summary>
@@ -35,10 +34,10 @@ namespace Questor.Modules.Activities
             if (_States.CurrentTravelerState == TravelerState.AtDestination)
             {
                 if (destination != null)
-                    Logging.Log("CourierMissionCtrl", "Arrived at Mission Bookmark Destination [ " + destination.Title + " ]", Logging.white);
+                    Logging.Log("CourierMissionCtrl", "Arrived at Mission Bookmark Destination [ " + destination.Title + " ]", Logging.White);
                 else
                 {
-                    Logging.Log("CourierMissionCtrl", "destination is null", Logging.white); //how would this occur exactly?
+                    Logging.Log("CourierMissionCtrl", "destination is null", Logging.White); //how would this occur exactly?
                 }
                 _traveler.Destination = null;
                 return true;
@@ -57,7 +56,7 @@ namespace Questor.Modules.Activities
             if (!Cache.Instance.OpenCargoHold("CourierMissionCtrl")) return false;
 
             const string missionItem = "Encoded Data Chip";
-            Logging.Log("CourierMissionCtrl", "mission item is: " + missionItem, Logging.white);
+            Logging.Log("CourierMissionCtrl", "mission item is: " + missionItem, Logging.White);
             DirectContainer from = pickup ? Cache.Instance.ItemHangar : Cache.Instance.CargoHold;
             DirectContainer to = pickup ? Cache.Instance.CargoHold : Cache.Instance.ItemHangar;
 
@@ -71,10 +70,10 @@ namespace Questor.Modules.Activities
             // Move items
             foreach (DirectItem item in from.Items.Where(i => i.TypeName == missionItem))
             {
-                Logging.Log("CourierMissionCtrl", "Moving [" + item.TypeName + "][" + item.ItemId + "] to " + (pickup ? "cargo" : "hangar"), Logging.white);
+                Logging.Log("CourierMissionCtrl", "Moving [" + item.TypeName + "][" + item.ItemId + "] to " + (pickup ? "cargo" : "hangar"), Logging.White);
                 to.Add(item);
             }
-            _nextCourierAction = DateTime.Now.AddSeconds(8);
+            //_nextCourierAction = DateTime.Now.AddSeconds(8);
             return false;
         }
 
@@ -117,7 +116,7 @@ namespace Questor.Modules.Activities
                     break;
 
                 case CourierMissionCtrlState.Done:
-                    Logging.Log("CourierMissionCtrl", "Done", Logging.white);
+                    Logging.Log("CourierMissionCtrl", "Done", Logging.White);
                     break;
             }
         }
