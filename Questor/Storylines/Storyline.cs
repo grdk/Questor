@@ -87,14 +87,14 @@ namespace Questor.Storylines
                                {"Dissidents", new GenericCombatStoryline()},
                                {"Extract the Renegade", new GenericCombatStoryline()},
                                {"Gate to Nowhere", new GenericCombatStoryline()},
-                               ////{"Racetrack Ruckus", new GenericCombatStoryline()},
+                               {"Racetrack Ruckus", new GenericCombatStoryline()},
+                               {"Jealous Rivals", new GenericCombatStoryline()},
                                {"The Mouthy Merc", new GenericCombatStoryline()},
                                /* COMBAT - CALDARI */
                                {"Crowd Control", new GenericCombatStoryline()},
                                {"Forgotten Outpost", new GenericCombatStoryline()},
                                //{"Illegal Mining", new GenericCombatStoryline()}, // Extremely high DPS after shooting structures!
                                {"Innocents in the Crossfire", new GenericCombatStoryline()},
-                               ////{"Jealous Rivals", new GenericCombatStoryline()},
                                {"Stem the Flow", new GenericCombatStoryline()},
                                /* COMBAT - GALLENTE */
                                ////{"Kidnappers Strike - Ambush In The Dark (1 of 10)", new GenericCombatStoryline()},
