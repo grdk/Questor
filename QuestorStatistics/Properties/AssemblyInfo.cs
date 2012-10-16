@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 // Associated with an assembly.
 [assembly: AssemblyTitle("QuestorStatistics")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
+//[assembly: AssemblyConfiguration("")]
+//[assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("QuestorStatistics")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2011")]
+//[assembly: AssemblyCopyright("Copyright © Microsoft 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values ​​or set as default the build version numbers and revision
 // By the asterisk ('*'), as shown below:
 // [Assembly: AssemblyVersion ("1.0 .*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+//[assembly: AssemblyVersion("1.0.0.0")]
+//[assembly: AssemblyFileVersion("1.0.0.0")]

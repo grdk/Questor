@@ -107,7 +107,7 @@ namespace Questor.Modules.Actions
                 case ArmState.SwitchToSalvageShip:
                     if (DateTime.Now > Cache.Instance.NextArmAction) //default 10 seconds
                     {
-                        if (!Cache.Instance.OpenShipsHangar("Arm")) break;
+                        if (!Cache.Instance.ReadyShipsHangar("Arm")) break;
 
                         if (_States.CurrentArmState == ArmState.OpenShipHangar)
                         {
@@ -140,7 +140,7 @@ namespace Questor.Modules.Actions
                     }
                     if (Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() != transportshipName)
                     {
-                        if (!Cache.Instance.OpenShipsHangar("Arm")) break;
+                        if (!Cache.Instance.ReadyShipsHangar("Arm")) break;
 
                         List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
                         foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName.ToLower() == transportshipName))
@@ -178,7 +178,7 @@ namespace Questor.Modules.Actions
                         {
                             if (DateTime.Now > Cache.Instance.NextArmAction)
                             {
-                                if (!Cache.Instance.OpenShipsHangar("Arm")) break;
+                                if (!Cache.Instance.ReadyShipsHangar("Arm")) break;
 
                                 List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
                                 foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName.ToLower() == salvageshipName.ToLower()))
@@ -233,7 +233,7 @@ namespace Questor.Modules.Actions
                         {
                             if (DateTime.Now > Cache.Instance.NextArmAction)
                             {
-                                if (!Cache.Instance.OpenShipsHangar("Arm")) break;
+                                if (!Cache.Instance.ReadyShipsHangar("Arm")) break;
 
                                 List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
                                 var ship = ships.FirstOrDefault(s => s.GivenName != null && s.GivenName.ToLower() == shipName);
@@ -292,15 +292,15 @@ namespace Questor.Modules.Actions
 
                 case ArmState.OpenCargo:
                     // Is CargoBay  and AmmoHangar open?
-                    if (!Cache.Instance.OpenAmmoHangar("Arm"))
+                    if (!Cache.Instance.ReadyAmmoHangar("Arm"))
                     {
-                        Logging.Log("Arm", "Opening ammo hangar", Logging.White);
+                        if (Settings.Instance.DebugHangars) Logging.Log("Arm", "Opening ammo hangar", Logging.White);
                         break;
                     }
 
                     if (!Cache.Instance.OpenCargoHold("Arm"))
                     {
-                        Logging.Log("Arm", "Opening cargohold", Logging.White);
+                        if (Settings.Instance.DebugHangars) Logging.Log("Arm", "Opening cargohold", Logging.White);
                         break;
                     }
 
@@ -419,12 +419,12 @@ namespace Questor.Modules.Actions
                         {
                             if (UseMissionShip)
                             {
-                                Logging.Log("Arm", "Couldn't find fitting for this ship typeid.  Using current fitting.", Logging.Orange);
+                                Logging.Log("Arm", "Could not find fitting for this ship typeid.  Using current fitting.", Logging.Orange);
                                 _States.CurrentArmState = ArmState.MoveItems;
                                 break;
                             }
                             
-                            Logging.Log("Arm", "Couldn't find fitting - switching to default", Logging.Orange);
+                            Logging.Log("Arm", "Could not find fitting - switching to default", Logging.Orange);
                             Cache.Instance.Fitting = Cache.Instance.DefaultFitting;
                             break;
                         }
@@ -449,13 +449,13 @@ namespace Questor.Modules.Actions
                     break;
 
                 case ArmState.MoveDrones:
-                    if (!Cache.Instance.OpenShipsHangar("Arm")) break;
+                    if (!Cache.Instance.ReadyShipsHangar("Arm")) break;
 
-                    if (!Cache.Instance.OpenDroneBay("Arm")) break;
+                    if (!Cache.Instance.ReadyDroneBay("Arm")) break;
 
-                    if (!Cache.Instance.OpenAmmoHangar("Arm")) break;
+                    if (!Cache.Instance.ReadyAmmoHangar("Arm")) break;
 
-                    DirectItem drone = Cache.Instance.AmmoHangar.Items.FirstOrDefault(i => i.TypeId == Settings.Instance.DroneTypeId);
+                    DirectItem drone = Cache.Instance.AmmoHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).FirstOrDefault(i => i.TypeId == Settings.Instance.DroneTypeId);
                     if (drone == null || drone.Stacksize < 1)
                     {
                         string ammoHangarName = string.IsNullOrEmpty(Settings.Instance.AmmoHangar) ? "ItemHangar" : Settings.Instance.AmmoHangar.ToString(CultureInfo.InvariantCulture);
@@ -463,9 +463,17 @@ namespace Questor.Modules.Actions
                         _States.CurrentArmState = ArmState.NotEnoughDrones;
                         break;
                     }
-
-                    if (!Cache.Instance.RepairDrones("Repair Drones Function")) break; //attempt to use repair facilities if avail in station    
-
+                    
+                    if (Settings.Instance.UseStationRepair && Cache.Instance.RepairAll)
+                    {
+                        if (!Cache.Instance.RepairItems("Repair All")) break; //attempt to use repair facilities if avail in station
+                        Cache.Instance.RepairAll = false;
+                    }
+                    else
+                    {
+                        if (!Cache.Instance.RepairDrones("Repair Drones")) break; //attempt to use repair facilities if avail in station        
+                    }
+                    
                     double neededDrones = Math.Floor((Cache.Instance.DroneBay.Capacity - Cache.Instance.DroneBay.UsedCapacity) / drone.Volume);
                     Logging.Log("Arm", "neededDrones: " + neededDrones, Logging.White);
                     if ((int)neededDrones == 0 && ((Settings.Instance.UseFittingManager && DefaultFittingFound) && !(UseMissionShip && !(Cache.Instance.ChangeMissionShipFittings)) && _States.CurrentQuestorState == QuestorState.CombatMissionsBehavior))
@@ -489,7 +497,7 @@ namespace Questor.Modules.Actions
                 case ArmState.MoveItems:
                     if (!Cache.Instance.OpenCargoHold("Arm")) break;
 
-                    if (!Cache.Instance.OpenAmmoHangar("Arm")) break;
+                    if (!Cache.Instance.ReadyAmmoHangar("Arm")) break;
 
                     string bringItem = Cache.Instance.BringMissionItem;
                     if (string.IsNullOrEmpty(bringItem))
@@ -501,7 +509,7 @@ namespace Questor.Modules.Actions
 
                     if (!_missionItemMoved)
                     {
-                        if (!Cache.Instance.OpenAmmoHangar("Arm")) break;
+                        if (!Cache.Instance.ReadyAmmoHangar("Arm")) break;
                         DirectItem missionItem = Cache.Instance.AmmoHangar.Items.FirstOrDefault(i => (i.TypeName ?? string.Empty).ToLower() == bringItem) ??
                                                  Cache.Instance.AmmoHangar.Items.FirstOrDefault(i => (i.TypeName ?? string.Empty).ToLower() == bringItem);
 
@@ -517,7 +525,7 @@ namespace Questor.Modules.Actions
 
                     if (!_optionalMissionItemMoved)
                     {
-                        if (!Cache.Instance.OpenAmmoHangar("Arm")) break;
+                        if (!Cache.Instance.ReadyAmmoHangar("Arm")) break;
                         DirectItem optionalmissionItem = Cache.Instance.AmmoHangar.Items.FirstOrDefault(i => (i.TypeName ?? string.Empty).ToLower() == bringOptionalItem) ??
                                                  Cache.Instance.AmmoHangar.Items.FirstOrDefault(i => (i.TypeName ?? string.Empty).ToLower() == bringOptionalItem);
 
@@ -553,7 +561,7 @@ namespace Questor.Modules.Actions
                         moveAmmoQuantity = Math.Max(moveAmmoQuantity, 1);
                         Cache.Instance.CargoHold.Add(item, moveAmmoQuantity);
 
-                        Logging.Log("Arm", "Moving [" + moveAmmoQuantity + "] units of Ammo  [" + item.TypeName + "] from [" + Cache.Instance.AmmoHangar.Window.Name + "] to CargoHold", Logging.White);
+                        Logging.Log("Arm", "Moving [" + moveAmmoQuantity + "] units of Ammo  [" + item.TypeName + "] from [ AmmoHangar ] to CargoHold", Logging.White);
 
                         ammo.Quantity -= moveAmmoQuantity;
                         if (ammo.Quantity <= 0)
@@ -601,7 +609,7 @@ namespace Questor.Modules.Actions
                     {
                         // Close the drone bay, its not required in space.
                         //if (Cache.Instance.DroneBay.IsReady) //why is not .isready and .isvalid working at the moment? 4/2012
-                        Cache.Instance.DroneBay.Window.Close();
+                        Cache.Instance.CloseDroneBay("Arm");
                     }
 
                     if (Cache.Instance.DirectEve.GetLockedItems().Count == 0)

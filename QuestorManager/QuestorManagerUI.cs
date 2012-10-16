@@ -118,7 +118,7 @@ namespace QuestorManager
                     List.Add(_item);
                 }
 
-            RefreshJobs();
+            RefreshAvailableXMLJobs();
             _directEve.OnFrame += OnFrame;
 
             //if (Settings.Instance.UseInnerspace)
@@ -183,7 +183,7 @@ namespace QuestorManager
             Cache.Instance.InvalidateCache();
 
             // Update settings (settings only load if character name changed)
-            if (!Settings.Instance.Defaultsettingsloaded)
+            if (!Settings.Instance.DefaultSettingsLoaded)
             {
                 Settings.Instance.LoadSettings();
             }
@@ -194,12 +194,12 @@ namespace QuestorManager
                 Cache.Instance.DirectEve.Rendering3D != !Settings.Instance.Disable3D)
                 Cache.Instance.DirectEve.Rendering3D = !Settings.Instance.Disable3D;
 
-            if (DateTime.Now.Subtract(Cache.Instance.LastupdateofSessionRunningTime).TotalSeconds <
+            if (DateTime.Now.Subtract(Cache.Instance.LastUpdateOfSessionRunningTime).TotalSeconds <
                 Time.Instance.SessionRunningTimeUpdate_seconds)
             {
                 Cache.Instance.SessionRunningTime =
                     (int)DateTime.Now.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalMinutes;
-                Cache.Instance.LastupdateofSessionRunningTime = DateTime.Now;
+                Cache.Instance.LastUpdateOfSessionRunningTime = DateTime.Now;
             }
 
             // We always check our defense state if we're in space, regardless of questor state
@@ -420,12 +420,10 @@ namespace QuestorManager
 
                 case QuestormanagerState.MakeShip:
 
-                    if (!Cache.Instance.OpenShipsHangar("QuestorManager")) break;
+                    if (!Cache.Instance.ReadyShipsHangar("QuestorManager")) break;
 
                     if (DateTime.Now > _lastAction)
                     {
-                        if (!Cache.Instance.OpenShipsHangar("Arm")) break;
-
                         List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
                         foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName == txtNameShip.Text))
                         {
@@ -1002,10 +1000,10 @@ namespace QuestorManager
             XDocument fileXml = new XDocument(xml);
             fileXml.Save(fic);
 
-            RefreshJobs();
+            RefreshAvailableXMLJobs();
         }
 
-        private void RefreshJobs()
+        private void RefreshAvailableXMLJobs()
         {
             cmbXML.Items.Clear();
 

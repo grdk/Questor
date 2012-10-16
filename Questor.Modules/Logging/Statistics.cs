@@ -213,8 +213,8 @@ namespace Questor.Modules.Logging
                 {
                     if (Cache.Instance.InvTypesById.ContainsKey(Settings.Instance.DroneTypeId))
                     {
-                        if (!Cache.Instance.OpenDroneBay("Statistics: WriteDroneStatsLog")) return false;
-                        if (Cache.Instance.DroneBay.Window == null) return true; //if the drone window does not exist, assume we cant log any drone stats
+                        if (!Cache.Instance.ReadyDroneBay("Statistics: WriteDroneStatsLog")) return false;
+                        if (!Cache.Instance.DroneBay.IsValid) return true; //if the dronebay does not exist, assume we cant log any drone stats
 
                         InvType drone = Cache.Instance.InvTypesById[Settings.Instance.DroneTypeId];
                         Statistics.Instance.LostDrones = (int)Math.Floor((Cache.Instance.DroneBay.Capacity - Cache.Instance.DroneBay.UsedCapacity) / drone.Volume);
@@ -485,6 +485,8 @@ namespace Questor.Modules.Logging
                 Cache.Instance.SessionLPGenerated = (Cache.Instance.SessionLPGenerated + (Cache.Instance.Agent.LoyaltyPoints - Statistics.Instance.LoyaltyPoints));
                 Logging.Log("Statistics", "Printing All Statistics Related Variables to the console log:", Logging.White);
                 Logging.Log("Statistics", "Mission Name: [" + Cache.Instance.MissionName + "]", Logging.White);
+                Logging.Log("Statistics", "Faction: [" + Cache.Instance.FactionName + "]", Logging.White);
+                Logging.Log("Statistics", "System: [" + Cache.Instance.MissionSolarSystem.ToString() + "]", Logging.White);
                 Logging.Log("Statistics", "Total Missions completed this session: [" + Statistics.Instance.MissionsThisSession + "]", Logging.White);
                 Logging.Log("Statistics", "StartedMission: [ " + Statistics.Instance.StartedMission + "]", Logging.White);
                 Logging.Log("Statistics", "FinishedMission: [ " + Statistics.Instance.FinishedMission + "]", Logging.White);
@@ -575,7 +577,7 @@ namespace Questor.Modules.Logging
 
                     // Write the header
                     if (!File.Exists(Settings.Instance.MissionStats3LogFile))
-                        File.AppendAllText(Settings.Instance.MissionStats3LogFile, "Date;Mission;Time;Isk;Loot;LP;DroneRecalls;LostDrones;AmmoConsumption;AmmoValue;Panics;LowestShield;LowestArmor;LowestCap;RepairCycles;AfterMissionsalvageTime;TotalMissionTime;MissionXMLAvailable;\r\n");
+                        File.AppendAllText(Settings.Instance.MissionStats3LogFile, "Date;Mission;Time;Isk;Loot;LP;DroneRecalls;LostDrones;AmmoConsumption;AmmoValue;Panics;LowestShield;LowestArmor;LowestCap;RepairCycles;AfterMissionsalvageTime;TotalMissionTime;MissionXMLAvailable;Faction;SolarSystem;DungeonID;\r\n");
 
                     // Build the line
                     string line3 = DateTime.Now + ";";                                                                                           // Date
@@ -584,23 +586,48 @@ namespace Questor.Modules.Logging
                     line3 += ((long)(Cache.Instance.DirectEve.Me.Wealth - Cache.Instance.Wealth)) + ";";                                         // Isk
                     line3 += ((long)Statistics.Instance.LootValue) + ";";                                                                        // Loot
                     line3 += ((long)Cache.Instance.Agent.LoyaltyPoints - Statistics.Instance.LoyaltyPoints) + ";";                               // LP
-                    line3 += Statistics.Instance.DroneRecalls + ";";                                                                        // Lost Drones
-                    line3 += Statistics.Instance.LostDrones + ";";                                                                        // Lost Drones
-                    line3 += Statistics.Instance.AmmoConsumption + ";";                                                                   // Ammo Consumption
-                    line3 += Statistics.Instance.AmmoValue + ";";                                                                         // Ammo Value
-                    line3 += Cache.Instance.PanicAttemptsThisMission + ";";                                                               // Panics
+                    line3 += Statistics.Instance.DroneRecalls + ";";                                                                             // Lost Drones
+                    line3 += Statistics.Instance.LostDrones + ";";                                                                               // Lost Drones
+                    line3 += Statistics.Instance.AmmoConsumption + ";";                                                                          // Ammo Consumption
+                    line3 += Statistics.Instance.AmmoValue + ";";                                                                                // Ammo Value
+                    line3 += Cache.Instance.PanicAttemptsThisMission + ";";                                                                      // Panics
                     line3 += ((int)Cache.Instance.LowestShieldPercentageThisMission) + ";";                                                      // Lowest Shield %
                     line3 += ((int)Cache.Instance.LowestArmorPercentageThisMission) + ";";                                                       // Lowest Armor %
                     line3 += ((int)Cache.Instance.LowestCapacitorPercentageThisMission) + ";";                                                   // Lowest Capacitor %
-                    line3 += Cache.Instance.RepairCycleTimeThisMission + ";";                                                             // repair Cycle Time
+                    line3 += Cache.Instance.RepairCycleTimeThisMission + ";";                                                                    // repair Cycle Time
                     line3 += ((int)Statistics.Instance.FinishedSalvaging.Subtract(Statistics.Instance.StartedSalvaging).TotalMinutes) + ";";     // After Mission Salvaging Time
                     line3 += ((int)Statistics.Instance.FinishedSalvaging.Subtract(Statistics.Instance.StartedSalvaging).TotalMinutes) + ((int)Statistics.Instance.FinishedMission.Subtract(Statistics.Instance.StartedMission).TotalMinutes) + ";"; // Total Time, Mission + After Mission Salvaging (if any)
                     line3 += Cache.Instance.MissionXMLIsAvailable.ToString(CultureInfo.InvariantCulture) + ";";
+                    line3 += Cache.Instance.FactionName + ";";                                                                                   // FactionName that the mission is against
+                    line3 += Cache.Instance.MissionSolarSystem + ";";                                                                            // SolarSystem the mission was located in
+                    line3 += Cache.Instance.DungeonId + ";";                                                                            // DungeonID - the unique identifier for this mission 
                     line3 += "\r\n";
 
                     // The mission is finished
                     Logging.Log("Statistics", "writing mission log3 to  [ " + Settings.Instance.MissionStats3LogFile + " ]", Logging.White);
                     File.AppendAllText(Settings.Instance.MissionStats3LogFile, line3);
+                    //Logging.Log("Date;Mission;Time;Isk;Loot;LP;LostDrones;AmmoConsumption;AmmoValue;Panics;LowestShield;LowestArmor;LowestCap;RepairCycles;AfterMissionsalvageTime;TotalMissionTime;");
+                    //Logging.Log(line3);
+                }
+                if (Settings.Instance.MissionDungeonIdLog)
+                {
+                    if (!Directory.Exists(Settings.Instance.MissionDungeonIdLogPath))
+                        Directory.CreateDirectory(Settings.Instance.MissionDungeonIdLogPath);
+
+                    // Write the header
+                    if (!File.Exists(Settings.Instance.MissionDungeonIdLogFile))
+                        File.AppendAllText(Settings.Instance.MissionDungeonIdLogFile, "Mission;Faction;DungeonID;\r\n");
+
+                    // Build the line
+                    string line4 = DateTime.Now + ";";              // Date
+                    line4 += Cache.Instance.MissionName + ";";      // Mission
+                    line4 += Cache.Instance.FactionName + ";";      // FactionName that the mission is against
+                    line4 += Cache.Instance.DungeonId + ";";        // DungeonID - the unique identifier for this mission (parsed from the mission HTML)
+                    line4 += "\r\n";
+
+                    // The mission is finished
+                    Logging.Log("Statistics", "writing mission dungeonID log to  [ " + Settings.Instance.MissionDungeonIdLogFile + " ]", Logging.White);
+                    File.AppendAllText(Settings.Instance.MissionDungeonIdLogFile, line4);
                     //Logging.Log("Date;Mission;Time;Isk;Loot;LP;LostDrones;AmmoConsumption;AmmoValue;Panics;LowestShield;LowestArmor;LowestCap;RepairCycles;AfterMissionsalvageTime;TotalMissionTime;");
                     //Logging.Log(line3);
                 }
@@ -631,6 +658,8 @@ namespace Questor.Modules.Logging
                 Cache.Instance.TimeSpentInMission_seconds = 0;             // from landing on grid (loading mission actions) to going to base (changing to gotobase state)
                 Cache.Instance.TimeSpentInMissionInRange = 0;              // time spent totally out of range, no targets
                 Cache.Instance.TimeSpentInMissionOutOfRange = 0;           // time spent in range - with targets to kill (or no targets?!)
+                Cache.Instance.MissionSolarSystem = null;
+                Cache.Instance.DungeonId = "n/a";
             }
         }
 

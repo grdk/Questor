@@ -770,6 +770,7 @@ namespace Questor.Modules.Caching
             if (_directEntity != null && DateTime.Now > Cache.Instance.NextActivateAction)
             {
                 _directEntity.Activate();
+                Cache.Instance.LastInWarp = DateTime.Now;
                 Cache.Instance.NextActivateAction = DateTime.Now.AddSeconds(15);
             }
         }
@@ -812,6 +813,7 @@ namespace Questor.Modules.Caching
         {
             if (_directEntity != null && DateTime.Now > Cache.Instance.NextWarpTo)
             {
+                Cache.Instance.LastInWarp = DateTime.Now;
                 Cache.Instance.NextWarpTo = DateTime.Now.AddSeconds(Time.Instance.WarptoDelay_seconds);
                 _directEntity.WarpTo();
             }
@@ -830,6 +832,7 @@ namespace Questor.Modules.Caching
         {
             if (_directEntity != null && DateTime.Now > Cache.Instance.NextWarpTo && DateTime.Now > Cache.Instance.NextDockAction)
             {
+                Cache.Instance.LastInWarp = DateTime.Now;
                 Cache.Instance.NextWarpTo = DateTime.Now.AddSeconds(Time.Instance.WarptoDelay_seconds);
                 Cache.Instance.NextDockAction = DateTime.Now.AddSeconds(Time.Instance.DockingDelay_seconds);
                 _directEntity.WarpToAndDock();

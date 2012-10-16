@@ -41,11 +41,11 @@ namespace Questor.Behaviors
         private readonly Stopwatch _watch;
         private DateTime _nextBookmarkRefreshCheck = DateTime.Now;
 
-        public bool Panicstatereset = false;
+        public bool PanicStateReset = false;
 
         private bool ValidSettings { get; set; }
 
-        public bool CloseQuestorflag = true;
+        public bool CloseQuestorFlag = true;
 
         public string CharacterName { get; set; }
 
@@ -225,10 +225,10 @@ namespace Questor.Behaviors
             if (_States.CurrentPanicState == PanicState.Panic || _States.CurrentPanicState == PanicState.Panicking)
             {
                 DebugDedicatedBookmarkSalvagerBehaviorStates();
-                if (Panicstatereset)
+                if (PanicStateReset)
                 {
                     _States.CurrentPanicState = PanicState.Normal;
-                    Panicstatereset = false;
+                    PanicStateReset = false;
                 }
             }
             else if (_States.CurrentPanicState == PanicState.Resume)
@@ -484,7 +484,6 @@ namespace Questor.Behaviors
                     }
                     if (_States.CurrentArmState == ArmState.Done || Cache.Instance.InSpace)
                     {
-
                         _States.CurrentArmState = ArmState.Idle;
                         DirectBookmark bookmark = Cache.Instance.AfterMissionSalvageBookmarks.OrderBy(b => b.CreatedOn).FirstOrDefault();
                         if (bookmark == null)
@@ -495,9 +494,9 @@ namespace Questor.Behaviors
                         }
                         Logging.Log("DedicatedBookmarkSalvagerBehavior.Salvager", "Salvaging at first oldest bookmarks created on: " + bookmark.CreatedOn.ToString(), Logging.White);
 
-                        var bookmarksinlocal = new List<DirectBookmark>(Cache.Instance.AfterMissionSalvageBookmarks.Where(b => b.LocationId == Cache.Instance.DirectEve.Session.SolarSystemId).
+                        var bookmarksInLocal = new List<DirectBookmark>(Cache.Instance.AfterMissionSalvageBookmarks.Where(b => b.LocationId == Cache.Instance.DirectEve.Session.SolarSystemId).
                                                                                OrderBy(b => b.CreatedOn));
-                        DirectBookmark localBookmark = bookmarksinlocal.FirstOrDefault();
+                        DirectBookmark localBookmark = bookmarksInLocal.FirstOrDefault();
                         if (localBookmark != null)
                         {
                             _traveler.Destination = new BookmarkDestination(localBookmark);
@@ -551,9 +550,9 @@ namespace Questor.Behaviors
                     Cache.Instance.SalvageAll = true;
                     Cache.Instance.OpenWrecks = true;
 
-                    const int distancetoccheck = (int)Distance.OnGridWithMe;
-                    // is there any NPCs within distancetoconsidertargets?
-                    EntityCache deadlyNPC = Cache.Instance.Entities.Where(t => t.Distance < distancetoccheck && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeCollidableStructure).OrderBy(t => t.Distance).FirstOrDefault();
+                    const int distanceToCheck = (int)Distance.OnGridWithMe;
+                    // is there any NPCs within distanceToCheck?
+                    EntityCache deadlyNPC = Cache.Instance.Entities.Where(t => t.Distance < distanceToCheck && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeCollidableStructure).OrderBy(t => t.Distance).FirstOrDefault();
 
                     if (deadlyNPC != null)
                     {
@@ -576,7 +575,7 @@ namespace Questor.Behaviors
                     
                     if (!Cache.Instance.OpenCargoHold("DedicatedBookmarkSalvageBehavior: Salvage")) break;
 
-                    if (Settings.Instance.UnloadLootAtStation && Cache.Instance.CargoHold.Window.IsReady && (Cache.Instance.CargoHold.Capacity - Cache.Instance.CargoHold.UsedCapacity) < Settings.Instance.ReserveCargoCapacity)
+                    if (Cache.Instance.CargoHold.IsValid && (Cache.Instance.CargoHold.Capacity - Cache.Instance.CargoHold.UsedCapacity) < Settings.Instance.ReserveCargoCapacity)
                     {
                         Logging.Log("DedicatedBookmarkSalvageBehavior.Salvage", "We are full, go to base to unload", Logging.White);
                         _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.GotoBase;
@@ -588,6 +587,16 @@ namespace Questor.Behaviors
                         Cache.Instance.DeleteBookmarksOnGrid("DedicatedBookmarkSalvageBehavior");
                         return;
                     }
+                    else
+                    {
+                        if (DateTime.Now > Cache.Instance.LastInWarp.AddMinutes(20))
+                        {
+                            Logging.Log("DedicatedBookmarkSalvagerBehavior", "It has been over 20 min since we were last in warp. Assuming something went wrong: setting GoToBase", Logging.Orange);
+                            _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.GotoBase;
+                            return;
+                        }
+                    }
+
                     if (Settings.Instance.DebugSalvage) Logging.Log("DedicatedBookmarkSalvagerBehavior", "salvage: we have more wrecks to salvage", Logging.White);
                     //we __cannot ever__ approach in salvage.cs so this section _is_ needed.
                     Salvage.MoveIntoRangeOfWrecks();

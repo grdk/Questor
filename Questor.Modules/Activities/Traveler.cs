@@ -51,11 +51,10 @@ namespace Questor.Modules.Activities
         public bool SetStationDestination(long stationId)
         {
             _location = Cache.Instance.DirectEve.Navigation.GetLocation(stationId);
-            Logging.Log("Traveler", "Location = [" + Logging.Yellow + Cache.Instance.DirectEve.Navigation.GetLocationName(stationId) + Logging.Green + "]", Logging.Green);
+            if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "Location = [" + Logging.Yellow + Cache.Instance.DirectEve.Navigation.GetLocationName(stationId) + Logging.Green + "]", Logging.Green);
             if (_location.IsValid)
             {
                 _locationErrors = 0;
-                Logging.Log("Traveler", "Setting destination to [" + Logging.Yellow + _location.Name + Logging.Green + "]", Logging.Green);
                 if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "Setting destination to [" + Logging.Yellow + _location.Name + Logging.Green + "]", Logging.Teal);
                 _location.SetDestination();
                 return true;
@@ -139,15 +138,16 @@ namespace Questor.Modules.Activities
             if (Cache.Instance.DirectEve.ActiveShip.Entity == null)
                 return;
 
-            if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "Destination is set: processing...", Logging.Teal);
+            //if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "Destination is set: processing...", Logging.Teal);
                 
             // Find the first waypoint
             long waypoint = _destinationRoute.First();
-            if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "NavigateToBookmarkSystem: getting next waypoints locationname", Logging.Teal);
+            //if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "NavigateToBookmarkSystem: getting next waypoints locationname", Logging.Teal);
             _locationName = Cache.Instance.DirectEve.Navigation.GetLocationName(waypoint);
+            if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "NavigateToBookmarkSystem: Next Waypoint is: [" + _locationName +  "]", Logging.Teal);
             // Find the stargate associated with it
-            IEnumerable<EntityCache> stargates = Cache.Instance.EntitiesByName(_locationName).Where(e => e.GroupId == (int)Group.Stargate).ToList();
-            if (!stargates.Any())
+            
+            if(!Cache.Instance.Stargates.Any())
             {
                 // not found, that cant be true?!?!?!?!
                 Logging.Log("Traveler", "Error [" + Logging.Yellow + _locationName + Logging.Green + "] not found, most likely lag waiting [" + Time.Instance.TravelerNoStargatesFoundRetryDelay_seconds + "] seconds.", Logging.Red);
@@ -156,26 +156,26 @@ namespace Questor.Modules.Activities
             }
 
             // Warp to, approach or jump the stargate
-            EntityCache stargate = stargates.First();
-            if (stargate.Distance < (int)Distance.DecloakRange && !Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked)
+            EntityCache MyNextStargate = Cache.Instance.Stargates.FirstOrDefault(e => e.Name == _locationName);
+            if (MyNextStargate != null && (MyNextStargate.Distance < (int)Distance.DecloakRange && !Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked))
             {
                 Logging.Log("Traveler", "Jumping to [" + Logging.Yellow + _locationName + Logging.Green + "]", Logging.Green);
-                stargate.Jump();
+                MyNextStargate.Jump();
                 Cache.Instance.NextInSpaceorInStation = DateTime.Now;
                 _nextTravelerAction = DateTime.Now.AddSeconds(Time.Instance.TravelerJumpedGateNextCommandDelay_seconds);
                 Cache.Instance.NextActivateSupportModules = DateTime.Now.AddSeconds(Time.Instance.TravelerJumpedGateNextCommandDelay_seconds);
                 return;
             }
             
-            if (stargate.Distance < (int)Distance.WarptoDistance)
+            if (MyNextStargate != null && MyNextStargate.Distance < (int)Distance.WarptoDistance)
             {
                 if (DateTime.Now > Cache.Instance.NextApproachAction && !Cache.Instance.IsApproaching)
                 {
-                    if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "NavigateToBookmarkSystem: approaching stargate", Logging.Teal);
-                    stargate.Approach(); //you could use a negative approach distance here but ultimately that is a bad idea.. Id like to go toward the entity without approaching it so we would end up inside the docking ring (eventually)
+                    if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "NavigateToBookmarkSystem: approaching the stargate named [" + MyNextStargate.Name + "]", Logging.Teal);
+                    MyNextStargate.Approach(); //you could use a negative approach distance here but ultimately that is a bad idea.. Id like to go toward the entity without approaching it so we would end up inside the docking ring (eventually)
                     return;
                 }
-                if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "NavigateToBookmarkSystem: we are already approaching the stargate", Logging.Teal);
+                if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "NavigateToBookmarkSystem: we are already approaching the stargate named [" + MyNextStargate.Name + "]", Logging.Teal);
                 return;
             }
             
@@ -185,8 +185,8 @@ namespace Questor.Modules.Activities
                 {
                     Logging.Log("Traveler",
                                 "Warping to [" + Logging.Yellow + _locationName + Logging.Green + "][" + Logging.Yellow + 
-                                Math.Round((stargate.Distance / 1000) / 149598000, 2) + Logging.Green + " AU away]", Logging.Green);
-                    stargate.WarpTo();
+                                Math.Round((MyNextStargate.Distance / 1000) / 149598000, 2) + Logging.Green + " AU away]", Logging.Green);
+                    MyNextStargate.WarpTo();
                     return;
                 }
                 return;

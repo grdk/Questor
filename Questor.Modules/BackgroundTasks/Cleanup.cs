@@ -387,9 +387,10 @@ namespace Questor.Modules.BackgroundTasks
                 }
                 //
                 // add ship hangar, items hangar, corp hangar, etc... as at least come of those may be open in space (pos?) or may someday be bugged by ccp.
+                // add repairship, lpstore, marketwindow, etc
                 //
             }
-            Cache.Instance.NextArmAction = DateTime.Now.AddSeconds(4);
+            Cache.Instance.NextArmAction = DateTime.Now.AddSeconds(2);
             return true;
         }
 
@@ -512,17 +513,27 @@ namespace Questor.Modules.BackgroundTasks
                     //
                     // go through *every* window
                     //
-                    if (!Cache.Instance.InSpace && !Cache.Instance.InStation)
+                    if (!Cache.Instance.InSpace && !Cache.Instance.InStation && Settings.Instance.CharacterName != "AtLoginScreenNoCharactersLoggedInYet")
                     {
-                        Logging.Log("Cleanup", "CheckModalWindows: We are in a session change, waiting 4 seconds", Logging.White);
+                        if (Settings.Instance.DebugCleanup) Logging.Log("Cleanup", "CheckModalWindows: We are in a session change, waiting 4 seconds", Logging.White);
                         _lastCleanupAction = DateTime.Now;
                         _States.CurrentCleanupState = CleanupState.Idle;
                         return;
                     }
 
+                    if (Settings.Instance.CharacterName == "AtLoginScreenNoCharactersLoggedInYet" && Cache.Instance.LastInStation.AddHours(1) > DateTime.Now)
+                    {
+                        Cache.Instance.ReasonToStopQuestor = "we are no longer in a valid session (not logged in) and we had been logged in. restarting";
+                        Logging.Log("Cleanup", Cache.Instance.ReasonToStopQuestor, Logging.White); 
+                        Settings.Instance.SecondstoWaitAfterExitingCloseQuestorBeforeExitingEVE = 0;
+                        Cache.Instance.SessionState = "Quitting";
+                        Cleanup.CloseQuestor();
+                        return;
+                    }
+
                     if (Cache.Instance.Windows == null)
                     {
-                        Logging.Log("Cleanup","CheckModalWindows: Cache.intance.windows returned null",Logging.White);
+                        if (Settings.Instance.DebugCleanup) Logging.Log("Cleanup", "CheckModalWindows: Cache.Instance.Windows returned null", Logging.White);
                         _lastCleanupAction = DateTime.Now;
                         _States.CurrentCleanupState = CleanupState.Idle;
                         return;
@@ -566,6 +577,9 @@ namespace Questor.Modules.BackgroundTasks
                                 //fitting window errors - DO NOT undock if this happens! people should fix the fits they load to not move more modules than necessary as that causes problems and requires extra modules
                                 pause |= window.Html.Contains("Not all the items could be fitted");
 
+                                // quitting eve?
+                                close |= window.Html.Contains("Do you really want to quit now?");
+
                                 // Server going down
                                 close |= window.Html.Contains("Please make sure your characters are out of harm");
                                 close |= window.Html.Contains("the servers are down for 30 minutes each day for maintenance and updates");
@@ -576,7 +590,8 @@ namespace Questor.Modules.BackgroundTasks
                                 close |= window.Html.Contains("cargo units would be required to complete this operation.");
                                 close |= window.Html.Contains("You are too far away from the acceleration gate to activate it!");
                                 close |= window.Html.Contains("maximum distance is 2500 meters");
-                                close |= window.Html.Contains("you can decline a mission every"); //4 hours without penalty
+                                // agent mission decline warning (ok button)
+                                close |= window.Html.Contains("If you decline of fail a mission from an agent he/she might become displeased and lower your standing towards him/her. You can decline a mission every four hours without penalty"); //4 hours without penalty
                                 // Stupid warning, lets see if we can find it
                                 close |= window.Html.Contains("Do you wish to proceed with this dangerous action?");
                                 // Yes we know the mission is not complete, Questor will just redo the mission
@@ -597,7 +612,6 @@ namespace Questor.Modules.BackgroundTasks
                                 //trial account
                                 close |= window.Html.Contains("At any time you can log in to the account management page and change your trial account to a paying account");
 
-                                restartharsh |= window.Html.Contains("The connection to the server was closed");
                                 restartharsh |= window.Html.Contains("The user's connection has been usurped on the proxy");
                                 restartharsh |= window.Html.Contains("The connection to the server was closed"); 										//CONNECTION LOST
                                 restartharsh |= window.Html.Contains("server was closed");  															//CONNECTION LOST
@@ -622,7 +636,7 @@ namespace Questor.Modules.BackgroundTasks
                                 sayyes |= window.Html.Contains("Are you sure you want to remove location");
                                 sayyes |= window.Html.Contains("Repairing these items will cost");
                                 sayyes |= window.Html.Contains("Are you sure you would like to decline this mission");
-                                sayyes |= window.Html.Contains("You can decline a mission every four hours without penalty");
+                                //sayyes |= window.Html.Contains("You can decline a mission every four hours without penalty");
                                 
                                 //
                                 // LP Store "Accept offer" dialog
@@ -642,7 +656,7 @@ namespace Questor.Modules.BackgroundTasks
                                 Cache.Instance.CloseQuestorCMDExitGame = true;
                                 Cache.Instance.CloseQuestorEndProcess = true;
                                 Cache.Instance.ReasonToStopQuestor = "A message from ccp indicated we were disconnected";
-                                Settings.Instance.SecondstoWaitAfterExteringCloseQuestorBeforeExitingEVE = 0;
+                                Settings.Instance.SecondstoWaitAfterExitingCloseQuestorBeforeExitingEVE = 0;
                                 Cache.Instance.SessionState = "Quitting";
                                 Cleanup.CloseQuestor();
                                 return;
@@ -657,7 +671,7 @@ namespace Questor.Modules.BackgroundTasks
                                 Cache.Instance.CloseQuestorEndProcess = false;
                                 Cache.Instance.ReasonToStopQuestor = "A message from ccp indicated we were should restart";
                                 Cache.Instance.SessionState = "Quitting";
-                                Settings.Instance.SecondstoWaitAfterExteringCloseQuestorBeforeExitingEVE = 30;
+                                Settings.Instance.SecondstoWaitAfterExitingCloseQuestorBeforeExitingEVE = 30;
                                 window.Close();
                                 Cleanup.CloseQuestor();
                                 return;

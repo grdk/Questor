@@ -24,6 +24,7 @@ namespace Questor.Modules.States
         CloseQuestor,
         Error,
         DebugWindows,
+        DebugHangarsBehavior,
         DebugInventoryTree,
         DebugCloseQuestor,
         DebugReloadAll,

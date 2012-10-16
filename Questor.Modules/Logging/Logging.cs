@@ -33,6 +33,21 @@ namespace Questor.Modules.Logging
         public const string Teal = "\at";     //log debug
         public const string White = "\aw";    //questor
 
+        public const string CombatUserCorrectableErrors = Orange;
+        public const string CombatFatalErrors = Red;
+        public const string CombatGenericLogging = White;
+
+        public const string DronesUserCorrectableErrors = Orange;
+        public const string DronesFatalErrors = Red;
+        public const string DronesGenericLogging = White;
+
+        public const string TravelerUserCorrectableErrors = Orange;
+        public const string TravelerFatalErrors = Red;
+        public const string TravelerGenericLogging = White;
+        public const string TravelerDestinationColor = White;
+
+        public const string DebugHangars = White;
+
         //public  void Log(string line)
         //public static void Log(string module, string line, string color = Logging.White)
         public static void Log(string module, string line, string color)

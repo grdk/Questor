@@ -221,9 +221,8 @@ namespace Questor.Behaviors
             Cache.Instance.OpenWrecks = false;
             const bool setEVENavDestination = false;
 
-            if (setEVENavDestination)
+            if (setEVENavDestination) //sets EVEs destination to Questors destination, so they match... (defaults to false, needs testing again and probably needs to be exposed as a setting)
             {
-                
                 if (DateTime.Now > _nextGetDestinationPath || EVENavdestination == null)
                 {
                     if (Settings.Instance.DebugGotobase) Logging.Log("CombatMissionsBehavior", "TravelToAgentsStation: EVENavdestination = Cache.Instance.DirectEve.Navigation.GetDestinationPath();", Logging.White);
@@ -244,7 +243,7 @@ namespace Questor.Behaviors
                         if (Settings.Instance.DebugGotobase) Logging.Log("CombatMissionsBehavior", "TravelToAgentsStation: Cache.Instance.DirectEve.Navigation.SetDestination(Cache.Instance.AgentStationId);", Logging.White);
                         _nextSetEVENavDestination = DateTime.Now.AddSeconds(7);
                         Cache.Instance.DirectEve.Navigation.SetDestination(Cache.Instance.AgentStationID);
-                        Logging.Log("CombatMissionsBehavior.TravelToAgentsStation", "Setting EVEs Destination to [" + Cache.Instance.AgentStationName + "'s] Station", Logging.White);
+                        Logging.Log("CombatMissionsBehavior.TravelToAgentsStation", "Setting Destination to [" + Cache.Instance.AgentStationName + "'s] Station", Logging.White);
                         return;
                     }
                 }
@@ -302,7 +301,7 @@ namespace Questor.Behaviors
         public void ProcessState()
         {
             // Only pulse state changes every 1.5s
-            //if (DateTime.Now.Subtract(_lastPulse).TotalMilliseconds < (int)Time.Instance.QuestorPulse_milliseconds) //default: 1500ms
+            //if (DateTime.Now.Subtract(_lastPulse).TotalMilliseconds < Time.Instance.QuestorPulse_milliseconds) //default: 1500ms
             //    return;
             //_lastPulse = DateTime.Now;
 
@@ -764,6 +763,7 @@ namespace Questor.Behaviors
                         const string nameOfBookmark = "Encounter";
                         Logging.Log("CombatMissionsBehavior", "Setting Destination to 1st bookmark from AgentID: " + AgentID + " with [" + nameOfBookmark + "] in the title", Logging.White);
                         _traveler.Destination = new MissionBookmarkDestination(Cache.Instance.GetMissionBookmark(AgentID, nameOfBookmark));
+                        Cache.Instance.MissionSolarSystem = Cache.Instance.DirectEve.Navigation.GetLocation(_traveler.Destination.SolarSystemId);
                     }
 
                     if (Cache.Instance.PriorityTargets.Any(pt => pt != null && pt.IsValid))
@@ -965,7 +965,7 @@ namespace Questor.Behaviors
                             _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Idle;
                             return;
                         }
-                        //This salvaging decision tree does not belong here and should be separated out into a different questorstate
+                        //This salvaging decision tree does not belong here and should be separated out into a different QuestorState
                         if (Settings.Instance.AfterMissionSalvaging)
                         {
                             if (Cache.Instance.GetSalvagingBookmark == null)
@@ -1280,7 +1280,7 @@ namespace Questor.Behaviors
                         Cache.Instance.LastKnownGoodConnectedTime = DateTime.Now;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
 
-                        Logging.Log("CombatMissionsBehavior.Salvage", "We've moved to the next Pocket [" + Math.Round(distance / 1000, 0) + "k away]", Logging.White);
+                        Logging.Log("CombatMissionsBehavior.Salvage", "We have moved to the next Pocket [" + Math.Round(distance / 1000, 0) + "k away]", Logging.White);
 
                         _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Salvage;
                         return;
@@ -1288,7 +1288,7 @@ namespace Questor.Behaviors
                     
                     if (DateTime.Now.Subtract(_lastPulse).TotalMinutes > 2)
                     {
-                        Logging.Log("CombatMissionsBehavior.Salvage", "We've timed out, retry last action", Logging.White);
+                        Logging.Log("CombatMissionsBehavior.Salvage", "We have timed out, retry last action", Logging.White);
                         // We have reached a timeout, revert to ExecutePocketActions (e.g. most likely Activate)
                         _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.SalvageUseGate;
                     }
@@ -1325,7 +1325,7 @@ namespace Questor.Behaviors
                     List<long> destination = Cache.Instance.DirectEve.Navigation.GetDestinationPath();
                     if (destination == null || destination.Count == 0)
                     {
-                        // happens if autopilot isn't set and this questorstate is chosen manually
+                        // happens if autopilot is not set and this QuestorState is chosen manually
                         // this also happens when we get to destination (!?)
                         Logging.Log("CombatMissionsBehavior.Traveler", "No destination?", Logging.White);
                         _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Error;

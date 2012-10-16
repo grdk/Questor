@@ -64,33 +64,34 @@ namespace Questor.Modules.Lookup
         //
         // Debug Variables
         //
-        public bool DebugStates { get; set; }
-        public bool DebugPerformance { get; set; }
-        public bool DetailedCurrentTargetHealthLogging { get; set; }
-        public bool DebugLootWrecks { get; set; }
         public bool DebugActivateWeapons { get; set; }
-        public bool DebugReloadorChangeAmmo { get; set; }
-        public bool DebugStatistics { get; set; }
-        public bool DebugGotobase { get; set; }
-        public bool DebugIdle { get; set; }
-        public bool DebugAutoStart { get; set; }
-        public bool DebugDecline { get; set; }
-        public bool DebugHangars { get; set; }
-        public bool DebugLogging { get; set; }
-        public bool DebugSalvage { get; set; }
-        public bool DebugUI { get; set; }
-        public bool DebugReloadAll { get; set; }
         public bool DebugAttachVSDebugger { get; set; }
-        public bool DebugDroneHealth { get; set; }
-        public bool DebugNavigateOnGrid { get; set; }
-        public bool DebugTraveler { get; set; }
-        public bool DebugValuedump { get; set; }
-        public bool DebugOnframe { get; set; }
+        public bool DebugAutoStart { get; set; }
         public bool DebugCleanup { get; set; }
-        public bool DebugScheduler { get; set; }
-        public bool DebugUnloadLoot { get; set; }
+        public bool DebugDecline { get; set; }
+        public bool DebugDefense { get; set; }
+        public bool DebugDroneHealth { get; set; }
         public bool DebugExceptions { get; set; }
+        public bool DebugGotobase { get; set; }
+        public bool DebugHangars { get; set; }
+        public bool DebugIdle { get; set; }
         public bool DebugLoadScripts { get; set; }
+        public bool DebugLogging { get; set; }
+        public bool DebugLootWrecks { get; set; }
+        public bool DebugNavigateOnGrid { get; set; }
+        public bool DebugOnframe { get; set; }
+        public bool DebugPerformance { get; set; }
+        public bool DebugReloadAll { get; set; }
+        public bool DebugReloadorChangeAmmo { get; set; }
+        public bool DebugSalvage { get; set; }
+        public bool DebugScheduler { get; set; }
+        public bool DebugStatistics { get; set; }
+        public bool DebugTraveler { get; set; }
+        public bool DebugUI { get; set; }
+        public bool DebugUnloadLoot { get; set; }
+        public bool DebugValuedump { get; set; }
+        public bool DetailedCurrentTargetHealthLogging { get; set; }
+        public bool DebugStates { get; set; }
         public bool DefendWhileTraveling { get; set; }
         public bool UseInnerspace { get; set; }
 
@@ -211,8 +212,10 @@ namespace Questor.Modules.Lookup
         //
         // EVE Process Memory Ceiling and EVE wallet balance Change settings
         //
-        public int Walletbalancechangelogoffdelay { get; set; }
-        public string WalletbalancechangelogoffdelayLogofforExit { get; set; }
+        public int WalletBalanceChangeLogOffDelay { get; set; }
+
+        public string WalletBalanceChangeLogOffDelayLogoffOrExit { get; set; }
+
         public Int64 EVEProcessMemoryCeiling { get; set; }
         public string EVEProcessMemoryCeilingLogofforExit { get; set; }
         public bool CloseQuestorCMDUplinkInnerspaceProfile { get; set; }
@@ -224,11 +227,12 @@ namespace Questor.Modules.Lookup
         public string LoginQuestorOSCmdContents { get; set; }
         public bool LoginQuestorLavishScriptCmd { get; set; }
         public string LoginQuestorLavishScriptContents { get; set; }
-        public int SecondstoWaitAfterExteringCloseQuestorBeforeExitingEVE = 240;
+        public int SecondstoWaitAfterExitingCloseQuestorBeforeExitingEVE = 240;
+
         public string LavishIsBoxerCharacterSet { get; set; }
         public string LavishInnerspaceProfile { get; set; }
         public string LavishGame { get; set; }
-        //public int missionbookmarktoagentloops { get; set; }  //not yet used - although it is likely a good ide to fix it so it is used - it would eliminate going back and fourth to the same mission over and over
+
         public List<int> ItemsBlackList { get; set; }
         public List<int> WreckBlackList { get; set; }
         public bool WreckBlackListSmallWrecks { get; set; }
@@ -261,6 +265,13 @@ namespace Questor.Modules.Lookup
         public bool MissionStats3Log { get; set; }
         public string MissionStats3LogPath { get; set; }
         public string MissionStats3LogFile { get; set; }
+
+        public bool MissionDungeonIdLog { get; set; }
+
+        public string MissionDungeonIdLogPath { get; set; }
+
+        public string MissionDungeonIdLogFile { get; set; }
+
         public bool PocketStatistics { get; set; }
         public string PocketStatisticsPath { get; set; }
         public string PocketStatisticsFile { get; set; }
@@ -296,8 +307,8 @@ namespace Questor.Modules.Lookup
         public int TrackingLinkScript { get; private set; }
         public int SensorBoosterScript { get; private set; }
         public int SensorDampenerScript { get; private set; }
-        public int AncillaryShieldBoosterScript { get; private set; } //they arent scripts, but they work the same, but are consumable for ourpurposes that doesnt matter
-        public int CapacitorInjectorScript { get; private set; }      //they arent scripts, but they work the same, but are consumable for ourpurposes that doesnt matter
+        public int AncillaryShieldBoosterScript { get; private set; } //they are not scripts, but they work the same, but are consumable for ourpurposes that does not matter
+        public int CapacitorInjectorScript { get; private set; }      //they are not scripts, but they work the same, but are consumable for ourpurposes that does not matter
 
         //
         // Speed and Movement Settings
@@ -388,7 +399,9 @@ namespace Questor.Modules.Lookup
         public string Path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public string SettingsPath { get; private set; }
         public event EventHandler<EventArgs> SettingsLoaded;
-        public bool Defaultsettingsloaded;
+
+        public bool DefaultSettingsLoaded;
+
         public void LoadSettings()
         {
             try
@@ -415,42 +428,41 @@ namespace Questor.Modules.Lookup
             Settings.Instance.QuestorSettingsExists = File.Exists(System.IO.Path.Combine(Settings.Instance.Path, "QuestorSettings.exe"));
             Settings.Instance.QuestorStatisticsExists = File.Exists(System.IO.Path.Combine(Settings.Instance.Path, "QuestorStatistics.exe"));
 
-            if (!File.Exists(Settings.Instance.SettingsPath) && !Defaultsettingsloaded) //if the settings file does not exist initialize these values. Should we not halt when missing the settings XML?
+            if (!File.Exists(Settings.Instance.SettingsPath) && !DefaultSettingsLoaded) //if the settings file does not exist initialize these values. Should we not halt when missing the settings XML?
             {
                 Settings.Instance.CharacterXMLExists = false;
-                Defaultsettingsloaded = true;
+                DefaultSettingsLoaded = true;
                 //LavishScript.ExecuteCommand("log " + Cache.Instance.DirectEve.Me.Name + ".log");
                 //LavishScript.ExecuteCommand("uplink echo Settings: unable to find [" + Settings.Instance.SettingsPath + "] loading default (bad! bad! bad!) settings: you should fix this! NOW.");
                 Logging.Log("Settings", "WARNING! unable to find [" + Settings.Instance.SettingsPath + "] loading default generic, and likely incorrect, settings: WARNING!", Logging.Orange);
-                DebugStates = false;
-                //enables more console logging having to do with the sub-states within each state
-                DebugPerformance = false;
-                //enabled more console logging having to do with the time it takes to execute each state
-                DetailedCurrentTargetHealthLogging = false;
-                DebugLootWrecks = false;
                 DebugActivateWeapons = false;
-                DebugReloadorChangeAmmo = false;
-                DebugStatistics = false;
-                DebugGotobase = false;
-                DebugIdle = false;
-                DebugAutoStart = false;
-                DebugDecline = false;
-                DebugHangars = false;
-                DebugLogging = false;
-                DebugSalvage = false;
-                DebugUI = false;
                 DebugAttachVSDebugger = false;
-                DebugDroneHealth = false;
-                DebugNavigateOnGrid = false;
-                DebugReloadAll = false;
-                DebugTraveler = false;
-                DebugValuedump = false;
-                DebugOnframe = false;
+                DebugAutoStart = false;
                 DebugCleanup = false;
-                DebugScheduler = false;
-                DebugUnloadLoot = false;
+                DebugDecline = false;
+                DebugDefense = false;
+                DebugDroneHealth = false;
                 DebugExceptions = false;
+                DebugGotobase = false;
+                DebugHangars = false;
+                DebugIdle = false;
                 DebugLoadScripts = false;
+                DebugLogging = false;
+                DebugLootWrecks = false;
+                DebugNavigateOnGrid = false;
+                DebugOnframe = false;
+                DebugPerformance = false;
+                DebugReloadAll = false;
+                DebugReloadorChangeAmmo = false;
+                DebugSalvage = false;
+                DebugScheduler = false;
+                DebugStates = false;
+                DebugStatistics = false;
+                DebugTraveler = false;
+                DebugUI = false;
+                DebugUnloadLoot = false;
+                DebugValuedump = false;
+                DetailedCurrentTargetHealthLogging = false;
                 DefendWhileTraveling = true;
                 UseInnerspace = true;
                 //
@@ -536,9 +548,9 @@ namespace Questor.Modules.Lookup
                 LoginQuestorLavishScriptCmd = false;
                 LoginQuestorLavishScriptContents = string.Empty;
                 
-                Walletbalancechangelogoffdelay = 30;
-                WalletbalancechangelogoffdelayLogofforExit = "exit";
-                SecondstoWaitAfterExteringCloseQuestorBeforeExitingEVE = 240;
+                WalletBalanceChangeLogOffDelay = 30;
+                WalletBalanceChangeLogOffDelayLogoffOrExit = "exit";
+                SecondstoWaitAfterExitingCloseQuestorBeforeExitingEVE = 240;
 
                 //
                 // Value - Used in calculations
@@ -629,8 +641,8 @@ namespace Questor.Modules.Lookup
                 // 29005 Optimal Range Disruption Script  // tracking disruptor
                 // 29011 Scan Resolution Script           // sensor booster
                 // 29009 Targeting Range Script           // sensor booster
-                // 29015 Targeting Range Dampening Script // sensor dampner
-                // 29013 Scan Resolution Dampening Script // sensor dampner
+                // 29015 Targeting Range Dampening Script // sensor dampener
+                // 29013 Scan Resolution Dampening Script // sensor dampener
                 // 29001 Tracking Speed Script            // tracking enhancer and tracking computer
                 // 28999 Optimal Range Script             // tracking enhancer and tracking computer
                 
@@ -738,8 +750,6 @@ namespace Questor.Modules.Lookup
                 FactionBlacklist.Clear();
 
                 MissionName = null;
-                //missionbookmarktoagentloops = 0;
-                //return;
             }
             else //if the settings file exists - load the characters settings XML
             {
@@ -759,37 +769,35 @@ namespace Questor.Modules.Lookup
 
                     //
                     // Debug Settings
-                    //
-
-                    DebugStates = (bool?)xml.Element("debugStates") ?? false;
-                    //enables more console logging having to do with the sub-states within each state
-                    DebugPerformance = (bool?)xml.Element("debugPerformance") ?? false;
-                    //enabled more console logging having to do with the time it takes to execute each state
-                    DetailedCurrentTargetHealthLogging = (bool?)xml.Element("detailedCurrentTargetHealthLogging") ?? true;
-                    DebugLootWrecks = (bool?)xml.Element("debugLootWrecks") ?? false;
+                    // 
                     DebugActivateWeapons = (bool?)xml.Element("debugActivateWeapons") ?? false;
-                    DebugReloadorChangeAmmo = (bool?)xml.Element("debugreloadorChangeAmmo") ?? false;
-                    DebugStatistics = (bool?)xml.Element("debugStatistics") ?? false;
-                    DebugGotobase = (bool?)xml.Element("debugGotobase") ?? false;
-                    DebugIdle = (bool?)xml.Element("debugIdle") ?? false;
-                    DebugAutoStart = (bool?)xml.Element("debugAutoStart") ?? false;
-                    DebugDecline = (bool?)xml.Element("debugDecline") ?? false;
-                    DebugHangars = (bool?)xml.Element("debugHangars") ?? false;
-                    DebugLogging = (bool?)xml.Element("debugLogging") ?? false;
-                    DebugSalvage = (bool?)xml.Element("debugSalvage") ?? false;
-                    DebugUI = (bool?)xml.Element("debugUI") ?? false;
                     DebugAttachVSDebugger = (bool?)xml.Element("debugAttachVSDebugger") ?? false;
-                    DebugDroneHealth = (bool?)xml.Element("debugDroneHealth") ?? false;
-                    DebugNavigateOnGrid = (bool?)xml.Element("debugNavigateOnGrid") ?? false;
-                    DebugReloadAll = (bool?)xml.Element("debugReloadAll") ?? false;
-                    DebugTraveler = (bool?)xml.Element("debugTraveler") ?? false;
-                    DebugValuedump = (bool?)xml.Element("debugValuedump") ?? false;
-                    DebugScheduler = (bool?)xml.Element("debugScheduler") ?? false;
-                    DebugOnframe = (bool?)xml.Element("debugOnframe") ?? false;
+                    DebugAutoStart = (bool?)xml.Element("debugAutoStart") ?? false;
                     DebugCleanup = (bool?)xml.Element("debugCleanup") ?? false;
-                    DebugUnloadLoot = (bool?)xml.Element("debugUnloadLoot") ?? false;
+                    DebugDecline = (bool?)xml.Element("debugDecline") ?? false;
+                    DebugDefense = (bool?)xml.Element("debugDefense") ?? false;
+                    DebugDroneHealth = (bool?)xml.Element("debugDroneHealth") ?? false;
                     DebugExceptions = (bool?)xml.Element("debugExceptions") ?? false;
+                    DebugGotobase = (bool?)xml.Element("debugGotobase") ?? false;
+                    DebugHangars = (bool?)xml.Element("debugHangars") ?? false;
+                    DebugIdle = (bool?)xml.Element("debugIdle") ?? false;
                     DebugLoadScripts = (bool?)xml.Element("debugLoadScripts") ?? false;
+                    DebugLogging = (bool?)xml.Element("debugLogging") ?? false;
+                    DebugLootWrecks = (bool?)xml.Element("debugLootWrecks") ?? false;
+                    DebugNavigateOnGrid = (bool?)xml.Element("debugNavigateOnGrid") ?? false;
+                    DebugOnframe = (bool?)xml.Element("debugOnframe") ?? false;
+                    DebugPerformance = (bool?)xml.Element("debugPerformance") ?? false;                                     //enables more console logging having to do with the sub-states within each state
+                    DebugReloadAll = (bool?)xml.Element("debugReloadAll") ?? false;
+                    DebugReloadorChangeAmmo = (bool?)xml.Element("debugReloadOrChangeAmmo") ?? false;
+                    DebugSalvage = (bool?)xml.Element("debugSalvage") ?? false;
+                    DebugScheduler = (bool?)xml.Element("debugScheduler") ?? false;
+                    DebugStates = (bool?)xml.Element("debugStates") ?? false;                                               //enables more console logging having to do with the time it takes to execute each state
+                    DebugStatistics = (bool?)xml.Element("debugStatistics") ?? false;
+                    DebugTraveler = (bool?)xml.Element("debugTraveler") ?? false;
+                    DebugUI = (bool?)xml.Element("debugUI") ?? false;
+                    DebugUnloadLoot = (bool?)xml.Element("debugUnloadLoot") ?? false;
+                    DebugValuedump = (bool?)xml.Element("debugValuedump") ?? false;
+                    DetailedCurrentTargetHealthLogging = (bool?)xml.Element("detailedCurrentTargetHealthLogging") ?? true;
                     DefendWhileTraveling = (bool?)xml.Element("defendWhileTraveling") ?? true;
                     UseInnerspace = (bool?)xml.Element("useInnerspace") ?? true;
 
@@ -942,10 +950,10 @@ namespace Questor.Modules.Lookup
 
                     //the above setting can be set to any script or commands available on the system. make sure you test it from a command prompt while in your .net programs directory
 
-                    Walletbalancechangelogoffdelay = (int?)xml.Element("walletbalancechangelogoffdelay") ?? 30;
-                    WalletbalancechangelogoffdelayLogofforExit =
+                    WalletBalanceChangeLogOffDelay = (int?)xml.Element("walletbalancechangelogoffdelay") ?? 30;
+                    WalletBalanceChangeLogOffDelayLogoffOrExit =
                         (string)xml.Element("walletbalancechangelogoffdelayLogofforExit") ?? "exit";
-                    SecondstoWaitAfterExteringCloseQuestorBeforeExitingEVE = 240;
+                    SecondstoWaitAfterExitingCloseQuestorBeforeExitingEVE = 240;
 
                     if (UseInnerspace)
                     {
@@ -977,6 +985,7 @@ namespace Questor.Modules.Lookup
                     MissionStats1Log = (bool?)xml.Element("MissionStats1Log") ?? true;
                     MissionStats2Log = (bool?)xml.Element("MissionStats2Log") ?? true;
                     MissionStats3Log = (bool?)xml.Element("MissionStats3Log") ?? true;
+                    MissionDungeonIdLog = (bool?)xml.Element("MissionDungeonIdLog") ?? true;
                     PocketStatistics = (bool?)xml.Element("PocketStatistics") ?? true;
                     PocketStatsUseIndividualFilesPerPocket = (bool?)xml.Element("PocketStatsUseIndividualFilesPerPocket") ?? true;
                     PocketObjectStatisticsLog = (bool?)xml.Element("PocketObjectStatisticsLog") ?? true;
@@ -999,8 +1008,8 @@ namespace Questor.Modules.Lookup
                     // 29005 Optimal Range Disruption Script  // tracking disruptor
                     // 29011 Scan Resolution Script           // sensor booster
                     // 29009 Targeting Range Script           // sensor booster
-                    // 29015 Targeting Range Dampening Script // sensor dampner
-                    // 29013 Scan Resolution Dampening Script // sensor dampner
+                    // 29015 Targeting Range Dampening Script // sensor dampener
+                    // 29013 Scan Resolution Dampening Script // sensor dampener
                     // 29001 Tracking Speed Script            // tracking enhancer and tracking computer
                     // 28999 Optimal Range Script             // tracking enhancer and tracking computer
 
@@ -1291,6 +1300,8 @@ namespace Questor.Modules.Lookup
             MissionStats2LogFile = System.IO.Path.Combine(MissionStats2LogPath, characterNameForLogs + ".DatedStatistics.log");
             MissionStats3LogPath = System.IO.Path.Combine(Logpath, "missionstats\\");
             MissionStats3LogFile = System.IO.Path.Combine(MissionStats3LogPath, characterNameForLogs + ".CustomDatedStatistics.csv");
+            MissionDungeonIdLogPath = System.IO.Path.Combine(Logpath, "missionstats\\");
+            MissionDungeonIdLogFile = System.IO.Path.Combine(MissionDungeonIdLogPath, characterNameForLogs + "Mission-DungeonId-list.csv");
             PocketStatisticsPath = System.IO.Path.Combine(Logpath, "pocketstats\\");
             PocketStatisticsFile = System.IO.Path.Combine(PocketStatisticsPath, characterNameForLogs + "pocketstats-combined.csv");
             PocketObjectStatisticsPath = System.IO.Path.Combine(Logpath, "pocketobjectstats\\");
@@ -1305,9 +1316,10 @@ namespace Questor.Modules.Lookup
             Directory.CreateDirectory(MissionStats1LogPath);
             Directory.CreateDirectory(MissionStats2LogPath);
             Directory.CreateDirectory(MissionStats3LogPath);
+            Directory.CreateDirectory(MissionDungeonIdLogPath);
             Directory.CreateDirectory(PocketStatisticsPath);
             Directory.CreateDirectory(PocketObjectStatisticsPath);
-            if (!Defaultsettingsloaded)
+            if (!DefaultSettingsLoaded)
             {
                 if (SettingsLoaded != null)
                     SettingsLoaded(this, new EventArgs());

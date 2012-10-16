@@ -368,6 +368,11 @@ namespace Questor.Modules.BackgroundTasks
             if (lootWindows != null)
             {
                 containerIDs = lootWindows.GetIdsFromTree();
+                //if (!containerIDs.Any())
+                //{
+                //    if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.Lootwrecks","if (!containerIDs.Any())",Logging.Teal);
+                //    return;
+                //}
                 if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.Lootwrecks", "containerIDs contains [" + containerIDs.Count() +  "] individual containerIDs", Logging.Teal);
             }
             else
@@ -409,19 +414,22 @@ namespace Questor.Modules.BackgroundTasks
                 //
                 // when full return to base and unloadloot
                 //
-                if (Settings.Instance.UnloadLootAtStation && Cache.Instance.CargoHold.Window.IsReady && Cache.Instance.CargoHold.Capacity > 150 && (Cache.Instance.CargoHold.Capacity - Cache.Instance.CargoHold.UsedCapacity) < 50)
+                if (Settings.Instance.UnloadLootAtStation && Cache.Instance.CargoHold.IsValid && Cache.Instance.CargoHold.Capacity > 150 && (Cache.Instance.CargoHold.Capacity - Cache.Instance.CargoHold.UsedCapacity) < 50)
                 {
                     if (_States.CurrentCombatMissionBehaviorState == CombatMissionsBehaviorState.ExecuteMission)
                     {
-                        if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks","(mission) We are full, headeing back to base to dump loot ",Logging.Teal);
+                        if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks","(mission) We are full, heading back to base to dump loot ",Logging.Teal);
                         _States.CurrentCombatHelperBehaviorState = States.CombatHelperBehaviorState.GotoBase;
+                        break;
                     }
                     else if (_States.CurrentDedicatedBookmarkSalvagerBehaviorState == States.DedicatedBookmarkSalvagerBehaviorState.Salvage)
                     {
-                        if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "(salvage) We are full, headeing back to base to dump loot ", Logging.Teal);
+                        if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "(salvage) We are full, heading back to base to dump loot ", Logging.Teal);
                         _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.GotoBase;
                         Cache.Instance.NextSalvageTrip = DateTime.Now;
+                        break;
                     }
+                    Logging.Log("Salvage.LootWrecks", "We are full: we are using a behavior that does not have a supported place to auto dump loot: error!", Logging.Orange);
                     break;
                 }
 
@@ -439,7 +447,10 @@ namespace Questor.Modules.BackgroundTasks
 
                     // Never pick up contraband (unless its the mission item)
                     if (!isMissionItem && item.IsContraband)
+                    {
+                        if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "["  + item.Name + "] is not the mission item and is considered Contraband: ignore it", Logging.Teal);
                         continue;
+                    }
 
                     // Do we want to loot other items?
                     //if (!isMissionItem && !LootEverything)
@@ -450,14 +461,20 @@ namespace Questor.Modules.BackgroundTasks
                     //       scooped because unloadlootstate.MoveCommonMissionCompletionitems
                     //       will move them into the hangar floor not the loot location
                     if (!isMissionItem && item.IsAliveandWontFitInContainers)
+                    {
+                        if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "[" + item.Name + "] is not the mission item and is Alive and Wont fit in Containers: ignore it", Logging.Teal);
                         continue;
+                    }
 
                     // We are at our max, either make room or skip the item
                     if ((freeCargoCapacity - item.TotalVolume) <= (isMissionItem ? 0 : ReserveCargoCapacity))
                     {
                         // We can't drop items in this container anyway, well get it after its salvaged
                         if (!isMissionItem && containerEntity.GroupId != (int)Group.CargoContainer)
+                        {
+                            if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "[" + item.Name + "] is not the mission item and this appears to be a container (in a container!): ignore it until after its salvaged", Logging.Teal);
                             continue;
+                        }
 
                         // Make a list of items which are worth less
                         List<ItemCache> worthLess;
@@ -484,14 +501,18 @@ namespace Questor.Modules.BackgroundTasks
 
                         // Nothing is worth less then the current item
                         if (!worthLess.Any())
+                        {
+                            if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "[" + item.Name + "] ::: if (!worthLess.Any()) continue ", Logging.Teal);
                             continue;
+                        }
 
                         // Not enough space even if we dumped the crap
                         if ((freeCargoCapacity + worthLess.Sum(wl => wl.TotalVolume)) < item.TotalVolume)
                         {
                             if (isMissionItem)
+                            {
                                 Logging.Log("Salvage", "Not enough space for mission item! Need [" + item.TotalVolume + "] maximum available [" + (freeCargoCapacity + worthLess.Sum(wl => wl.TotalVolume)) + "]", Logging.White);
-
+                            }
                             continue;
                         }
 
@@ -507,7 +528,9 @@ namespace Questor.Modules.BackgroundTasks
 
                             // We freed up enough space?
                             if ((freeCargoCapacity - item.TotalVolume) >= ReserveCargoCapacity)
+                            {
                                 break;
+                            }
                         }
 
                         if (moveTheseItems.Count > 0)
@@ -541,21 +564,32 @@ namespace Questor.Modules.BackgroundTasks
                 // Loot actual items
                 if (lootItems.Count != 0)
                 {
-                    Logging.Log("Salvage", "Looting container [" + containerEntity.Name + "][" + Math.Round(containerEntity.Distance / 1000, 0) + "k][ID: " + containerEntity.Id + "], [" + lootItems.Count + "] valuable items", Logging.White);
+                    Logging.Log("Salvage.LootWrecks", "Looting container [" + containerEntity.Name + "][" + Math.Round(containerEntity.Distance / 1000, 0) + "k][ID: " + containerEntity.Id + "], [" + lootItems.Count + "] valuable items", Logging.White);
                     Cache.Instance.CargoHold.Add(lootItems.Select(i => i.DirectItem));
                 }
                 else
-                    Logging.Log("Salvage", "Container [" + containerEntity.Name + "][" + Math.Round(containerEntity.Distance / 1000, 0) + "k][ID: " + containerEntity.Id + "] contained no valuable items", Logging.White);
+                    Logging.Log("Salvage.LootWrecks", "Container [" + containerEntity.Name + "][" + Math.Round(containerEntity.Distance / 1000, 0) + "k][ID: " + containerEntity.Id + "] contained no valuable items", Logging.White);
             }
 
             // Open a container in range
             int containersProcessedThisTick = 0;
-            foreach (EntityCache containerEntity in Cache.Instance.Containers.Where(e => e.Distance <= (int)Distance.SafeScoopRange))
+            List<EntityCache> containersInRange = Cache.Instance.Containers.Where(e => e.Distance <= (int)Distance.SafeScoopRange).ToList();
+
+            //if (!containersInRange.Any())
+            //{
+            //    if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "if (!containersInRange.Any())", Logging.Teal);
+            //    return;
+            //}
+
+            foreach (EntityCache containerEntity in containersInRange)
             {
                 containersProcessedThisTick++;
                 // Empty wreck, ignore
                 if (containerEntity.GroupId == (int)Group.Wreck && containerEntity.IsWreckEmpty)
+                {
+                    if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "Ignoring Empty Wreck", Logging.Teal);
                     continue;
+                }
 
                 // We looted this container
                 if (Cache.Instance.LootedContainers.Contains(containerEntity.Id))
@@ -566,7 +600,10 @@ namespace Questor.Modules.BackgroundTasks
 
                 // Ignore open request within 10 seconds
                 if (OpenedContainers.ContainsKey(containerEntity.Id) && DateTime.Now.Subtract(OpenedContainers[containerEntity.Id]).TotalSeconds < 10)
+                {
+                    if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "We attempted to open [" + containerEntity.Id + "] less than 10 sec ago, ignoring", Logging.White);
                     continue;
+                }
 
                 // Don't even try to open a wreck if you are speed tanking and you aren't processing a loot action
                 if (Settings.Instance.SpeedTank && Cache.Instance.OpenWrecks == false)
@@ -585,7 +622,10 @@ namespace Questor.Modules.BackgroundTasks
                 Logging.Log("Salvage", "Opening container [" + containerEntity.Name + "][" + Math.Round(containerEntity.Distance / 1000, 0) + "k][ID: " + containerEntity.Id + "]", Logging.White);
                 Cache.Instance.ContainerInSpace = Cache.Instance.DirectEve.GetContainer(containerEntity.Id);
                 if (Cache.Instance.ContainerInSpace == null)
+                {
+                    if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "if (Cache.Instance.ContainerInSpace == null)", Logging.White);
                     continue;
+                }
 
                 if (Cache.Instance.ContainerInSpace.Window == null)
                 {
@@ -596,8 +636,7 @@ namespace Questor.Modules.BackgroundTasks
 
                 if (!Cache.Instance.ContainerInSpace.Window.IsReady)
                 {
-                    if (Settings.Instance.DebugLootWrecks) 
-                        Logging.Log("Salvage", "LootWrecks: Cache.Instance.ContainerInSpace.Window is not ready", Logging.White);
+                    if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage", "LootWrecks: Cache.Instance.ContainerInSpace.Window is not ready", Logging.White);
                     return;
                 }
 
@@ -616,7 +655,10 @@ namespace Questor.Modules.BackgroundTasks
                 }
                 //add cont proceed thistick
                 if (containersProcessedThisTick < Settings.Instance.NumberOfModulesToActivateInCycle)
+                {
+                    if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "if (containersProcessedThisTick < Settings.Instance.NumberOfModulesToActivateInCycle)", Logging.White);
                     continue;
+                }
                 
                 return;
             }
@@ -688,7 +730,7 @@ namespace Questor.Modules.BackgroundTasks
 
                     // Default action
                     _States.CurrentSalvageState = SalvageState.TargetWrecks;
-                    if (Cache.Instance.CargoHold.Window.IsReady && Cache.Instance.CargoHold.Items.Any() && Cache.Instance.NextSalvageAction < DateTime.Now)
+                    if (Cache.Instance.CargoHold.IsValid && Cache.Instance.CargoHold.Items.Any() && Cache.Instance.NextSalvageAction < DateTime.Now)
                     {
                         // Check if there are actually duplicates
                         bool duplicates = Cache.Instance.CargoHold.Items.Where(i => i.Quantity > 0).GroupBy(i => i.TypeId).Any(t => t.Count() > 1);
@@ -703,8 +745,10 @@ namespace Questor.Modules.BackgroundTasks
                 case SalvageState.StackItems:
                     Logging.Log("Salvage", "Stacking items", Logging.White);
 
-                    if (Cache.Instance.CargoHold.Window.IsReady)
-                        Cache.Instance.CargoHold.StackAll();
+                    if (Cache.Instance.CargoHold.IsValid)
+                    {
+                        Cache.Instance.StackCargoHold("Salvage");
+                    }
 
                     Cache.Instance.NextSalvageAction = DateTime.Now.AddSeconds(Time.Instance.SalvageStackItemsDelayBeforeResuming_seconds);
                     _States.CurrentSalvageState = SalvageState.WaitForStacking;

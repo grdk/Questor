@@ -30,7 +30,7 @@ namespace Questor.Storylines
                 return StorylineState.GotoAgent;
 
             // Open the ship hangar
-            if (!Cache.Instance.OpenShipsHangar("MaterialsForWarPreperation")) return StorylineState.Arm;
+            if (!Cache.Instance.ReadyShipsHangar("MaterialsForWarPreparation")) return StorylineState.Arm;
 
             //  Look for a shuttle
             DirectItem item = Cache.Instance.ShipHangar.Items.FirstOrDefault(i => i.Quantity == -1 && i.GroupId == 31);
@@ -58,8 +58,8 @@ namespace Questor.Storylines
             if (_nextAction > DateTime.Now)
                 return StorylineState.PreAcceptMission;
 
-            // the ore and ore quantity can be stored in the char.xml this is to facility mission levels other than 4.
-            //The defaults are for level 4 so it will not break for those people that dont include these in their settings file
+            // the ore and ore quantity can be stored in the characters settings xml this is to facility mission levels other than 4.
+            //The defaults are for level 4 so it will not break for those people that do not include these in their settings file
             //  Level 1         <MaterialsForWarOreID>1230</MaterialsForWarOreID>
             //                  <MaterialsForWarOreQty>999</MaterialsForWarOreQty>
             //  Level 4         <MaterialsForWarOreID>20</MaterialsForWarOreID>
@@ -69,12 +69,12 @@ namespace Questor.Storylines
             int orequantity = Settings.Instance.MaterialsForWarOreQty; //999
 
             // Open the item hangar
-            if (!Cache.Instance.OpenItemsHangar("MaterialsForWarPreperation")) return StorylineState.PreAcceptMission;
+            if (!Cache.Instance.OpenItemsHangar("MaterialsForWarPreparation")) return StorylineState.PreAcceptMission;
 
             if (Cache.Instance.ItemHangar.Window == null)
             {
-                Logging.Log("MaterialsForWar", "PreacceptMission: ItemHangar is nul!", Logging.Orange);
-                if (!Cache.Instance.OpenItemsHangar("MaterialsForWarPreperation")) return StorylineState.PreAcceptMission;
+                Logging.Log("MaterialsForWar", "PreAcceptMission: ItemHangar is null", Logging.Orange);
+                if (!Cache.Instance.OpenItemsHangar("MaterialsForWarPreparation")) return StorylineState.PreAcceptMission;
                 return StorylineState.PreAcceptMission;
             }
 

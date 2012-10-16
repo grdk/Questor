@@ -79,7 +79,7 @@ namespace Questor.Modules.BackgroundTasks
                 }
                 return true;
             }
-            Logging.Log("LoadthisScript", "script to load was NUL!", Logging.Teal);
+            Logging.Log("LoadthisScript", "script to load was NULL!", Logging.Teal);
             return false;
         }
 
@@ -242,11 +242,11 @@ namespace Questor.Modules.BackgroundTasks
                         if (module.GroupId == (int) Group.SensorDampener && _sensorDampenerScriptAttempts < 5)
                         {
                             _sensorDampenerScriptAttempts++;
-                            if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "SensorDampner Found", Logging.White);
+                            if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "SensorDampener Found", Logging.White);
                             scriptToLoad = Cache.Instance.CheckCargoForItem(Settings.Instance.SensorDampenerScript, 1);
                             if (scriptToLoad != null)
                             {
-                                if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "Script Found for SensorDampner", Logging.White);
+                                if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "Script Found for SensorDampener", Logging.White);
                                 if (module.IsActive)
                                 {
                                     module.Click();
@@ -339,7 +339,6 @@ namespace Questor.Modules.BackgroundTasks
                 ModuleNumber++;
                 Cache.Instance.NextActivateSupportModules = DateTime.Now.AddMilliseconds(Time.Instance.DefenceDelay_milliseconds);
                 continue;
-                ModuleNumber = 0;
             }
 
             ModuleNumber = 0;
@@ -383,12 +382,11 @@ namespace Questor.Modules.BackgroundTasks
                     }
                 }
                 //
-                // at this point the module should be active but isn't: activate it, set the delay and return. The process will resume on the next tick
+                // at this point the module should be active but is not: activate it, set the delay and return. The process will resume on the next tick
                 //
                 module.Click();
                 Cache.Instance.NextActivateSupportModules = DateTime.Now.AddMilliseconds(Time.Instance.DefenceDelay_milliseconds);
-                Logging.Log("Defense", "Defensive module activated: [" + ModuleNumber + "] waiting [" + Math.Round(Cache.Instance.NextActivateSupportModules.Subtract(DateTime.Now).TotalSeconds, 0) + " sec]", Logging.White);
-
+                if (Settings.Instance.DebugDefense) Logging.Log("Defense", "Defensive module activated: [" + ModuleNumber + "]", Logging.White);
                 continue;
             }
             ModuleNumber = 0;
@@ -473,7 +471,7 @@ namespace Questor.Modules.BackgroundTasks
                         if (aggressiveEntities == 0 && Cache.Instance.Entities.Count(e => e.Distance < (int)Distance.OnGridWithMe && e.IsStation) == 1)
                         {
                             Cache.Instance.NextDockAction = DateTime.Now.AddSeconds(15);
-                            Logging.Log("Defense", "Repairing Armor outside station with no aggo (yet): delaying docking for [15]seconds" , Logging.White);
+                            Logging.Log("Defense", "Repairing Armor outside station with no aggro (yet): delaying docking for [15]seconds" , Logging.White);
                         }
                     }
 
@@ -596,7 +594,7 @@ namespace Questor.Modules.BackgroundTasks
 
             if (DateTime.Now.Subtract(_lastSessionChange).TotalSeconds < 7)
             {
-                Logging.Log("Defense", "we just completed a session change less than 7 seconds ago... waiting.", Logging.White);
+                if (Settings.Instance.DebugDefense) Logging.Log("Defense", "we just completed a session change less than 7 seconds ago... waiting.", Logging.White);
                 return;
             }
 
@@ -604,7 +602,7 @@ namespace Questor.Modules.BackgroundTasks
             if (Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked)
                 return;
 
-            // Cap is SO low that we shouldn't care about hardeners/boosters as we aren't being targeted anyhow
+            // Cap is SO low that we should not care about hardeners/boosters as we are not being targeted anyhow
             if (Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage < 10 && !Cache.Instance.TargetedBy.Any())
                 return;
 

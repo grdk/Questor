@@ -35,7 +35,7 @@ namespace Questor.Modules.Actions
             DirectContainer hangar = null;
 
             if (!Cache.Instance.OpenItemsHangar("Grab")) return;
-            if (!Cache.Instance.OpenShipsHangar("Grab")) return;
+            if (!Cache.Instance.ReadyShipsHangar("Grab")) return;
 
             if ("Local Hangar" == Hangar)
                 hangar = Cache.Instance.ItemHangar;
@@ -55,7 +55,6 @@ namespace Questor.Modules.Actions
                     break;
 
                 case GrabState.OpenItemHangar:
-
                     if (DateTime.Now.Subtract(_lastAction).TotalSeconds < 2)
                         break;
 
@@ -65,7 +64,7 @@ namespace Questor.Modules.Actions
                     }
                     else if ("Ship Hangar" == Hangar)
                     {
-                        if (!Cache.Instance.OpenShipsHangar("Drop")) return;
+                        if (!Cache.Instance.ReadyShipsHangar("Drop")) return;
 
                         if (hangar != null && (hangar.Window == null || !hangar.Window.IsReady))
                             break;
@@ -84,47 +83,46 @@ namespace Questor.Modules.Actions
                     }
 
                     Logging.Log("Grab", "Opening Hangar", Logging.White);
-
                     _States.CurrentGrabState = GrabState.OpenCargo;
-
                     break;
 
                 case GrabState.OpenCargo:
-
                     if (!Cache.Instance.OpenCargoHold("Grab")) break;
 
                     Logging.Log("Grab", "Opening Cargo Hold", Logging.White);
-
                     _freeCargoCapacity = Cache.Instance.CargoHold.Capacity - Cache.Instance.CargoHold.UsedCapacity;
-
                     _States.CurrentGrabState = Item == 00 ? GrabState.AllItems : GrabState.MoveItems;
 
                     break;
 
                 case GrabState.MoveItems:
-
                     if (DateTime.Now.Subtract(_lastAction).TotalSeconds < 2)
                         break;
+
                     if (Unit == 00)
                     {
                         if (hangar != null)
                         {
-                            DirectItem grabItem = hangar.Items.FirstOrDefault(i => (i.TypeId == Item));
-                            if (grabItem != null)
+                            DirectItem grabItems = hangar.Items.FirstOrDefault(i => (i.TypeId == Item));
+                            if (grabItems != null)
                             {
-                                double totalVolum = grabItem.Quantity * grabItem.Volume;
+                                double totalVolum = grabItems.Quantity * grabItems.Volume;
                                 if (_freeCargoCapacity >= totalVolum)
                                 {
-                                    Cache.Instance.CargoHold.Add(grabItem, grabItem.Quantity);
+                                    //foreach (DirectItem item in items)
+                                    //{
+                                    //    Logging.Log("Grab", "Items: " + item.TypeName, Logging.White);
+                                    //}
+                                    Cache.Instance.CargoHold.Add(grabItems, grabItems.Quantity);
                                     _freeCargoCapacity -= totalVolum;
-                                    Logging.Log("Grab", "Moving all the items", Logging.White);
+                                    Logging.Log("Grab.MoveItems", "Moving all the items", Logging.White);
                                     _lastAction = DateTime.Now;
                                     _States.CurrentGrabState = GrabState.WaitForItems;
                                 }
                                 else
                                 {
                                     _States.CurrentGrabState = GrabState.Done;
-                                    Logging.Log("Grab", "No load capacity", Logging.White);
+                                    Logging.Log("Grab.MoveItems", "No load capacity", Logging.White);
                                 }
                             }
                         }
@@ -141,14 +139,14 @@ namespace Questor.Modules.Actions
                                 {
                                     Cache.Instance.CargoHold.Add(grabItem, Unit);
                                     _freeCargoCapacity -= totalVolum;
-                                    Logging.Log("Grab", "Moving item", Logging.White);
+                                    Logging.Log("Grab.MoveItems", "Moving item", Logging.White);
                                     _lastAction = DateTime.Now;
                                     _States.CurrentGrabState = GrabState.WaitForItems;
                                 }
                                 else
                                 {
                                     _States.CurrentGrabState = GrabState.Done;
-                                    Logging.Log("Grab", "No load capacity", Logging.White);
+                                    Logging.Log("Grab.MoveItems", "No load capacity", Logging.White);
                                 }
                             }
                         }
@@ -157,7 +155,6 @@ namespace Questor.Modules.Actions
                     break;
 
                 case GrabState.AllItems:
-
                     if (DateTime.Now.Subtract(_lastAction).TotalSeconds < 2)
                         break;
 
@@ -189,7 +186,7 @@ namespace Questor.Modules.Actions
                                     //we are now "full" and should go "home" or "market" (how do we decide where to go ffs?)
                                 }
                             }
-                            Logging.Log("Grab", "Moving items", Logging.White);
+                            Logging.Log("Grab.AllItems", "Moving items", Logging.White);
                             _lastAction = DateTime.Now;
                             _States.CurrentGrabState = GrabState.WaitForItems;
                         }

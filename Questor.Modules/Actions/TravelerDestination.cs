@@ -66,6 +66,7 @@ namespace Questor.Modules.Actions
     public class StationDestination : TravelerDestination
     {
         private DateTime _nextStationAction;
+        private static int _undockAttempts = 0;
 
         public StationDestination(long stationId)
         {
@@ -118,6 +119,12 @@ namespace Questor.Modules.Actions
                 // We are in a station, but not the correct station!
                 if (DateTime.Now > Cache.Instance.NextUndockAction)
                 {
+                    if (_undockAttempts > 10)
+                    {
+                        Logging.Log("TravelerDestination.StationDestination", "This is not the destination station, we have tried to undock [" + _undockAttempts + "] times - and it is evidentally not working (lag?) - restarting Questor (and EVE)", Logging.Green);
+                        Cache.Instance.SessionState = "Quitting"; //this will perform a graceful restart
+                    }
+
                     Logging.Log("TravelerDestination.StationDestination", "This is not the destination station, undocking from [" + Cache.Instance.DirectEve.GetLocationName(Cache.Instance.DirectEve.Session.StationId ?? 0) + "]", Logging.Green);
 
                     //if (!string.IsNullOrEmpty(Settings.Instance.UndockPrefix))
@@ -140,6 +147,7 @@ namespace Questor.Modules.Actions
                     //}
                     //else Logging.Log("TravelerDestination.StationDestination: UndockPrefix is not configured");
                     Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdExitStation);
+                    _undockAttempts++;
                     Cache.Instance.NextUndockAction = DateTime.Now.AddSeconds(Time.Instance.TravelerExitStationAmIInSpaceYet_seconds);
                     return false;
                 }
@@ -156,6 +164,8 @@ namespace Questor.Modules.Actions
 
             if (nextAction > DateTime.Now)
                 return false;
+
+            _undockAttempts = 0;
 
             if (localundockBookmark != null)
             {
@@ -355,9 +365,8 @@ namespace Questor.Modules.Actions
 
             if (nextAction > DateTime.Now)
                 return false;
-            var gates = Cache.Instance.Entities.Where(a => a.GroupId == (int)Group.AccellerationGate);
 
-            if (Math.Round((distance / 1000)) < (int)Distance.MaxPocketsDistanceKm && gates.Count()!=0)
+            if (Math.Round((distance / 1000)) < (int)Distance.MaxPocketsDistanceKm && Cache.Instance.AccelerationGates.Count() != 0)
             {
                 Logging.Log("QuestorManager.BookmarkDestination",
                 "Warp to bookmark in same pocket requested but acceleration gate found delaying."
@@ -390,12 +399,12 @@ namespace Questor.Modules.Actions
         {
             if (bookmark == null)
             {
-                if (!Cache.Instance.Missionbookmarktimerset)
+                if (!Cache.Instance.MissionBookmarkTimerSet)
                 {
-                    Cache.Instance.Missionbookmarktimeout = DateTime.Now.AddSeconds(10);
+                    Cache.Instance.MissionBookmarkTimeout = DateTime.Now.AddSeconds(10);
                 }
 
-                if (Cache.Instance.Missionbookmarktimeout > DateTime.Now)
+                if (Cache.Instance.MissionBookmarkTimeout > DateTime.Now)
                 {
                     AgentId = -1;
                     Title = null;
@@ -412,7 +421,7 @@ namespace Questor.Modules.Actions
                 }
                 else
                 {
-                    Logging.Log("TravelDestination.MissionBookmarkDestination", "Invalid Mission Bookmark! retrying for another [ " + Math.Round(Cache.Instance.Missionbookmarktimeout.Subtract(DateTime.Now).TotalSeconds, 0) + " ]sec", Logging.Green);
+                    Logging.Log("TravelDestination.MissionBookmarkDestination", "Invalid Mission Bookmark! retrying for another [ " + Math.Round(Cache.Instance.MissionBookmarkTimeout.Subtract(DateTime.Now).TotalSeconds, 0) + " ]sec", Logging.Green);
                 }
             }
 

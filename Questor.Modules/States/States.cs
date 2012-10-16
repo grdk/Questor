@@ -28,6 +28,10 @@
 
         public static DirectionalScannerBehaviorState CurrentDirectionalScannerBehaviorState { get; set; }
 
+        public static DebugBehaviorState CurrentDebugBehaviorState { get; set; }
+
+        public static DebugHangarsBehaviorState CurrentDebugHangarBehaviorState { get; set; }
+
         public static CourierMissionCtrlState CurrentCourierMissionCtrlState { get; set; }
 
         public static CombatMissionCtrlState CurrentCombatMissionCtrlState { get; set; }

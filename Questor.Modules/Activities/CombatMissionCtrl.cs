@@ -254,8 +254,8 @@ namespace Questor.Modules.Activities
 
         private void ClearAggroAction(Actions.Action action)
         {
-            if (!Cache.Instance.NormalApproch)
-                Cache.Instance.NormalApproch = true;
+            if (!Cache.Instance.NormalApproach)
+                Cache.Instance.NormalApproach = true;
 
             // Get lowest range
             double range = Cache.Instance.MaxRange;
@@ -345,8 +345,8 @@ namespace Questor.Modules.Activities
 
         private void ClearPocketAction(Actions.Action action)
         {
-            if (!Cache.Instance.NormalApproch)
-                Cache.Instance.NormalApproch = true;
+            if (!Cache.Instance.NormalApproach)
+                Cache.Instance.NormalApproach = true;
 
             // Get lowest range
             double range = Cache.Instance.MaxRange;
@@ -359,26 +359,22 @@ namespace Questor.Modules.Activities
                 range = Math.Min(Cache.Instance.MaxRange, distancetoclear);
             }
 
-            //int priority;
-            //if (!int.TryParse(action.GetParameterValue("priority"), out priority))
-            //    priority = (int)range;
-
             //panic handles adding any priority targets and combat will prefer to kill any priority targets
 
-            // Is there a priority target out of range?
-            EntityCache target = Cache.Instance.PriorityTargets.OrderBy(t => t.Distance).FirstOrDefault(t => !(Cache.Instance.IgnoreTargets.Contains(t.Name.Trim()) && !Cache.Instance.TargetedBy.Any(w => w.IsWarpScramblingMe || w.IsNeutralizingMe || w.IsWebbingMe)));
-            if (target == null)
-                _targetNull = true;
-            else
-                _targetNull = false;
-            // Or is there a target out of range that is targeting us?
+            EntityCache target = null;
+            
+            // Or is there a target that is targeting us?
             target = target ?? Cache.Instance.TargetedBy.Where(t => !t.IsSentry && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeCollidableStructure && !Cache.Instance.IgnoreTargets.Contains(t.Name.Trim())).OrderBy(t => t.Distance).FirstOrDefault();
-            // Or is there any target out of range?
+            // Or is there any target?
             target = target ?? Cache.Instance.Entities.Where(t => !t.IsSentry && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeCollidableStructure && !Cache.Instance.IgnoreTargets.Contains(t.Name.Trim())).OrderBy(t => t.Distance).FirstOrDefault();
             if (Settings.Instance.KillSentries)
             {
                 target = target ?? Cache.Instance.Entities.Where(t => !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeCollidableStructure && !Cache.Instance.IgnoreTargets.Contains(t.Name.Trim())).OrderBy(t => t.Distance).FirstOrDefault();
             }
+            if (target == null)
+                _targetNull = true;
+            else
+                _targetNull = false;
 
             int targetedby = Cache.Instance.TargetedBy.Count(t => !t.IsSentry && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeCollidableStructure && !Cache.Instance.IgnoreTargets.Contains(t.Name.Trim()));
 
@@ -398,7 +394,7 @@ namespace Questor.Modules.Activities
 
                     if (Cache.Instance.DirectEve.ActiveShip.MaxLockedTargets > 0)
                     {
-                        if (target.IsTarget || target.IsTargeting) //This target is already targeted no need to target it again
+                        if (target.IsTarget || target.IsTargeting || target.IsActiveTarget || !target.IsValid) //This target is already targeted no need to target it again
                         {
                             //noop
                         }
@@ -456,9 +452,18 @@ namespace Questor.Modules.Activities
                 distancetoconsidertargets = Math.Min(Cache.Instance.MaxRange, distancetoclear);
             }
 
-            EntityCache target = Cache.Instance.PriorityTargets.OrderBy(t => t.Distance).FirstOrDefault(t => t.Distance < distancetoconsidertargets && !(Cache.Instance.IgnoreTargets.Contains(t.Name.Trim()) && !Cache.Instance.TargetedBy.Any(w => w.IsWarpScramblingMe || w.IsNeutralizingMe || w.IsWebbingMe)));
+            //
+            // try to find priority targets to kill first (by definition they'd already be targeting us)
+            //
+            EntityCache target = null;
+            if (Settings.Instance.SpeedTank)
+                target = Cache.Instance.PriorityTargets.OrderBy(t => t.Distance).FirstOrDefault(t => t.Distance < distancetoconsidertargets && !(Cache.Instance.IgnoreTargets.Contains(t.Name.Trim()) && !Cache.Instance.TargetedBy.Any(w => w.IsWarpScramblingMe || w.IsNeutralizingMe || w.IsWebbingMe)));
+            else
+                target = Cache.Instance.PriorityTargets.OrderBy(t => t.Distance).FirstOrDefault(t => t.Distance < distancetoconsidertargets && !(Cache.Instance.IgnoreTargets.Contains(t.Name.Trim()) && !Cache.Instance.TargetedBy.Any(w => w.IsWarpScramblingMe || w.IsNeutralizingMe)));
 
-            // Or is there a target within distancetoconsidertargets that is targeting us?
+            //
+            // if we have no target yet is there a target within distancetoconsidertargets that is targeting us?
+            //
             target = target ?? Cache.Instance.TargetedBy.Where(t => t.Distance < distancetoconsidertargets && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeCollidableStructure && !Cache.Instance.IgnoreTargets.Contains(t.Name.Trim())).OrderBy(t => t.Distance).FirstOrDefault();
             // Or is there any target within distancetoconsidertargets?
             target = target ?? Cache.Instance.Entities.Where(t => t.Distance < distancetoconsidertargets && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeCollidableStructure && !Cache.Instance.IgnoreTargets.Contains(t.Name.Trim())).OrderBy(t => t.Distance).FirstOrDefault();
@@ -564,8 +569,8 @@ namespace Questor.Modules.Activities
 
         private void MoveToBackgroundAction(Actions.Action action)
         {
-            if (Cache.Instance.NormalApproch)
-                Cache.Instance.NormalApproch = false;
+            if (Cache.Instance.NormalApproach)
+                Cache.Instance.NormalApproach = false;
 
             int distancetoapp;
             if (!int.TryParse(action.GetParameterValue("distance"), out distancetoapp))
@@ -594,8 +599,8 @@ namespace Questor.Modules.Activities
 
         private void MoveToAction(Actions.Action action)
         {
-            if (Cache.Instance.NormalApproch)
-                Cache.Instance.NormalApproch = false;
+            if (Cache.Instance.NormalApproach)
+                Cache.Instance.NormalApproach = false;
 
             string target = action.GetParameterValue("target");
 
@@ -755,8 +760,8 @@ namespace Questor.Modules.Activities
 
         private void AggroOnlyAction(Actions.Action action)
         {
-            if (Cache.Instance.NormalApproch)
-                Cache.Instance.NormalApproch = false;
+            if (Cache.Instance.NormalApproach)
+                Cache.Instance.NormalApproach = false;
 
             bool ignoreAttackers;
             if (!bool.TryParse(action.GetParameterValue("ignoreattackers"), out ignoreAttackers))
@@ -833,8 +838,8 @@ namespace Questor.Modules.Activities
 
         private void KillAction(Actions.Action action)
         {
-            if (Cache.Instance.NormalApproch)
-                Cache.Instance.NormalApproch = false;
+            if (Cache.Instance.NormalApproach)
+                Cache.Instance.NormalApproach = false;
 
             bool ignoreAttackers;
             if (!bool.TryParse(action.GetParameterValue("ignoreattackers"), out ignoreAttackers))
@@ -946,8 +951,8 @@ namespace Questor.Modules.Activities
 
         private void KillOnceAction(Actions.Action action)
         {
-            if (Cache.Instance.NormalApproch)
-                Cache.Instance.NormalApproch = false;
+            if (Cache.Instance.NormalApproach)
+                Cache.Instance.NormalApproach = false;
 
             bool nottheclosest;
             if (!bool.TryParse(action.GetParameterValue("notclosest"), out nottheclosest))
@@ -1044,8 +1049,8 @@ namespace Questor.Modules.Activities
             if (!bool.TryParse(action.GetParameterValue("notclosest"), out nottheclosest))
                 nottheclosest = false;
 
-            if (Cache.Instance.NormalApproch)
-                Cache.Instance.NormalApproch = false;
+            if (Cache.Instance.NormalApproach)
+                Cache.Instance.NormalApproach = false;
 
             List<string> targetNames = action.GetParameterValues("target");
             // No parameter? Ignore kill action
@@ -1099,8 +1104,8 @@ namespace Questor.Modules.Activities
 
         private void KillClosestAction(Actions.Action action)
         {
-            if (Cache.Instance.NormalApproch)
-                Cache.Instance.NormalApproch = false;
+            if (Cache.Instance.NormalApproach)
+                Cache.Instance.NormalApproach = false;
 
             bool nottheclosest;
             if (!bool.TryParse(action.GetParameterValue("notclosest"), out nottheclosest))
@@ -1556,8 +1561,8 @@ namespace Questor.Modules.Activities
                 case CombatMissionCtrlState.Done:
                     Statistics.WritePocketStatistics();
 
-                    if (!Cache.Instance.NormalApproch)
-                        Cache.Instance.NormalApproch = true;
+                    if (!Cache.Instance.NormalApproach)
+                        Cache.Instance.NormalApproach = true;
 
                     Cache.Instance.IgnoreTargets.Clear();
                     break;
@@ -1601,8 +1606,7 @@ namespace Questor.Modules.Activities
                         _pocketActions.Add(new Actions.Action { State = ActionState.ClearPocket });
 
                         // Is there a gate?
-                        IEnumerable<EntityCache> gates = Cache.Instance.EntitiesByName("Acceleration Gate");
-                        if (gates != null && gates.Any())
+                        if (Cache.Instance.AccelerationGates != null && Cache.Instance.AccelerationGates.Any())
                         {
                             // Activate it (Activate action also moves to the gate)
                             _pocketActions.Add(new Actions.Action { State = ActionState.Activate });
