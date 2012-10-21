@@ -27,7 +27,7 @@ namespace BuyLPI
         private static DateTime _loyaltyPointTimeout;
         private static string _type;
         private static int? _quantity;
-        private static int? _totalquantityoforders;
+        private static int? _totalQuantityOfOrders;
         private static DateTime _done = DateTime.Now.AddYears(10);
         private static DirectEve _directEve;
         private static DateTime _lastPulse;
@@ -69,7 +69,7 @@ namespace BuyLPI
                 }
 
                 _quantity = dummy;
-                _totalquantityoforders = dummy;
+                _totalQuantityOfOrders = dummy;
             }
 
             Logging.Log("BuyLPI", "Starting BuyLPI...", Logging.White);
@@ -203,8 +203,8 @@ namespace BuyLPI
 
             // All passed, accept offer
             if (_quantity != null)
-                if (_totalquantityoforders != null)
-                    Logging.Log("BuyLPI", "Accepting " + offer.TypeName + " [ " + _quantity.Value + " ] of [ " + _totalquantityoforders.Value + " ] orders and will cost another [" + Math.Round(((offer.IskCost * _quantity.Value) / (double)1000000), 2) + "mil isk]", Logging.White);
+                if (_totalQuantityOfOrders != null)
+                    Logging.Log("BuyLPI", "Accepting " + offer.TypeName + " [ " + _quantity.Value + " ] of [ " + _totalQuantityOfOrders.Value + " ] orders and will cost another [" + Math.Round(((offer.IskCost * _quantity.Value) / (double)1000000), 2) + "mil isk]", Logging.White);
             offer.AcceptOfferFromWindow();
 
             // Set next action + loyalty point timeout
@@ -217,7 +217,6 @@ namespace BuyLPI
                 if (_quantity.Value <= 0)
                 {
                     Logging.Log("BuyLPI", "Quantity limit reached", Logging.White);
-
                     _done = DateTime.Now;
                     return;
                 }

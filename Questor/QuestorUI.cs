@@ -610,13 +610,13 @@ namespace Questor
             //if (Settings.Instance.DebugUI) Logging.Log("QuestorUI", "UpdateUiTick", Logging.White);
             // The if's in here stop the UI from flickering
             string text = "Questor";
-            if (_questor.CharacterName != string.Empty)
+            if (Settings.Instance.CharacterName != string.Empty)
             {
-                text = "Questor [" + _questor.CharacterName + "]";
+                text = "Questor [" + Settings.Instance.CharacterName + "]";
             }
             if (Settings.Instance.CharacterName != string.Empty && Cache.Instance.Wealth > 10000000)
             {
-                text = "Questor [" + _questor.CharacterName + "][" + String.Format("{0:0,0}", Cache.Instance.Wealth / 1000000) + "mil isk]";
+                text = "Questor [" + Settings.Instance.CharacterName + "][" + String.Format("{0:0,0}", Cache.Instance.Wealth / 1000000) + "mil isk]";
             }
 
             if (Text != text)

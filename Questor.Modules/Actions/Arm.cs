@@ -219,10 +219,13 @@ namespace Questor.Modules.Actions
                         if (!Cache.Instance.ArmLoadedCache)
                         {
                             _missionItemMoved = false;
-                            Cache.Instance.RefreshMissionItems(AgentId);
+                            if (_States.CurrentQuestorState == QuestorState.CombatMissionsBehavior)
+                            {
+                                Cache.Instance.RefreshMissionItems(AgentId);
+                            }
                             Cache.Instance.ArmLoadedCache = true;
                         }
-                        // If we've got a mission-specific ship defined, switch to it
+                        // If we have got a mission-specific ship defined, switch to it
                         if ((_States.CurrentArmState == ArmState.ActivateCombatShip) && !string.IsNullOrEmpty(Cache.Instance.MissionShip) && TryMissionShip)
                             shipName = Cache.Instance.MissionShip.ToLower();
 
@@ -269,15 +272,6 @@ namespace Questor.Modules.Actions
                         if (TryMissionShip)
                             UseMissionShip = true;
 
-                        //if (State == ArmState.ActivateSalvageShip)
-                        //{
-                        //    Logging.Log("Arm","Done");
-                        //    State = ArmState.Done;
-                        //    return;
-                        //}
-
-                        //_missionItemMoved = false;
-                        //Cache.Instance.RefreshMissionItems(AgentId);
                         if (AmmoToLoad.Count == 0 && string.IsNullOrEmpty(Cache.Instance.BringMissionItem))
                         {
                             Logging.Log("Arm", "Done", Logging.White);
@@ -372,7 +366,7 @@ namespace Questor.Modules.Actions
                             }
                             if (!found)
                             {
-                                Logging.Log("Arm", "Error! Couldn't find Default Fitting.  Disabling fitting manager.", Logging.Orange);
+                                Logging.Log("Arm", "Error! Could not find Default Fitting.  Disabling fitting manager.", Logging.Orange);
                                 DefaultFittingFound = false;
                                 Settings.Instance.UseFittingManager = false;
                                 Logging.Log("Arm", "Closing Fitting Manager", Logging.White);
@@ -413,7 +407,7 @@ namespace Questor.Modules.Actions
                         {
                             return;
                         }
-                        //if we didn't find it, we'll set currentfit to default
+                        //if we did not find it, we'll set currentfit to default
                         //this should provide backwards compatibility without trying to fit always
                         if (!found)
                         {
@@ -449,8 +443,6 @@ namespace Questor.Modules.Actions
                     break;
 
                 case ArmState.MoveDrones:
-                    if (!Cache.Instance.ReadyShipsHangar("Arm")) break;
-
                     if (!Cache.Instance.ReadyDroneBay("Arm")) break;
 
                     if (!Cache.Instance.ReadyAmmoHangar("Arm")) break;
@@ -467,7 +459,6 @@ namespace Questor.Modules.Actions
                     if (Settings.Instance.UseStationRepair && Cache.Instance.RepairAll)
                     {
                         if (!Cache.Instance.RepairItems("Repair All")) break; //attempt to use repair facilities if avail in station
-                        Cache.Instance.RepairAll = false;
                     }
                     else
                     {
@@ -621,8 +612,7 @@ namespace Questor.Modules.Actions
                             //reload the ammo setting for combat
                             try
                             {
-                                DirectAgentMission mission =
-                                    Cache.Instance.DirectEve.AgentMissions.FirstOrDefault(m => m.AgentId == AgentId);
+                                DirectAgentMission mission = Cache.Instance.DirectEve.AgentMissions.FirstOrDefault(m => m.AgentId == AgentId);
                                 if (mission == null)
                                     return;
 

@@ -154,7 +154,7 @@ namespace Questor.Modules.Combat
             _lastDronesProcessState = DateTime.Now;
 
             if (Cache.Instance.InStation ||                             // There is really no combat in stations (yet)
-                !Cache.Instance.InSpace ||                             // if we are not in space yet, wait...
+                !Cache.Instance.InSpace ||                              // if we are not in space yet, wait...
                 Cache.Instance.DirectEve.ActiveShip.Entity == null ||   // What? No ship entity?
                 Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked || // There is no combat when cloaked
                 !Settings.Instance.UseDrones                            //if UseDrones is false
@@ -262,7 +262,10 @@ namespace Questor.Modules.Combat
 
                     // Are we done launching?
                     if (_lastDroneCount == Cache.Instance.ActiveDrones.Count())
+                    {
+                        Logging.Log("Drones", "[" + Cache.Instance.ActiveDrones.Count() + "] Drones Launched", Logging.Magenta);
                         _States.CurrentDroneState = DroneState.Fighting;
+                    }
                     break;
 
                 case DroneState.OutOfDrones:
@@ -285,11 +288,11 @@ namespace Questor.Modules.Combat
                     {
                         if (Cache.Instance.PriorityTargets.Any(pt => pt.IsWarpScramblingMe))
                         {
-                            EntityCache warpscrambledby = Cache.Instance.Targets.FirstOrDefault(pt => pt.IsWarpScramblingMe);
-                            if (warpscrambledby != null && DateTime.Now > _nextWarpScrambledWarning)
+                            EntityCache WarpScrambledBy = Cache.Instance.Targets.FirstOrDefault(pt => pt.IsWarpScramblingMe);
+                            if (WarpScrambledBy != null && DateTime.Now > _nextWarpScrambledWarning)
                             {
                                 _nextWarpScrambledWarning = DateTime.Now.AddSeconds(20);
-                                Logging.Log("Drones", "We are scrambled by: [" + Logging.White + warpscrambledby.Name + Logging.Orange + "][" + Logging.White + Math.Round(warpscrambledby.Distance, 0) + Logging.Orange + "][" + Logging.White + warpscrambledby.Id + Logging.Orange + "]",
+                                Logging.Log("Drones", "We are scrambled by: [" + Logging.White + WarpScrambledBy.Name + Logging.Orange + "][" + Logging.White + Math.Round(WarpScrambledBy.Distance, 0) + Logging.Orange + "][" + Logging.White + WarpScrambledBy.Id + Logging.Orange + "]",
                                             Logging.Orange);
                                 Recall = false;
                                 WarpScrambled = true;
@@ -382,45 +385,55 @@ namespace Questor.Modules.Combat
                                             lowCapWarning + "%] minimum", Logging.Orange);
                                 Recall = true;
                             }
-                            else if (_States.CurrentCombatMissionBehaviorState == CombatMissionsBehaviorState.GotoBase && !WarpScrambled)
+                            else if (_States.CurrentQuestorState == QuestorState.CombatMissionsBehavior && !WarpScrambled)
                             {
-                                Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to gotobase state", Logging.Orange);
-                                Recall = true;
+                                if (_States.CurrentCombatMissionBehaviorState == CombatMissionsBehaviorState.GotoBase && !WarpScrambled)
+                                {
+                                    Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to gotobase state", Logging.Orange);
+                                    Recall = true;
+                                }
+                                else if (_States.CurrentCombatMissionBehaviorState == CombatMissionsBehaviorState.GotoMission && !WarpScrambled)
+                                {
+                                    Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to gotomission state", Logging.Orange);
+                                    Recall = true;
+                                }
+                                else if (_States.CurrentCombatMissionBehaviorState == CombatMissionsBehaviorState.Panic && !WarpScrambled)
+                                {
+                                    Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to panic state", Logging.Orange);
+                                    Recall = true;
+                                }
                             }
-                            else if (_States.CurrentCombatMissionBehaviorState == CombatMissionsBehaviorState.GotoMission && !WarpScrambled)
+                            else if (_States.CurrentQuestorState == QuestorState.CombatHelperBehavior && !WarpScrambled)
                             {
-                                Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to gotomission state", Logging.Orange);
-                                Recall = true;
+                                if (_States.CurrentCombatHelperBehaviorState == CombatHelperBehaviorState.Panic && !WarpScrambled)
+                                {
+                                    Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to panic state", Logging.Orange);
+                                    Recall = true;
+                                }
+                                else if (_States.CurrentCombatHelperBehaviorState == CombatHelperBehaviorState.GotoBase && !WarpScrambled)
+                                {
+                                    Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to panic state", Logging.Orange);
+                                    Recall = true;
+                                }
                             }
-                            else if (_States.CurrentCombatMissionBehaviorState == CombatMissionsBehaviorState.Panic && !WarpScrambled)
+                            else if (_States.CurrentQuestorState == QuestorState.DedicatedBookmarkSalvagerBehavior && !WarpScrambled)
                             {
-                                Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to panic state", Logging.Orange);
-                                Recall = true;
-                            }
-                            else if (_States.CurrentCombatHelperBehaviorState == CombatHelperBehaviorState.Panic && !WarpScrambled)
-                            {
-                                Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to panic state", Logging.Orange);
-                                Recall = true;
-                            }
-                            else if (_States.CurrentCombatHelperBehaviorState == CombatHelperBehaviorState.GotoBase && !WarpScrambled)
-                            {
-                                Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to panic state", Logging.Orange);
-                                Recall = true;
-                            }
-                            else if (_States.CurrentDedicatedBookmarkSalvagerBehaviorState == DedicatedBookmarkSalvagerBehaviorState.GotoBase && !WarpScrambled)
-                            {
-                                Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to gotobase state", Logging.Orange);
-                                Recall = true;
-                            }
-                            else if (_States.CurrentDedicatedBookmarkSalvagerBehaviorState == DedicatedBookmarkSalvagerBehaviorState.Panic && !WarpScrambled)
-                            {
-                                Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to panic state", Logging.Orange);
-                                Recall = true;
-                            }
-                            else if (_States.CurrentDedicatedBookmarkSalvagerBehaviorState == DedicatedBookmarkSalvagerBehaviorState.GotoNearestStation && !WarpScrambled)
-                            {
-                                Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to gotoneareststation state", Logging.Orange);
-                                Recall = true;
+                                if (_States.CurrentDedicatedBookmarkSalvagerBehaviorState == DedicatedBookmarkSalvagerBehaviorState.GotoBase && !WarpScrambled)
+                                {
+
+                                    Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to gotobase state", Logging.Orange);
+                                    Recall = true;
+                                }
+                                else if (_States.CurrentDedicatedBookmarkSalvagerBehaviorState == DedicatedBookmarkSalvagerBehaviorState.Panic && !WarpScrambled)
+                                {
+                                    Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to panic state", Logging.Orange);
+                                    Recall = true;
+                                }
+                                else if (_States.CurrentDedicatedBookmarkSalvagerBehaviorState == DedicatedBookmarkSalvagerBehaviorState.GotoNearestStation && !WarpScrambled)
+                                {
+                                    Logging.Log("Drones", "Recalling [ " + Cache.Instance.ActiveDrones.Count() + " ] drones due to GotoNearestStation state", Logging.Orange);
+                                    Recall = true;
+                                }
                             }
                         }
                     }
@@ -437,7 +450,9 @@ namespace Questor.Modules.Combat
 
                         // We lost a drone and did not recall, assume panicking and launch (if any) additional drones
                         if (Cache.Instance.ActiveDrones.Count() < _lastDroneCount)
+                        {
                             _States.CurrentDroneState = DroneState.Launch;
+                        }
                     }
                     break;
 

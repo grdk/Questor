@@ -38,11 +38,15 @@ namespace Questor.Behaviors
         public DateTime LastAction;
         //private int _randomDelay;
         public static long AgentID;
+
         private readonly Stopwatch _watch;
 
-        public bool Panicstatereset; //false;
+        public bool PanicStateReset; //false;
+
         private bool ValidSettings { get; set; }
-        public bool CloseQuestorflag = true;
+
+        public bool CloseQuestorFlag = true;
+
         public string CharacterName { get; set; }
 
         //DateTime _nextAction = DateTime.Now;
@@ -257,10 +261,10 @@ namespace Questor.Behaviors
                 _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.Panic;
 
                 DebugCombatHelperBehaviorStates();
-                if (Panicstatereset)
+                if (PanicStateReset)
                 {
                     _States.CurrentPanicState = PanicState.Normal;
-                    Panicstatereset = false;
+                    PanicStateReset = false;
                 }
             }
             else if (_States.CurrentPanicState == PanicState.Resume)
@@ -404,7 +408,7 @@ namespace Questor.Behaviors
                     Cache.Instance.SalvageAll = true;
                     Cache.Instance.OpenWrecks = true;
 
-                    if (Settings.Instance.UnloadLootAtStation && Cache.Instance.CargoHold.Window.IsReady && (Cache.Instance.CargoHold.Capacity - Cache.Instance.CargoHold.UsedCapacity) < 100)
+                    if (Settings.Instance.UnloadLootAtStation && Cache.Instance.CargoHold.IsValid && (Cache.Instance.CargoHold.Capacity - Cache.Instance.CargoHold.UsedCapacity) < 100)
                     {
                         Logging.Log("CombatMissionsBehavior.Salvage", "We are full, go to base to unload", Logging.White);
                         if (_States.CurrentCombatMissionBehaviorState == CombatMissionsBehaviorState.Salvage)
@@ -494,7 +498,7 @@ namespace Questor.Behaviors
                     List<long> destination = Cache.Instance.DirectEve.Navigation.GetDestinationPath();
                     if (destination == null || destination.Count == 0)
                     {
-                        // happens if autopilot isn't set and this questorstate is chosen manually
+                        // happens if autopilot is not set and this QuestorState is chosen manually
                         // this also happens when we get to destination (!?)
                         Logging.Log("CombatHelperBehavior.Traveler", "No destination?", Logging.White);
                         if (_States.CurrentCombatHelperBehaviorState == CombatHelperBehaviorState.Traveler) _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.Error;

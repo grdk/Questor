@@ -308,10 +308,9 @@ namespace Questor.Modules.Activities
                             Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Targeting [" + target.Name + "][ID: " + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                             target.LockTarget();
                         }
-
-                        if (!Cache.Instance.IgnoreTargets.Contains(target.Name.Trim()))
+                        else if (Cache.Instance.IgnoreTargets.Contains(target.Name.Trim()))
                         {
-                            Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "We have attempted to target an NPC that is on the ignore list (why?) Name [" + target.Name + "][" + target.Id + "][" + target.Distance + "]",Logging.Teal);
+                            Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "We have attempted to target an NPC that is on the ignore list (why?) Name [" + target.Name + "][" + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                         }
                     }
                 }
@@ -1236,7 +1235,7 @@ namespace Questor.Modules.Activities
             Cache.Instance.MissionLoot = true;
             List<string> items = action.GetParameterValues("item");
             List<string> targetNames = action.GetParameterValues("target");
-            // if we aren't generally looting we need to re-enable the opening of wrecks to
+            // if we are not generally looting we need to re-enable the opening of wrecks to
             // find this LootItems we are looking for
             Cache.Instance.OpenWrecks = true;
 

@@ -443,7 +443,7 @@ namespace Questor.Modules.BackgroundTasks
                             continue;
                     }
                     // We pick up loot depending on isk per m3
-                    bool isMissionItem = Cache.Instance.MissionItems.Contains((item.Name ?? string.Empty).ToLower());
+                    bool isMissionItem = _States.CurrentQuestorState == QuestorState.CombatMissionsBehavior && Cache.Instance.MissionItems.Contains((item.Name ?? string.Empty).ToLower());
 
                     // Never pick up contraband (unless its the mission item)
                     if (!isMissionItem && item.IsContraband)
@@ -485,7 +485,7 @@ namespace Questor.Modules.BackgroundTasks
                         else
                             worthLess = shipsCargo.Where(sc => sc.IskPerM3.HasValue).ToList();
 
-                        if (Settings.Instance.CharacterMode.ToLower() == "combat missions" || Settings.Instance.CharacterMode.ToLower() == "dps")
+                        if (_States.CurrentQuestorState == QuestorState.CombatMissionsBehavior)
                         {
                             // Remove mission item from this list
                             worthLess.RemoveAll(wl => Cache.Instance.MissionItems.Contains((wl.Name ?? string.Empty).ToLower()));
@@ -781,8 +781,8 @@ namespace Questor.Modules.BackgroundTasks
                     if (Cache.Instance.InSpace &&
                         Cache.Instance.DirectEve.ActiveShip.Entity != null &&
                         !Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked &&
-                        (Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() != Settings.Instance.CombatShipName ||
-                        Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() != Settings.Instance.SalvageShipName) &&
+                        (Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() != Settings.Instance.CombatShipName.ToLower() ||
+                        Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() != Settings.Instance.SalvageShipName.ToLower()) &&
                         !Cache.Instance.InWarp)
                     {
                         _States.CurrentSalvageState = SalvageState.TargetWrecks;

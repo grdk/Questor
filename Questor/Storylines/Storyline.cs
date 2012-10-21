@@ -25,8 +25,8 @@ namespace Questor.Storylines
 
         private DateTime _nextAction = DateTime.Now;
         private DateTime _nextStoryLineAttempt = DateTime.Now;
-        private int _highseccounter;
-        private bool _highsecchecked;
+        private int _highSecCounter;
+        private bool _highSecChecked;
         private bool _setDestinationStation;
 
         public Storyline()
@@ -134,19 +134,19 @@ namespace Questor.Storylines
         {
             get
             {
-                IEnumerable<DirectAgentMission> missionsinjournal = Cache.Instance.DirectEve.AgentMissions.ToList();
+                IEnumerable<DirectAgentMission> missionsInJournal = Cache.Instance.DirectEve.AgentMissions.ToList();
                 if (Cache.Instance.CurrentStorylineAgentId != 0)
-                    return missionsinjournal.FirstOrDefault(m => m.AgentId == Cache.Instance.CurrentStorylineAgentId);
+                    return missionsInJournal.FirstOrDefault(m => m.AgentId == Cache.Instance.CurrentStorylineAgentId);
 
-                missionsinjournal = missionsinjournal.Where(m => !Cache.Instance.AgentBlacklist.Contains(m.AgentId)).ToList();
-                missionsinjournal = missionsinjournal.Where(m => m.Important).ToList();
-                Logging.Log("Storyline", "Currently have  [" + missionsinjournal.Count() + "] availible storyline missions", Logging.Yellow);
-                missionsinjournal = missionsinjournal.Where(m => _storylines.ContainsKey(Cache.Instance.FilterPath(m.Name)));
-                Logging.Log("Storyline", "Currently have  [" + missionsinjournal.Count() + "] storyline missions questor knows how to do", Logging.Yellow);
-                missionsinjournal = missionsinjournal.Where(m => Settings.Instance.MissionBlacklist.All(b => b.ToLower() != Cache.Instance.FilterPath(m.Name).ToLower())).ToList();
-                Logging.Log("Storyline", "Currently have  [" + missionsinjournal.Count() + "] storyline missions questor knows how to do and are not blacklisted", Logging.Yellow);
+                missionsInJournal = missionsInJournal.Where(m => !Cache.Instance.AgentBlacklist.Contains(m.AgentId)).ToList();
+                missionsInJournal = missionsInJournal.Where(m => m.Important).ToList();
+                Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] availible storyline missions", Logging.Yellow);
+                missionsInJournal = missionsInJournal.Where(m => _storylines.ContainsKey(Cache.Instance.FilterPath(m.Name)));
+                Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] storyline missions questor knows how to do", Logging.Yellow);
+                missionsInJournal = missionsInJournal.Where(m => Settings.Instance.MissionBlacklist.All(b => b.ToLower() != Cache.Instance.FilterPath(m.Name).ToLower())).ToList();
+                Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] storyline missions questor knows how to do and are not blacklisted", Logging.Yellow);
                 //missions = missions.Where(m => !Settings.Instance.MissionGreylist.Any(b => b.ToLower() == Cache.Instance.FilterPath(m.Name).ToLower()));
-                return missionsinjournal.FirstOrDefault();
+                return missionsInJournal.FirstOrDefault();
             }
         }
 
@@ -174,7 +174,7 @@ namespace Questor.Storylines
             Logging.Log("Storyline", "Going to do [" + currentStorylineMission.Name + "] for agent [" + storylineagent.Name + "] AgentID[" + Cache.Instance.CurrentStorylineAgentId + "]", Logging.Yellow);
             Cache.Instance.MissionName = currentStorylineMission.Name;
 
-            _highsecchecked = false;
+            _highSecChecked = false;
             _States.CurrentStorylineState = StorylineState.Arm;
             _storyline = _storylines[Cache.Instance.FilterPath(currentStorylineMission.Name)];
         }
@@ -198,7 +198,7 @@ namespace Questor.Storylines
                 return;
             }
 
-            if (!_highsecchecked && storylineagent.SolarSystemId != Cache.Instance.DirectEve.Session.SolarSystemId)
+            if (!_highSecChecked && storylineagent.SolarSystemId != Cache.Instance.DirectEve.Session.SolarSystemId)
             {
                 // if we haven't already done so, set Eve's autopilot
                 if (!_setDestinationStation)
@@ -214,17 +214,17 @@ namespace Questor.Storylines
                     return;
                 }
 
-                // Make sure we've got a clear path to the agent
+                // Make sure we have got a clear path to the agent
                 if (!Settings.Instance.LowSecMissionsInShuttles && !Cache.Instance.CheckifRouteIsAllHighSec())
                 {
-                    if (_highseccounter < 5)
+                    if (_highSecCounter < 5)
                     {
-                        _highseccounter++;
+                        _highSecCounter++;
                         return;
                     }
                     Logging.Log("Storyline", "GotoAgent: Unable to determine whether route is all highsec or not. Skipping.", Logging.Yellow);
                     _States.CurrentStorylineState = StorylineState.Done;
-                    _highseccounter = 0;
+                    _highSecCounter = 0;
                     return;
                 }
 
@@ -234,7 +234,7 @@ namespace Questor.Storylines
                     _States.CurrentStorylineState = StorylineState.Done;
                     return;
                 }
-                _highsecchecked = true;
+                _highSecChecked = true;
             }
 
             if (Cache.Instance.PriorityTargets.Any(pt => pt != null && pt.IsValid))
@@ -273,7 +273,7 @@ namespace Questor.Storylines
             // Yes, open the ships cargo
             if (!Cache.Instance.OpenCargoHold("Storyline")) return;
 
-            // If we aren't moving items
+            // If we are not moving items
             if (Cache.Instance.DirectEve.GetLockedItems().Count == 0)
             {
                 // Move all the implants to the cargo bay

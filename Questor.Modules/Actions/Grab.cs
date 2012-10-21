@@ -181,8 +181,8 @@ namespace Questor.Modules.Actions
                                 else
                                 {
                                     // we are out of room, should we do a partial item move?
-                                    double quantitywecanfit = _freeCargoCapacity / item.Volume;
-                                    Cache.Instance.CargoHold.Add(item, (int)quantitywecanfit);
+                                    double quantityWeCanFit = _freeCargoCapacity / item.Volume;
+                                    Cache.Instance.CargoHold.Add(item, (int)quantityWeCanFit);
                                     //we are now "full" and should go "home" or "market" (how do we decide where to go ffs?)
                                 }
                             }

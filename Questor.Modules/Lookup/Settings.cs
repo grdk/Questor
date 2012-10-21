@@ -8,8 +8,6 @@
 // </copyright>
 // -------------------------------------------------------------------------------
 
-using Questor.Modules.Caching;
-
 namespace Questor.Modules.Lookup
 {
     using System;
@@ -21,6 +19,7 @@ namespace Questor.Modules.Lookup
     using System.Globalization;
     using InnerSpaceAPI;
     using Questor.Modules.Actions;
+    using Questor.Modules.Caching;
     using Questor.Modules.Logging;
 
     public class Settings
@@ -29,11 +28,9 @@ namespace Questor.Modules.Lookup
         /// Singleton implementation
         /// </summary>
         public static Settings Instance = new Settings();
-
         public string CharacterName;
         private DateTime _lastModifiedDate;
-        private readonly Random _random = new Random();
-
+        
         public Settings()
         {
             Ammo = new List<Ammo>();
@@ -189,7 +186,7 @@ namespace Questor.Modules.Lookup
         //
         public bool CreateSalvageBookmarks { get; set; }
         public string CreateSalvageBookmarksIn { get; set; }
-        public bool SalvageMultpleMissionsinOnePass { get; set; }
+        public bool SalvageMultipleMissionsinOnePass { get; set; }
         public bool FirstSalvageBookmarksInSystem { get; set; }
         public string BookmarkPrefix { get; set; }
         public string UndockPrefix { get; set; }
@@ -227,6 +224,7 @@ namespace Questor.Modules.Lookup
         public string LoginQuestorOSCmdContents { get; set; }
         public bool LoginQuestorLavishScriptCmd { get; set; }
         public string LoginQuestorLavishScriptContents { get; set; }
+        public bool MinimizeEveAfterStartingUp { get; set; }
         public int SecondstoWaitAfterExitingCloseQuestorBeforeExitingEVE = 240;
 
         public string LavishIsBoxerCharacterSet { get; set; }
@@ -412,6 +410,24 @@ namespace Questor.Modules.Lookup
             {
                 Settings.Instance.CharacterName = "AtLoginScreenNoCharactersLoggedInYet";
             }
+
+            if (Settings.Instance.CharacterName == string.Empty)
+            {
+                if (Cache.Instance.LastInStation.AddMinutes(60) > DateTime.Now)
+                {
+                    Logging.Log("Settings", "CharacterName not defined! - Are we still logged in? Did we lose connection to eve? Questor should be restarting here.", Logging.White);
+                    Settings.Instance.CharacterName = "NoCharactersLoggedInAnymore";
+                    Cache.Instance.SessionState = "Quitting";
+                    return;
+                }
+                else
+                {
+                    Logging.Log("Settings", "CharacterName not defined! - Are we logged in yet? Did we lose connection to eve?", Logging.White);
+                    Settings.Instance.CharacterName = "AtLoginScreenNoCharactersLoggedInYet";
+                    //Cache.Instance.SessionState = "Quitting";
+                }
+            }
+
             Settings.Instance.SettingsPath = System.IO.Path.Combine(Settings.Instance.Path, Cache.Instance.FilterPath(Settings.Instance.CharacterName) + ".xml");
             bool reloadSettings = true;
             if (File.Exists(Settings.Instance.SettingsPath))
@@ -547,6 +563,7 @@ namespace Questor.Modules.Lookup
                 LoginQuestorOSCmdContents = String.Empty;
                 LoginQuestorLavishScriptCmd = false;
                 LoginQuestorLavishScriptContents = string.Empty;
+                MinimizeEveAfterStartingUp = false;
                 
                 WalletBalanceChangeLogOffDelay = 30;
                 WalletBalanceChangeLogOffDelayLogoffOrExit = "exit";
@@ -602,7 +619,7 @@ namespace Questor.Modules.Lookup
                 MinimumWreckCount = 1;
                 AfterMissionSalvaging = false;
                 FirstSalvageBookmarksInSystem = false;
-                SalvageMultpleMissionsinOnePass = false;
+                SalvageMultipleMissionsinOnePass = false;
                 UnloadLootAtStation = false;
                 ReserveCargoCapacity = 100;
                 MaximumWreckTargets = 0;
@@ -912,7 +929,7 @@ namespace Questor.Modules.Lookup
                     MinimumWreckCount = (int?)xml.Element("minimumWreckCount") ?? 1;
                     AfterMissionSalvaging = (bool?)xml.Element("afterMissionSalvaging") ?? false;
                     FirstSalvageBookmarksInSystem = (bool?)xml.Element("FirstSalvageBookmarksInSystem") ?? false;
-                    SalvageMultpleMissionsinOnePass = (bool?)xml.Element("salvageMultpleMissionsinOnePass") ?? false;
+                    SalvageMultipleMissionsinOnePass = (bool?)xml.Element("salvageMultpleMissionsinOnePass") ?? false;
                     UnloadLootAtStation = (bool?)xml.Element("unloadLootAtStation") ?? false;
                     ReserveCargoCapacity = (int?)xml.Element("reserveCargoCapacity") ?? 0;
                     MaximumWreckTargets = (int?)xml.Element("maximumWreckTargets") ?? 0;
@@ -947,6 +964,7 @@ namespace Questor.Modules.Lookup
                     LoginQuestorLavishScriptContents = (string)xml.Element("LoginQuestorLavishScriptContents") ??
                                                 "echo Questor is configured to use the feature: LoginQuestorLavishScriptCmd && echo But No actual command was specified in your characters settings xml! && pause)";
 
+                    MinimizeEveAfterStartingUp = (bool?)xml.Element("MinimizeEveAfterStartingUp") ?? false;
 
                     //the above setting can be set to any script or commands available on the system. make sure you test it from a command prompt while in your .net programs directory
 
@@ -965,11 +983,10 @@ namespace Questor.Modules.Lookup
                         else
                         {
                             /* "LavishScript" object's ToString value is its version number, which follows the form of a typical float */
-                            var version = lavishsriptObject.GetValue<float>();
-                            //var TestISVariable = "Game"
-                            //LavishIsBoxerCharacterSet = LavishsriptObject.
-                            Logging.Log("Settings", "Testing: LavishScript Version " +
-                                        version.ToString(CultureInfo.InvariantCulture), Logging.White);
+                            //var version = lavishsriptObject.GetValue<float>();
+                            // //var TestISVariable = "Game"
+                            // //LavishIsBoxerCharacterSet = LavishsriptObject.
+                            //Logging.Log("Settings", "Testing: LavishScript Version is: " + version.ToString(CultureInfo.InvariantCulture), Logging.White);
                         }
                     }
 

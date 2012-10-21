@@ -397,7 +397,7 @@ namespace Questor
                 return;
             }
 
-            // We shouldn't get any window
+            // We should not get any windows
             if (_directEve.Windows.Count != 0)
             {
                 foreach (var window in _directEve.Windows)
@@ -543,7 +543,7 @@ namespace Questor
                     Logging.Log("Startup", "window.IsDialog is: " + window.IsDialog, Logging.Red);
                     Logging.Log("Startup", "window.IsKillable is: " + window.IsKillable, Logging.Red);
                     Logging.Log("Startup", "window.Viewmode is: " + window.ViewMode, Logging.Red);
-                    Logging.Log("Startup", "We've got an unexpected window, auto login halted.", Logging.Red);
+                    Logging.Log("Startup", "We have got an unexpected window, auto login halted.", Logging.Red);
                     _done = true;
                     return;
                 }

@@ -128,21 +128,11 @@ namespace Questor
             }
         }
 
-        public string CharacterName { get; set; }
-
-        public static long AgentID;
-
         public void DebugCombatMissionsBehaviorStates()
         {
             if (Settings.Instance.DebugStates)
                 Logging.Log("CombatMissionsBehavior.State is", _States.CurrentQuestorState.ToString(), Logging.White);
         }
-
-        //public void DebugPanicstates()
-        //{
-        //    if (Settings.Instance.DebugStates)
-        //        Logging.Log("Panic.State = " + _panic.State);
-        //    }
 
         public void RunOnce30SecAfterStartup()
         {
@@ -160,6 +150,12 @@ namespace Questor
                         Logging.Log("Questor", "Running Innerspace command: WindowText EVE - " + Settings.Instance.CharacterName, Logging.White);
                         LavishScript.ExecuteCommand("WindowText EVE - " + Settings.Instance.CharacterName);
 
+                        if (Settings.Instance.MinimizeEveAfterStartingUp)
+                        {
+                            Logging.Log("Questor", "MinimizeEveAfterStartingUp is true: Minimizing EVE with: WindowCharacteristics -visibility minimize", Logging.White);
+                            LavishScript.ExecuteCommand("WindowCharacteristics -visibility minimize");
+                        }
+
                         if (Settings.Instance.LoginQuestorArbitraryOSCmd)
                         {
                             Logging.Log("Questor", "After Questor Login: executing LoginQuestorArbitraryOSCmd", Logging.White);
@@ -167,6 +163,7 @@ namespace Questor
                             LavishScript.ExecuteCommand("OSExecute " + Settings.Instance.LoginQuestorOSCmdContents.ToString(CultureInfo.InvariantCulture));
                             Logging.Log("Questor", "Done: executing LoginQuestorArbitraryOSCmd", Logging.White);
                         }
+
                         if (Settings.Instance.LoginQuestorLavishScriptCmd)
                         {
                             Logging.Log("Questor", "After Questor Login: executing LoginQuestorLavishScriptCmd", Logging.White);
@@ -174,6 +171,7 @@ namespace Questor
                             LavishScript.ExecuteCommand("runscript " + Settings.Instance.LoginQuestorLavishScriptContents.ToString(CultureInfo.InvariantCulture));
                             Logging.Log("Questor", "Done: executing LoginQuestorLavishScriptCmd", Logging.White);
                         }
+
                         Logging.MaintainConsoleLogs();
                     }
                 }
@@ -399,8 +397,7 @@ namespace Questor
             {
                 Settings.Instance.LoadSettings();
             }
-            CharacterName = Cache.Instance.DirectEve.Me.Name;
-
+            
             if (DateTime.Now < Cache.Instance.QuestorStarted_DateTime.AddSeconds(30))
             {
                 Cache.Instance.LastKnownGoodConnectedTime = DateTime.Now;

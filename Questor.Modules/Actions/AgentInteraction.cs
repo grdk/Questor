@@ -788,7 +788,7 @@ namespace Questor.Modules.Actions
             }
             
             //
-            // this closes the convo, blacklists the agent for this session and goes back to base.
+            // this closes the conversation, blacklists the agent for this session and goes back to base.
             //
             if (_States.CurrentStorylineState == StorylineState.DeclineMission || _States.CurrentStorylineState == StorylineState.AcceptMission)
             {
