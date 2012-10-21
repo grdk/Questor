@@ -23,9 +23,7 @@ namespace QuestorManager.Actions
 {
     public class ValueDump
     {
-        private QuestorManagerUI _form;
-        readonly Random _random = new Random();
-
+        private readonly QuestorManagerUI _form;
         private InvType _currentMineral;
         private ItemCache _currentItem;
         private DateTime _lastExecute = DateTime.MinValue;
@@ -50,7 +48,6 @@ namespace QuestorManager.Actions
             DirectMarketWindow marketWindow = Cache.Instance.DirectEve.Windows.OfType<DirectMarketWindow>().FirstOrDefault();
             DirectMarketActionWindow sellWindow = Cache.Instance.DirectEve.Windows.OfType<DirectMarketActionWindow>().FirstOrDefault(w => w.IsSellAction);
             DirectReprocessingWindow reprorcessingWindow = Cache.Instance.DirectEve.Windows.OfType<DirectReprocessingWindow>().FirstOrDefault();
-            bool block;
 
             switch (_States.CurrentValueDumpState)
             {
@@ -109,18 +106,18 @@ namespace QuestorManager.Actions
                         if (DateTime.Now.Subtract(_lastExecute).TotalSeconds < Time.Instance.Marketlookupdelay_seconds)
                             return;
 
-                        Logging.Log("ValueDump", "Loading orders for " + _currentMineral.Name, Logging.white);
+                        Logging.Log("ValueDump", "Loading orders for " + _currentMineral.Name, Logging.White);
 
                         marketWindow.LoadTypeId(_currentMineral.Id);
                         _lastExecute = DateTime.Now;
                         return;
                     }
 
-                    if (!marketWindow.BuyOrders.Any(o => o.StationId == Cache.Instance.DirectEve.Session.StationId))
+                    if (marketWindow.BuyOrders.All(o => o.StationId != Cache.Instance.DirectEve.Session.StationId))
                     {
                         _currentMineral.LastUpdate = DateTime.Now;
 
-                        Logging.Log("ValueDump", "No orders found for " + _currentMineral.Name, Logging.white);
+                        Logging.Log("ValueDump", "No orders found for " + _currentMineral.Name, Logging.White);
                         _States.CurrentValueDumpState = ValueDumpState.CheckMineralPrices;
                     }
 
@@ -129,11 +126,11 @@ namespace QuestorManager.Actions
                     _currentMineral.LastUpdate = DateTime.Now;
                     _States.CurrentValueDumpState = ValueDumpState.CheckMineralPrices;
 
-                    Logging.Log("ValueDump", "Average price for " + _currentMineral.Name + " is " + _currentMineral.MedianBuy.Value.ToString("#,##0.00"), Logging.white);
+                    Logging.Log("ValueDump", "Average price for " + _currentMineral.Name + " is " + _currentMineral.MedianBuy.Value.ToString("#,##0.00"), Logging.White);
                     break;
 
                 case ValueDumpState.SaveMineralPrices:
-                    Logging.Log("ValueDump", "Saving InvTypes.xml", Logging.white);
+                    Logging.Log("ValueDump", "Saving InvTypes.xml", Logging.White);
 
                     XDocument xdoc = new XDocument(new XElement("invtypes"));
                     foreach (InvType type in _form.InvTypesById.Values.OrderBy(i => i.Id))
@@ -142,9 +139,9 @@ namespace QuestorManager.Actions
                     {
                         xdoc.Save(InvTypesPath);
                     }
-                    catch (Exception Ex)
+                    catch (Exception ex)
                     {
-                        Logging.Log("ValueDump", "Unable to save [" + InvTypesPath + "], is it a file permissions issue? Is the file open and locked?", Logging.orange);
+                        Logging.Log("ValueDump", "Unable to save [" + InvTypesPath + "], is it a file permissions issue? Is the file open and locked? exception was [ " + ex.Message + "]", Logging.Orange);
                     }
                     
 
@@ -155,7 +152,7 @@ namespace QuestorManager.Actions
 
                     if (!Cache.Instance.OpenItemsHangar("Valuedump")) return;
 
-                    Logging.Log("ValueDump", "Loading hangar items", Logging.white);
+                    Logging.Log("ValueDump", "Loading hangar items", Logging.White);
 
                     // Clear out the old
                     _form.Items.Clear();
@@ -173,10 +170,10 @@ namespace QuestorManager.Actions
 
                     if (_form.cbxSell.Checked)
                     {
-                        if (_form.cbxUndersell.Checked)
-                            _form.ItemsToSellUnsorted.AddRange(_form.Items.Where(i => i.InvType != null));
-                        else
-                            _form.ItemsToSellUnsorted.AddRange(_form.Items.Where(i => i.InvType != null && i.InvType.MinSell.HasValue));
+                        _form.ItemsToSellUnsorted.AddRange(_form.cbxUndersell.Checked
+                                                               ? _form.Items.Where(i => i.InvType != null)
+                                                               : _form.Items.Where(
+                                                                   i => i.InvType != null && i.InvType.MinSell.HasValue));
 
                         _form.ItemsToSell = _form.ItemsToSellUnsorted.OrderBy(i => i.Name).ToList();
                         _States.CurrentValueDumpState = ValueDumpState.NextItem;
@@ -196,15 +193,12 @@ namespace QuestorManager.Actions
 
                     if (_form.ItemsToSell.Count == 0)
                     {
-                        if (_form.ItemsToRefine.Count != 0)
-                            _States.CurrentValueDumpState = ValueDumpState.RefineItems;
-                        else
-                            _States.CurrentValueDumpState = ValueDumpState.Done;
+                        _States.CurrentValueDumpState = _form.ItemsToRefine.Count != 0 ? ValueDumpState.RefineItems : ValueDumpState.Done;
                         break;
                     }
-                    block = false;
+                    bool block = false;
                     if (!_form.RefineCheckBox.Checked)
-                        Logging.Log("ValueDump", _form.ItemsToSell.Count + " items left to sell", Logging.white);
+                        Logging.Log("ValueDump", _form.ItemsToSell.Count + " items left to sell", Logging.White);
 
                     _currentItem = _form.ItemsToSell[0];
                     _form.ItemsToSell.RemoveAt(0);
@@ -212,19 +206,15 @@ namespace QuestorManager.Actions
                     // Do not sell containers
                     if (_currentItem.GroupID == 448 || _currentItem.GroupID == 649)
                     {
-                        Logging.Log("ValueDump", "Skipping " + _currentItem.Name, Logging.white);
+                        Logging.Log("ValueDump", "Skipping " + _currentItem.Name, Logging.White);
                         break;
                     }
                     // Do not sell items in invignore.xml
                     if (invIgnore.Root != null)
-                        foreach (XElement element in invIgnore.Root.Elements("invtype"))
+                        if (invIgnore.Root.Elements("invtype").Any(element => _currentItem.TypeId == (int)element.Attribute("id")))
                         {
-                            if (_currentItem.TypeId == (int)element.Attribute("id"))
-                            {
-                                Logging.Log("ValueDump", "Skipping (block list) " + _currentItem.Name, Logging.white);
-                                block = true;
-                                break;
-                            }
+                            Logging.Log("ValueDump", "Skipping (block list) " + _currentItem.Name, Logging.White);
+                            block = true;
                         }
                     if (block)
                         break;
@@ -240,7 +230,7 @@ namespace QuestorManager.Actions
                     DirectItem directItem = Cache.Instance.ItemHangar.Items.FirstOrDefault(i => i.ItemId == _currentItem.Id);
                     if (directItem == null)
                     {
-                        Logging.Log("ValueDump", "Item " + _currentItem.Name + " no longer exists in the hanger", Logging.white);
+                        Logging.Log("ValueDump", "Item " + _currentItem.Name + " no longer exists in the hanger", Logging.White);
                         break;
                     }
 
@@ -249,12 +239,12 @@ namespace QuestorManager.Actions
 
                     if (_form.cbxSell.Checked)
                     {
-                        Logging.Log("ValueDump", "Starting QuickSell for " + _currentItem.Name, Logging.white);
+                        Logging.Log("ValueDump", "Starting QuickSell for " + _currentItem.Name, Logging.White);
                         if (!directItem.QuickSell())
                         {
                             _lastExecute = DateTime.Now.AddSeconds(-5);
 
-                            Logging.Log("ValueDump", "QuickSell failed for " + _currentItem.Name + ", retrying in 5 seconds", Logging.white);
+                            Logging.Log("ValueDump", "QuickSell failed for " + _currentItem.Name + ", retrying in 5 seconds", Logging.White);
                             break;
                         }
 
@@ -273,7 +263,7 @@ namespace QuestorManager.Actions
                     // Mark as new execution
                     _lastExecute = DateTime.Now;
 
-                    Logging.Log("ValueDump", "Inspecting sell order for " + _currentItem.Name, Logging.white);
+                    Logging.Log("ValueDump", "Inspecting sell order for " + _currentItem.Name, Logging.White);
                     _States.CurrentValueDumpState = ValueDumpState.InspectOrder;
                     break;
 
@@ -284,7 +274,7 @@ namespace QuestorManager.Actions
 
                     if (sellWindow != null && (!sellWindow.OrderId.HasValue || !sellWindow.Price.HasValue || !sellWindow.RemainingVolume.HasValue))
                     {
-                        Logging.Log("ValueDump", "No order available for " + _currentItem.Name, Logging.white);
+                        Logging.Log("ValueDump", "No order available for " + _currentItem.Name, Logging.White);
 
                         sellWindow.Cancel();
                         _States.CurrentValueDumpState = ValueDumpState.WaitingToFinishQuickSell;
@@ -308,7 +298,7 @@ namespace QuestorManager.Actions
                                 // If percentage >= 130% and total price >= 1m isk then skip this item (we don't undersell)
                                 if (perc >= 1.4 && ((total - totalPrice) >= 2000000))
                                 {
-                                    Logging.Log("ValueDump", "Not underselling item " + _currentItem.Name + " [Min sell price: " + _currentItem.InvType.MinSell.Value.ToString("#,##0.00") + "][Sell price: " + price.ToString("#,##0.00") + "][" + perc.ToString("0%") + "]", Logging.white);
+                                    Logging.Log("ValueDump", "Not underselling item " + _currentItem.Name + " [Min sell price: " + _currentItem.InvType.MinSell.Value.ToString("#,##0.00") + "][Sell price: " + price.ToString("#,##0.00") + "][" + perc.ToString("0%") + "]", Logging.White);
 
                                     sellWindow.Cancel();
                                     _States.CurrentValueDumpState = ValueDumpState.WaitingToFinishQuickSell;
@@ -325,7 +315,7 @@ namespace QuestorManager.Actions
                             _currentItem.StationBuy = price;
                         _currentItem.StationBuy = (_currentItem.StationBuy + price) / 2;
 
-                        Logging.Log("ValueDump", "Selling " + quantity + " of " + _currentItem.Name + " [Sell price: " + (price * quantity).ToString("#,##0.00") + "]" + otherPrices, Logging.white);
+                        Logging.Log("ValueDump", "Selling " + quantity + " of " + _currentItem.Name + " [Sell price: " + (price * quantity).ToString("#,##0.00") + "]" + otherPrices, Logging.White);
                     }
                     if (sellWindow != null) sellWindow.Accept();
 
@@ -350,7 +340,7 @@ namespace QuestorManager.Actions
 
                         if (refinePrice > totalPriceR || totalPriceR <= 1500000 || _currentItem.TypeId == 30497)
                         {
-                            Logging.Log("ValueDump", "Refining gives a better price for item " + _currentItem.Name + " [Refine price: " + refinePrice.ToString("#,##0.00") + "][Sell price: " + totalPriceR.ToString("#,##0.00") + "]", Logging.white);
+                            Logging.Log("ValueDump", "Refining gives a better price for item " + _currentItem.Name + " [Refine price: " + refinePrice.ToString("#,##0.00") + "][Sell price: " + totalPriceR.ToString("#,##0.00") + "]", Logging.White);
                             // Add it to the refine list
                             _form.ItemsToRefine.Add(_currentItem);
                         }
@@ -415,7 +405,7 @@ namespace QuestorManager.Actions
                         // TODO: We should wait for the items to appear in our hangar and then sell them...
                         reprorcessingWindow.Reprocess();
                         _lastExecute = DateTime.Now;
-                        Logging.Log("Valuedump", "Waiting 17 second", Logging.white);
+                        Logging.Log("Valuedump", "Waiting 17 second", Logging.White);
                         _States.CurrentValueDumpState = ValueDumpState.WaitingToBack;
                     }
                     break;
@@ -423,10 +413,7 @@ namespace QuestorManager.Actions
                 case ValueDumpState.WaitingToBack:
                     if (DateTime.Now.Subtract(_lastExecute).TotalSeconds > 17 && _valueProcess)
                     {
-                        if (_valueProcess)
-                            _States.CurrentValueDumpState = ValueDumpState.Begin;
-                        else
-                            _States.CurrentValueDumpState = ValueDumpState.Done;
+                        _States.CurrentValueDumpState = _valueProcess ? ValueDumpState.Begin : ValueDumpState.Done;
                     }
                     break;
             }

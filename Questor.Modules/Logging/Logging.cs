@@ -18,28 +18,43 @@ namespace Questor.Modules.Logging
     using System;
     using InnerSpaceAPI;
     using System.IO;
+    using LavishScriptAPI;
 
     public static class Logging
     {
         //list of colors
-        public const string green = "\ag";    //traveler mission control
-        public const string yellow = "\ay";
-        public const string blue = "\ab";     //DO NOT USE - blends into default lavish GUIs background.
-        public const string red = "\ar";      //error panic
-        public const string orange = "\ao";   //error can fix
-        public const string purple = "\ap";   //combat
-        public const string magenta = "\am";  //drones
-        public const string teal = "\at";     //log debug
-        public const string white = "\aw";    //questor
+        public const string Green = "\ag";    //traveler mission control
+        public const string Yellow = "\ay";
+        public const string Blue = "\ab";     //DO NOT USE - blends into default lavish GUIs background.
+        public const string Red = "\ar";      //error panic
+        public const string Orange = "\ao";   //error can fix
+        public const string Purple = "\ap";   //combat
+        public const string Magenta = "\am";  //drones
+        public const string Teal = "\at";     //log debug
+        public const string White = "\aw";    //questor
+
+        public const string CombatUserCorrectableErrors = Orange;
+        public const string CombatFatalErrors = Red;
+        public const string CombatGenericLogging = White;
+
+        public const string DronesUserCorrectableErrors = Orange;
+        public const string DronesFatalErrors = Red;
+        public const string DronesGenericLogging = White;
+
+        public const string TravelerUserCorrectableErrors = Orange;
+        public const string TravelerFatalErrors = Red;
+        public const string TravelerGenericLogging = White;
+        public const string TravelerDestinationColor = White;
+
+        public const string DebugHangars = White;
 
         //public  void Log(string line)
-        //public static void Log(string module, string line, string color = Logging.white)
+        //public static void Log(string module, string line, string color = Logging.White)
         public static void Log(string module, string line, string color)
         {
             string colorLogLine = line;
             //colorLogLine contains color and is for the InnerSpace console
-            InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.Now, Logging.orange + "[" + Logging.yellow + module + Logging.orange +  "] " + color + colorLogLine));                            //Innerspace Console Log
-            
+            InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.Now, Logging.Orange + "[" + Logging.Yellow + module + Logging.Orange +  "] " + color + colorLogLine));                            //Innerspace Console Log
             string plainLogLine = FilterColorsFromLogs(line);
             //plainLogLine contains plain text and is for the log file and the GUI console (why cant the GUI be made to use color too?)
             Cache.Instance.ExtConsole += string.Format("{0:HH:mm:ss} {1}", DateTime.Now, "[" + module + "] " + plainLogLine + "\r\n");               //Questor GUI Console Log
@@ -53,7 +68,12 @@ namespace Questor.Modules.Logging
                     {
                         module = "Logging";
                         line = "Writing to Daily Console Log ";
-                        InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.Now, Logging.orange + "[" + Logging.yellow + module + Logging.orange + "] " + color + colorLogLine));                            //Innerspace Console Log
+                        if (Settings.Instance.InnerspaceGeneratedConsoleLog) 
+                        {
+                            InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.Now, "log " + Settings.Instance.ConsoleLogFile + "-innerspace-generated.log"));
+                            LavishScript.ExecuteCommand("log " + Settings.Instance.ConsoleLogFile + "-innerspace-generated.log");
+                        }
+                        InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.Now, Logging.Orange + "[" + Logging.Yellow + module + Logging.Orange + "] " + color + colorLogLine));                            //Innerspace Console Log
                         Cache.Instance.ExtConsole += string.Format("{0:HH:mm:ss} {1}", DateTime.Now, plainLogLine + "\r\n");
 
                         if (!string.IsNullOrEmpty(Settings.Instance.ConsoleLogFile))
@@ -81,19 +101,23 @@ namespace Questor.Modules.Logging
                         }
                     }
                 }
+
                 if (Cache.Instance.ConsoleLogOpened)
                 {
                     if (Settings.Instance.ConsoleLogFile != null)
                         File.AppendAllText(Settings.Instance.ConsoleLogFile, Cache.Instance.ConsoleLog);               //Write In Memory Console log to File
                     Cache.Instance.ConsoleLog = null;
-                    
+
                     if (Settings.Instance.ConsoleLogFileRedacted != null)
                         File.AppendAllText(Settings.Instance.ConsoleLogFileRedacted, Cache.Instance.ConsoleLogRedacted);               //Write In Memory Console log to File
                     Cache.Instance.ConsoleLogRedacted = null;
                 }
             }
-    }
-         
+        }
+
+        //path = path.Replace(Environment.CommandLine, "");
+        //path = path.Replace(Environment.GetCommandLineArgs(), "");
+
         public static string FilterSensitiveInfo(string line)
         {
             if (line == null)
@@ -108,7 +132,7 @@ namespace Questor.Modules.Logging
             }
             //if (!string.IsNullOrEmpty(Cache.Instance.CurrentAgent))
             //{
-            //    if (Settings.Instance.DebugLogging) InnerSpace.Echo("Logging.Log: FilterSensitiveInfo: CurrentAgent exists [" + Cache.Instance.CurrentAgent + "]");  
+            //    if (Settings.Instance.DebugLogging) InnerSpace.Echo("Logging.Log: FilterSensitiveInfo: CurrentAgent exists [" + Cache.Instance.CurrentAgent + "]");
             //    line = line.Replace(" " + Cache.Instance.CurrentAgent + " ", " _MyCurrentAgentRedacted_ ");
             //    line = line.Replace("[" + Cache.Instance.CurrentAgent + "]", "[_MyCurrentAgentRedacted_]");
             //}
@@ -172,6 +196,39 @@ namespace Questor.Modules.Logging
             while (line.IndexOf("  ", System.StringComparison.Ordinal) >= 0)
                 line = line.Replace("  ", " ");
             return line.Trim();
+        }
+
+        public static void MaintainConsoleLogs()
+        {
+            const string searchpattern = ".log";
+
+            //calculate the current date - the number of keep days (make sure you use the negative value if Settings.Instance.ConsoleLogDaysOfLogsToKeep as we want to keep that many days in the past, not that many days in the future)
+            DateTime keepdate = DateTime.Now.AddDays(-Settings.Instance.ConsoleLogDaysOfLogsToKeep);
+ 
+            //this is where it gets the directory and looks at
+            //the files in the directory to compare the last write time
+            //against the keepdate variable.
+
+            DirectoryInfo fileListing = new DirectoryInfo(Settings.Instance.ConsoleLogPath);
+
+            if (fileListing.Exists)
+            {
+                foreach (FileInfo log in fileListing.GetFiles(searchpattern))
+                {
+                    if (log.LastWriteTime <= keepdate)
+                    {
+                        try
+                        {
+                            Logging.Log("Logging", "Removing old console log named [" + log.Name + "] Dated [" + log.LastWriteTime + "]", Logging.White);
+                            log.Delete();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logging.Log("Logging", "Unable to delete log [" + ex.Message + "]", Logging.White);
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -3,7 +3,7 @@ cls
 :: delims is a TAB followed by a space
 (set debug=false)
 ::Custom Path to innerspace if you have yours in another location
-(set InnerSpacePath=..\..\innerspace\)
+(set InnerSpacePath=..\..\InnerSpace\)
 :: Path for 32bit OSs - likely Windows XP (but could be windows vista or windows 7, but not commonly)
 ::(set InnerSpacePath=%ProgramFiles%\InnerSpace\InnerSpace.exe)
 :: Path for 64bit OSs - likely windows Vista or Windows 7
@@ -30,8 +30,8 @@ if "%InnerSpacePath%"=="" if "%debug%"=="true" Echo [about to query registry] In
 if "%InnerSpacePath%"=="" FOR /F "tokens=2* delims=	 " %%A IN ('REG QUERY "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\InnerSpace.exe" /v "Path"') DO (SET InnerSpacePath=%%B)
 if "%InnerSpacePath%"=="" FOR /F "tokens=2* delims=	 " %%A IN ('REG QUERY "HKCU\Software\Microsoft\IntelliPoint\AppSpecific\InnerSpace.exe" /v "Path"') DO (SET InnerSpacePath=%%B)
 if "%InnerSpacePath%"=="" FOR /F "tokens=2* delims=	 " %%A IN ('REG QUERY "HKCU\Software\Microsoft\IntelliType Pro\AppSpecific\InnerSpace.exe" /v "Path"') DO  (SET InnerSpacePath=%%B)
-if "%InnerSpacePath%"=="" if exist "%programfiles(x86)%\Innerspace\Innerspace.exe" SET InnerSpacePath = %programfiles(x86)%\Innerspace\
-if "%InnerSpacePath%"=="" if exist "%programfiles%\Innerspace\Innerspace.exe" SET InnerSpacePath = %programfiles%\Innerspace\
+if "%InnerSpacePath%"=="" if exist "%ProgramFiles(x86)%\Innerspace\Innerspace.exe" SET InnerSpacePath = %ProgramFiles(x86)%\Innerspace\
+if "%InnerSpacePath%"=="" if exist "%ProgramFiles%\Innerspace\Innerspace.exe" SET InnerSpacePath = %ProgramFiles%\Innerspace\
 if "%InnerSpacePath%"=="" if exist "%userprofile%\Documents\Innerspace\Innerspace.exe" SET InnerSpacePath = %systemdrive%\Innerspace\
 if "%InnerSpacePath%"=="" if exist "%systemdrive%\My Documents\Innerspace\Innerspace.exe" SET InnerSpacePath = %systemdrive%\Innerspace\
 if "%InnerSpacePath%"=="" if exist "%userprofile%\Innerspace\Innerspace.exe" SET InnerSpacePath = %systemdrive%\Innerspace\

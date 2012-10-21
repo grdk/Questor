@@ -260,7 +260,7 @@ namespace Questor.Modules.Caching
                 // Create a new InvType if its unknown
                 if (!Cache.Instance.InvTypesById.ContainsKey(TypeId))
                 {
-                    Logging.Log("ItemCache", "Unknown TypeID for [" + Name + "][" + TypeId + "]", Logging.orange);
+                    Logging.Log("ItemCache", "Unknown TypeID for [" + Name + "][" + TypeId + "]", Logging.Orange);
                     Cache.Instance.InvTypesById[TypeId] = new Questor.Modules.Lookup.InvType(this);
                 }
 
@@ -286,15 +286,11 @@ namespace Questor.Modules.Caching
                     {
                         return null;
                     }
-                    else
-                    {
-                        return InvType.MedianSell / InvType.Volume;
-                    }
+                    
+                    return InvType.MedianSell / InvType.Volume;
                 }
-                else
-                {
-                    return InvType.MedianBuy / InvType.Volume;
-                }
+                
+                return InvType.MedianBuy / InvType.Volume;
             }
         }
 
@@ -308,15 +304,11 @@ namespace Questor.Modules.Caching
                     {
                         return null;
                     }
-                    else
-                    {
-                        return InvType.MedianSell;
-                    }
+                    
+                    return InvType.MedianSell;
                 }
-                else
-                {
-                    return InvType.MedianBuy;
-                }
+                
+                return InvType.MedianBuy;
             }
         }
     }

@@ -22,6 +22,8 @@ namespace Questor.Modules.Lookup
         // Note: This includes microwarpdrives as well!
         Afterburner = 46,
 
+        CapacitorInjector = 76,
+        AncillaryShieldBooster = 1156,
         ShieldBoosters = 40,
         ShieldHardeners = 77,
         ArmorRepairer = 62,
@@ -30,8 +32,20 @@ namespace Questor.Modules.Lookup
         ECCM = 202,
         CloakingDevice = 330,
 
+        TrackingLink = 209,
+        //TrackingEnhancer = 211, //no script needed
         SensorBooster = 212,
+        SensorDampener = 208,
         TrackingComputer = 213,
+        TrackingDisruptor = 291,
+
+        ProximityDrone = 97,
+        CombatDrone = 100,
+        MiningDrone = 101,
+        FighterDrone = 549,
+        ElectronicWarfareDrone = 639,
+        LogisticsDrone = 640,
+        WebbingDrone = 641,
 
         CapacitorGroupCharge = 87,
         CriminalTags = 370,

@@ -47,6 +47,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\DirectEve\DirectEve.dll</HintPath>
     </Reference>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>..\packages\HtmlAgilityPack.1.4.6\lib\Net40\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="Lavish.InnerSpace, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9029a3ab4cbe108d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(ProgramFiles)\Innerspace\Lavish.InnerSpace.dll</HintPath>
@@ -63,7 +66,10 @@
   <ItemGroup>
     <Compile Include="BackgroundTasks\NavigateOnGrid.cs" />
     <Compile Include="Caching\TargetingCache.cs" />
+    <Compile Include="Lookup\TypeID.cs" />
     <Compile Include="States\CombatHelperBehaviorState.cs" />
+    <Compile Include="States\DebugBehaviorState.cs" />
+    <Compile Include="States\DebugHangarsBehaviorState.cs" />
     <Compile Include="States\DedicatedBookmarkSalvagerBehaviorState.cs" />
     <Compile Include="States\DirectionalScannerBehaviorState.cs" />
     <Compile Include="States\DropState.cs" />
@@ -153,6 +159,9 @@
     <EmbeddedResource Include="Alerts\Audio.resx">
       <DependentUpon>Audio.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

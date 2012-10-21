@@ -1,19 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace GridMon
 {
-    using LavishScriptAPI;
     using DirectEve;
 
-
-    public partial class frmMain : Form
+    public partial class FrmMain : Form
     {
         private GridMonState State { get; set; }
         private DirectEve DirectEve { get; set; }
@@ -21,7 +13,7 @@ namespace GridMon
         private const int WaitMillis = 10000;
 
 
-        public frmMain()
+        public FrmMain()
         {
             InitializeComponent();
 
@@ -79,7 +71,7 @@ namespace GridMon
                     Log("WatchGrid...");
                     foreach (var entity in DirectEve.Entities)
                     {
-                        if (entity.IsPc == true)
+                        if (entity.IsPc)
                         {
                             LogEntity("{0} {1} {2} {3} {4} {5}", entity);
                             // AppendSQL
@@ -104,7 +96,7 @@ namespace GridMon
             }
         }
 
-        private void btnStartStop_Click(object sender, EventArgs e)
+        private void BtnStartStopClick(object sender, EventArgs e)
         {
             if (btnStartStop.Text == "Start")
             {
@@ -116,10 +108,9 @@ namespace GridMon
                 btnStartStop.Text = "Start";
                 State = GridMonState.Idle;
             }
-
         }
 
-        private void frmMain_FormClosed(object sender, FormClosedEventArgs e)
+        private void FrmMainFormClosed(object sender, FormClosedEventArgs e)
         {
             DirectEve.Dispose();
             DirectEve = null;

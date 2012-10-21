@@ -715,12 +715,22 @@ namespace Questor.Modules.Caching
             }
         }
 
+        public bool IsStation
+        {
+            get
+            {
+                bool result = false;
+                result |= GroupId == (int)Group.Station;
+                return result;
+            }
+        }
+
         public void LockTarget()
         {
             // If the bad idea is attacking, attack back
             if (IsBadIdea && !IsAttacking)
             {
-                Logging.Log("EntityCache", "Attempting to target a player or concord entity! [" + Name + "]", Logging.white);
+                Logging.Log("EntityCache", "Attempting to target a player or concord entity! [" + Name + "]", Logging.White);
                 return;
             }
 
@@ -732,7 +742,7 @@ namespace Questor.Modules.Caching
                 double seconds = DateTime.Now.Subtract(lastTargeted).TotalSeconds;
                 if (seconds < 20)
                 {
-                    Logging.Log("EntityCache", "LockTarget is ignored for [" + Name + "][" + Id + "], can retarget in [" + Math.Round(20 - seconds, 0) + "]", Logging.white);
+                    Logging.Log("EntityCache", "LockTarget is ignored for [" + Name + "][" + Id + "], can retarget in [" + Math.Round(20 - seconds, 0) + "]", Logging.White);
                     return;
                 }
             }
@@ -757,62 +767,94 @@ namespace Questor.Modules.Caching
 
         public void Activate()
         {
-            if (_directEntity != null)
+            if (_directEntity != null && DateTime.Now > Cache.Instance.NextActivateAction)
+            {
                 _directEntity.Activate();
+                Cache.Instance.LastInWarp = DateTime.Now;
+                Cache.Instance.NextActivateAction = DateTime.Now.AddSeconds(15);
+            }
         }
 
         public void Approach()
         {
             Cache.Instance.Approaching = this;
 
-            if (_directEntity != null)
+            if (_directEntity != null && DateTime.Now > Cache.Instance.NextApproachAction)
+            {
+                Cache.Instance.NextApproachAction = DateTime.Now.AddSeconds(Time.Instance.ApproachDelay_seconds);
                 _directEntity.Approach();
+            }
         }
 
         public void Approach(int range)
         {
             Cache.Instance.Approaching = this;
 
-            if (_directEntity != null)
+            if (_directEntity != null && DateTime.Now > Cache.Instance.NextApproachAction)
+            {
+                Cache.Instance.NextApproachAction = DateTime.Now.AddSeconds(Time.Instance.ApproachDelay_seconds);
                 _directEntity.Approach(range);
+            }
         }
 
         public void Orbit(int range)
         {
             Cache.Instance.Approaching = this;
 
-            if (_directEntity != null)
+
+            if (_directEntity != null && DateTime.Now > Cache.Instance.NextOrbit)
+            {
+                Cache.Instance.NextOrbit = DateTime.Now.AddSeconds(Time.Instance.OrbitDelay_seconds);
                 _directEntity.Orbit(range);
+            }
         }
 
         public void WarpTo()
         {
-            if (_directEntity != null)
+            if (_directEntity != null && DateTime.Now > Cache.Instance.NextWarpTo)
+            {
+                Cache.Instance.LastInWarp = DateTime.Now;
+                Cache.Instance.NextWarpTo = DateTime.Now.AddSeconds(Time.Instance.WarptoDelay_seconds);
                 _directEntity.WarpTo();
+            }
         }
 
         public void AlignTo()
         {
-            if (_directEntity != null)
+            if (_directEntity != null && DateTime.Now > Cache.Instance.NextAlign)
+            {
+                Cache.Instance.NextAlign = DateTime.Now.AddMinutes(Time.Instance.AlignDelay_minutes);
                 _directEntity.AlignTo();
+            }
         }
 
         public void WarpToAndDock()
         {
-            if (_directEntity != null)
+            if (_directEntity != null && DateTime.Now > Cache.Instance.NextWarpTo && DateTime.Now > Cache.Instance.NextDockAction)
+            {
+                Cache.Instance.LastInWarp = DateTime.Now;
+                Cache.Instance.NextWarpTo = DateTime.Now.AddSeconds(Time.Instance.WarptoDelay_seconds);
+                Cache.Instance.NextDockAction = DateTime.Now.AddSeconds(Time.Instance.DockingDelay_seconds);
                 _directEntity.WarpToAndDock();
+            }
         }
 
         public void Dock()
         {
-            if (_directEntity != null)
+            if (_directEntity != null && DateTime.Now > Cache.Instance.NextDockAction)
+            {
                 _directEntity.Dock();
+                Cache.Instance.NextDockAction = DateTime.Now.AddSeconds(Time.Instance.DockingDelay_seconds);
+            }
         }
 
         public void OpenCargo()
         {
             if (_directEntity != null)
+            {
                 _directEntity.OpenCargo();
+                Cache.Instance.NextOpenCargoAction = DateTime.Now.AddSeconds(2 + Cache.Instance.RandomNumber(1, 3));
+            }
         }
 
         public void MakeActiveTarget()

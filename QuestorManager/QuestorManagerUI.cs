@@ -16,7 +16,6 @@ namespace QuestorManager
     using System.Windows.Forms;
     using System.Xml.Linq;
     using System.IO;
-    using System.Reflection;
     using DirectEve;
     using LavishScriptAPI;
     using Questor.Modules.Caching;
@@ -73,7 +72,7 @@ namespace QuestorManager
         private readonly Defense _defense;
         private readonly Cleanup _cleanup;
         private readonly ListItems _item;
-        
+
         private DateTime _lastAction;
 
         public string CharacterName { get; set; }
@@ -115,11 +114,11 @@ namespace QuestorManager
                 {
                     _item = new ListItems();
                     _item.Id = (int)element.Attribute("id");
-                    _item.name = (string)element.Attribute("name");
+                    _item.Name = (string)element.Attribute("name");
                     List.Add(_item);
                 }
 
-            RefreshJobs();
+            RefreshAvailableXMLJobs();
             _directEve.OnFrame += OnFrame;
 
             //if (Settings.Instance.UseInnerspace)
@@ -184,7 +183,7 @@ namespace QuestorManager
             Cache.Instance.InvalidateCache();
 
             // Update settings (settings only load if character name changed)
-            if (!Settings.Instance.Defaultsettingsloaded)
+            if (!Settings.Instance.DefaultSettingsLoaded)
             {
                 Settings.Instance.LoadSettings();
             }
@@ -195,12 +194,12 @@ namespace QuestorManager
                 Cache.Instance.DirectEve.Rendering3D != !Settings.Instance.Disable3D)
                 Cache.Instance.DirectEve.Rendering3D = !Settings.Instance.Disable3D;
 
-            if (DateTime.Now.Subtract(Cache.Instance.LastupdateofSessionRunningTime).TotalSeconds <
+            if (DateTime.Now.Subtract(Cache.Instance.LastUpdateOfSessionRunningTime).TotalSeconds <
                 Time.Instance.SessionRunningTimeUpdate_seconds)
             {
                 Cache.Instance.SessionRunningTime =
                     (int)DateTime.Now.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalMinutes;
-                Cache.Instance.LastupdateofSessionRunningTime = DateTime.Now;
+                Cache.Instance.LastUpdateOfSessionRunningTime = DateTime.Now;
             }
 
             // We always check our defense state if we're in space, regardless of questor state
@@ -234,9 +233,9 @@ namespace QuestorManager
             // Description: Closes Windows, and eventually other things considered 'cleanup' useful to more than just Questor(Missions) but also Anomalies, Mining, etc
             //
             _cleanup.ProcessState();
-            
+
             if (Settings.Instance.DebugStates)
-                Logging.Log("Cleanup.State is", _States.CurrentCleanupState.ToString(), Logging.white);
+                Logging.Log("Cleanup.State is", _States.CurrentCleanupState.ToString(), Logging.White);
 
             // Done
             // Cleanup State: ProcessState
@@ -244,7 +243,6 @@ namespace QuestorManager
             // When in warp there's nothing we can do, so ignore everything
             if (Cache.Instance.InWarp)
                 return;
-
 
             InitializeTraveler();
 
@@ -265,7 +263,7 @@ namespace QuestorManager
 
                     if (_start)
                     {
-                        Logging.Log("QuestorManager", "Start", Logging.white);
+                        Logging.Log("QuestorManager", "Start", Logging.White);
                         State = QuestormanagerState.NextAction;
                     }
 
@@ -278,7 +276,7 @@ namespace QuestorManager
 
                     if (LstTask.Items.Count <= 0)
                     {
-                        Logging.Log("QuestorManager", "Finish", Logging.white);
+                        Logging.Log("QuestorManager", "Finish", Logging.White);
                         LblStatus.Text = "Finish";
                         BttnStart.Text = "Start";
                         State = QuestormanagerState.Idle;
@@ -355,13 +353,13 @@ namespace QuestorManager
 
                     if (Settings.Instance.UseInnerspace)
                     {
-                        Logging.Log("QuestorManager", "CmdLine: " + LstTask.Items[0].SubItems[1].Text, Logging.white);
+                        Logging.Log("QuestorManager", "CmdLine: " + LstTask.Items[0].SubItems[1].Text, Logging.White);
                         LavishScript.ExecuteCommand(LstTask.Items[0].SubItems[1].Text);
                     }
                     else
                     {
-                        Logging.Log("QuestorManager", "CmdLine: " + LstTask.Items[0].SubItems[1].Text, Logging.white);
-                        Logging.Log("QuestorManager", "CmdLine: Error: command skipped: UseInnerspace is false", Logging.white);
+                        Logging.Log("QuestorManager", "CmdLine: " + LstTask.Items[0].SubItems[1].Text, Logging.White);
+                        Logging.Log("QuestorManager", "CmdLine: Error: command skipped: UseInnerspace is false", Logging.White);
                     }
                     LstTask.Items.Remove(LstTask.Items[0]);
                     _lastAction = DateTime.Now;
@@ -375,7 +373,7 @@ namespace QuestorManager
                     {
                         _buylpi.Item = Convert.ToInt32(LstTask.Items[0].Tag);
                         _buylpi.Unit = Convert.ToInt32(LstTask.Items[0].SubItems[2].Text);
-                        Logging.Log("QuestorManager", "BuyLPI: Begin", Logging.white);
+                        Logging.Log("QuestorManager", "BuyLPI: Begin", Logging.White);
                         _States.CurrentBuyLPIState = BuyLPIState.Begin;
                     }
 
@@ -383,7 +381,7 @@ namespace QuestorManager
 
                     if (_States.CurrentBuyLPIState == BuyLPIState.Done)
                     {
-                        Logging.Log("QuestorManager", "BuyLPI: Done", Logging.white);
+                        Logging.Log("QuestorManager", "BuyLPI: Done", Logging.White);
                         _States.CurrentBuyLPIState = BuyLPIState.Idle;
                         LstTask.Items.Remove(LstTask.Items[0]);
                         _lastAction = DateTime.Now;
@@ -402,7 +400,7 @@ namespace QuestorManager
 
                     if (_States.CurrentValueDumpState == ValueDumpState.Idle)
                     {
-                        Logging.Log("QuestorManager", "ValueDump: Begin", Logging.white);
+                        Logging.Log("QuestorManager", "ValueDump: Begin", Logging.White);
                         _States.CurrentValueDumpState = ValueDumpState.Begin;
                     }
 
@@ -410,7 +408,7 @@ namespace QuestorManager
 
                     if (_States.CurrentValueDumpState == ValueDumpState.Done)
                     {
-                        Logging.Log("QuestorManager", "ValueDump: Done", Logging.white);
+                        Logging.Log("QuestorManager", "ValueDump: Done", Logging.White);
                         _States.CurrentValueDumpState = ValueDumpState.Idle;
                         ProcessItems();
                         LstTask.Items.Remove(LstTask.Items[0]);
@@ -422,16 +420,14 @@ namespace QuestorManager
 
                 case QuestormanagerState.MakeShip:
 
-                    if (!Cache.Instance.OpenShipsHangar("QuestorManager")) break;
+                    if (!Cache.Instance.ReadyShipsHangar("QuestorManager")) break;
 
                     if (DateTime.Now > _lastAction)
                     {
-                        if (!Cache.Instance.OpenShipsHangar("Arm")) break; 
-                        
                         List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
                         foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName == txtNameShip.Text))
                         {
-                            Logging.Log("QuestorManager", "MakeShip: Making [" + ship.GivenName + "] active", Logging.white);
+                            Logging.Log("QuestorManager", "MakeShip: Making [" + ship.GivenName + "] active", Logging.White);
 
                             ship.ActivateShip();
                             LstTask.Items.Remove(LstTask.Items[0]);
@@ -449,7 +445,7 @@ namespace QuestorManager
                     {
                         _buy.Item = Convert.ToInt32(LstTask.Items[0].Tag);
                         _buy.Unit = Convert.ToInt32(LstTask.Items[0].SubItems[2].Text);
-                        Logging.Log("QuestorManager", "Buy: Begin", Logging.white);
+                        Logging.Log("QuestorManager", "Buy: Begin", Logging.White);
                         _States.CurrentBuyState = BuyState.Begin;
                     }
 
@@ -457,7 +453,7 @@ namespace QuestorManager
 
                     if (_States.CurrentBuyState == BuyState.Done)
                     {
-                        Logging.Log("QuestorManager", "Buy: Done", Logging.white);
+                        Logging.Log("QuestorManager", "Buy: Done", Logging.White);
                         _States.CurrentBuyState = BuyState.Idle;
                         LstTask.Items.Remove(LstTask.Items[0]);
                         _lastAction = DateTime.Now;
@@ -473,7 +469,7 @@ namespace QuestorManager
 
                     if (_States.CurrentSellState == SellState.Idle)
                     {
-                        Logging.Log("QuestorManager", "Sell: Begin", Logging.white);
+                        Logging.Log("QuestorManager", "Sell: Begin", Logging.White);
                         _States.CurrentSellState = SellState.Begin;
                     }
 
@@ -481,7 +477,7 @@ namespace QuestorManager
 
                     if (_States.CurrentSellState == SellState.Done)
                     {
-                        Logging.Log("QuestorManager", "Sell: Done", Logging.white);
+                        Logging.Log("QuestorManager", "Sell: Done", Logging.White);
                         _States.CurrentSellState = SellState.Idle;
                         LstTask.Items.Remove(LstTask.Items[0]);
                         _lastAction = DateTime.Now;
@@ -497,7 +493,7 @@ namespace QuestorManager
 
                     if (_States.CurrentDropState == DropState.Idle)
                     {
-                        Logging.Log("QuestorManager", "Drop: Begin", Logging.white);
+                        Logging.Log("QuestorManager", "Drop: Begin", Logging.White);
                         _States.CurrentDropState = DropState.Begin;
                     }
 
@@ -505,7 +501,7 @@ namespace QuestorManager
 
                     if (_States.CurrentDropState == DropState.Done)
                     {
-                        Logging.Log("QuestorManager", "Drop: Done", Logging.white);
+                        Logging.Log("QuestorManager", "Drop: Done", Logging.White);
                         _States.CurrentDropState = DropState.Idle;
                         LstTask.Items.Remove(LstTask.Items[0]);
                         _lastAction = DateTime.Now;
@@ -522,7 +518,7 @@ namespace QuestorManager
 
                     if (_States.CurrentGrabState == GrabState.Idle)
                     {
-                        Logging.Log("QuestorManager", "Grab: Begin", Logging.white);
+                        Logging.Log("QuestorManager", "Grab: Begin", Logging.White);
                         _States.CurrentGrabState = GrabState.Begin;
                     }
 
@@ -530,7 +526,7 @@ namespace QuestorManager
 
                     if (_States.CurrentGrabState == GrabState.Done)
                     {
-                        Logging.Log("QuestorManager", "Grab: Done", Logging.white);
+                        Logging.Log("QuestorManager", "Grab: Done", Logging.White);
                         _States.CurrentGrabState = GrabState.Idle;
                         LstTask.Items.Remove(LstTask.Items[0]);
                         _lastAction = DateTime.Now;
@@ -572,14 +568,14 @@ namespace QuestorManager
                         _traveler.Destination = travelerDestination;
 
                     _traveler.ProcessState();
-                    
+
                     // Record number of jumps
                     _jumps = Cache.Instance.DirectEve.Navigation.GetDestinationPath().Count;
 
                     // Arrived at destination
                     if (_destination != null && _States.CurrentTravelerState == TravelerState.AtDestination)
                     {
-                        Logging.Log("QuestorManager", "Arrived at destination", Logging.white);
+                        Logging.Log("QuestorManager", "Arrived at destination", Logging.White);
 
                         _traveler.Destination = null;
                         _destination = null;
@@ -592,7 +588,7 @@ namespace QuestorManager
                     if (_States.CurrentTravelerState == TravelerState.Error)
                     {
                         if (_traveler.Destination != null)
-                            Logging.Log("QuestorManager", "Stopped traveling, QuestorManager threw an error...", Logging.white);
+                            Logging.Log("QuestorManager", "Stopped traveling, QuestorManager threw an error...", Logging.White);
 
                         _destination = null;
                         _traveler.Destination = null;
@@ -681,7 +677,7 @@ namespace QuestorManager
             }
         }
 
-        private void BttnStart_Click(object sender, EventArgs e)
+        private void BttnStartClick(object sender, EventArgs e)
         {
             if (BttnStart.Text == "Start")
             {
@@ -820,7 +816,7 @@ namespace QuestorManager
                 string[] search = txtSearchItems.Text.Split(' ');
                 foreach (ListItems item in List)
                 {
-                    string name = item.name;
+                    string name = item.Name;
                     if (string.IsNullOrEmpty(name))
                         continue;
 
@@ -828,7 +824,7 @@ namespace QuestorManager
                     if (!found)
                         continue;
 
-                    ListViewItem listItem1 = new ListViewItem(item.name);
+                    ListViewItem listItem1 = new ListViewItem(item.Name);
                     listItem1.SubItems.Add(Convert.ToString(item.Id));
                     LstItems.Items.Add(listItem1);
                 }
@@ -862,7 +858,7 @@ namespace QuestorManager
 
         private void ChkPauseCheckedChanged(object sender, EventArgs e)
         {
-            if (chkPause.Checked == true)
+            if (chkPause.Checked)
                 _paused = true;
             if (chkPause.Checked == false)
                 _paused = false;
@@ -870,19 +866,19 @@ namespace QuestorManager
 
         private void RbttnLocalCheckedChanged(object sender, EventArgs e)
         {
-            if (rbttnLocal.Checked == true)
+            if (rbttnLocal.Checked)
                 _selectHangar = rbttnLocal.Text;
         }
 
         private void RbttnShipCheckedChanged(object sender, EventArgs e)
         {
-            if (rbttnShip.Checked == true)
+            if (rbttnShip.Checked)
                 _selectHangar = rbttnShip.Text;
         }
 
         private void RbttnCorpCheckedChanged(object sender, EventArgs e)
         {
-            if (rbttnCorp.Checked == true)
+            if (rbttnCorp.Checked)
             {
                 txtNameCorp.Enabled = true;
                 _selectHangar = txtNameCorp.Text;
@@ -1004,17 +1000,16 @@ namespace QuestorManager
             XDocument fileXml = new XDocument(xml);
             fileXml.Save(fic);
 
-            RefreshJobs();
+            RefreshAvailableXMLJobs();
         }
 
-        private void RefreshJobs()
+        private void RefreshAvailableXMLJobs()
         {
             cmbXML.Items.Clear();
 
             DirectoryInfo o = new System.IO.DirectoryInfo(Settings.Instance.Path);
-            FileInfo[] myfiles = null;
 
-            myfiles = o.GetFiles("*.jobs");
+            FileInfo[] myfiles = o.GetFiles("*.jobs");
             for (int y = 0; y <= myfiles.Length - 1; y++)
             {
                 string[] file = myfiles[y].Name.Split('.');
@@ -1081,38 +1076,34 @@ namespace QuestorManager
         {
             if (State == QuestormanagerState.Idle) // if we are not in the idle state then we are already processing a job!
             {
-                //Logging.Log("QuestorManager", "LoadSavedTaskList: Args [" + args.Length + "][" + args[0] + "][" + args[1] + "]", Logging.white);
+                //Logging.Log("QuestorManager", "LoadSavedTaskList: Args [" + args.Length + "][" + args[0] + "][" + args[1] + "]", Logging.White);
                 if (args.Length != 2)
                 {
                     Logging.Log("QuestorManager",
                                 "LoadSavedTaskList [SavedJobFile] - Reads the Saved Task List specified and processes the jobs",
-                                Logging.white);
+                                Logging.White);
                     return -1;
                 }
-                else
+                
+                string savedjobtoload = Path.Combine(Settings.Instance.Path, args[1] + ".jobs");
+                if (File.Exists(savedjobtoload))
                 {
-                    string savedjobtoload = Path.Combine(Settings.Instance.Path, args[1] + ".jobs");
-                    if (File.Exists(savedjobtoload))
+                    try
                     {
-                        try
-                        {
-                            ReadXML(savedjobtoload);
-                        }
+                        ReadXML(savedjobtoload);
+                    }
                         //catch
                         //{
                         //
                         //}
-                        finally
-                        {
-                        }
-                        return 0;
-                    }
-                    else
+                    finally
                     {
-                        Logging.Log("QuestorManager", "LoadSavedTaskList: File Job file [" + savedjobtoload + "] does not exist", Logging.orange);
                     }
-                    return -1;
+                    return 0;
                 }
+                
+                Logging.Log("QuestorManager", "LoadSavedTaskList: File Job file [" + savedjobtoload + "] does not exist", Logging.Orange);
+                return -1;
             }
             return -1;
         }
@@ -1125,7 +1116,7 @@ namespace QuestorManager
                 {
                     Logging.Log("QuestorManager",
                                 "StartProcessing - Starts Processing any already loaded task items",
-                                Logging.white);
+                                Logging.White);
                     return -1;
                 }
                 try
@@ -1142,7 +1133,7 @@ namespace QuestorManager
                 }
             }
 
-            Logging.Log("QuestorUI", "QuestorState is now: CloseQuestor ", Logging.white);
+            Logging.Log("QuestorUI", "QuestorState is now: CloseQuestor ", Logging.White);
             return 0;
         }
 
@@ -1201,7 +1192,7 @@ namespace QuestorManager
                 {
                     if (offer.TypeName == lstbuyLPI.SelectedItems[0].Text)
                     {
-                        double totalISK = 0;
+                        double totalIsk = 0;
                         lstItemsRequiered.Items.Clear();
 
                         if (offer.RequiredItems.Count > 0)
@@ -1217,16 +1208,16 @@ namespace QuestorManager
                                         listItemRequired.SubItems.Add(Convert.ToString(requiredItem.Quantity));
                                         listItemRequired.SubItems.Add(string.Format("{0:#,#0.00}", medianbuy));
                                         lstItemsRequiered.Items.Add(listItemRequired);
-                                        totalISK = totalISK + (Convert.ToDouble(requiredItem.Quantity) * medianbuy);
+                                        totalIsk = totalIsk + (Convert.ToDouble(requiredItem.Quantity) * medianbuy);
                                     }
                                 }
                             }
                         }
 
-                        lblitemisk.Text = string.Format("{0:#,#0.00}", totalISK);
-                        totalISK = totalISK + Convert.ToDouble(offer.IskCost);
+                        lblitemisk.Text = string.Format("{0:#,#0.00}", totalIsk);
+                        totalIsk = totalIsk + Convert.ToDouble(offer.IskCost);
                         lbliskLPI.Text = string.Format("{0:#,#0.00}", offer.IskCost);
-                        lblTotal.Text = string.Format("{0:#,#0.00}", totalISK);
+                        lblTotal.Text = string.Format("{0:#,#0.00}", totalIsk);
                         lblLP.Text = string.Format("{0:#,#}", offer.LoyaltyPointCost);
                     }
                 }
