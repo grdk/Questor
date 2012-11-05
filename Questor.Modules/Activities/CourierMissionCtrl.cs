@@ -25,11 +25,11 @@ namespace Questor.Modules.Activities
 
         private bool GotoMissionBookmark(long agentId, string title)
         {
-            var destination = _traveler.Destination as MissionBookmarkDestination;
+            var destination = Traveler.Destination as MissionBookmarkDestination;
             if (destination == null || destination.AgentId != agentId || !destination.Title.StartsWith(title))
-                _traveler.Destination = new MissionBookmarkDestination(Cache.Instance.GetMissionBookmark(agentId, title));
+                Traveler.Destination = new MissionBookmarkDestination(Cache.Instance.GetMissionBookmark(agentId, title));
 
-            _traveler.ProcessState();
+            Traveler.ProcessState();
 
             if (_States.CurrentTravelerState == TravelerState.AtDestination)
             {
@@ -39,7 +39,7 @@ namespace Questor.Modules.Activities
                 {
                     Logging.Log("CourierMissionCtrl", "destination is null", Logging.White); //how would this occur exactly?
                 }
-                _traveler.Destination = null;
+                Traveler.Destination = null;
                 return true;
             }
 
@@ -51,9 +51,9 @@ namespace Questor.Modules.Activities
             DirectEve directEve = Cache.Instance.DirectEve;
 
             // Open the item hangar (should still be open)
-            if (!Cache.Instance.OpenItemsHangar("CourierMissionCtrl")) return false;
+            if (!Cache.Instance.ReadyItemsHangar("CourierMissionCtrl")) return false;
 
-            if (!Cache.Instance.OpenCargoHold("CourierMissionCtrl")) return false;
+            if (!Cache.Instance.ReadyCargoHold("CourierMissionCtrl")) return false;
 
             const string missionItem = "Encoded Data Chip";
             Logging.Log("CourierMissionCtrl", "mission item is: " + missionItem, Logging.White);
@@ -73,7 +73,7 @@ namespace Questor.Modules.Activities
                 Logging.Log("CourierMissionCtrl", "Moving [" + item.TypeName + "][" + item.ItemId + "] to " + (pickup ? "cargo" : "hangar"), Logging.White);
                 to.Add(item);
             }
-            //_nextCourierAction = DateTime.Now.AddSeconds(8);
+            //_nextCourierAction = DateTime.UtcNow.AddSeconds(8);
             return false;
         }
 

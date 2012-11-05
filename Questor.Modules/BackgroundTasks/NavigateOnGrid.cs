@@ -2,12 +2,9 @@
 namespace Questor.Modules.BackgroundTasks
 {
     using System;
-    //using System.Linq;
     using global::Questor.Modules.Caching;
     using global::Questor.Modules.Logging;
     using global::Questor.Modules.Lookup;
-    //using global::Questor.Modules.States;
-    //using System.Globalization;
     using System.Linq;
     using DirectEve;
 
@@ -15,63 +12,64 @@ namespace Questor.Modules.BackgroundTasks
     {
         public static DateTime AvoidBumpingThingsTimeStamp = Cache.Instance.StartTime;
         public static int SafeDistanceFromStructureMultiplier = 1;
-        public static bool AvoidBumpoingThingsWarningSent = false;
+        public static bool AvoidBumpingThingsWarningSent = false;
 
         public static void AvoidBumpingThings(EntityCache thisBigObject, string module)
         {
-            //if It hasn't been at least 60 seconds since we last session changed do not do anything
-            if (Cache.Instance.InStation || !Cache.Instance.InSpace || Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked || (Cache.Instance.InSpace && Cache.Instance.LastSessionChange.AddSeconds(60) < DateTime.Now))
-                return;
-            //
-            // if we are "too close" to the bigObject move away... (is orbit the best thing to do here?)
-            //
-            if (Cache.Instance.ClosestStargate.Distance > 9000 || Cache.Instance.ClosestStation.Distance > 5000)
+            if (Settings.Instance.AvoidBumpingThings)
             {
-                //EntityCache thisBigObject = Cache.Instance.BigObjects.FirstOrDefault();
-                if (thisBigObject != null)
+                //if It has not been at least 60 seconds since we last session changed do not do anything
+                if (Cache.Instance.InStation || !Cache.Instance.InSpace || Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked || (Cache.Instance.InSpace && Cache.Instance.LastSessionChange.AddSeconds(60) < DateTime.UtcNow))
+                    return;
+                //
+                // if we are "too close" to the bigObject move away... (is orbit the best thing to do here?)
+                //
+                if (Cache.Instance.ClosestStargate.Distance > 9000 || Cache.Instance.ClosestStation.Distance > 5000)
                 {
-                    if (thisBigObject.Distance >= (int)Distance.TooCloseToStructure)
+                    //EntityCache thisBigObject = Cache.Instance.BigObjects.FirstOrDefault();
+                    if (thisBigObject != null)
                     {
-                        //we are no longer "too close" and can proceed.
-                        AvoidBumpingThingsTimeStamp = DateTime.Now;
-                        SafeDistanceFromStructureMultiplier = 1;
-                        AvoidBumpoingThingsWarningSent = false;
-                    }
-                    else
-                    {
-                        if (DateTime.Now > Cache.Instance.NextOrbit)
+                        if (thisBigObject.Distance >= (int)Distance.TooCloseToStructure)
                         {
-                            if (DateTime.Now > AvoidBumpingThingsTimeStamp.AddSeconds(30))
-                            {
-                                if (SafeDistanceFromStructureMultiplier <= 4)
-                                {
-                                    //
-                                    // for simplicitys sake we reset this timestamp every 30 sec until the multiplier hits 5 then it should stay static until we arent "too close" anymore
-                                    //
-                                    AvoidBumpingThingsTimeStamp = DateTime.Now;
-                                    SafeDistanceFromStructureMultiplier++;
-                                }
-                                if (DateTime.Now > AvoidBumpingThingsTimeStamp.AddMinutes(5) && !AvoidBumpoingThingsWarningSent)
-                                {
-                                    Logging.Log("NavigateOnGrid", "We are stuck on a object and have been trying to orbit away from it for over 5 min", Logging.Orange);
-                                    AvoidBumpoingThingsWarningSent = true;
-                                }
-                                if (DateTime.Now > AvoidBumpingThingsTimeStamp.AddMinutes(15))
-                                {
-                                    Cache.Instance.CloseQuestorCMDLogoff = false;
-                                    Cache.Instance.CloseQuestorCMDExitGame = true;
-                                    Cache.Instance.ReasonToStopQuestor = "navigateOnGrid: We have been stuck on an object for over 15 min";
-                                    Logging.Log("ReasonToStopQuestor", Cache.Instance.ReasonToStopQuestor, Logging.Yellow);
-                                    Cache.Instance.SessionState = "Quitting";
-                                }
-                            }
-                            thisBigObject.Orbit((int)Distance.SafeDistancefromStructure * SafeDistanceFromStructureMultiplier);
-                            Logging.Log(module,
-                                       ": initiating Orbit of [" + thisBigObject.Name +
-                                          "] orbiting at [" + ((int)Distance.SafeDistancefromStructure * SafeDistanceFromStructureMultiplier) + "]", Logging.White);
+                            //we are no longer "too close" and can proceed.
+                            AvoidBumpingThingsTimeStamp = DateTime.UtcNow;
+                            SafeDistanceFromStructureMultiplier = 1;
+                            AvoidBumpingThingsWarningSent = false;
                         }
-                        return;
-                        //we are still too close, do not continue through the rest until we are not "too close" anymore
+                        else
+                        {
+                            if (DateTime.UtcNow > Cache.Instance.NextOrbit)
+                            {
+                                if (DateTime.UtcNow > AvoidBumpingThingsTimeStamp.AddSeconds(30))
+                                {
+                                    if (SafeDistanceFromStructureMultiplier <= 4)
+                                    {
+                                        //
+                                        // for simplicities sake we reset this timestamp every 30 sec until the multiplier hits 5 then it should stay static until we are not "too close" anymore
+                                        //
+                                        AvoidBumpingThingsTimeStamp = DateTime.UtcNow;
+                                        SafeDistanceFromStructureMultiplier++;
+                                    }
+                                    if (DateTime.UtcNow > AvoidBumpingThingsTimeStamp.AddMinutes(5) && !AvoidBumpingThingsWarningSent)
+                                    {
+                                        Logging.Log("NavigateOnGrid", "We are stuck on a object and have been trying to orbit away from it for over 5 min", Logging.Orange);
+                                        AvoidBumpingThingsWarningSent = true;
+                                    }
+                                    if (DateTime.UtcNow > AvoidBumpingThingsTimeStamp.AddMinutes(15))
+                                    {
+                                        Cache.Instance.CloseQuestorCMDLogoff = false;
+                                        Cache.Instance.CloseQuestorCMDExitGame = true;
+                                        Cache.Instance.ReasonToStopQuestor = "navigateOnGrid: We have been stuck on an object for over 15 min";
+                                        Logging.Log("ReasonToStopQuestor", Cache.Instance.ReasonToStopQuestor, Logging.Yellow);
+                                        Cache.Instance.SessionState = "Quitting";
+                                    }
+                                }
+                                thisBigObject.Orbit((int)Distance.SafeDistancefromStructure * SafeDistanceFromStructureMultiplier);
+                                Logging.Log(module, ": initiating Orbit of [" + thisBigObject.Name + "] orbiting at [" + ((int)Distance.SafeDistancefromStructure * SafeDistanceFromStructureMultiplier) + "]", Logging.White);
+                            }
+                            return;
+                            //we are still too close, do not continue through the rest until we are not "too close" anymore
+                        }
                     }
                 }
             }
@@ -79,7 +77,7 @@ namespace Questor.Modules.BackgroundTasks
 
         public static void OrbitGateorTarget(EntityCache target, string module)
         {
-            if (DateTime.Now > Cache.Instance.NextOrbit)
+            if (DateTime.UtcNow > Cache.Instance.NextOrbit)
             {
                 if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "OrbitGateorTarget Started", Logging.White);
                 if (Cache.Instance.OrbitDistance == 0)
@@ -87,35 +85,52 @@ namespace Questor.Modules.BackgroundTasks
                     Cache.Instance.OrbitDistance = 2000;
                 }
 
-                if (target.Distance + Cache.Instance.OrbitDistance < Cache.Instance.MaxRange)
+                if (target.Distance + Cache.Instance.OrbitDistance < Cache.Instance.MaxRange - 5000)
                 {
                     if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "OrbitGateorTarget Started", Logging.White);
                     //Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction] ,"StartOrbiting: Target in range");
                     if (!Cache.Instance.IsApproachingOrOrbiting)
                     {
-                        Logging.Log("CombatMissionCtrl.NavigateIntoRange", "We are not approaching nor orbiting", Logging.Teal);
+                        if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("CombatMissionCtrl.NavigateIntoRange", "We are not approaching nor orbiting", Logging.Teal);
 
                         EntityCache structure = Cache.Instance.Entities.Where(i => i.Name.Contains("Gate")).OrderBy(t => t.Distance).ThenBy(t => t.Distance).FirstOrDefault();
 
                         if (Settings.Instance.OrbitStructure && structure != null)
                         {
-                            structure.Orbit((int)Cache.Instance.OrbitDistance);
+                            structure.Orbit(Cache.Instance.OrbitDistance);
                             Logging.Log(module, "Initiating Orbit [" + structure.Name + "][ID: " + structure.Id + "]", Logging.Teal);
+                            return;
                         }
-                        else
+                        
+                        //
+                        // OrbitStructure is false
+                        //
+                        if (Settings.Instance.SpeedTank || Cache.Instance.MyShip.Velocity > 300)
                         {
                             target.Orbit(Cache.Instance.OrbitDistance);
                             Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + target.Id + "]", Logging.Teal);
+                            return;
+                        }
+
+                        //
+                        // OrbitStructure is false
+                        // Speedtank is false
+                        //
+                        if (Cache.Instance.MyShip.Velocity < 300 && DateTime.UtcNow > Cache.Instance.NextAlign) //this will spam a bit until we know what "mode" our activeship is when aligning
+                        {
+                            Cache.Instance.Star.AlignTo();
+                            Logging.Log(module, "Aligning to the Star so we might possibly hit [" + target.Name + "][ID: " + target.Id + "][ActiveShip.Entity.Mode:[" + Cache.Instance.DirectEve.ActiveShip.Entity.Mode + "]", Logging.Teal);
+                            return;
                         }
                         return;
                     }
                 }
                 else
                 {
-                    Logging.Log(module, "Possible out of range. ignoring orbit around structure", Logging.Teal);
+                    Logging.Log(module, "Out of range. ignoring orbit around structure.", Logging.Teal);
                     target.Orbit(Cache.Instance.OrbitDistance);
                     Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + target.Id + "]", Logging.Teal);
-                    Cache.Instance.NextOrbit = DateTime.Now.AddSeconds(Time.Instance.OrbitDelay_seconds);
+                    Cache.Instance.NextOrbit = DateTime.UtcNow.AddSeconds(Time.Instance.OrbitDelay_seconds);
                     return;
                 }
                 return;
@@ -150,9 +165,9 @@ namespace Questor.Modules.BackgroundTasks
                 OrbitGateorTarget(target, module);
                 return;
             }
-            else //if we aren't speed tanking then check optimalrange setting, if that isn't set use the less of targeting range and weapons range to dictate engagement range
+            else //if we are not speed tanking then check optimalrange setting, if that is not set use the less of targeting range and weapons range to dictate engagement range
             {
-                if (DateTime.Now > Cache.Instance.NextApproachAction)
+                if (DateTime.UtcNow > Cache.Instance.NextApproachAction)
                 {
                     //if optimalrange is set - use it to determine engagement range
                     if (Settings.Instance.OptimalRange != 0)
@@ -208,7 +223,7 @@ namespace Questor.Modules.BackgroundTasks
                             return;
                         }
                         //I think when approach distance will be reached ship will be stopped so this is not needed
-                        if (target.Distance <= Cache.Instance.MaxRange && Cache.Instance.Approaching != null)
+                        if (target.Distance <= Cache.Instance.MaxRange - 5000 && Cache.Instance.Approaching != null)
                         {
                             if (target.IsNPCFrigate)
                             {
@@ -218,7 +233,7 @@ namespace Questor.Modules.BackgroundTasks
                             }
                             Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
                             Cache.Instance.Approaching = null;
-                            Logging.Log(module, "Using Weapons Range: Stop ship, target is in orbit range", Logging.Teal);
+                            Logging.Log(module, "Using Weapons Range: Stop ship, target is more than 5k inside weapons range", Logging.Teal);
                             return;
                         }
 
@@ -241,7 +256,7 @@ namespace Questor.Modules.BackgroundTasks
         {
             if (Settings.Instance.SpeedTank)
             {   //this should be only executed when no specific actions
-                if (DateTime.Now > Cache.Instance.NextOrbit)
+                if (DateTime.UtcNow > Cache.Instance.NextOrbit)
                 {
                     if (target.Distance + Cache.Instance.OrbitDistance < Cache.Instance.MaxRange)
                     {
@@ -274,9 +289,9 @@ namespace Questor.Modules.BackgroundTasks
                     }
                 }
             }
-            else //if we aren't speed tanking then check optimalrange setting, if that isn't set use the less of targeting range and weapons range to dictate engagement range
+            else //if we are not speed tanking then check optimalrange setting, if that isn't set use the less of targeting range and weapons range to dictate engagement range
             {
-                if (DateTime.Now > Cache.Instance.NextApproachAction)
+                if (DateTime.UtcNow > Cache.Instance.NextApproachAction)
                 {
                     //if optimalrange is set - use it to determine engagement range
                     //

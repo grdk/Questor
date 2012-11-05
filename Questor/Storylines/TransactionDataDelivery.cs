@@ -13,13 +13,7 @@ namespace Questor.Storylines
     public class TransactionDataDelivery : IStoryline
     {
         private DateTime _nextAction;
-        private readonly Traveler _traveler;
         private TransactionDataDeliveryState _state;
-
-        public TransactionDataDelivery()
-        {
-            _traveler = new Traveler();
-        }
 
         /// <summary>
         ///   Arm does nothing but get into a (assembled) shuttle
@@ -27,7 +21,7 @@ namespace Questor.Storylines
         /// <returns></returns>
         public StorylineState Arm(Storyline storyline)
         {
-            if (_nextAction > DateTime.Now)
+            if (_nextAction > DateTime.UtcNow)
                 return StorylineState.Arm;
 
             // Are we in a shuttle?  Yes, go to the agent
@@ -44,7 +38,7 @@ namespace Questor.Storylines
             {
                 Logging.Log("TransactionDataDelivery", "Switching to shuttle", Logging.White);
 
-                _nextAction = DateTime.Now.AddSeconds(10);
+                _nextAction = DateTime.UtcNow.AddSeconds(10);
 
                 item.ActivateShip();
                 return StorylineState.Arm;
@@ -64,22 +58,22 @@ namespace Questor.Storylines
             _state = TransactionDataDeliveryState.GotoPickupLocation;
 
             _States.CurrentTravelerState = TravelerState.Idle;
-            _traveler.Destination = null;
+            Traveler.Destination = null;
 
             return StorylineState.AcceptMission;
         }
 
         private bool GotoMissionBookmark(long agentId, string title)
         {
-            var destination = _traveler.Destination as MissionBookmarkDestination;
+            var destination = Traveler.Destination as MissionBookmarkDestination;
             if (destination == null || destination.AgentId != agentId || !destination.Title.ToLower().StartsWith(title.ToLower()))
-                _traveler.Destination = new MissionBookmarkDestination(Cache.Instance.GetMissionBookmark(agentId, title));
+                Traveler.Destination = new MissionBookmarkDestination(Cache.Instance.GetMissionBookmark(agentId, title));
 
-            _traveler.ProcessState();
+            Traveler.ProcessState();
 
             if (_States.CurrentTravelerState == TravelerState.AtDestination)
             {
-                _traveler.Destination = null;
+                Traveler.Destination = null;
                 return true;
             }
 
@@ -91,9 +85,9 @@ namespace Questor.Storylines
             DirectEve directEve = Cache.Instance.DirectEve;
 
             // Open the item hangar (should still be open)
-            if (!Cache.Instance.OpenItemsHangar("TransactionDataDelivery")) return false;
+            if (!Cache.Instance.ReadyItemsHangar("TransactionDataDelivery")) return false;
 
-            if (!Cache.Instance.OpenCargoHold("TransactionDataDelivery")) return false;
+            if (!Cache.Instance.ReadyCargoHold("TransactionDataDelivery")) return false;
 
             // 314 == Transaction And Salary Logs (all different versions)
             const int groupId = 314;
@@ -113,7 +107,7 @@ namespace Questor.Storylines
                 Logging.Log("TransactionDataDelivery", "Moving [" + item.TypeName + "][" + item.ItemId + "] to " + (pickup ? "cargo" : "hangar"), Logging.White);
                 to.Add(item);
             }
-            _nextAction = DateTime.Now.AddSeconds(10);
+            _nextAction = DateTime.UtcNow.AddSeconds(10);
             return false;
         }
 
@@ -129,7 +123,7 @@ namespace Questor.Storylines
         /// <returns></returns>
         public StorylineState ExecuteMission(Storyline storyline)
         {
-            if (_nextAction > DateTime.Now)
+            if (_nextAction > DateTime.UtcNow)
                 return StorylineState.ExecuteMission;
 
             switch (_state)

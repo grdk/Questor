@@ -116,7 +116,7 @@ namespace Questor.Modules.Combat
                 return;
 
             // Is our current target still the same and is the last Engage command no longer then 15s ago?
-            if (_lastTarget == target.Id && DateTime.Now.Subtract(_lastEngageCommand).TotalSeconds < 15)
+            if (_lastTarget == target.Id && DateTime.UtcNow.Subtract(_lastEngageCommand).TotalSeconds < 15)
             {
                 return;
             }
@@ -137,7 +137,7 @@ namespace Questor.Modules.Combat
                 // Engage target
                 Logging.Log("Drones", "Engaging [ " + Cache.Instance.ActiveDrones.Count() + " ] drones on [" + target.Name + "][ID: " + target.Id + "]" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Magenta);
                 Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdDronesEngage);
-                _lastEngageCommand = DateTime.Now;
+                _lastEngageCommand = DateTime.UtcNow;
             }
             else // Make the target active
             {
@@ -148,10 +148,10 @@ namespace Questor.Modules.Combat
 
         public void ProcessState()
         {
-            if (DateTime.Now < _lastDronesProcessState.AddMilliseconds(100)) //if it has not been 100ms since the last time we ran this ProcessState return. We can't do anything that close together anyway
+            if (DateTime.UtcNow < _lastDronesProcessState.AddMilliseconds(100)) //if it has not been 100ms since the last time we ran this ProcessState return. We can't do anything that close together anyway
                 return;
 
-            _lastDronesProcessState = DateTime.Now;
+            _lastDronesProcessState = DateTime.UtcNow;
 
             if (Cache.Instance.InStation ||                             // There is really no combat in stations (yet)
                 !Cache.Instance.InSpace ||                              // if we are not in space yet, wait...
@@ -205,7 +205,7 @@ namespace Questor.Modules.Combat
                         // If drones get aggro'd within 30 seconds, then wait (5 * _recallCount + 5) seconds since the last recall
                         if (_lastLaunch < _lastRecall && _lastRecall.Subtract(_lastLaunch).TotalSeconds < 30)
                         {
-                            if (_lastRecall.AddSeconds(5 * _recallCount + 5) < DateTime.Now)
+                            if (_lastRecall.AddSeconds(5 * _recallCount + 5) < DateTime.UtcNow)
                             {
                                 // Increase recall count and allow the launch
                                 _recallCount++;
@@ -228,7 +228,7 @@ namespace Questor.Modules.Combat
                     {
                         // Reset launch tries
                         _launchTries = 0;
-                        _lastLaunch = DateTime.Now;
+                        _lastLaunch = DateTime.UtcNow;
                         _States.CurrentDroneState = DroneState.Launch;
                     }
                     break;
@@ -236,7 +236,7 @@ namespace Questor.Modules.Combat
                 case DroneState.Launch:
                     // Launch all drones
                     Recall = false;
-                    _launchTimeout = DateTime.Now;
+                    _launchTimeout = DateTime.UtcNow;
                     Cache.Instance.DirectEve.ActiveShip.LaunchAllDrones();
                     _States.CurrentDroneState = DroneState.Launching;
                     break;
@@ -245,7 +245,7 @@ namespace Questor.Modules.Combat
                     // We haven't launched anything yet, keep waiting
                     if (!Cache.Instance.ActiveDrones.Any())
                     {
-                        if (DateTime.Now.Subtract(_launchTimeout).TotalSeconds > 10)
+                        if (DateTime.UtcNow.Subtract(_launchTimeout).TotalSeconds > 10)
                         {
                             // Relaunch if tries < 10
                             if (_launchTries < 10)
@@ -269,7 +269,7 @@ namespace Questor.Modules.Combat
                     break;
 
                 case DroneState.OutOfDrones:
-                    //if (DateTime.Now.Subtract(_launchTimeout).TotalSeconds > 1000)
+                    //if (DateTime.UtcNow.Subtract(_launchTimeout).TotalSeconds > 1000)
                     //{
                     //    State = DroneState.WaitingForTargets;
                     //}
@@ -289,9 +289,9 @@ namespace Questor.Modules.Combat
                         if (Cache.Instance.PriorityTargets.Any(pt => pt.IsWarpScramblingMe))
                         {
                             EntityCache WarpScrambledBy = Cache.Instance.Targets.FirstOrDefault(pt => pt.IsWarpScramblingMe);
-                            if (WarpScrambledBy != null && DateTime.Now > _nextWarpScrambledWarning)
+                            if (WarpScrambledBy != null && DateTime.UtcNow > _nextWarpScrambledWarning)
                             {
-                                _nextWarpScrambledWarning = DateTime.Now.AddSeconds(20);
+                                _nextWarpScrambledWarning = DateTime.UtcNow.AddSeconds(20);
                                 Logging.Log("Drones", "We are scrambled by: [" + Logging.White + WarpScrambledBy.Name + Logging.Orange + "][" + Logging.White + Math.Round(WarpScrambledBy.Distance, 0) + Logging.Orange + "][" + Logging.White + WarpScrambledBy.Id + Logging.Orange + "]",
                                             Logging.Orange);
                                 Recall = false;
@@ -460,7 +460,7 @@ namespace Questor.Modules.Combat
                     // Are we done?
                     if (!Cache.Instance.ActiveDrones.Any())
                     {
-                        _lastRecall = DateTime.Now;
+                        _lastRecall = DateTime.UtcNow;
                         Recall = false;
                         TargetingCache.CurrentDronesTarget = null;
                         _States.CurrentDroneState = DroneState.WaitingForTargets;
@@ -468,10 +468,10 @@ namespace Questor.Modules.Combat
                     }
 
                     // Give recall command every 15 seconds
-                    if (DateTime.Now.Subtract(_lastRecallCommand).TotalSeconds > 15)
+                    if (DateTime.UtcNow.Subtract(_lastRecallCommand).TotalSeconds > 15)
                     {
                         Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdDronesReturnToBay);
-                        _lastRecallCommand = DateTime.Now;
+                        _lastRecallCommand = DateTime.UtcNow;
                     }
                     break;
                 case DroneState.Idle:

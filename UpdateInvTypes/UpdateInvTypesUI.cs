@@ -60,7 +60,7 @@
 
         private void UpdateTick(object sender, EventArgs e)
         {
-            if (_nextEVECentralQuery > DateTime.Now)
+            if (_nextEVECentralQuery > DateTime.UtcNow)
                 return;
 
             // This is what you get if your too bored to setup an actual thread and do UI-invoke shit
@@ -86,9 +86,9 @@
                 
                 try
                 {
-                    IEnumerable<InvType> needUpdating = types.Where(type => !type.LastUpdate.HasValue || DateTime.Now.Subtract(type.LastUpdate.Value).TotalDays > 4).ToList();
+                    IEnumerable<InvType> needUpdating = types.Where(type => !type.LastUpdate.HasValue || DateTime.UtcNow.Subtract(type.LastUpdate.Value).TotalDays > 4).ToList();
                     if (chkfast.Checked)
-                        needUpdating = types.Where(type => !type.LastUpdate.HasValue || DateTime.Now.Subtract(type.LastUpdate.Value).TotalMinutes > 2);
+                        needUpdating = types.Where(type => !type.LastUpdate.HasValue || DateTime.UtcNow.Subtract(type.LastUpdate.Value).TotalMinutes > 2);
 
                     if (!needUpdating.Any())
                         return;
@@ -102,7 +102,7 @@
                     try
                     {
                         XDocument prices = XDocument.Load(url);
-                        _nextEVECentralQuery = DateTime.Now.AddMilliseconds(300);
+                        _nextEVECentralQuery = DateTime.UtcNow.AddMilliseconds(300);
 
                         if (prices.Root != null && (string)prices.Root.Attribute("method") != "marketstat_xml")
                         {
@@ -134,7 +134,7 @@
                                     invType.MinSell = (double?)sell.Element("min");
                                 }
 
-                                invType.LastUpdate = DateTime.Now;
+                                invType.LastUpdate = DateTime.UtcNow;
                             }
                     }
                     catch (Exception ex)
@@ -146,7 +146,7 @@
                         {
                             Logging.Log("UpdateInvTypes", "Skipping [" + types.Select(type => "typeid=" + type.Id) + "]", Logging.White);
                             Progress.Value = Progress.Value + Progress.Step;
-                            _nextEVECentralQuery = DateTime.Now.AddMilliseconds(300);
+                            _nextEVECentralQuery = DateTime.UtcNow.AddMilliseconds(300);
                         }
                         else
                         {
@@ -159,7 +159,7 @@
                 {
                     Progress.Value = Progress.Value + types.Count();
                     Progress.Step = _numOfItemIDsToCheckAtOnce;
-                    _nextEVECentralQuery = DateTime.Now.AddMilliseconds(300);  
+                    _nextEVECentralQuery = DateTime.UtcNow.AddMilliseconds(300);  
                     
                     if (Progress.Value >= _invTypes.Count - 1)
                     {

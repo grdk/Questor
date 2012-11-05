@@ -30,15 +30,10 @@ namespace Questor.Behaviors
         private readonly Combat _combat;
         private readonly Drones _drones;
 
-        //private DateTime _lastPulse;
         private readonly Panic _panic;
         private readonly Salvage _salvage;
-        private readonly Traveler _traveler;
         private readonly UnloadLoot _unloadLoot;
         public DateTime LastAction;
-        //private readonly Random _random;
-
-        //private int _randomDelay;
         public static long AgentID;
 
         private readonly Stopwatch _watch;
@@ -51,17 +46,11 @@ namespace Questor.Behaviors
 
         public string CharacterName { get; set; }
 
-        //DateTime _nextAction = DateTime.Now;
-
         public DebugHangarsBehavior()
         {
-            //_lastPulse = DateTime.MinValue;
-
-            //_random = new Random();
             _salvage = new Salvage();
             _combat = new Combat();
             _drones = new Drones();
-            _traveler = new Traveler();
             _unloadLoot = new UnloadLoot();
             _arm = new Arm();
             _panic = new Panic();
@@ -151,7 +140,7 @@ namespace Questor.Behaviors
 
         private void BeginClosingQuestor()
         {
-            Cache.Instance.EnteredCloseQuestor_DateTime = DateTime.Now;
+            Cache.Instance.EnteredCloseQuestor_DateTime = DateTime.UtcNow;
             _States.CurrentQuestorState = QuestorState.CloseQuestor;
         }
 
@@ -159,9 +148,9 @@ namespace Questor.Behaviors
         {
             try
             {
-                var baseDestination = _traveler.Destination as StationDestination;
+                var baseDestination = Traveler.Destination as StationDestination;
                 if (baseDestination == null || baseDestination.StationId != Cache.Instance.Agent.StationId)
-                    _traveler.Destination = new StationDestination(Cache.Instance.Agent.SolarSystemId,
+                    Traveler.Destination = new StationDestination(Cache.Instance.Agent.SolarSystemId,
                                                                    Cache.Instance.Agent.StationId,
                                                                    Cache.Instance.DirectEve.GetLocationName(
                                                                        Cache.Instance.Agent.StationId));
@@ -173,7 +162,7 @@ namespace Questor.Behaviors
             }
             if (Cache.Instance.InSpace)
             {
-                if (!Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked || (Cache.Instance.LastSessionChange.AddSeconds(60) > DateTime.Now))
+                if (!Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked || (Cache.Instance.LastSessionChange.AddSeconds(60) > DateTime.UtcNow))
                 {
                     _combat.ProcessState();
                     _drones.ProcessState(); //do we really want to use drones here?
@@ -184,7 +173,7 @@ namespace Questor.Behaviors
                 Cache.Instance.IsMissionPocketDone = true; //tells drones.cs that we can pull drones
                 //Logging.Log("CombatmissionBehavior","TravelToAgentStation: not pointed",Logging.White);
             }
-            _traveler.ProcessState();
+            Traveler.ProcessState();
             if (Settings.Instance.DebugStates)
             {
                 Logging.Log("Traveler.State", "is " + _States.CurrentTravelerState, Logging.White);
@@ -194,7 +183,7 @@ namespace Questor.Behaviors
         private void AvoidBumpingThings()
         {
             //if It has not been at least 60 seconds since we last session changed do not do anything
-            if (Cache.Instance.InStation || !Cache.Instance.InSpace || Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked || (Cache.Instance.InSpace && Cache.Instance.LastSessionChange.AddSeconds(60) < DateTime.Now))
+            if (Cache.Instance.InStation || !Cache.Instance.InSpace || Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked || (Cache.Instance.InSpace && Cache.Instance.LastSessionChange.AddSeconds(60) < DateTime.UtcNow))
                 return;
             //
             // if we are "too close" to the bigObject move away... (is orbit the best thing to do here?)
@@ -210,13 +199,13 @@ namespace Questor.Behaviors
                     }
                     else
                     {
-                        if (DateTime.Now > Cache.Instance.NextOrbit)
+                        if (DateTime.UtcNow > Cache.Instance.NextOrbit)
                         {
                             thisBigObject.Orbit((int)Distance.SafeDistancefromStructure);
                             Logging.Log("DebugHangarsBehavior", _States.CurrentDebugHangarBehaviorState +
                                         ": initiating Orbit of [" + thisBigObject.Name +
                                         "] orbiting at [" + Distance.SafeDistancefromStructure + "]", Logging.White);
-                            Cache.Instance.NextOrbit = DateTime.Now.AddSeconds(Time.Instance.OrbitDelay_seconds);
+                            Cache.Instance.NextOrbit = DateTime.UtcNow.AddSeconds(Time.Instance.OrbitDelay_seconds);
                         }
                         return;
                         //we are still too close, do not continue through the rest until we are not "too close" anymore
@@ -240,7 +229,7 @@ namespace Questor.Behaviors
                     _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.GotoBase;
                 }
             }
-            if ((DateTime.Now.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalSeconds > 10) && (DateTime.Now.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalSeconds < 60))
+            if ((DateTime.UtcNow.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalSeconds > 10) && (DateTime.UtcNow.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalSeconds < 60))
             {
                 if (Cache.Instance.QuestorJustStarted)
                 {
@@ -302,11 +291,11 @@ namespace Questor.Behaviors
                     _States.CurrentUnloadLootState = UnloadLootState.Idle;
                     _States.CurrentTravelerState = TravelerState.Idle;
 
-                    LastAction = DateTime.Now;
+                    LastAction = DateTime.UtcNow;
                     break;
 
                 case DebugHangarsBehaviorState.DelayedGotoBase:
-                    if (DateTime.Now.Subtract(LastAction).TotalSeconds < Time.Instance.DelayedGotoBase_seconds)
+                    if (DateTime.UtcNow.Subtract(LastAction).TotalSeconds < Time.Instance.DelayedGotoBase_seconds)
                         break;
 
                     Logging.Log("DebugHangarsBehavior", "Heading back to base", Logging.White);
@@ -335,7 +324,7 @@ namespace Questor.Behaviors
                     {
                         // we know we are connected if we were able to arm the ship - update the lastknownGoodConnectedTime
                         // we may be out of drones/ammo but disconnecting/reconnecting will not fix that so update the timestamp
-                        Cache.Instance.LastKnownGoodConnectedTime = DateTime.Now;
+                        Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
                         Logging.Log("Arm", "Armstate.NotEnoughAmmo", Logging.Orange);
                         _States.CurrentArmState = ArmState.Idle;
@@ -346,7 +335,7 @@ namespace Questor.Behaviors
                     {
                         // we know we are connected if we were able to arm the ship - update the lastknownGoodConnectedTime
                         // we may be out of drones/ammo but disconnecting/reconnecting will not fix that so update the timestamp
-                        Cache.Instance.LastKnownGoodConnectedTime = DateTime.Now;
+                        Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
                         Logging.Log("Arm", "Armstate.NotEnoughDrones", Logging.Orange);
                         _States.CurrentArmState = ArmState.Idle;
@@ -356,7 +345,7 @@ namespace Questor.Behaviors
                     if (_States.CurrentArmState == ArmState.Done)
                     {
                         //we know we are connected if we were able to arm the ship - update the lastknownGoodConnectedTime
-                        Cache.Instance.LastKnownGoodConnectedTime = DateTime.Now;
+                        Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
                         _States.CurrentArmState = ArmState.Idle;
                         _States.CurrentDroneState = DroneState.WaitingForTargets;
@@ -373,7 +362,7 @@ namespace Questor.Behaviors
                     Cache.Instance.SalvageAll = true;
                     Cache.Instance.OpenWrecks = true;
 
-                    if (!Cache.Instance.OpenCargoHold("CombatMissionsBehavior: Salvage")) break;
+                    if (!Cache.Instance.ReadyCargoHold("CombatMissionsBehavior: Salvage")) break;
 
                     if (Settings.Instance.UnloadLootAtStation && salvageCargo.Window.IsReady && (salvageCargo.Capacity - salvageCargo.UsedCapacity) < 100)
                     {
@@ -417,15 +406,15 @@ namespace Questor.Behaviors
 
                     TravelToAgentsStation();
 
-                    if (_States.CurrentTravelerState == TravelerState.AtDestination) // || DateTime.Now.Subtract(Cache.Instance.EnteredCloseQuestor_DateTime).TotalMinutes > 10)
+                    if (_States.CurrentTravelerState == TravelerState.AtDestination) // || DateTime.UtcNow.Subtract(Cache.Instance.EnteredCloseQuestor_DateTime).TotalMinutes > 10)
                     {
                         if (Settings.Instance.DebugGotobase) Logging.Log("DebugHangarsBehavior", "GotoBase: We are at destination", Logging.White);
                         Cache.Instance.GotoBaseNow = false; //we are there - turn off the 'forced' GoToBase
-                        Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID);
+                        Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID, false);
 
                         if (_States.CurrentDebugHangarBehaviorState == DebugHangarsBehaviorState.GotoBase) _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.UnloadLoot;
 
-                        _traveler.Destination = null;
+                        Traveler.Destination = null;
                     }
                     break;
 
@@ -445,7 +434,7 @@ namespace Questor.Behaviors
                     {
                         Cache.Instance.LootAlreadyUnloaded = true;
                         _States.CurrentUnloadLootState = UnloadLootState.Idle;
-                        Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID);
+                        Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID, false);
                         if (_States.CurrentCombatState == CombatState.OutOfAmmo) // on mission
                         {
                             Logging.Log("DebugHangarsBehavior.UnloadLoot", "We are out of ammo", Logging.Orange);
@@ -455,7 +444,7 @@ namespace Questor.Behaviors
 
                         _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Idle;
                         Logging.Log("DebugHangarsBehavior.Unloadloot", "CharacterMode: [" + Settings.Instance.CharacterMode + "], AfterMissionSalvaging: [" + Settings.Instance.AfterMissionSalvaging + "], DebugHangarsBehaviorState: [" + _States.CurrentDebugHangarBehaviorState + "]", Logging.White);
-                        Statistics.Instance.FinishedMission = DateTime.Now;
+                        Statistics.Instance.FinishedMission = DateTime.UtcNow;
                         return;
                     }
                     break;
@@ -471,25 +460,25 @@ namespace Questor.Behaviors
                         if (_States.CurrentDebugHangarBehaviorState == DebugHangarsBehaviorState.Traveler) _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;
                         return;
                     }
-                    else
-                        if (destination.Count == 1 && destination.First() == 0)
+                    else if (destination.Count == 1 && destination.First() == 0)
                             destination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
-                    if (_traveler.Destination == null || _traveler.Destination.SolarSystemId != destination.Last())
+
+                    if (Traveler.Destination == null || Traveler.Destination.SolarSystemId != destination.Last())
                     {
                         IEnumerable<DirectBookmark> bookmarks = Cache.Instance.DirectEve.Bookmarks.Where(b => b.LocationId == destination.Last()).ToList();
                         if (bookmarks != null && bookmarks.Any())
-                            _traveler.Destination = new BookmarkDestination(bookmarks.OrderBy(b => b.CreatedOn).First());
+                            Traveler.Destination = new BookmarkDestination(bookmarks.OrderBy(b => b.CreatedOn).First());
                         else
                         {
                             Logging.Log("DebugHangarsBehavior.Traveler", "Destination: [" + Cache.Instance.DirectEve.Navigation.GetLocation(destination.Last()).Name + "]", Logging.White);
-                            _traveler.Destination = new SolarSystemDestination(destination.Last());
+                            Traveler.Destination = new SolarSystemDestination(destination.Last());
                         }
                     }
                     else
                     {
-                        _traveler.ProcessState();
+                        Traveler.ProcessState();
                         //we also assume you are connected during a manual set of questor into travel mode (safe assumption considering someone is at the kb)
-                        Cache.Instance.LastKnownGoodConnectedTime = DateTime.Now;
+                        Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
 
                         if (_States.CurrentTravelerState == TravelerState.AtDestination)
@@ -527,25 +516,25 @@ namespace Questor.Behaviors
                         {
                             Logging.Log("DebugHangarsBehavior.GotoNearestStation", "[" + station.Name + "] which is [" + Math.Round(station.Distance / 1000, 0) + "k away]", Logging.White);
                             station.WarpToAndDock();
-                            Cache.Instance.NextWarpTo = DateTime.Now.AddSeconds(Time.Instance.WarptoDelay_seconds);
+                            Cache.Instance.NextWarpTo = DateTime.UtcNow.AddSeconds(Time.Instance.WarptoDelay_seconds);
                             if (_States.CurrentDebugHangarBehaviorState == DebugHangarsBehaviorState.GotoNearestStation) _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Idle;
                             break;
                         }
                         
                         if (station.Distance < 1900)
                         {
-                            if (DateTime.Now > Cache.Instance.NextDockAction)
+                            if (DateTime.UtcNow > Cache.Instance.NextDockAction)
                             {
                                 Logging.Log("DebugHangarsBehavior.GotoNearestStation", "[" + station.Name + "] which is [" + Math.Round(station.Distance / 1000, 0) + "k away]", Logging.White);
                                 station.Dock();
-                                Cache.Instance.NextDockAction = DateTime.Now.AddSeconds(Time.Instance.DockingDelay_seconds);
+                                Cache.Instance.NextDockAction = DateTime.UtcNow.AddSeconds(Time.Instance.DockingDelay_seconds);
                             }
                         }
                         else
                         {
-                            if (Cache.Instance.NextApproachAction < DateTime.Now && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != station.Id))
+                            if (Cache.Instance.NextApproachAction < DateTime.UtcNow && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != station.Id))
                             {
-                                Cache.Instance.NextApproachAction = DateTime.Now.AddSeconds(Time.Instance.ApproachDelay_seconds);
+                                Cache.Instance.NextApproachAction = DateTime.UtcNow.AddSeconds(Time.Instance.ApproachDelay_seconds);
                                 Logging.Log("DebugHangarsBehavior.GotoNearestStation", "Approaching [" + station.Name + "] which is [" + Math.Round(station.Distance / 1000, 0) + "k away]", Logging.White);
                                 station.Approach();
                             }
@@ -557,9 +546,9 @@ namespace Questor.Behaviors
                     }
                     break;
 
-                case DebugHangarsBehaviorState.OpenItemsHangar:
-                    Logging.Log("DebugHangars", "DebugHangarsState.OpenItemsHangar:", Logging.White);
-                    if (!Cache.Instance.OpenItemsHangar("DebugHangars")) return;
+                case DebugHangarsBehaviorState.ReadyItemsHangar:
+                    Logging.Log("DebugHangars", "DebugHangarsState.ReadyItemsHangar:", Logging.White);
+                    if (!Cache.Instance.ReadyItemsHangar("DebugHangars")) return;
                     Cache.Instance.DebugInventoryWindows("DebugHangars");
                     _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;
                     Cache.Instance.Paused = true;
@@ -705,7 +694,7 @@ namespace Questor.Behaviors
 
                 case DebugHangarsBehaviorState.OpenLootHangar:
                     Logging.Log("DebugHangars", "DebugHangarsState.OpenLootHangar:", Logging.White);
-                    if (!Cache.Instance.OpenLootHangar("DebugHangars")) return;
+                    if (!Cache.Instance.ReadyLootHangar("DebugHangars")) return;
                     Cache.Instance.DebugInventoryWindows("DebugHangars");
                     _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;
                     Cache.Instance.Paused = true;
@@ -737,7 +726,7 @@ namespace Questor.Behaviors
 
                 case DebugHangarsBehaviorState.OpenCargoHold:
                     Logging.Log("DebugHangars", "DebugHangarsState.StackLootHangar:", Logging.White);
-                    if (!Cache.Instance.OpenCargoHold("DebugHangars")) return;
+                    if (!Cache.Instance.ReadyCargoHold("DebugHangars")) return;
                     Cache.Instance.DebugInventoryWindows("DebugHangars");
                     _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;
                     Cache.Instance.Paused = true;

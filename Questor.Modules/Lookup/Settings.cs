@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------
 // <copyright from='2010' to='2015' company='THEHACKERWITHIN.COM'>
 // Copyright (c) TheHackerWithin.COM. All Rights Reserved.
 //
@@ -21,6 +21,7 @@ namespace Questor.Modules.Lookup
     using Questor.Modules.Actions;
     using Questor.Modules.Caching;
     using Questor.Modules.Logging;
+    using Questor.Modules.States;
 
     public class Settings
     {
@@ -62,20 +63,30 @@ namespace Questor.Modules.Lookup
         // Debug Variables
         //
         public bool DebugActivateWeapons { get; set; }
+        public bool DebugAgentInteractionReplyToAgent { get; set; }
+        public bool DebugAllMissionsOnBlackList { get; set; }
+        public bool DebugAllMissionsOnGreyList { get; set; }
+        public bool DebugArm { get; set; }
         public bool DebugAttachVSDebugger { get; set; }
         public bool DebugAutoStart { get; set; }
+        public bool DebugBlackList { get; set; }
+        public bool DebugCargoHold { get; set; }
         public bool DebugCleanup { get; set; }
         public bool DebugDecline { get; set; }
         public bool DebugDefense { get; set; }
         public bool DebugDroneHealth { get; set; }
         public bool DebugExceptions { get; set; }
+        public bool DebugFittingMgr { get; set; }
         public bool DebugGotobase { get; set; }
+        public bool DebugGreyList { get; set; }
         public bool DebugHangars { get; set; }
         public bool DebugIdle { get; set; }
+        public bool DebugItemHangar { get; set; }
         public bool DebugLoadScripts { get; set; }
         public bool DebugLogging { get; set; }
         public bool DebugLootWrecks { get; set; }
         public bool DebugNavigateOnGrid { get; set; }
+        public bool DebugMissionFittings { get; set; }
         public bool DebugOnframe { get; set; }
         public bool DebugPerformance { get; set; }
         public bool DebugReloadAll { get; set; }
@@ -83,6 +94,7 @@ namespace Questor.Modules.Lookup
         public bool DebugSalvage { get; set; }
         public bool DebugScheduler { get; set; }
         public bool DebugStatistics { get; set; }
+        public bool DebugTractorBeams { get; set; }
         public bool DebugTraveler { get; set; }
         public bool DebugUI { get; set; }
         public bool DebugUnloadLoot { get; set; }
@@ -91,6 +103,7 @@ namespace Questor.Modules.Lookup
         public bool DebugStates { get; set; }
         public bool DefendWhileTraveling { get; set; }
         public bool UseInnerspace { get; set; }
+        public bool setEveClientDestinationWhenTraveling { get; set; }
 
         //
         // Misc Settings
@@ -175,11 +188,16 @@ namespace Questor.Modules.Lookup
         //
         // Storage location for loot, ammo, and bookmarks
         //
+        public string HomeBookmarkName { get; set; }
         public string LootHangar { get; set; }
         public string AmmoHangar { get; set; }
         public string BookmarkHangar { get; set; }
         public string LootContainer { get; set; }
+
+        public string HighTierLootContainer { get; set; }
+
         public bool MoveCommonMissionCompletionItemsToAmmoHangar { get; set; }
+        public bool MoveCommonMissionCompletionItemsToItemsHangar { get; set; }
 
         //
         // Salvage and Loot settings
@@ -201,6 +219,8 @@ namespace Questor.Modules.Lookup
         public int AgeofBookmarksForSalvageBehavior { get; set; } //in minutes
         public int AgeofSalvageBookmarksToExpire { get; set; } //in minutes
         public bool DeleteBookmarksWithNPC { get; set; }
+
+        public bool LootOnlyWhatYouCanWithoutSlowingDownMissionCompletion { get; set; }
         //
         // undocking settings
         //
@@ -297,6 +317,7 @@ namespace Questor.Modules.Lookup
         public int MinimumAmmoCharges { get; set; }
         public List<Ammo> Ammo { get; private set; }
 
+        public int DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage { get; set; }
         //
         // Script Settings - TypeIDs for the scripts you would like to use in these modules
         //
@@ -389,7 +410,16 @@ namespace Questor.Modules.Lookup
         // Questor GUI location settings
         //
         public int? WindowXPosition { get; set; }
+
         public int? WindowYPosition { get; set; }
+
+        public int? EVEWindowXPosition { get; set; }
+
+        public int? EVEWindowYPosition { get; set; }
+
+        public int? EVEWindowXSize { get; set; }
+
+        public int? EVEWindowYSize { get; set; }
 
         //
         // path information - used to load the XML and used in other modules
@@ -411,24 +441,25 @@ namespace Questor.Modules.Lookup
                 Settings.Instance.CharacterName = "AtLoginScreenNoCharactersLoggedInYet";
             }
 
-            if (Settings.Instance.CharacterName == string.Empty)
+            Settings.Instance.SettingsPath = System.IO.Path.Combine(Settings.Instance.Path, Cache.Instance.FilterPath(Settings.Instance.CharacterName) + ".xml");
+            
+            if (Settings.Instance.SettingsPath == System.IO.Path.Combine(Settings.Instance.Path, ".xml"))
             {
-                if (Cache.Instance.LastInStation.AddMinutes(60) > DateTime.Now)
+                if (Cache.Instance.LastInStation.AddMinutes(60) > DateTime.UtcNow)
                 {
                     Logging.Log("Settings", "CharacterName not defined! - Are we still logged in? Did we lose connection to eve? Questor should be restarting here.", Logging.White);
                     Settings.Instance.CharacterName = "NoCharactersLoggedInAnymore";
+                    Cache.Instance.EnteredCloseQuestor_DateTime = DateTime.UtcNow;
                     Cache.Instance.SessionState = "Quitting";
+                    _States.CurrentQuestorState = QuestorState.CloseQuestor;
                     return;
                 }
-                else
-                {
-                    Logging.Log("Settings", "CharacterName not defined! - Are we logged in yet? Did we lose connection to eve?", Logging.White);
-                    Settings.Instance.CharacterName = "AtLoginScreenNoCharactersLoggedInYet";
-                    //Cache.Instance.SessionState = "Quitting";
-                }
+                
+                Logging.Log("Settings", "CharacterName not defined! - Are we logged in yet? Did we lose connection to eve?", Logging.White);
+                Settings.Instance.CharacterName = "AtLoginScreenNoCharactersLoggedInYet";
+                //Cache.Instance.SessionState = "Quitting";
             }
 
-            Settings.Instance.SettingsPath = System.IO.Path.Combine(Settings.Instance.Path, Cache.Instance.FilterPath(Settings.Instance.CharacterName) + ".xml");
             bool reloadSettings = true;
             if (File.Exists(Settings.Instance.SettingsPath))
                 reloadSettings = _lastModifiedDate != File.GetLastWriteTime(Settings.Instance.SettingsPath);
@@ -452,19 +483,29 @@ namespace Questor.Modules.Lookup
                 //LavishScript.ExecuteCommand("uplink echo Settings: unable to find [" + Settings.Instance.SettingsPath + "] loading default (bad! bad! bad!) settings: you should fix this! NOW.");
                 Logging.Log("Settings", "WARNING! unable to find [" + Settings.Instance.SettingsPath + "] loading default generic, and likely incorrect, settings: WARNING!", Logging.Orange);
                 DebugActivateWeapons = false;
+                DebugAgentInteractionReplyToAgent = false;
+                DebugAllMissionsOnBlackList = false;
+                DebugAllMissionsOnGreyList = false;
+                DebugArm = false;
                 DebugAttachVSDebugger = false;
                 DebugAutoStart = false;
+                DebugBlackList = false;
+                DebugCargoHold = false;
                 DebugCleanup = false;
                 DebugDecline = false;
                 DebugDefense = false;
                 DebugDroneHealth = false;
                 DebugExceptions = false;
+                DebugFittingMgr = false;
                 DebugGotobase = false;
+                DebugGreyList = false;
                 DebugHangars = false;
                 DebugIdle = false;
+                DebugItemHangar = false;
                 DebugLoadScripts = false;
                 DebugLogging = false;
                 DebugLootWrecks = false;
+                DebugMissionFittings = false;
                 DebugNavigateOnGrid = false;
                 DebugOnframe = false;
                 DebugPerformance = false;
@@ -474,6 +515,7 @@ namespace Questor.Modules.Lookup
                 DebugScheduler = false;
                 DebugStates = false;
                 DebugStatistics = false;
+                DebugTractorBeams = false;
                 DebugTraveler = false;
                 DebugUI = false;
                 DebugUnloadLoot = false;
@@ -481,6 +523,7 @@ namespace Questor.Modules.Lookup
                 DetailedCurrentTargetHealthLogging = false;
                 DefendWhileTraveling = true;
                 UseInnerspace = true;
+                setEveClientDestinationWhenTraveling = false;
                 //
                 // Misc Settings
                 //
@@ -589,7 +632,10 @@ namespace Questor.Modules.Lookup
                 //windows position (needs to be changed, default is off screen)
                 WindowYPosition = 400;
                 //windows position (needs to be changed, default is off screen)
-
+                EVEWindowXPosition = 111;
+                EVEWindowYPosition = 111;
+                EVEWindowXSize = 111;
+                EVEWindowYSize = 111;
                 //
                 // Ship Names
                 //
@@ -601,11 +647,14 @@ namespace Questor.Modules.Lookup
                 //
                 // Storage Location for Loot, Ammo, Bookmarks
                 //
+                HomeBookmarkName = "myHomeBookmark";
                 LootHangar = String.Empty;
                 AmmoHangar = String.Empty;
                 BookmarkHangar = String.Empty;
                 LootContainer = String.Empty;
                 MoveCommonMissionCompletionItemsToAmmoHangar = false;
+                MoveCommonMissionCompletionItemsToItemsHangar = true;
+
                 //
                 // Loot and Salvage Settings
                 //
@@ -628,6 +677,7 @@ namespace Questor.Modules.Lookup
                 AgeofBookmarksForSalvageBehavior = 60;
                 AgeofSalvageBookmarksToExpire = 120;
                 DeleteBookmarksWithNPC = false;
+                LootOnlyWhatYouCanWithoutSlowingDownMissionCompletion = false;
                 //
                 // Enable / Disable the different types of logging that are available
                 //
@@ -648,7 +698,7 @@ namespace Questor.Modules.Lookup
                 DontShootFrigatesWithSiegeorAutoCannons = false;
                 MaximumHighValueTargets = 2;
                 MaximumLowValueTargets = 2;
-
+                DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage = 60;
                 //
                 // Script Settings - TypeIDs for the scripts you would like to use in these modules
                 //
@@ -737,14 +787,6 @@ namespace Questor.Modules.Lookup
                 // number of days of console logs to keep (anything older will be deleted on startup)
                 //
                 ConsoleLogDaysOfLogsToKeep = 14;
-                //
-                // Storage Location for Loot, Ammo, Bookmarks, default is local hangar
-                //
-                LootHangar = string.Empty;
-                AmmoHangar = string.Empty;
-                BookmarkHangar = string.Empty;
-                LootContainer = string.Empty;
-                MoveCommonMissionCompletionItemsToAmmoHangar = false;
 
                 MaximumHighValueTargets = 0;
                 MaximumLowValueTargets = 0;
@@ -788,19 +830,29 @@ namespace Questor.Modules.Lookup
                     // Debug Settings
                     // 
                     DebugActivateWeapons = (bool?)xml.Element("debugActivateWeapons") ?? false;
+                    DebugAgentInteractionReplyToAgent = (bool?)xml.Element("debugAgentInteractionReplyToAgent") ?? false;
+                    DebugAllMissionsOnBlackList = (bool?)xml.Element("debugAllMissionsOnBlackList") ?? false;
+                    DebugAllMissionsOnGreyList = (bool?)xml.Element("debugAllMissionsOnGreyList") ?? false;
+                    DebugArm = (bool?)xml.Element("debugArm") ?? false;
                     DebugAttachVSDebugger = (bool?)xml.Element("debugAttachVSDebugger") ?? false;
                     DebugAutoStart = (bool?)xml.Element("debugAutoStart") ?? false;
+                    DebugBlackList = (bool?)xml.Element("debugBlackList") ?? false;
+                    DebugCargoHold = (bool?)xml.Element("debugCargoHold") ?? false;
                     DebugCleanup = (bool?)xml.Element("debugCleanup") ?? false;
                     DebugDecline = (bool?)xml.Element("debugDecline") ?? false;
                     DebugDefense = (bool?)xml.Element("debugDefense") ?? false;
                     DebugDroneHealth = (bool?)xml.Element("debugDroneHealth") ?? false;
                     DebugExceptions = (bool?)xml.Element("debugExceptions") ?? false;
+                    DebugFittingMgr = (bool?)xml.Element("debugFittingMgr") ?? false;
                     DebugGotobase = (bool?)xml.Element("debugGotobase") ?? false;
+                    DebugGreyList = (bool?)xml.Element("debugGreyList") ?? false;
                     DebugHangars = (bool?)xml.Element("debugHangars") ?? false;
                     DebugIdle = (bool?)xml.Element("debugIdle") ?? false;
+                    DebugItemHangar = (bool?)xml.Element("debugItemHangar") ?? false;
                     DebugLoadScripts = (bool?)xml.Element("debugLoadScripts") ?? false;
                     DebugLogging = (bool?)xml.Element("debugLogging") ?? false;
                     DebugLootWrecks = (bool?)xml.Element("debugLootWrecks") ?? false;
+                    DebugMissionFittings = (bool?)xml.Element("debugMissionFittings") ?? false;
                     DebugNavigateOnGrid = (bool?)xml.Element("debugNavigateOnGrid") ?? false;
                     DebugOnframe = (bool?)xml.Element("debugOnframe") ?? false;
                     DebugPerformance = (bool?)xml.Element("debugPerformance") ?? false;                                     //enables more console logging having to do with the sub-states within each state
@@ -811,12 +863,14 @@ namespace Questor.Modules.Lookup
                     DebugStates = (bool?)xml.Element("debugStates") ?? false;                                               //enables more console logging having to do with the time it takes to execute each state
                     DebugStatistics = (bool?)xml.Element("debugStatistics") ?? false;
                     DebugTraveler = (bool?)xml.Element("debugTraveler") ?? false;
+                    DebugTractorBeams = (bool?)xml.Element("debugTractorBeams") ?? false;
                     DebugUI = (bool?)xml.Element("debugUI") ?? false;
                     DebugUnloadLoot = (bool?)xml.Element("debugUnloadLoot") ?? false;
                     DebugValuedump = (bool?)xml.Element("debugValuedump") ?? false;
                     DetailedCurrentTargetHealthLogging = (bool?)xml.Element("detailedCurrentTargetHealthLogging") ?? true;
                     DefendWhileTraveling = (bool?)xml.Element("defendWhileTraveling") ?? true;
                     UseInnerspace = (bool?)xml.Element("useInnerspace") ?? true;
+                    setEveClientDestinationWhenTraveling = (bool?)xml.Element("setEveClientDestinationWhenTraveling") ?? false;
 
                     //
                     // Misc Settings
@@ -828,6 +882,7 @@ namespace Questor.Modules.Lookup
                     {
                         Settings.Instance.CharacterMode = "Combat Missions".ToLower();
                     }
+
                     AutoStart = (bool?)xml.Element("autoStart") ?? false; // auto Start enabled or disabled by default?
                     MaxLineConsole = (int?)xml.Element("maxLineConsole") ?? 1000;
                     // maximum console log lines to show in the GUI
@@ -893,51 +948,127 @@ namespace Questor.Modules.Lookup
                     //
                     // Location of the Questor GUI on startup (default is off the screen)
                     //
-                    WindowXPosition = (int?)xml.Element("windowXPosition") ?? 1600;
-                    //windows position (needs to be changed, default is off screen)
-                    WindowYPosition = (int?)xml.Element("windowYPosition") ?? 1050;
-                    //windows position (needs to be changed, default is off screen)
+                    //X Questor GUI window position (needs to be changed, default is off screen)
+                    WindowXPosition = (int?)xml.Element("windowXPosition") ?? 1;
+                    //Y Questor GUI window position (needs to be changed, default is off screen)
+                    WindowYPosition = (int?)xml.Element("windowYPosition") ?? 1;
+                    //
+                    // Location of the EVE Window on startup (default is to leave the window alone)
+                    //
+                    try
+                    {
+                        //EVE Client window position
+                        EVEWindowXPosition = (int?)xml.Element("eveWindowXPosition") ?? 0;
+                        //EVE Client window position
+                        EVEWindowYPosition = (int?)xml.Element("eveWindowYPosition") ?? 0;
+                        //
+                        // Size of the EVE Window on startup (default is to leave the window alone)
+                        // This CAN and WILL distort the proportions of the EVE client if you configure it to do so.
+                        // ISBOXER arguably does this with more elegance...
+                        //
+                        //EVE Client window position
+                        EVEWindowXSize = (int?)xml.Element("eveWindowXSize") ?? 0;
+                        //EVE Client window position
+                        EVEWindowYSize = (int?)xml.Element("eveWindowYSize") ?? 0;
+                    }
+                    catch
+                    {
+                        Logging.Log("Settings","Invalid Format for eveWindow Settings - skipping",Logging.Teal);
+                    }
 
-                    //
-                    // Ship Names
-                    //
-                    CombatShipName = (string)xml.Element("combatShipName") ?? "My frigate of doom";
-                    SalvageShipName = (string)xml.Element("salvageShipName") ?? "My Destroyer of salvage";
-                    TransportShipName = (string)xml.Element("transportShipName") ?? "My Hauler of transportation";
-                    TravelShipName = (string)xml.Element("travelShipName") ?? "My Shuttle of traveling";
+                    try
+                    {
+                        //
+                        // Ship Names
+                        //
+                        CombatShipName = (string)xml.Element("combatShipName") ?? "My frigate of doom";
+                        SalvageShipName = (string)xml.Element("salvageShipName") ?? "My Destroyer of salvage";
+                        TransportShipName = (string)xml.Element("transportShipName") ?? "My Hauler of transportation";
+                        TravelShipName = (string)xml.Element("travelShipName") ?? "My Shuttle of traveling";
+                    }
+                    catch (Exception exception)
+                    {
+                        Logging.Log("Settings", "Error Loading Ship Name Settings [" + exception + "]", Logging.Teal);
+                    }
 
-                    //
-                    // Storage Location for Loot, Ammo, Bookmarks
-                    //
-                    LootHangar = (string)xml.Element("lootHangar");
-                    AmmoHangar = (string)xml.Element("ammoHangar");
-                    BookmarkHangar = (string)xml.Element("bookmarkHangar");
-                    LootContainer = (string)xml.Element("lootContainer");
-                    MoveCommonMissionCompletionItemsToAmmoHangar =
-                        (bool?)xml.Element("MoveCommonMissionCompletionItemsToAmmoHangar") ?? false;
-                    //
-                    // Loot and Salvage Settings
-                    //
-                    LootEverything = (bool?)xml.Element("lootEverything") ?? true;
-                    UseGatesInSalvage = (bool?)xml.Element("useGatesInSalvage") ?? false;
-                    // if our mission does not despawn (likely someone in the mission looting our stuff?) use the gates when salvaging to get to our bookmarks
-                    CreateSalvageBookmarks = (bool?)xml.Element("createSalvageBookmarks") ?? false;
-                    CreateSalvageBookmarksIn = (string)xml.Element("createSalvageBookmarksIn") ?? "Player";
-                    //Player or Corp
-                    //other setting is "Corp"
-                    BookmarkPrefix = (string)xml.Element("bookmarkPrefix") ?? "Salvage:";
-                    MinimumWreckCount = (int?)xml.Element("minimumWreckCount") ?? 1;
-                    AfterMissionSalvaging = (bool?)xml.Element("afterMissionSalvaging") ?? false;
-                    FirstSalvageBookmarksInSystem = (bool?)xml.Element("FirstSalvageBookmarksInSystem") ?? false;
-                    SalvageMultipleMissionsinOnePass = (bool?)xml.Element("salvageMultpleMissionsinOnePass") ?? false;
-                    UnloadLootAtStation = (bool?)xml.Element("unloadLootAtStation") ?? false;
-                    ReserveCargoCapacity = (int?)xml.Element("reserveCargoCapacity") ?? 0;
-                    MaximumWreckTargets = (int?)xml.Element("maximumWreckTargets") ?? 0;
-                    WreckBlackListSmallWrecks = (bool?)xml.Element("WreckBlackListSmallWrecks") ?? false;
-                    WreckBlackListMediumWrecks = (bool?)xml.Element("WreckBlackListMediumWrecks") ?? false;
-                    AgeofBookmarksForSalvageBehavior = (int?)xml.Element("ageofBookmarksForSalvageBehavior") ?? 45;
-                    AgeofSalvageBookmarksToExpire = (int?)xml.Element("ageofSalvageBookmarksToExpire") ?? 120;
+                    try
+                    {
+                        //
+                        // Storage Location for Loot, Ammo, Bookmarks
+                        //
+                        HomeBookmarkName = (string)xml.Element("homeBookmarkName") ?? "myHomeBookmark";
+                        LootHangar = (string)xml.Element("lootHangar");
+                        if (string.IsNullOrEmpty(Settings.Instance.LootHangar))
+                        {
+                            Logging.Log("Settings","Loothangar [" +  "ItemsHangar" + "]",Logging.White);
+                        }
+                        else
+                        {
+                            Logging.Log("Settings", "Loothangar [" + Settings.Instance.LootHangar + "]", Logging.White);
+                        }
+                        AmmoHangar = (string)xml.Element("ammoHangar");
+                        if (string.IsNullOrEmpty(Settings.Instance.AmmoHangar))
+                        {
+                            Logging.Log("Settings", "AmmoHangar [" + "AmmoHangar" + "]", Logging.White);
+                        }
+                        else
+                        {
+                            Logging.Log("Settings", "AmmoHangar [" + Settings.Instance.AmmoHangar + "]", Logging.White);
+                        }
+                        BookmarkHangar = (string)xml.Element("bookmarkHangar");
+                        LootContainer = (string)xml.Element("lootContainer");
+                        if (LootContainer != null)
+                        {
+                            LootContainer = LootContainer.ToLower();
+                        }
+                        HighTierLootContainer = (string)xml.Element("highValueLootContainer");
+                        if (HighTierLootContainer != null)
+                        {
+                            HighTierLootContainer = HighTierLootContainer.ToLower();
+                        }
 
+                        MoveCommonMissionCompletionItemsToAmmoHangar = (bool?)xml.Element("moveCommonMissionCompletionItemsToAmmoHangar") ?? false;
+                        MoveCommonMissionCompletionItemsToItemsHangar = (bool?)xml.Element("moveCommonMissionCompletionItemsToItemsHangar") ?? true;
+                    }
+                    catch (Exception exception)
+                    {
+                        Logging.Log("Settings","Error Loading Hangar Settings [" + exception + "]",Logging.Teal);
+                    }
+                    
+
+                    
+                    try
+                    {
+                        //
+                        // Loot and Salvage Settings
+                        //
+                        LootEverything = (bool?)xml.Element("lootEverything") ?? true;
+                        UseGatesInSalvage = (bool?)xml.Element("useGatesInSalvage") ?? false;
+                        // if our mission does not despawn (likely someone in the mission looting our stuff?) use the gates when salvaging to get to our bookmarks
+                        CreateSalvageBookmarks = (bool?)xml.Element("createSalvageBookmarks") ?? false;
+                        CreateSalvageBookmarksIn = (string)xml.Element("createSalvageBookmarksIn") ?? "Player";
+                        //Player or Corp
+                        //other setting is "Corp"
+                        BookmarkPrefix = (string)xml.Element("bookmarkPrefix") ?? "Salvage:";
+                        MinimumWreckCount = (int?)xml.Element("minimumWreckCount") ?? 1;
+                        AfterMissionSalvaging = (bool?)xml.Element("afterMissionSalvaging") ?? false;
+                        FirstSalvageBookmarksInSystem = (bool?)xml.Element("FirstSalvageBookmarksInSystem") ?? false;
+                        SalvageMultipleMissionsinOnePass = (bool?)xml.Element("salvageMultpleMissionsinOnePass") ?? false;
+                        UnloadLootAtStation = (bool?)xml.Element("unloadLootAtStation") ?? false;
+                        ReserveCargoCapacity = (int?)xml.Element("reserveCargoCapacity") ?? 0;
+                        MaximumWreckTargets = (int?)xml.Element("maximumWreckTargets") ?? 0;
+                        WreckBlackListSmallWrecks = (bool?)xml.Element("WreckBlackListSmallWrecks") ?? false;
+                        WreckBlackListMediumWrecks = (bool?)xml.Element("WreckBlackListMediumWrecks") ?? false;
+                        AgeofBookmarksForSalvageBehavior = (int?)xml.Element("ageofBookmarksForSalvageBehavior") ?? 45;
+                        AgeofSalvageBookmarksToExpire = (int?)xml.Element("ageofSalvageBookmarksToExpire") ?? 120;
+                        LootOnlyWhatYouCanWithoutSlowingDownMissionCompletion = (bool?)xml.Element("lootOnlyWhatYouCanWithoutSlowingDownMissionCompletion") ?? false;
+    
+                    }
+                    catch (Exception exception)
+                    {
+                        Logging.Log("Settings", "Error Loading Loot and Salvage Settings [" + exception + "]", Logging.Teal);
+                    }
+                    
                     //
                     // at what memory usage do we need to restart this session?
                     //
@@ -945,32 +1076,26 @@ namespace Questor.Modules.Lookup
                     EVEProcessMemoryCeilingLogofforExit = (string)xml.Element("EVEProcessMemoryCeilingLogofforExit") ??
                                                           "exit";
 
-                    CloseQuestorCMDUplinkInnerspaceProfile =
-                        (bool?)xml.Element("CloseQuestorCMDUplinkInnerspaceProfile") ?? true;
-                    CloseQuestorCMDUplinkIsboxerCharacterSet =
-                        (bool?)xml.Element("CloseQuestorCMDUplinkIsboxerCharacterSet") ?? false;
+                    CloseQuestorCMDUplinkInnerspaceProfile = (bool?)xml.Element("CloseQuestorCMDUplinkInnerspaceProfile") ?? true;
+                    CloseQuestorCMDUplinkIsboxerCharacterSet = (bool?)xml.Element("CloseQuestorCMDUplinkIsboxerCharacterSet") ?? false;
                     CloseQuestorAllowRestart = (bool?)xml.Element("CloseQuestorAllowRestart") ?? true;
                     CloseQuestorArbitraryOSCmd = (bool?)xml.Element("CloseQuestorArbitraryOSCmd") ?? false;
                     //true or false
-                    CloseQuestorOSCmdContents = (string)xml.Element("CloseQuestorOSCmdContents") ??
-                                                "cmd /k (date /t && time /t && echo. && echo. && echo Questor is configured to use the feature: CloseQuestorArbitraryOSCmd && echo But No actual command was specified in your characters settings xml! && pause)";
+                    CloseQuestorOSCmdContents = (string)xml.Element("CloseQuestorOSCmdContents") ?? "cmd /k (date /t && time /t && echo. && echo. && echo Questor is configured to use the feature: CloseQuestorArbitraryOSCmd && echo But No actual command was specified in your characters settings xml! && pause)";
 
                     LoginQuestorArbitraryOSCmd = (bool?)xml.Element("LoginQuestorArbitraryOSCmd") ?? false;
                     //true or false
-                    LoginQuestorOSCmdContents = (string)xml.Element("LoginQuestorOSCmdContents") ??
-                                                "cmd /k (date /t && time /t && echo. && echo. && echo Questor is configured to use the feature: LoginQuestorArbitraryOSCmd && echo But No actual command was specified in your characters settings xml! && pause)";
+                    LoginQuestorOSCmdContents = (string)xml.Element("LoginQuestorOSCmdContents") ?? "cmd /k (date /t && time /t && echo. && echo. && echo Questor is configured to use the feature: LoginQuestorArbitraryOSCmd && echo But No actual command was specified in your characters settings xml! && pause)";
                     LoginQuestorLavishScriptCmd = (bool?)xml.Element("LoginQuestorLavishScriptCmd") ?? false;
                     //true or false
-                    LoginQuestorLavishScriptContents = (string)xml.Element("LoginQuestorLavishScriptContents") ??
-                                                "echo Questor is configured to use the feature: LoginQuestorLavishScriptCmd && echo But No actual command was specified in your characters settings xml! && pause)";
+                    LoginQuestorLavishScriptContents = (string)xml.Element("LoginQuestorLavishScriptContents") ?? "echo Questor is configured to use the feature: LoginQuestorLavishScriptCmd && echo But No actual command was specified in your characters settings xml! && pause)";
 
                     MinimizeEveAfterStartingUp = (bool?)xml.Element("MinimizeEveAfterStartingUp") ?? false;
 
                     //the above setting can be set to any script or commands available on the system. make sure you test it from a command prompt while in your .net programs directory
 
                     WalletBalanceChangeLogOffDelay = (int?)xml.Element("walletbalancechangelogoffdelay") ?? 30;
-                    WalletBalanceChangeLogOffDelayLogoffOrExit =
-                        (string)xml.Element("walletbalancechangelogoffdelayLogofforExit") ?? "exit";
+                    WalletBalanceChangeLogOffDelayLogoffOrExit = (string)xml.Element("walletbalancechangelogoffdelayLogofforExit") ?? "exit";
                     SecondstoWaitAfterExitingCloseQuestorBeforeExitingEVE = 240;
 
                     if (UseInnerspace)
@@ -1011,11 +1136,10 @@ namespace Questor.Modules.Lookup
                     // Weapon and targeting Settings
                     //
                     WeaponGroupId = (int?)xml.Element("weaponGroupId") ?? 0;
-                    DontShootFrigatesWithSiegeorAutoCannons =
-                        (bool?)xml.Element("DontShootFrigatesWithSiegeorAutoCannons") ?? false;
+                    DontShootFrigatesWithSiegeorAutoCannons = (bool?)xml.Element("DontShootFrigatesWithSiegeorAutoCannons") ?? false;
                     MaximumHighValueTargets = (int?)xml.Element("maximumHighValueTargets") ?? 2;
                     MaximumLowValueTargets = (int?)xml.Element("maximumLowValueTargets") ?? 2;
-
+                    DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage = (int?)xml.Element("doNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage") ?? 60;
                     //
                     // Script Settings - TypeIDs for the scripts you would like to use in these modules
                     //
@@ -1044,13 +1168,13 @@ namespace Questor.Modules.Lookup
                     // 32006 Navy Cap Booster 400
                     // 32014 Navy Cap Booster 800
 
-                    TrackingDisruptorScript = (int?)xml.Element("trackingDisruptorScript") ?? 29007;
-                    TrackingComputerScript = (int?)xml.Element("trackingComputerScript") ?? 29001;
-                    TrackingLinkScript = (int?)xml.Element("trackingLinkScript") ?? 29001;
-                    SensorBoosterScript = (int?)xml.Element("sensorBoosterScript") ?? 29009;
-                    SensorDampenerScript = (int?)xml.Element("sensorDampenerScript") ?? 29015;
-                    AncillaryShieldBoosterScript = (int?)xml.Element("ancillaryShieldBoosterScript") ?? 11289;
-                    CapacitorInjectorScript = (int?)xml.Element("capacitorInjectorScript") ?? 11289;
+                    TrackingDisruptorScript = (int?)xml.Element("trackingDisruptorScript") ?? (int)TypeID.TrackingDisruptorScript;
+                    TrackingComputerScript = (int?)xml.Element("trackingComputerScript") ?? (int)TypeID.TrackingComputerScript;
+                    TrackingLinkScript = (int?)xml.Element("trackingLinkScript") ?? (int)TypeID.TrackingLinkScript;
+                    SensorBoosterScript = (int?)xml.Element("sensorBoosterScript") ?? (int)TypeID.SensorBoosterScript;
+                    SensorDampenerScript = (int?)xml.Element("sensorDampenerScript") ?? (int)TypeID.SensorDampenerScript;
+                    AncillaryShieldBoosterScript = (int?)xml.Element("ancillaryShieldBoosterScript") ?? (int)TypeID.AncillaryShieldBoosterScript;
+                    CapacitorInjectorScript = (int?)xml.Element("capacitorInjectorScript") ?? (int)TypeID.CapacitorInjectorScript;
 
                     //
                     // Speed and Movement Settings
@@ -1110,8 +1234,12 @@ namespace Questor.Modules.Lookup
                     Ammo.Clear();
                     XElement ammoTypes = xml.Element("ammoTypes");
                     if (ammoTypes != null)
+                    {
                         foreach (XElement ammo in ammoTypes.Elements("ammoType"))
+                        {
                             Ammo.Add(new Ammo(ammo));
+                        }
+                    }
 
                     MinimumAmmoCharges = (int?)xml.Element("minimumAmmoCharges") ?? 0;
 
@@ -1171,17 +1299,14 @@ namespace Questor.Modules.Lookup
                                 if (string.IsNullOrEmpty(DefaultFitting.Fitting))
                                 {
                                     UseFittingManager = false;
-                                    Logging.Log(
-                                        "Settings", "Error! No default fitting specified or fitting is incorrect.  Fitting manager will not be used.", Logging.Orange);
+                                    Logging.Log("Settings", "Error! No default fitting specified or fitting is incorrect.  Fitting manager will not be used.", Logging.Orange);
                                 }
-                                Logging.Log(
-                                    "Settings", "Faction Fittings defined. Fitting manager will be used when appropriate.", Logging.White);
+                                Logging.Log("Settings", "Faction Fittings defined. Fitting manager will be used when appropriate.", Logging.White);
                             }
                             else
                             {
                                 UseFittingManager = false;
-                                Logging.Log(
-                                    "Settings", "Error! No default fitting specified or fitting is incorrect.  Fitting manager will not be used.", Logging.Orange);
+                                Logging.Log("Settings", "Error! No default fitting specified or fitting is incorrect.  Fitting manager will not be used.", Logging.Orange);
                             }
                         }
                         else
@@ -1194,15 +1319,20 @@ namespace Questor.Modules.Lookup
                     // Fitting based on the name of the mission
                     //
                     MissionFitting.Clear();
-                    XElement missionFittings = xml.Element("missionfittings");
+                    XElement xmlElementMissionFittingsSection = xml.Element("missionfittings");
                     if (UseFittingManager) //no need to look for or load these settings if FittingManager is disabled
                     {
-                        if (missionFittings != null)
+                        if (xmlElementMissionFittingsSection != null)
                         {
                             Logging.Log("Settings", "Loading Mission Fittings", Logging.White);
-                            foreach (XElement missionfitting in missionFittings.Elements("missionfitting"))
+                            int i = 1;
+                            foreach (XElement missionfitting in xmlElementMissionFittingsSection.Elements("missionfitting"))
+                            {
                                 MissionFitting.Add(new MissionFitting(missionfitting));
-                            Logging.Log("Settings", "Mission Fittings now has [" + MissionFitting.Count + "] entries", Logging.White);
+                                if (Settings.Instance.DebugMissionFittings) Logging.Log("Settings.LoadMissionFittings", "[" + i + "] Mission Fitting [" + missionfitting + "]", Logging.Teal);
+                                i++;
+                            }
+                            Logging.Log("Settings", "        Mission Fittings now has [" + MissionFitting.Count + "] entries", Logging.White);
                         }
                     }
 
@@ -1210,26 +1340,37 @@ namespace Questor.Modules.Lookup
                     // Mission Blacklist
                     //
                     MissionBlacklist.Clear();
-                    XElement blacklist = xml.Element("blacklist");
-                    if (blacklist != null)
+                    XElement xmlElementBlackListSection = xml.Element("blacklist");
+                    if (xmlElementBlackListSection != null)
                     {
-                        Logging.Log("Settings","Loading Mission Blacklist",Logging.White);
-                        foreach (XElement blacklistedmission in blacklist.Elements("mission"))
-                            MissionBlacklist.Add((string)blacklistedmission);
-                        Logging.Log("Settings", "Mission Blacklist now has [" + MissionBlacklist.Count + "] entries", Logging.White);
+                        Logging.Log("Settings", "Loading Mission Blacklist", Logging.White);
+                        int i = 1;
+                        foreach (XElement BlacklistedMission in xmlElementBlackListSection.Elements("mission"))
+                        {
+                            MissionBlacklist.Add((string)BlacklistedMission);
+                            if (Settings.Instance.DebugBlackList) Logging.Log("Settings.LoadBlackList", "[" + i + "] Blacklisted mission Name [" + (string)BlacklistedMission + "]", Logging.Teal);
+                            i++;
+                        }
+                        Logging.Log("Settings", "        Mission Blacklist now has [" + MissionBlacklist.Count + "] entries", Logging.White);
                     }
 
                     //
                     // Mission Greylist
                     //
                     MissionGreylist.Clear();
-                    XElement greylist = xml.Element("greylist");
-                    if (greylist != null)
+                    XElement xmlElementGreyListSection = xml.Element("graylist");
+                    
+                    if (xmlElementGreyListSection != null)
                     {
                         Logging.Log("Settings", "Loading Mission Greylist", Logging.White);
-                        foreach (XElement greylistedmission in greylist.Elements("mission"))
-                            MissionGreylist.Add((string)greylistedmission);
-                        Logging.Log("Settings", "Mission Greylist now has [" + MissionBlacklist.Count + "] entries", Logging.White);
+                        int i = 1;
+                        foreach (XElement GreylistedMission in xmlElementGreyListSection.Elements("mission"))
+                        {
+                            MissionGreylist.Add((string)GreylistedMission);
+                            if (Settings.Instance.DebugGreyList) Logging.Log("Settings.LoadGreyList", "[" + i + "] Greylisted mission Name [" + (string)GreylistedMission + "]", Logging.Teal);
+                            i++;
+                        }
+                        Logging.Log("Settings", "        Mission Greylist now has [" + MissionGreylist.Count + "] entries", Logging.White);
                     }
 
                     //
@@ -1242,11 +1383,11 @@ namespace Questor.Modules.Lookup
                         Logging.Log("Settings", "Loading Faction Blacklist", Logging.White);
                         foreach (XElement faction in factionblacklist.Elements("faction"))
                         {
-                            Logging.Log("Settings", "Missions from the faction [" + (string)faction + "] will be declined", Logging.White);
+                            Logging.Log("Settings", "        Missions from the faction [" + (string)faction + "] will be declined", Logging.White);
                             FactionBlacklist.Add((string)faction);
                         }
 
-                        Logging.Log("Settings", "Faction Blacklist now has [" + FactionBlacklist.Count + "] entries", Logging.White);
+                        Logging.Log("Settings", "        Faction Blacklist now has [" + FactionBlacklist.Count + "] entries", Logging.White);
                     }
                 }
             }

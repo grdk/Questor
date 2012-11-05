@@ -38,7 +38,7 @@ namespace GridMon
         delegate void LogCallback(string line);
         public void Log(string line)
         {
-            //InnerSpaceAPI.InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.Now, line));
+            //InnerSpaceAPI.InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.UtcNow, line));
 
             if (this.InvokeRequired)
             {
@@ -47,7 +47,7 @@ namespace GridMon
             }
             else
             {
-                string output = string.Format("{0:HH:mm:ss} {1}\n", DateTime.Now, line);
+                string output = string.Format("{0:HH:mm:ss} {1}\n", DateTime.UtcNow, line);
                 tbLog.AppendText(output);
             }
         }
@@ -60,7 +60,7 @@ namespace GridMon
             }
 
             // Wait for the next action
-            if (_nextAction >= DateTime.Now)
+            if (_nextAction >= DateTime.UtcNow)
             {
                 return;
             }
@@ -78,7 +78,7 @@ namespace GridMon
                         }
                     }
                     State = GridMonState.WatchLocal;
-                    _nextAction = DateTime.Now.AddMilliseconds(WaitMillis);
+                    _nextAction = DateTime.UtcNow.AddMilliseconds(WaitMillis);
                     break;
 
                 case GridMonState.WatchLocal:

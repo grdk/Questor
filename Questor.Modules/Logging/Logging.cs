@@ -8,20 +8,21 @@
 //   </copyright>
 // -------------------------------------------------------------------------------
 
-using System.Drawing;
-using System.Windows.Forms;
-using Questor.Modules.Caching;
-using Questor.Modules.Lookup;
-
 namespace Questor.Modules.Logging
 {
     using System;
-    using InnerSpaceAPI;
     using System.IO;
+    using System.Drawing;
+    using System.Windows.Forms;
+    using Questor.Modules.Caching;
+    using Questor.Modules.Lookup;
+    using Questor.Modules.States;
+    using InnerSpaceAPI;
     using LavishScriptAPI;
 
     public static class Logging
     {
+        public static DateTime DateTimeForLogs;
         //list of colors
         public const string Green = "\ag";    //traveler mission control
         public const string Yellow = "\ay";
@@ -32,6 +33,9 @@ namespace Questor.Modules.Logging
         public const string Magenta = "\am";  //drones
         public const string Teal = "\at";     //log debug
         public const string White = "\aw";    //questor
+
+
+        public const string Debug = Teal;     //log debug
 
         public const string CombatUserCorrectableErrors = Orange;
         public const string CombatFatalErrors = Red;
@@ -52,14 +56,23 @@ namespace Questor.Modules.Logging
         //public static void Log(string module, string line, string color = Logging.White)
         public static void Log(string module, string line, string color)
         {
+            //if (Settings.Instance.DateTimeForLogs = EVETIme)
+            //{
+            //    DateTimeForLogs = DateTime.UtcNow;
+            //}
+            //else //assume LocalTime
+            //{
+                DateTimeForLogs = DateTime.Now;
+            //}
+            
             string colorLogLine = line;
             //colorLogLine contains color and is for the InnerSpace console
-            InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.Now, Logging.Orange + "[" + Logging.Yellow + module + Logging.Orange +  "] " + color + colorLogLine));                            //Innerspace Console Log
+            InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs, Logging.Orange + "[" + Logging.Yellow + module + Logging.Orange +  "] " + color + colorLogLine));                            //Innerspace Console Log
             string plainLogLine = FilterColorsFromLogs(line);
             //plainLogLine contains plain text and is for the log file and the GUI console (why cant the GUI be made to use color too?)
-            Cache.Instance.ExtConsole += string.Format("{0:HH:mm:ss} {1}", DateTime.Now, "[" + module + "] " + plainLogLine + "\r\n");               //Questor GUI Console Log
-            Cache.Instance.ConsoleLog += string.Format("{0:HH:mm:ss} {1}", DateTime.Now, "[" + module + "] " + plainLogLine + "\r\n");               //In memory Console Log
-            Cache.Instance.ConsoleLogRedacted += string.Format("{0:HH:mm:ss} {1}", DateTime.Now, "[" + module + "] " + FilterSensitiveInfo(plainLogLine) + "\r\n");  //In memory Console Log with sensitive info redacted
+            Cache.Instance.ExtConsole += string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs, "[" + module + "] " + plainLogLine + "\r\n");               //Questor GUI Console Log
+            Cache.Instance.ConsoleLog += string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs, "[" + module + "] " + plainLogLine + "\r\n");               //In memory Console Log
+            Cache.Instance.ConsoleLogRedacted += string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs, "[" + module + "] " + FilterSensitiveInfo(plainLogLine) + "\r\n");  //In memory Console Log with sensitive info redacted
             if (Settings.Instance.SaveConsoleLog)
             {
                 if (!Cache.Instance.ConsoleLogOpened)
@@ -70,24 +83,24 @@ namespace Questor.Modules.Logging
                         line = "Writing to Daily Console Log ";
                         if (Settings.Instance.InnerspaceGeneratedConsoleLog) 
                         {
-                            InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.Now, "log " + Settings.Instance.ConsoleLogFile + "-innerspace-generated.log"));
+                            InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs, "log " + Settings.Instance.ConsoleLogFile + "-innerspace-generated.log"));
                             LavishScript.ExecuteCommand("log " + Settings.Instance.ConsoleLogFile + "-innerspace-generated.log");
                         }
-                        InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.Now, Logging.Orange + "[" + Logging.Yellow + module + Logging.Orange + "] " + color + colorLogLine));                            //Innerspace Console Log
-                        Cache.Instance.ExtConsole += string.Format("{0:HH:mm:ss} {1}", DateTime.Now, plainLogLine + "\r\n");
+                        InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs, Logging.Orange + "[" + Logging.Yellow + module + Logging.Orange + "] " + color + colorLogLine));                            //Innerspace Console Log
+                        Cache.Instance.ExtConsole += string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs, plainLogLine + "\r\n");
 
                         if (!string.IsNullOrEmpty(Settings.Instance.ConsoleLogFile))
                         {
                             Directory.CreateDirectory(Path.GetDirectoryName(Settings.Instance.ConsoleLogFile));
                             if (Directory.Exists(Path.GetDirectoryName(Settings.Instance.ConsoleLogFile)))
                             {
-                                Cache.Instance.ConsoleLog += string.Format("{0:HH:mm:ss} {1}", DateTime.Now,
+                                Cache.Instance.ConsoleLog += string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs,
                                                                            "[" + module + "]" + plainLogLine + "\r\n");
                                 Cache.Instance.ConsoleLogOpened = true;
                             }
                             else
                             {
-                                InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.Now,
+                                InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs,
                                                               "Logging: Unable to find (or create): " +
                                                               Settings.Instance.ConsoleLogPath));
                             }
@@ -96,8 +109,8 @@ namespace Questor.Modules.Logging
                         else
                         {
                             line = "Logging: Unable to write log to file yet as: ConsoleLogFile is not yet defined";
-                            InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.Now, colorLogLine));
-                            Cache.Instance.ExtConsole += string.Format("{0:HH:mm:ss} {1}", DateTime.Now, "[" + module + "] " + plainLogLine + "\r\n");
+                            InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs, colorLogLine));
+                            Cache.Instance.ExtConsole += string.Format("{0:HH:mm:ss} {1}", DateTime.UtcNow, "[" + module + "] " + plainLogLine + "\r\n");
                         }
                     }
                 }
@@ -203,32 +216,39 @@ namespace Questor.Modules.Logging
             const string searchpattern = ".log";
 
             //calculate the current date - the number of keep days (make sure you use the negative value if Settings.Instance.ConsoleLogDaysOfLogsToKeep as we want to keep that many days in the past, not that many days in the future)
-            DateTime keepdate = DateTime.Now.AddDays(-Settings.Instance.ConsoleLogDaysOfLogsToKeep);
+            DateTime keepdate = DateTime.UtcNow.AddDays(-Settings.Instance.ConsoleLogDaysOfLogsToKeep);
  
             //this is where it gets the directory and looks at
             //the files in the directory to compare the last write time
             //against the keepdate variable.
-
-            DirectoryInfo fileListing = new DirectoryInfo(Settings.Instance.ConsoleLogPath);
-
-            if (fileListing.Exists)
+            try
             {
-                foreach (FileInfo log in fileListing.GetFiles(searchpattern))
+                DirectoryInfo fileListing = new DirectoryInfo(Settings.Instance.ConsoleLogPath);
+
+                if (fileListing.Exists)
                 {
-                    if (log.LastWriteTime <= keepdate)
+                    foreach (FileInfo log in fileListing.GetFiles(searchpattern))
                     {
-                        try
+                        if (log.LastWriteTime <= keepdate)
                         {
-                            Logging.Log("Logging", "Removing old console log named [" + log.Name + "] Dated [" + log.LastWriteTime + "]", Logging.White);
-                            log.Delete();
-                        }
-                        catch (Exception ex)
-                        {
-                            Logging.Log("Logging", "Unable to delete log [" + ex.Message + "]", Logging.White);
+                            try
+                            {
+                                Logging.Log("Logging", "Removing old console log named [" + log.Name + "] Dated [" + log.LastWriteTime + "]", Logging.White);
+                                log.Delete();
+                            }
+                            catch (Exception ex)
+                            {
+                                Logging.Log("Logging", "Unable to delete log [" + ex.Message + "]", Logging.White);
+                            }
                         }
                     }
                 }
             }
+            catch (Exception exception)
+            {
+                Logging.Log("Logging.MaintainConsoleLogs", "Unable to maintain console logs: [" + exception + "]", Logging.Teal);
+            }
+
         }
     }
 }

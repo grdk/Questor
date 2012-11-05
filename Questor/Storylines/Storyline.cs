@@ -1,4 +1,4 @@
-
+﻿
 namespace Questor.Storylines
 {
     using System;
@@ -17,14 +17,12 @@ namespace Questor.Storylines
     {
         private IStoryline _storyline;
         private readonly Dictionary<string, IStoryline> _storylines;
-        //public List<long> AgentBlacklist;
 
         private readonly Combat _combat;
-        private readonly Traveler _traveler;
         private readonly AgentInteraction _agentInteraction;
 
-        private DateTime _nextAction = DateTime.Now;
-        private DateTime _nextStoryLineAttempt = DateTime.Now;
+        private DateTime _nextAction = DateTime.UtcNow;
+        private DateTime _nextStoryLineAttempt = DateTime.UtcNow;
         private int _highSecCounter;
         private bool _highSecChecked;
         private bool _setDestinationStation;
@@ -32,7 +30,6 @@ namespace Questor.Storylines
         public Storyline()
         {
             _combat = new Combat();
-            _traveler = new Traveler();
             _agentInteraction = new AgentInteraction();
 
             Cache.Instance.AgentBlacklist = new List<long>();
@@ -127,7 +124,7 @@ namespace Questor.Storylines
             _storyline = null;
             _States.CurrentAgentInteractionState = AgentInteractionState.Idle;
             _States.CurrentTravelerState = TravelerState.Idle;
-            _traveler.Destination = null;
+            Traveler.Destination = null;
         }
 
         private DirectAgentMission StorylineMission
@@ -140,7 +137,7 @@ namespace Questor.Storylines
 
                 missionsInJournal = missionsInJournal.Where(m => !Cache.Instance.AgentBlacklist.Contains(m.AgentId)).ToList();
                 missionsInJournal = missionsInJournal.Where(m => m.Important).ToList();
-                Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] availible storyline missions", Logging.Yellow);
+                Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] available storyline missions", Logging.Yellow);
                 missionsInJournal = missionsInJournal.Where(m => _storylines.ContainsKey(Cache.Instance.FilterPath(m.Name)));
                 Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] storyline missions questor knows how to do", Logging.Yellow);
                 missionsInJournal = missionsInJournal.Where(m => Settings.Instance.MissionBlacklist.All(b => b.ToLower() != Cache.Instance.FilterPath(m.Name).ToLower())).ToList();
@@ -155,7 +152,7 @@ namespace Questor.Storylines
             DirectAgentMission currentStorylineMission = StorylineMission;
             if (currentStorylineMission == null)
             {
-                _nextStoryLineAttempt = DateTime.Now.AddMinutes(15);
+                _nextStoryLineAttempt = DateTime.UtcNow.AddMinutes(15);
                 _States.CurrentStorylineState = StorylineState.Done;
                 Cache.Instance.MissionName = String.Empty;
                 return;
@@ -181,7 +178,7 @@ namespace Questor.Storylines
 
         private void GotoAgent(StorylineState nextState)
         {
-            if (_nextAction > DateTime.Now)
+            if (_nextAction > DateTime.UtcNow)
                 return;
 
             DirectAgent storylineagent = Cache.Instance.DirectEve.GetAgentById(Cache.Instance.CurrentStorylineAgentId);
@@ -191,10 +188,10 @@ namespace Questor.Storylines
                 return;
             }
 
-            var baseDestination = _traveler.Destination as StationDestination;
+            var baseDestination = Traveler.Destination as StationDestination;
             if (baseDestination == null || baseDestination.StationId != storylineagent.StationId)
             {
-                _traveler.Destination = new StationDestination(storylineagent.SolarSystemId, storylineagent.StationId, Cache.Instance.DirectEve.GetLocationName(storylineagent.StationId));
+                Traveler.Destination = new StationDestination(storylineagent.SolarSystemId, storylineagent.StationId, Cache.Instance.DirectEve.GetLocationName(storylineagent.StationId));
                 return;
             }
 
@@ -203,19 +200,19 @@ namespace Questor.Storylines
                 // if we haven't already done so, set Eve's autopilot
                 if (!_setDestinationStation)
                 {
-                    if (!_traveler.SetStationDestination(storylineagent.StationId))
+                    if (!Traveler.SetStationDestination(storylineagent.StationId))
                     {
                         Logging.Log("Storyline", "GotoAgent: Unable to find route to storyline agent. Skipping.", Logging.Yellow);
                         _States.CurrentStorylineState = StorylineState.Done;
                         return;
                     }
                     _setDestinationStation = true;
-                    _nextAction = DateTime.Now.AddSeconds(Cache.Instance.RandomNumber(2, 4));
+                    _nextAction = DateTime.UtcNow.AddSeconds(Cache.Instance.RandomNumber(2, 4));
                     return;
                 }
 
                 // Make sure we have got a clear path to the agent
-                if (!Settings.Instance.LowSecMissionsInShuttles && !Cache.Instance.CheckifRouteIsAllHighSec())
+                if (!Cache.Instance.CheckifRouteIsAllHighSec())
                 {
                     if (_highSecCounter < 5)
                     {
@@ -243,11 +240,11 @@ namespace Questor.Storylines
                 _combat.ProcessState();
             }
 
-            _traveler.ProcessState();
+            Traveler.ProcessState();
             if (_States.CurrentTravelerState == TravelerState.AtDestination)
             {
                 _States.CurrentStorylineState = nextState;
-                _traveler.Destination = null;
+                Traveler.Destination = null;
                 _setDestinationStation = false;
             }
 
@@ -257,11 +254,11 @@ namespace Questor.Storylines
 
         private void BringSpoilsOfWar()
         {
-            if (_nextAction > DateTime.Now)
+            if (_nextAction > DateTime.UtcNow)
                 return;
 
             // Open the item hangar (should still be open)
-            if (!Cache.Instance.OpenItemsHangar("Storyline")) return;
+            if (!Cache.Instance.ReadyItemsHangar("Storyline")) return;
 
             // Do we have any implants?
             if (!Cache.Instance.ItemHangar.Items.Any(i => i.GroupId >= 738 && i.GroupId <= 750))
@@ -271,7 +268,7 @@ namespace Questor.Storylines
             }
 
             // Yes, open the ships cargo
-            if (!Cache.Instance.OpenCargoHold("Storyline")) return;
+            if (!Cache.Instance.ReadyCargoHold("Storyline")) return;
 
             // If we are not moving items
             if (Cache.Instance.DirectEve.GetLockedItems().Count == 0)
@@ -289,7 +286,7 @@ namespace Questor.Storylines
                     Logging.Log("Storyline", "Moving [" + item.TypeName + "][" + item.ItemId + "] to cargo", Logging.Yellow);
                     Cache.Instance.CargoHold.Add(item, item.Quantity);
                 }
-                _nextAction = DateTime.Now.AddSeconds(10);
+                _nextAction = DateTime.UtcNow.AddSeconds(10);
             }
             return;
         }
@@ -325,7 +322,7 @@ namespace Questor.Storylines
 
                         _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
                         AgentInteraction.Purpose = AgentInteractionPurpose.DeclineMission;
-                        _agentInteraction.AgentId = Cache.Instance.CurrentStorylineAgentId;
+                        AgentInteraction.AgentId = Cache.Instance.CurrentStorylineAgentId;
 
                     }
 
@@ -350,7 +347,7 @@ namespace Questor.Storylines
 
                         _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
                         AgentInteraction.Purpose = AgentInteractionPurpose.StartMission;
-                        _agentInteraction.AgentId = Cache.Instance.CurrentStorylineAgentId;
+                        AgentInteraction.AgentId = Cache.Instance.CurrentStorylineAgentId;
                         _agentInteraction.ForceAccept = true;
                     }
 
@@ -408,7 +405,7 @@ namespace Questor.Storylines
                     break;
 
                 case StorylineState.Done:
-                    if (DateTime.Now > _nextStoryLineAttempt)
+                    if (DateTime.UtcNow > _nextStoryLineAttempt)
                     {
                         _States.CurrentStorylineState = StorylineState.Idle;
                     }

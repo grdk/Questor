@@ -287,7 +287,7 @@
             this.groupItemHangarTests = new System.Windows.Forms.GroupBox();
             this.bttnCloseItemsHangar = new System.Windows.Forms.Button();
             this.btnStackItemsHangar = new System.Windows.Forms.Button();
-            this.btnOpenItemsHangar = new System.Windows.Forms.Button();
+            this.btnReadyItemsHangar = new System.Windows.Forms.Button();
             this.tabModules = new System.Windows.Forms.TabPage();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabShipInfo = new System.Windows.Forms.TabPage();
@@ -3145,7 +3145,7 @@
             // 
             this.groupItemHangarTests.Controls.Add(this.bttnCloseItemsHangar);
             this.groupItemHangarTests.Controls.Add(this.btnStackItemsHangar);
-            this.groupItemHangarTests.Controls.Add(this.btnOpenItemsHangar);
+            this.groupItemHangarTests.Controls.Add(this.btnReadyItemsHangar);
             this.groupItemHangarTests.Location = new System.Drawing.Point(21, 66);
             this.groupItemHangarTests.Name = "groupItemHangarTests";
             this.groupItemHangarTests.Size = new System.Drawing.Size(173, 49);
@@ -3173,15 +3173,15 @@
             this.btnStackItemsHangar.UseVisualStyleBackColor = true;
             this.btnStackItemsHangar.Click += new System.EventHandler(this.btnStackItemsHangar_Click);
             // 
-            // btnOpenItemsHangar
+            // btnReadyItemsHangar
             // 
-            this.btnOpenItemsHangar.Location = new System.Drawing.Point(11, 19);
-            this.btnOpenItemsHangar.Name = "btnOpenItemsHangar";
-            this.btnOpenItemsHangar.Size = new System.Drawing.Size(46, 23);
-            this.btnOpenItemsHangar.TabIndex = 148;
-            this.btnOpenItemsHangar.Text = "Open";
-            this.btnOpenItemsHangar.UseVisualStyleBackColor = true;
-            this.btnOpenItemsHangar.Click += new System.EventHandler(this.btnOpenItemsHangar_Click);
+            this.btnReadyItemsHangar.Location = new System.Drawing.Point(11, 19);
+            this.btnReadyItemsHangar.Name = "btnReadyItemsHangar";
+            this.btnReadyItemsHangar.Size = new System.Drawing.Size(46, 23);
+            this.btnReadyItemsHangar.TabIndex = 148;
+            this.btnReadyItemsHangar.Text = "Open";
+            this.btnReadyItemsHangar.UseVisualStyleBackColor = true;
+            this.btnReadyItemsHangar.Click += new System.EventHandler(this.btnReadyItemsHangar_Click);
             // 
             // tabModules
             // 

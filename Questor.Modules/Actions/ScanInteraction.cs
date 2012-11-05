@@ -20,7 +20,7 @@ namespace Questor.Modules.Actions
             switch (_States.CurrentScanInteractionState)
             {
                 case ScanInteractionState.Idle:
-                    //_lastExecute = DateTime.Now;
+                    //_lastExecute = DateTime.UtcNow;
                     break;
                 case ScanInteractionState.Done:
 

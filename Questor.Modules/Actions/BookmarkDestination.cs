@@ -87,7 +87,7 @@ namespace Questor.Modules.Actions
                 Logging.Log("QuestorManager.BookmarkDestination", "We're docked in the wrong station, undocking", Logging.White);
 
                 Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdExitStation);
-                nextAction = DateTime.Now.AddSeconds(30);
+                nextAction = DateTime.UtcNow.AddSeconds(30);
                 return false;
             }
 
@@ -104,12 +104,12 @@ namespace Questor.Modules.Actions
             if (Cache.Instance.DirectEve.Session.IsInStation)
             {
                 // We are in a station, but not the correct station!
-                if (nextAction < DateTime.Now)
+                if (nextAction < DateTime.UtcNow)
                 {
                     Logging.Log("QuestorManager.BookmarkDestination", "We're docked but our destination is in space, undocking", Logging.White);
 
                     Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdExitStation);
-                    nextAction = DateTime.Now.AddSeconds(30);
+                    nextAction = DateTime.UtcNow.AddSeconds(30);
                 }
 
                 // We are not there yet
@@ -136,7 +136,7 @@ namespace Questor.Modules.Actions
                 return true;
             }
 
-            if (nextAction > DateTime.Now)
+            if (nextAction > DateTime.UtcNow)
                 return false;
 
             if (Cache.Instance.GateInGrid() && (distance/1000)<(int)Distance.MaxPocketsDistanceKm)
@@ -149,7 +149,7 @@ namespace Questor.Modules.Actions
                 ,Logging.White);
 
             bookmark.WarpTo();
-            nextAction = DateTime.Now.AddSeconds(30);
+            nextAction = DateTime.UtcNow.AddSeconds(30);
             return false;
         }
     }

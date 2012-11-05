@@ -30,11 +30,11 @@ namespace QuestorManager.Actions
 
         public void ProcessState()
         {
-            if (DateTime.Now.Subtract(_lastAction).TotalSeconds < 1)
+            if (DateTime.UtcNow.Subtract(_lastAction).TotalSeconds < 1)
                 return;
-            _lastAction = DateTime.Now;
+            _lastAction = DateTime.UtcNow;
 
-            if (!Cache.Instance.OpenItemsHangar("BuyLPI")) return;
+            if (!Cache.Instance.ReadyItemsHangar("BuyLPI")) return;
             DirectMarketWindow marketWindow = Cache.Instance.DirectEve.Windows.OfType<DirectMarketWindow>().FirstOrDefault();
 
             switch (_States.CurrentBuyLPIState)
@@ -57,7 +57,7 @@ namespace QuestorManager.Actions
 
                 case BuyLPIState.OpenItemHangar:
 
-                    if (!Cache.Instance.OpenItemsHangar("BuyLPI")) return;
+                    if (!Cache.Instance.ReadyItemsHangar("BuyLPI")) return;
                     if (!Cache.Instance.ReadyShipsHangar("BuyLPI")) return;
 
                     _States.CurrentBuyLPIState = BuyLPIState.OpenLpStore;
@@ -82,7 +82,7 @@ namespace QuestorManager.Actions
                         // Do not expect it to be 0 (probably means its reloading)
                         if (Cache.Instance.LPStore.LoyaltyPoints == 0)
                         {
-                            if (_loyaltyPointTimeout < DateTime.Now)
+                            if (_loyaltyPointTimeout < DateTime.UtcNow)
                             {
                                 Logging.Log("BuyLPI", "It seems we have no loyalty points left", Logging.White);
                                 _States.CurrentBuyLPIState = BuyLPIState.Done;
@@ -226,7 +226,7 @@ namespace QuestorManager.Actions
 
                 case BuyLPIState.Quantity:
 
-                    _loyaltyPointTimeout = DateTime.Now.AddSeconds(1);
+                    _loyaltyPointTimeout = DateTime.UtcNow.AddSeconds(1);
 
                     Unit = Unit - 1;
                     if (Unit <= 0)

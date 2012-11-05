@@ -32,24 +32,25 @@ namespace Questor.Behaviors
 
         private readonly Panic _panic;
         private readonly Salvage _salvage;
-        private readonly Traveler _traveler;
         public DateTime LastAction;
         public static long AgentID;
         private readonly Stopwatch _watch;
 
-        public bool Panicstatereset; //false;
+        public bool PanicstateReset; //false;
+
         private bool ValidSettings { get; set; }
-        public bool CloseQuestorflag = true;
+
+        public bool CloseQuestorFlag = true;
+
         public string CharacterName { get; set; }
 
-        //DateTime _nextAction = DateTime.Now;
+        //DateTime _nextAction = DateTime.UtcNow;
 
         public DirectionalScannerBehavior()
         {
             _salvage = new Salvage();
             _combat = new Combat();
             _drones = new Drones();
-            _traveler = new Traveler();
             _arm = new Arm();
             _panic = new Panic();
             _watch = new Stopwatch();
@@ -58,13 +59,8 @@ namespace Questor.Behaviors
             // this is combat mission specific and needs to be generalized
             //
             Settings.Instance.SettingsLoaded += SettingsLoaded;
-            //Settings.Instance.UseFittingManager = false;
-
-            // States.CurrentDirectionalScannerBehaviorState fixed on ExecuteMission
             _States.CurrentDirectionalScannerBehaviorState = DirectionalScannerBehaviorState.Idle;
             _States.CurrentArmState = ArmState.Idle;
-            //_States.CurrentCombatState = CombatState.Idle;
-            //_States.CurrentDroneState = DroneState.Idle;
             _States.CurrentUnloadLootState = UnloadLootState.Idle;
             _States.CurrentTravelerState = TravelerState.Idle;
         }
@@ -142,44 +138,8 @@ namespace Questor.Behaviors
 
         private void BeginClosingQuestor()
         {
-            Cache.Instance.EnteredCloseQuestor_DateTime = DateTime.Now;
+            Cache.Instance.EnteredCloseQuestor_DateTime = DateTime.UtcNow;
             _States.CurrentQuestorState = QuestorState.CloseQuestor;
-        }
-
-        private void TravelToAgentsStation()
-        {
-            try
-            {
-                var baseDestination = _traveler.Destination as StationDestination;
-                if (baseDestination == null || baseDestination.StationId != Cache.Instance.Agent.StationId)
-                    _traveler.Destination = new StationDestination(Cache.Instance.Agent.SolarSystemId,
-                                                                   Cache.Instance.Agent.StationId,
-                                                                   Cache.Instance.DirectEve.GetLocationName(
-                                                                       Cache.Instance.Agent.StationId));
-            }
-            catch (Exception ex)
-            {
-                Logging.Log("DirectionalScanner", "TravelToAgentsStation: Exception caught: [" + ex.Message + "]", Logging.Red);
-                return;
-            }
-            if (Cache.Instance.InSpace)
-            {
-                if (!Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked || (Cache.Instance.LastSessionChange.AddSeconds(60) > DateTime.Now))
-                {
-                    _combat.ProcessState();
-                    _drones.ProcessState(); //do we really want to use drones here?
-                }
-            }
-            if (Cache.Instance.InSpace && !Cache.Instance.TargetedBy.Any(t => t.IsWarpScramblingMe))
-            {
-                Cache.Instance.IsMissionPocketDone = true; //tells drones.cs that we can pull drones
-                //Logging.Log("CombatmissionBehavior","TravelToAgentStation: not pointed",Logging.White);
-            }
-            _traveler.ProcessState();
-            if (Settings.Instance.DebugStates)
-            {
-                Logging.Log("Traveler.State", "is " + _States.CurrentTravelerState, Logging.White);
-            }
         }
 
         public void ProcessState()
@@ -187,10 +147,10 @@ namespace Questor.Behaviors
             // Invalid settings, quit while we're ahead
             if (!ValidSettings)
             {
-                if (DateTime.Now.Subtract(LastAction).TotalSeconds < Time.Instance.ValidateSettings_seconds) //default is a 15 second interval
+                if (DateTime.UtcNow.Subtract(LastAction).TotalSeconds < Time.Instance.ValidateSettings_seconds) //default is a 15 second interval
                 {
                     ValidateCombatMissionSettings();
-                    LastAction = DateTime.Now;
+                    LastAction = DateTime.UtcNow;
                 }
                 return;
             }
@@ -229,7 +189,7 @@ namespace Questor.Behaviors
                 _States.CurrentDirectionalScannerBehaviorState = DirectionalScannerBehaviorState.GotoBase;
             }
 
-            if ((DateTime.Now.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalSeconds > 10) && (DateTime.Now.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalSeconds < 60))
+            if ((DateTime.UtcNow.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalSeconds > 10) && (DateTime.UtcNow.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalSeconds < 60))
             {
                 if (Cache.Instance.QuestorJustStarted)
                 {
@@ -253,10 +213,10 @@ namespace Questor.Behaviors
                 _States.CurrentDirectionalScannerBehaviorState = DirectionalScannerBehaviorState.Panic;
 
                 DebugDirectionalScannerBehaviorStates();
-                if (Panicstatereset)
+                if (PanicstateReset)
                 {
                     _States.CurrentPanicState = PanicState.Normal;
-                    Panicstatereset = false;
+                    PanicstateReset = false;
                 }
             }
             else if (_States.CurrentPanicState == PanicState.Resume)
@@ -292,11 +252,11 @@ namespace Questor.Behaviors
                     _States.CurrentTravelerState = TravelerState.Idle;
 
                     Logging.Log("DirectionalScannerBehavior", "Started questor in Directional Scanner (test) mode", Logging.White);
-                    LastAction = DateTime.Now;
+                    LastAction = DateTime.UtcNow;
                     break;
 
                 case DirectionalScannerBehaviorState.DelayedGotoBase:
-                    if (DateTime.Now.Subtract(LastAction).TotalSeconds < Time.Instance.DelayedGotoBase_seconds)
+                    if (DateTime.UtcNow.Subtract(LastAction).TotalSeconds < Time.Instance.DelayedGotoBase_seconds)
                         break;
 
                     Logging.Log("DirectionalScannerBehavior", "Heading back to base", Logging.White);
@@ -308,19 +268,19 @@ namespace Questor.Behaviors
 
                     NavigateOnGrid.AvoidBumpingThings(Cache.Instance.BigObjects.FirstOrDefault(), "DirectionalScannerBehaviorState.GotoBase");
 
-                    if (Settings.Instance.DebugGotobase) Logging.Log("DirectionalScannerBehavior", "GotoBase: TravelToAgentsStation()", Logging.White);
+                    if (Settings.Instance.DebugGotobase) Logging.Log("DirectionalScannerBehavior", "GotoBase: Traveler.TravelHome()", Logging.White);
 
-                    TravelToAgentsStation();
+                    Traveler.TravelHome("DirectionalScannerBehavior");
 
-                    if (_States.CurrentTravelerState == TravelerState.AtDestination) // || DateTime.Now.Subtract(Cache.Instance.EnteredCloseQuestor_DateTime).TotalMinutes > 10)
+                    if (_States.CurrentTravelerState == TravelerState.AtDestination) // || DateTime.UtcNow.Subtract(Cache.Instance.EnteredCloseQuestor_DateTime).TotalMinutes > 10)
                     {
                         if (Settings.Instance.DebugGotobase) Logging.Log("DirectionalScannerBehavior", "GotoBase: We are at destination", Logging.White);
                         Cache.Instance.GotoBaseNow = false; //we are there - turn off the 'forced' gotobase
-                        Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID);
+                        Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID, false);
 
                         if (_States.CurrentDirectionalScannerBehaviorState == DirectionalScannerBehaviorState.GotoBase) _States.CurrentDirectionalScannerBehaviorState = DirectionalScannerBehaviorState.Idle;
 
-                        _traveler.Destination = null;
+                        Traveler.Destination = null;
                     }
                     break;
 
@@ -329,7 +289,7 @@ namespace Questor.Behaviors
                     List<long> destination = Cache.Instance.DirectEve.Navigation.GetDestinationPath();
                     if (destination == null || destination.Count == 0)
                     {
-                        // happens if autopilot isn't set and this questorstate is chosen manually
+                        // happens if autopilot is not set and this QuestorState is chosen manually
                         // this also happens when we get to destination (!?)
                         Logging.Log("DirectionalScannerBehavior.Traveler", "No destination?", Logging.White);
                         if (_States.CurrentDirectionalScannerBehaviorState == DirectionalScannerBehaviorState.Traveler) _States.CurrentDirectionalScannerBehaviorState = DirectionalScannerBehaviorState.Error;
@@ -338,22 +298,22 @@ namespace Questor.Behaviors
                     
                     if (destination.Count == 1 && destination.FirstOrDefault() == 0)
                         destination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
-                    if (_traveler.Destination == null || _traveler.Destination.SolarSystemId != destination.LastOrDefault())
+                    if (Traveler.Destination == null || Traveler.Destination.SolarSystemId != destination.LastOrDefault())
                     {
                         IEnumerable<DirectBookmark> bookmarks = Cache.Instance.DirectEve.Bookmarks.Where(b => b.LocationId == destination.LastOrDefault()).ToList();
                         if (bookmarks.FirstOrDefault() != null && bookmarks.Any())
-                            _traveler.Destination = new BookmarkDestination(bookmarks.OrderBy(b => b.CreatedOn).FirstOrDefault());
+                            Traveler.Destination = new BookmarkDestination(bookmarks.OrderBy(b => b.CreatedOn).FirstOrDefault());
                         else
                         {
                             Logging.Log("DirectionalScannerBehavior.Traveler", "Destination: [" + Cache.Instance.DirectEve.Navigation.GetLocation(destination.Last()).Name + "]", Logging.White);
-                            _traveler.Destination = new SolarSystemDestination(destination.LastOrDefault());
+                            Traveler.Destination = new SolarSystemDestination(destination.LastOrDefault());
                         }
                     }
                     else
                     {
-                        _traveler.ProcessState();
+                        Traveler.ProcessState();
                         //we also assume you are connected during a manual set of questor into travel mode (safe assumption considering someone is at the kb)
-                        Cache.Instance.LastKnownGoodConnectedTime = DateTime.Now;
+                        Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
 
                         if (_States.CurrentTravelerState == TravelerState.AtDestination)
@@ -397,7 +357,7 @@ namespace Questor.Behaviors
                         
                         if (station.Distance < 1900)
                         {
-                            if (DateTime.Now > Cache.Instance.NextDockAction)
+                            if (DateTime.UtcNow > Cache.Instance.NextDockAction)
                             {
                                 Logging.Log("DirectionalScannerBehavior.GotoNearestStation", "[" + station.Name + "] which is [" + Math.Round(station.Distance / 1000, 0) + "k away]", Logging.White);
                                 station.Dock();
@@ -405,7 +365,7 @@ namespace Questor.Behaviors
                         }
                         else
                         {
-                            if (Cache.Instance.NextApproachAction < DateTime.Now && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != station.Id))
+                            if (Cache.Instance.NextApproachAction < DateTime.UtcNow && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != station.Id))
                             {
                                 Logging.Log("DirectionalScannerBehavior.GotoNearestStation", "Approaching [" + station.Name + "] which is [" + Math.Round(station.Distance / 1000, 0) + "k away]", Logging.White);
                                 station.Approach();

@@ -62,7 +62,6 @@ namespace QuestorManager
 
         private DateTime _lastPulse;
 
-        private readonly Traveler _traveler;
         private readonly Grab _grab;
         private readonly Drop _drop;
         private readonly Buy _buy;
@@ -83,7 +82,6 @@ namespace QuestorManager
         {
             InitializeComponent();
 
-            _traveler = new Traveler();
             _grab = new Grab();
             _drop = new Drop();
             _buy = new Buy();
@@ -154,29 +152,29 @@ namespace QuestorManager
 
         public void OnFrame(object sender, EventArgs e)
         {
-            Cache.Instance.LastFrame = DateTime.Now;
+            Cache.Instance.LastFrame = DateTime.UtcNow;
 
             // Only pulse state changes every 1.5s
-            if (DateTime.Now.Subtract(_lastPulse).TotalMilliseconds < Time.Instance.QuestorPulse_milliseconds) //default: 1500ms
+            if (DateTime.UtcNow.Subtract(_lastPulse).TotalMilliseconds < Time.Instance.QuestorPulse_milliseconds) //default: 1500ms
                 return;
-            _lastPulse = DateTime.Now;
+            _lastPulse = DateTime.UtcNow;
 
             // Session is not ready yet, do not continue
             if (!Cache.Instance.DirectEve.Session.IsReady)
                 return;
 
             if (Cache.Instance.DirectEve.Session.IsReady)
-                Cache.Instance.LastSessionIsReady = DateTime.Now;
+                Cache.Instance.LastSessionIsReady = DateTime.UtcNow;
 
             // We are not in space or station, don't do shit yet!
             if (!Cache.Instance.InSpace && !Cache.Instance.InStation)
             {
-                Cache.Instance.NextInSpaceorInStation = DateTime.Now.AddSeconds(12);
-                Cache.Instance.LastSessionChange = DateTime.Now;
+                Cache.Instance.NextInSpaceorInStation = DateTime.UtcNow.AddSeconds(12);
+                Cache.Instance.LastSessionChange = DateTime.UtcNow;
                 return;
             }
 
-            if (DateTime.Now < Cache.Instance.NextInSpaceorInStation)
+            if (DateTime.UtcNow < Cache.Instance.NextInSpaceorInStation)
                 return;
 
             // New frame, invalidate old cache
@@ -194,12 +192,12 @@ namespace QuestorManager
                 Cache.Instance.DirectEve.Rendering3D != !Settings.Instance.Disable3D)
                 Cache.Instance.DirectEve.Rendering3D = !Settings.Instance.Disable3D;
 
-            if (DateTime.Now.Subtract(Cache.Instance.LastUpdateOfSessionRunningTime).TotalSeconds <
+            if (DateTime.UtcNow.Subtract(Cache.Instance.LastUpdateOfSessionRunningTime).TotalSeconds <
                 Time.Instance.SessionRunningTimeUpdate_seconds)
             {
                 Cache.Instance.SessionRunningTime =
-                    (int)DateTime.Now.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalMinutes;
-                Cache.Instance.LastUpdateOfSessionRunningTime = DateTime.Now;
+                    (int)DateTime.UtcNow.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalMinutes;
+                Cache.Instance.LastUpdateOfSessionRunningTime = DateTime.UtcNow;
             }
 
             // We always check our defense state if we're in space, regardless of questor state
@@ -214,7 +212,7 @@ namespace QuestorManager
 
             if (Cache.Instance.Paused)
             {
-                Cache.Instance.LastKnownGoodConnectedTime = DateTime.Now;
+                Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                 Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
                 Cache.Instance.GotoBaseNow = false;
                 Cache.Instance.SessionState = string.Empty;
@@ -271,7 +269,7 @@ namespace QuestorManager
 
                 case QuestormanagerState.NextAction:
 
-                    if (DateTime.Now.Subtract(_lastAction).TotalSeconds < 3)
+                    if (DateTime.UtcNow.Subtract(_lastAction).TotalSeconds < 3)
                         break;
 
                     if (LstTask.Items.Count <= 0)
@@ -362,7 +360,7 @@ namespace QuestorManager
                         Logging.Log("QuestorManager", "CmdLine: Error: command skipped: UseInnerspace is false", Logging.White);
                     }
                     LstTask.Items.Remove(LstTask.Items[0]);
-                    _lastAction = DateTime.Now;
+                    _lastAction = DateTime.UtcNow;
                     State = QuestormanagerState.NextAction;
 
                     break;
@@ -384,7 +382,7 @@ namespace QuestorManager
                         Logging.Log("QuestorManager", "BuyLPI: Done", Logging.White);
                         _States.CurrentBuyLPIState = BuyLPIState.Idle;
                         LstTask.Items.Remove(LstTask.Items[0]);
-                        _lastAction = DateTime.Now;
+                        _lastAction = DateTime.UtcNow;
                         State = QuestormanagerState.NextAction;
                     }
 
@@ -412,7 +410,7 @@ namespace QuestorManager
                         _States.CurrentValueDumpState = ValueDumpState.Idle;
                         ProcessItems();
                         LstTask.Items.Remove(LstTask.Items[0]);
-                        _lastAction = DateTime.Now;
+                        _lastAction = DateTime.UtcNow;
                         State = QuestormanagerState.NextAction;
                     }
 
@@ -422,7 +420,7 @@ namespace QuestorManager
 
                     if (!Cache.Instance.ReadyShipsHangar("QuestorManager")) break;
 
-                    if (DateTime.Now > _lastAction)
+                    if (DateTime.UtcNow > _lastAction)
                     {
                         List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
                         foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName == txtNameShip.Text))
@@ -431,7 +429,7 @@ namespace QuestorManager
 
                             ship.ActivateShip();
                             LstTask.Items.Remove(LstTask.Items[0]);
-                            _lastAction = DateTime.Now;
+                            _lastAction = DateTime.UtcNow;
                             State = QuestormanagerState.NextAction;
                             break;
                         }
@@ -456,7 +454,7 @@ namespace QuestorManager
                         Logging.Log("QuestorManager", "Buy: Done", Logging.White);
                         _States.CurrentBuyState = BuyState.Idle;
                         LstTask.Items.Remove(LstTask.Items[0]);
-                        _lastAction = DateTime.Now;
+                        _lastAction = DateTime.UtcNow;
                         State = QuestormanagerState.NextAction;
                     }
 
@@ -480,7 +478,7 @@ namespace QuestorManager
                         Logging.Log("QuestorManager", "Sell: Done", Logging.White);
                         _States.CurrentSellState = SellState.Idle;
                         LstTask.Items.Remove(LstTask.Items[0]);
-                        _lastAction = DateTime.Now;
+                        _lastAction = DateTime.UtcNow;
                         State = QuestormanagerState.NextAction;
                     }
                     break;
@@ -504,7 +502,7 @@ namespace QuestorManager
                         Logging.Log("QuestorManager", "Drop: Done", Logging.White);
                         _States.CurrentDropState = DropState.Idle;
                         LstTask.Items.Remove(LstTask.Items[0]);
-                        _lastAction = DateTime.Now;
+                        _lastAction = DateTime.UtcNow;
                         State = QuestormanagerState.NextAction;
                     }
 
@@ -529,7 +527,7 @@ namespace QuestorManager
                         Logging.Log("QuestorManager", "Grab: Done", Logging.White);
                         _States.CurrentGrabState = GrabState.Idle;
                         LstTask.Items.Remove(LstTask.Items[0]);
-                        _lastAction = DateTime.Now;
+                        _lastAction = DateTime.UtcNow;
                         State = QuestormanagerState.NextAction;
                     }
 
@@ -541,7 +539,7 @@ namespace QuestorManager
                     if (Cache.Instance.DirectEve.Session.IsInSpace && Cache.Instance.DirectEve.ActiveShip.Entity != null && Cache.Instance.DirectEve.ActiveShip.Entity.IsWarping)
                         return;
 
-                    TravelerDestination travelerDestination = _traveler.Destination;
+                    TravelerDestination travelerDestination = Traveler.Destination;
                     if (_destination == null)
                         travelerDestination = null;
 
@@ -564,10 +562,10 @@ namespace QuestorManager
                     }
 
                     // Check to see if destination changed, since changing it will set the traveler to Idle
-                    if (_traveler.Destination != travelerDestination)
-                        _traveler.Destination = travelerDestination;
+                    if (Traveler.Destination != travelerDestination)
+                        Traveler.Destination = travelerDestination;
 
-                    _traveler.ProcessState();
+                    Traveler.ProcessState();
 
                     // Record number of jumps
                     _jumps = Cache.Instance.DirectEve.Navigation.GetDestinationPath().Count;
@@ -577,21 +575,21 @@ namespace QuestorManager
                     {
                         Logging.Log("QuestorManager", "Arrived at destination", Logging.White);
 
-                        _traveler.Destination = null;
+                        Traveler.Destination = null;
                         _destination = null;
                         LstTask.Items.Remove(LstTask.Items[0]);
-                        _lastAction = DateTime.Now;
+                        _lastAction = DateTime.UtcNow;
                         State = QuestormanagerState.NextAction;
                     }
 
                     // An error occurred, reset traveler
                     if (_States.CurrentTravelerState == TravelerState.Error)
                     {
-                        if (_traveler.Destination != null)
+                        if (Traveler.Destination != null)
                             Logging.Log("QuestorManager", "Stopped traveling, QuestorManager threw an error...", Logging.White);
 
                         _destination = null;
-                        _traveler.Destination = null;
+                        Traveler.Destination = null;
                         _start = false;
                         State = QuestormanagerState.Idle;
                     }

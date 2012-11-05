@@ -74,10 +74,10 @@ namespace QuestorManager.Actions
                     break;
 
                 case ValueDumpState.CheckMineralPrices:
-                    _currentMineral = _form.InvTypesById.Values.FirstOrDefault(i => i.Id != 27029 && i.GroupId == 18 && i.LastUpdate < DateTime.Now.AddHours(-4));
+                    _currentMineral = _form.InvTypesById.Values.FirstOrDefault(i => i.Id != 27029 && i.GroupId == 18 && i.LastUpdate < DateTime.UtcNow.AddHours(-4));
                     if (_currentMineral == null)
                     {
-                        if (DateTime.Now.Subtract(_lastExecute).TotalSeconds > Time.Instance.Marketlookupdelay_seconds)
+                        if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > Time.Instance.Marketlookupdelay_seconds)
                         {
                             _States.CurrentValueDumpState = ValueDumpState.SaveMineralPrices;
                             if (marketWindow != null)
@@ -92,10 +92,10 @@ namespace QuestorManager.Actions
                 case ValueDumpState.GetMineralPrice:
                     if (marketWindow == null)
                     {
-                        if (DateTime.Now.Subtract(_lastExecute).TotalSeconds > Time.Instance.Marketlookupdelay_seconds)
+                        if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > Time.Instance.Marketlookupdelay_seconds)
                         {
                             Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenMarket);
-                            _lastExecute = DateTime.Now;
+                            _lastExecute = DateTime.UtcNow;
                         }
 
                         return;
@@ -103,19 +103,19 @@ namespace QuestorManager.Actions
 
                     if (marketWindow.DetailTypeId != _currentMineral.Id)
                     {
-                        if (DateTime.Now.Subtract(_lastExecute).TotalSeconds < Time.Instance.Marketlookupdelay_seconds)
+                        if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds < Time.Instance.Marketlookupdelay_seconds)
                             return;
 
                         Logging.Log("ValueDump", "Loading orders for " + _currentMineral.Name, Logging.White);
 
                         marketWindow.LoadTypeId(_currentMineral.Id);
-                        _lastExecute = DateTime.Now;
+                        _lastExecute = DateTime.UtcNow;
                         return;
                     }
 
                     if (marketWindow.BuyOrders.All(o => o.StationId != Cache.Instance.DirectEve.Session.StationId))
                     {
-                        _currentMineral.LastUpdate = DateTime.Now;
+                        _currentMineral.LastUpdate = DateTime.UtcNow;
 
                         Logging.Log("ValueDump", "No orders found for " + _currentMineral.Name, Logging.White);
                         _States.CurrentValueDumpState = ValueDumpState.CheckMineralPrices;
@@ -123,7 +123,7 @@ namespace QuestorManager.Actions
 
                     // Take top 5 orders, average the buy price and consider that median-buy (it's not really median buy but its what we want)
                     _currentMineral.MedianBuy = marketWindow.BuyOrders.Where(o => o.StationId == Cache.Instance.DirectEve.Session.StationId).OrderByDescending(o => o.Price).Take(5).Average(o => o.Price);
-                    _currentMineral.LastUpdate = DateTime.Now;
+                    _currentMineral.LastUpdate = DateTime.UtcNow;
                     _States.CurrentValueDumpState = ValueDumpState.CheckMineralPrices;
 
                     Logging.Log("ValueDump", "Average price for " + _currentMineral.Name + " is " + _currentMineral.MedianBuy.Value.ToString("#,##0.00"), Logging.White);
@@ -223,9 +223,9 @@ namespace QuestorManager.Actions
                     break;
 
                 case ValueDumpState.StartQuickSell:
-                    if ((DateTime.Now.Subtract(_lastExecute).TotalSeconds < Cache.Instance.RandomNumber(1,3)) && _form.cbxSell.Checked)
+                    if ((DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds < Cache.Instance.RandomNumber(1,3)) && _form.cbxSell.Checked)
                         break;
-                    _lastExecute = DateTime.Now;
+                    _lastExecute = DateTime.UtcNow;
 
                     DirectItem directItem = Cache.Instance.ItemHangar.Items.FirstOrDefault(i => i.ItemId == _currentItem.Id);
                     if (directItem == null)
@@ -242,7 +242,7 @@ namespace QuestorManager.Actions
                         Logging.Log("ValueDump", "Starting QuickSell for " + _currentItem.Name, Logging.White);
                         if (!directItem.QuickSell())
                         {
-                            _lastExecute = DateTime.Now.AddSeconds(-5);
+                            _lastExecute = DateTime.UtcNow.AddSeconds(-5);
 
                             Logging.Log("ValueDump", "QuickSell failed for " + _currentItem.Name + ", retrying in 5 seconds", Logging.White);
                             break;
@@ -261,7 +261,7 @@ namespace QuestorManager.Actions
                         break;
 
                     // Mark as new execution
-                    _lastExecute = DateTime.Now;
+                    _lastExecute = DateTime.UtcNow;
 
                     Logging.Log("ValueDump", "Inspecting sell order for " + _currentItem.Name, Logging.White);
                     _States.CurrentValueDumpState = ValueDumpState.InspectOrder;
@@ -269,7 +269,7 @@ namespace QuestorManager.Actions
 
                 case ValueDumpState.InspectOrder:
                     // Let the order window stay open for random number
-                    if (DateTime.Now.Subtract(_lastExecute).TotalSeconds < Cache.Instance.RandomNumber(1, 3))
+                    if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds < Cache.Instance.RandomNumber(1, 3))
                         break;
 
                     if (sellWindow != null && (!sellWindow.OrderId.HasValue || !sellWindow.Price.HasValue || !sellWindow.RemainingVolume.HasValue))
@@ -323,7 +323,7 @@ namespace QuestorManager.Actions
                     if (_currentItem.QuantitySold < _currentItem.Quantity)
                         _form.ItemsToSell.Add(_currentItem);
 
-                    _lastExecute = DateTime.Now;
+                    _lastExecute = DateTime.UtcNow;
                     _States.CurrentValueDumpState = ValueDumpState.WaitingToFinishQuickSell;
                     break;
 
@@ -350,7 +350,7 @@ namespace QuestorManager.Actions
                         Logging.Log("Selling gives a better price for item " + _currentItem.Name + " [Refine price: " + refinePrice.ToString("#,##0.00") + "][Sell price: " + totalPrice_r.ToString("#,##0.00") + "]");
                     }*/
 
-                    _lastExecute = DateTime.Now;
+                    _lastExecute = DateTime.UtcNow;
                     _States.CurrentValueDumpState = ValueDumpState.NextItem;
 
                     break;
@@ -371,22 +371,22 @@ namespace QuestorManager.Actions
 
                     if (reprorcessingWindow == null)
                     {
-                        if (DateTime.Now.Subtract(_lastExecute).TotalSeconds > Cache.Instance.RandomNumber(1, 3))
+                        if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > Cache.Instance.RandomNumber(1, 3))
                         {
                             IEnumerable<DirectItem> refineItems = Cache.Instance.ItemHangar.Items.Where(i => _form.ItemsToRefine.Any(r => r.Id == i.ItemId));
                             Cache.Instance.DirectEve.ReprocessStationItems(refineItems);
 
-                            _lastExecute = DateTime.Now;
+                            _lastExecute = DateTime.UtcNow;
                         }
                         return;
                     }
 
                     if (reprorcessingWindow.NeedsQuote)
                     {
-                        if (DateTime.Now.Subtract(_lastExecute).TotalSeconds > Cache.Instance.RandomNumber(1, 3))
+                        if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > Cache.Instance.RandomNumber(1, 3))
                         {
                             reprorcessingWindow.GetQuotes();
-                            _lastExecute = DateTime.Now;
+                            _lastExecute = DateTime.UtcNow;
                         }
 
                         return;
@@ -395,23 +395,23 @@ namespace QuestorManager.Actions
                     // Wait till we have a quote
                     if (reprorcessingWindow.Quotes.Count == 0)
                     {
-                        _lastExecute = DateTime.Now;
+                        _lastExecute = DateTime.UtcNow;
                         return;
                     }
 
                     // Wait another 5 seconds to view the quote and then reprocess the stuff
-                    if (DateTime.Now.Subtract(_lastExecute).TotalSeconds > 5)
+                    if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > 5)
                     {
                         // TODO: We should wait for the items to appear in our hangar and then sell them...
                         reprorcessingWindow.Reprocess();
-                        _lastExecute = DateTime.Now;
+                        _lastExecute = DateTime.UtcNow;
                         Logging.Log("Valuedump", "Waiting 17 second", Logging.White);
                         _States.CurrentValueDumpState = ValueDumpState.WaitingToBack;
                     }
                     break;
 
                 case ValueDumpState.WaitingToBack:
-                    if (DateTime.Now.Subtract(_lastExecute).TotalSeconds > 17 && _valueProcess)
+                    if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > 17 && _valueProcess)
                     {
                         _States.CurrentValueDumpState = _valueProcess ? ValueDumpState.Begin : ValueDumpState.Done;
                     }

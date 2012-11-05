@@ -83,7 +83,7 @@ namespace Questor.Modules.Lookup
             {
                 if (!DateTime.TryParseExact(startxml1, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out startTime1))
                 {
-                    Logging.Log("CharSchedule", Name + ": Couldn't parse starttime.", Logging.Red);
+                    Logging.Log("CharSchedule", Name + ": Could not parse starttime.", Logging.Red);
                     startTime1 = DateTime.Now.AddSeconds(20);
                 }
                 else
@@ -103,7 +103,7 @@ namespace Questor.Modules.Lookup
             {
                 if (!DateTime.TryParseExact(stopxml1, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out stopTime1))
                 {
-                    Logging.Log("CharSchedule", Name + ": Couldn't parse stoptime: Assuming 4 hours", Logging.Red);
+                    Logging.Log("CharSchedule", Name + ": Could not parse stoptime: Assuming 4 hours", Logging.Red);
                     stopTime1 = DateTime.Now.AddHours(4);
                 }
                 else
@@ -125,7 +125,7 @@ namespace Questor.Modules.Lookup
             {
                 if (!DateTime.TryParseExact(startxml2, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out startTime2))
                 {
-                    Logging.Log("CharSchedule", Name + ": Couldn't parse starttime2.", Logging.Red);
+                    Logging.Log("CharSchedule", Name + ": Could not parse starttime2.", Logging.Red);
                     startTime2 = DateTime.Now.AddSeconds(20);
                 }
                 else
@@ -139,7 +139,7 @@ namespace Questor.Modules.Lookup
             {
                 if (!DateTime.TryParseExact(stopxml2, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out stopTime2))
                 {
-                    Logging.Log("CharSchedule", Name + ": Couldn't parse stoptime2: Assuming 4 hours.", Logging.Red);
+                    Logging.Log("CharSchedule", Name + ": Could not parse stoptime2: Assuming 4 hours.", Logging.Red);
                     stopTime2 = DateTime.Now.AddHours(4);
                 }
                 else
@@ -161,7 +161,7 @@ namespace Questor.Modules.Lookup
             {
                 if (!DateTime.TryParseExact(startxml3, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out startTime3))
                 {
-                    Logging.Log("CharSchedule", Name + ": Couldn't parse starttime3", Logging.Red);
+                    Logging.Log("CharSchedule", Name + ": Could not parse starttime3", Logging.Red);
                     startTime3 = DateTime.Now.AddSeconds(20);
                 }
                 else
@@ -175,7 +175,7 @@ namespace Questor.Modules.Lookup
             {
                 if (!DateTime.TryParseExact(stopxml3, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out stopTime3))
                 {
-                    Logging.Log("CharSchedule", Name + ": Couldn't parse stoptime3: Assuming 4 hours.", Logging.Red);
+                    Logging.Log("CharSchedule", Name + ": Could not parse stoptime3: Assuming 4 hours.", Logging.Red);
                     stopTime3 = DateTime.Now.AddHours(4);
                 }
                 else

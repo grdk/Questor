@@ -35,5 +35,7 @@ namespace Questor.Modules.Lookup
         MaxPocketsDistanceKm = 70000,
         HalfAU = 2147483647,
         OneAU = 149598000000,
+        MaxSlowboatDistanceToNextAsteroid = 65000,
+        MaxSlowBoatDistanceToBelt = 30000,
     }
 }

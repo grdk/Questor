@@ -21,7 +21,7 @@ namespace Questor.Storylines
         /// <returns></returns>
         public StorylineState Arm(Storyline storyline)
         {
-            if (_nextAction > DateTime.Now)
+            if (_nextAction > DateTime.UtcNow)
                 return StorylineState.Arm;
 
             // Are we in a shuttle?  Yes, go to the agent
@@ -38,7 +38,7 @@ namespace Questor.Storylines
             {
                 Logging.Log("MaterialsForWarPreparation", "Switching to shuttle", Logging.White);
 
-                _nextAction = DateTime.Now.AddSeconds(10);
+                _nextAction = DateTime.UtcNow.AddSeconds(10);
 
                 item.ActivateShip();
                 return StorylineState.Arm;
@@ -55,7 +55,7 @@ namespace Questor.Storylines
         public StorylineState PreAcceptMission(Storyline storyline)
         {
             DirectEve directEve = Cache.Instance.DirectEve;
-            if (_nextAction > DateTime.Now)
+            if (_nextAction > DateTime.UtcNow)
                 return StorylineState.PreAcceptMission;
 
             // the ore and ore quantity can be stored in the characters settings xml this is to facility mission levels other than 4.
@@ -69,12 +69,12 @@ namespace Questor.Storylines
             int orequantity = Settings.Instance.MaterialsForWarOreQty; //999
 
             // Open the item hangar
-            if (!Cache.Instance.OpenItemsHangar("MaterialsForWarPreparation")) return StorylineState.PreAcceptMission;
+            if (!Cache.Instance.ReadyItemsHangar("MaterialsForWarPreparation")) return StorylineState.PreAcceptMission;
 
             if (Cache.Instance.ItemHangar.Window == null)
             {
                 Logging.Log("MaterialsForWar", "PreAcceptMission: ItemHangar is null", Logging.Orange);
-                if (!Cache.Instance.OpenItemsHangar("MaterialsForWarPreparation")) return StorylineState.PreAcceptMission;
+                if (!Cache.Instance.ReadyItemsHangar("MaterialsForWarPreparation")) return StorylineState.PreAcceptMission;
                 return StorylineState.PreAcceptMission;
             }
 
@@ -99,7 +99,7 @@ namespace Questor.Storylines
             // We do not have enough ore, open the market window
             if (marketWindow == null)
             {
-                _nextAction = DateTime.Now.AddSeconds(10);
+                _nextAction = DateTime.UtcNow.AddSeconds(10);
 
                 Logging.Log("MaterialsForWarPreparation", "Opening market window", Logging.White);
 
@@ -119,7 +119,7 @@ namespace Questor.Storylines
 
                 Logging.Log("MaterialsForWarPreparation", "Loading market window", Logging.White);
 
-                _nextAction = DateTime.Now.AddSeconds(5);
+                _nextAction = DateTime.UtcNow.AddSeconds(5);
                 return StorylineState.PreAcceptMission;
             }
 
@@ -155,7 +155,7 @@ namespace Questor.Storylines
                     Logging.Log("MaterialsForWarPreparation", "Buying [" + remaining + "] ore", Logging.White);
 
                     // Wait for the order to go through
-                    _nextAction = DateTime.Now.AddSeconds(10);
+                    _nextAction = DateTime.UtcNow.AddSeconds(10);
                 }
             }
             return StorylineState.PreAcceptMission;

@@ -11,6 +11,14 @@ namespace Questor.Modules.Lookup
 {
     public enum TypeID
     {
+        TrackingDisruptorScript = 29007,
+        TrackingComputerScript = 29001,
+        TrackingLinkScript = 29001,
+        SensorBoosterScript = 29009,
+        SensorDampenerScript = 29015,
+        AncillaryShieldBoosterScript = 11289,
+        CapacitorInjectorScript = 11289,
+
         //Minmater Rookie Ship
         //Amarr Rookie Ship
         //Caldari Rookie Ship
