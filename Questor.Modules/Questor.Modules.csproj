@@ -65,7 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackgroundTasks\NavigateOnGrid.cs" />
+    <Compile Include="Caching\ItemCacheMarket.cs" />
     <Compile Include="Caching\TargetingCache.cs" />
+    <Compile Include="Lookup\InvTypeMarket.cs" />
     <Compile Include="Lookup\TypeID.cs" />
     <Compile Include="States\CombatHelperBehaviorState.cs" />
     <Compile Include="States\DebugBehaviorState.cs" />

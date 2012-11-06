@@ -53,7 +53,9 @@
             {
                 XDocument xdoc = new XDocument(new XElement("invtypes"));
                 foreach (InvType type in _invTypes)
+                {
                     if (xdoc.Root != null) xdoc.Root.Add(type.Save());
+                }
                 xdoc.Save(InvTypesPath);
             }
         }
@@ -61,20 +63,26 @@
         private void UpdateTick(object sender, EventArgs e)
         {
             if (_nextEVECentralQuery > DateTime.UtcNow)
+            {
                 return;
+            }
 
             // This is what you get if your too bored to setup an actual thread and do UI-invoke shit
             if (!_doUpdate)
+            {
                 return;
+            }
 
             if (_updating)
+            {
                 return;
+            }
 
             _updating = true;
             try
             {
                 IEnumerable<InvType> types;
-                if (_eveCentralInvalidItemType) //if eve-central didnt like the previous list, try one item
+                if (_eveCentralInvalidItemType) //if eve-central did not like the previous list, try one item
                 {
                     types = _invTypes.Skip(Progress.Value).Take(1).ToList();
                     _eveCentralInvalidItemType = false;
