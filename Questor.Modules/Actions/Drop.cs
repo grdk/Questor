@@ -49,10 +49,10 @@ namespace Questor.Modules.Actions
                     break;
 
                 case DropState.Begin:
-                    _States.CurrentDropState = DropState.OpenItemHangar;
+                    _States.CurrentDropState = DropState.ReadyItemhangar;
                     break;
 
-                case DropState.OpenItemHangar:
+                case DropState.ReadyItemhangar:
 
                     if (DateTime.UtcNow.Subtract(_lastAction).TotalSeconds < 2)
                         break;

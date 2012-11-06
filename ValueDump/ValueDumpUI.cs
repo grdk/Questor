@@ -18,7 +18,6 @@ namespace ValueDump
     using System.Windows.Forms;
     using System.Xml.Linq;
     using DirectEve;
-    using Valuedump;
     using Questor.Modules.Caching;
     using Questor.Modules.Lookup;
     using Questor.Modules.Logging;
@@ -280,7 +279,7 @@ namespace ValueDump
                     break;
 
                 case ValueDumpState.GetItems:
-                    if (!Cache.Instance.OpenItemsHangar("ValueDump")) break;
+                    if (!Cache.Instance.ReadyItemsHangar("ValueDump")) break;
                     Logging.Log("ValueDump", "Loading hangar items", Logging.White);
 
                     // Clear out the old
@@ -663,7 +662,7 @@ namespace ValueDump
                     else
                     {
                         IEnumerable<DirectItem> refineItems = Cache.Instance.ItemHangar.Items.Where(i => ItemsToRefine.Any(r => r.Id == i.ItemId));
-                        if (!Cache.Instance.OpenCargoHold("ValueDump")) break;
+                        if (!Cache.Instance.ReadyCargoHold("ValueDump")) break;
 
                         if (!Cache.Instance.ReadyAmmoHangar("ValueDump")) break;
                         if (refineItems != null)

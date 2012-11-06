@@ -52,10 +52,10 @@ namespace QuestorManager.Actions
                     if(lpstore != null)
                         lpstore.Close();*/
 
-                    _States.CurrentBuyLPIState = BuyLPIState.OpenItemHangar;
+                    _States.CurrentBuyLPIState = BuyLPIState.ReadyItemhangar;
                     break;
 
-                case BuyLPIState.OpenItemHangar:
+                case BuyLPIState.ReadyItemhangar:
 
                     if (!Cache.Instance.ReadyItemsHangar("BuyLPI")) return;
                     if (!Cache.Instance.ReadyShipsHangar("BuyLPI")) return;

@@ -150,7 +150,7 @@ namespace QuestorManager.Actions
 
                 case ValueDumpState.GetItems:
 
-                    if (!Cache.Instance.OpenItemsHangar("Valuedump")) return;
+                    if (!Cache.Instance.ReadyItemsHangar("Valuedump")) return;
 
                     Logging.Log("ValueDump", "Loading hangar items", Logging.White);
 

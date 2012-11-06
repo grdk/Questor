@@ -51,10 +51,10 @@ namespace Questor.Modules.Actions
                     break;
 
                 case GrabState.Begin:
-                    _States.CurrentGrabState = GrabState.OpenItemHangar;
+                    _States.CurrentGrabState = GrabState.ReadyItemhangar;
                     break;
 
-                case GrabState.OpenItemHangar:
+                case GrabState.ReadyItemhangar:
                     if (DateTime.UtcNow.Subtract(_lastAction).TotalSeconds < 2)
                         break;
 
