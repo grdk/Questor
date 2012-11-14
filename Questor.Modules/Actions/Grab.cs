@@ -88,7 +88,7 @@ namespace Questor.Modules.Actions
 
                 case GrabState.OpenCargo:
 
-                    if (!Cache.Instance.ReadyCargoHold("Grab")) break;
+                    if (!Cache.Instance.OpenCargoHold("Grab")) break;
 
                     Logging.Log("Grab", "Opening Cargo Hold", Logging.White);
                     _freeCargoCapacity = Cache.Instance.CargoHold.Capacity - Cache.Instance.CargoHold.UsedCapacity;

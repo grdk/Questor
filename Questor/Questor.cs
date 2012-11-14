@@ -208,14 +208,6 @@ namespace Questor
                 Logging.Log(whatWeAreTiming, " took " + _watch.ElapsedMilliseconds + "ms", Logging.White);
         }
 
-        public static void BeginClosingQuestor()
-        {
-            Cache.Instance.EnteredCloseQuestor_DateTime = DateTime.UtcNow;
-            Cache.Instance.SessionState = "Quitting";
-            _States.CurrentQuestorState = QuestorState.CloseQuestor;
-            return;
-        }
-
         public static void TimeCheck()
         {
             if (DateTime.UtcNow < Cache.Instance.NextTimeCheckAction)
@@ -223,7 +215,7 @@ namespace Questor
 
             Cache.Instance.NextTimeCheckAction = DateTime.UtcNow.AddMinutes(5);
             Logging.Log("Questor",
-                        "Checking: Current time [" + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) +
+                        "Checking: Current time [" + DateTime.Now.ToString(CultureInfo.InvariantCulture) +
                         "] StopTimeSpecified [" + Cache.Instance.StopTimeSpecified +
                         "] StopTime [ " + Cache.Instance.StopTime +
                         "] ManualStopTime = " + Cache.Instance.ManualStopTime, Logging.White);
@@ -237,9 +229,10 @@ namespace Questor
                 Cache.Instance.CloseQuestorCMDLogoff = false;
                 Cache.Instance.CloseQuestorCMDExitGame = true;
                 Cache.Instance.SessionState = "Exiting";
-                BeginClosingQuestor();
+                Cleanup.BeginClosingQuestor();
                 return;
             }
+
             if (Cache.Instance.StopTimeSpecified)
             {
                 if (DateTime.Now >= Cache.Instance.StopTime)
@@ -250,10 +243,11 @@ namespace Questor
                     Cache.Instance.CloseQuestorCMDLogoff = false;
                     Cache.Instance.CloseQuestorCMDExitGame = true;
                     Cache.Instance.SessionState = "Exiting";
-                    BeginClosingQuestor();
+                    Cleanup.BeginClosingQuestor();
                     return;
                 }
             }
+
             if (DateTime.Now >= Cache.Instance.ManualRestartTime)
             {
                 Logging.Log("Questor", "Time to stop. ManualRestartTime reached. Quitting game.", Logging.White);
@@ -262,9 +256,10 @@ namespace Questor
                 Cache.Instance.CloseQuestorCMDLogoff = false;
                 Cache.Instance.CloseQuestorCMDExitGame = true;
                 Cache.Instance.SessionState = "Exiting";
-                BeginClosingQuestor();
+                Cleanup.BeginClosingQuestor();
                 return;
             }
+
             if (DateTime.Now >= Cache.Instance.ManualStopTime)
             {
                 Logging.Log("Questor", "Time to stop. ManualStopTime reached. Quitting game.", Logging.White);
@@ -273,9 +268,10 @@ namespace Questor
                 Cache.Instance.CloseQuestorCMDLogoff = false;
                 Cache.Instance.CloseQuestorCMDExitGame = true;
                 Cache.Instance.SessionState = "Exiting";
-                BeginClosingQuestor();
+                Cleanup.BeginClosingQuestor();
                 return;
             }
+
             if (Cache.Instance.ExitWhenIdle)
             {
                 Logging.Log("Questor", "ExitWhenIdle set to true.  Quitting game.", Logging.White);
@@ -284,9 +280,10 @@ namespace Questor
                 Cache.Instance.CloseQuestorCMDLogoff = false;
                 Cache.Instance.CloseQuestorCMDExitGame = true;
                 Cache.Instance.SessionState = "Exiting";
-                BeginClosingQuestor();
+                Cleanup.BeginClosingQuestor();
                 return;
             }
+
             if (Cache.Instance.MissionsThisSession > Cache.Instance.StopSessionAfterMissionNumber)
             {
                 Logging.Log("Questor", "MissionsThisSession [" + Cache.Instance.MissionsThisSession + "] is greater than StopSessionAfterMissionNumber [" + Cache.Instance.StopSessionAfterMissionNumber + "].  Quitting game.", Logging.White);
@@ -295,7 +292,7 @@ namespace Questor
                 Cache.Instance.CloseQuestorCMDLogoff = false;
                 Cache.Instance.CloseQuestorCMDExitGame = true;
                 Cache.Instance.SessionState = "Exiting";
-                BeginClosingQuestor();
+                Cleanup.BeginClosingQuestor();
                 return;
             }
         }
@@ -334,7 +331,7 @@ namespace Questor
                     Cache.Instance.CloseQuestorCMDLogoff = false;
                     Cache.Instance.CloseQuestorCMDExitGame = true;
                     Cache.Instance.SessionState = "Exiting";
-                    BeginClosingQuestor();
+                    Cleanup.BeginClosingQuestor();
                     return;
                 }
 
@@ -345,45 +342,6 @@ namespace Questor
                 _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.GotoBase;
                 _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.GotoBase;
                 return;
-            }
-        }
-
-        public static void CheckEVEStatus()
-        {
-            // get the current process
-            Process currentProcess = System.Diagnostics.Process.GetCurrentProcess();
-
-            // get the physical mem usage (this only runs between missions)
-            Cache.Instance.TotalMegaBytesOfMemoryUsed = ((currentProcess.WorkingSet64 / 1024) / 1024);
-            Logging.Log("Questor", "EVE instance: totalMegaBytesOfMemoryUsed - " +
-                        Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB", Logging.White);
-
-            if (Cache.Instance.TotalMegaBytesOfMemoryUsed > (Settings.Instance.EVEProcessMemoryCeiling - 50) &&
-                        Settings.Instance.EVEProcessMemoryCeilingLogofforExit != "")
-            {
-                Logging.Log("Questor", ": Memory usage is above the EVEProcessMemoryCeiling threshold. EVE instance: totalMegaBytesOfMemoryUsed - " + Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB", Logging.White);
-                Cache.Instance.ReasonToStopQuestor = "Memory usage is above the EVEProcessMemoryCeiling threshold. EVE instance: totalMegaBytesOfMemoryUsed - " + Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB";
-                if (Settings.Instance.EVEProcessMemoryCeilingLogofforExit == "logoff")
-                {
-                    Cache.Instance.CloseQuestorCMDLogoff = true;
-                    Cache.Instance.CloseQuestorCMDExitGame = false;
-                    Cache.Instance.SessionState = "LoggingOff";
-                    BeginClosingQuestor();
-                    return;
-                }
-                if (Settings.Instance.EVEProcessMemoryCeilingLogofforExit == "exit")
-                {
-                    Cache.Instance.CloseQuestorCMDLogoff = false;
-                    Cache.Instance.CloseQuestorCMDExitGame = true;
-                    Cache.Instance.SessionState = "Exiting";
-                    BeginClosingQuestor();
-                    return;
-                }
-                Logging.Log("Questor", "EVEProcessMemoryCeilingLogofforExit was not set to exit or logoff - doing nothing ", Logging.White);
-            }
-            else
-            {
-                Cache.Instance.SessionState = "Running";
             }
         }
 
@@ -513,7 +471,7 @@ namespace Questor
             {
                 if (_States.CurrentQuestorState != QuestorState.CloseQuestor)
                 {
-                    BeginClosingQuestor();
+                    Cleanup.BeginClosingQuestor();
                 }
             }
 

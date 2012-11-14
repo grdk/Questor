@@ -19,6 +19,15 @@ namespace Questor.Modules.Lookup
         AncillaryShieldBoosterScript = 11289,
         CapacitorInjectorScript = 11289,
 
+        AngelDiamondTag = 17192,
+        BloodDiamondTag = 17201,
+        GuristasDiamondTag = 17206,
+        SanshaDiamondTag = 17211,
+        SerpentisDiamondTag = 17216,
+        //GateKey = 2076, //use groupID 474 instead
+        //ZbikokisHackerCard = 28260, //use groupID 474 instead
+        CustomCircuitry = 2899, //GroupID 314
+
         //Minmater Rookie Ship
         //Amarr Rookie Ship
         //Caldari Rookie Ship

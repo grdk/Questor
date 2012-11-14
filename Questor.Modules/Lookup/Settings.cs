@@ -19,6 +19,7 @@ namespace Questor.Modules.Lookup
     using System.Globalization;
     using InnerSpaceAPI;
     using Questor.Modules.Actions;
+    using Questor.Modules.BackgroundTasks;
     using Questor.Modules.Caching;
     using Questor.Modules.Logging;
     using Questor.Modules.States;
@@ -54,6 +55,7 @@ namespace Questor.Modules.Lookup
 
         public bool CharacterXMLExists = true;
         public bool SchedulesXMLExists = true;
+        public bool EVEMemoryManager = false;
         public bool FactionXMLExists = true;
         public bool QuestorStatisticsExists = true;
         public bool QuestorSettingsExists = true;
@@ -62,6 +64,7 @@ namespace Questor.Modules.Lookup
         //
         // Debug Variables
         //
+        public bool DebugActivateGate { get; set; }
         public bool DebugActivateWeapons { get; set; }
         public bool DebugAgentInteractionReplyToAgent { get; set; }
         public bool DebugAllMissionsOnBlackList { get; set; }
@@ -87,6 +90,7 @@ namespace Questor.Modules.Lookup
         public bool DebugLootWrecks { get; set; }
         public bool DebugNavigateOnGrid { get; set; }
         public bool DebugMissionFittings { get; set; }
+        public bool DebugMoveTo { get; set; }
         public bool DebugOnframe { get; set; }
         public bool DebugPerformance { get; set; }
         public bool DebugReloadAll { get; set; }
@@ -94,6 +98,7 @@ namespace Questor.Modules.Lookup
         public bool DebugSalvage { get; set; }
         public bool DebugScheduler { get; set; }
         public bool DebugStatistics { get; set; }
+        public bool DebugStorylineMissions { get; set; }
         public bool DebugTractorBeams { get; set; }
         public bool DebugTraveler { get; set; }
         public bool DebugUI { get; set; }
@@ -445,13 +450,14 @@ namespace Questor.Modules.Lookup
             
             if (Settings.Instance.SettingsPath == System.IO.Path.Combine(Settings.Instance.Path, ".xml"))
             {
-                if (Cache.Instance.LastInStation.AddMinutes(60) > DateTime.UtcNow)
+                if (Cache.Instance.LastInStation.AddMinutes(600) > DateTime.UtcNow)
                 {
                     Logging.Log("Settings", "CharacterName not defined! - Are we still logged in? Did we lose connection to eve? Questor should be restarting here.", Logging.White);
                     Settings.Instance.CharacterName = "NoCharactersLoggedInAnymore";
                     Cache.Instance.EnteredCloseQuestor_DateTime = DateTime.UtcNow;
                     Cache.Instance.SessionState = "Quitting";
                     _States.CurrentQuestorState = QuestorState.CloseQuestor;
+                    Cleanup.CloseQuestor();
                     return;
                 }
                 
@@ -469,6 +475,7 @@ namespace Questor.Modules.Lookup
 
             _lastModifiedDate = File.GetLastWriteTime(SettingsPath);
 
+            Settings.Instance.EVEMemoryManager = File.Exists(System.IO.Path.Combine(Settings.Instance.Path, "MemManager.exe")); //https://github.com/VendanAndrews/EveMemManager
             Settings.Instance.FactionXMLExists = File.Exists(System.IO.Path.Combine(Settings.Instance.Path, "faction.XML"));
             Settings.Instance.SchedulesXMLExists = File.Exists(System.IO.Path.Combine(Settings.Instance.Path, "schedules.XML"));
             Settings.Instance.QuestorManagerExists = File.Exists(System.IO.Path.Combine(Settings.Instance.Path, "QuestorManager.exe"));
@@ -482,6 +489,7 @@ namespace Questor.Modules.Lookup
                 //LavishScript.ExecuteCommand("log " + Cache.Instance.DirectEve.Me.Name + ".log");
                 //LavishScript.ExecuteCommand("uplink echo Settings: unable to find [" + Settings.Instance.SettingsPath + "] loading default (bad! bad! bad!) settings: you should fix this! NOW.");
                 Logging.Log("Settings", "WARNING! unable to find [" + Settings.Instance.SettingsPath + "] loading default generic, and likely incorrect, settings: WARNING!", Logging.Orange);
+                DebugActivateGate = false;
                 DebugActivateWeapons = false;
                 DebugAgentInteractionReplyToAgent = false;
                 DebugAllMissionsOnBlackList = false;
@@ -506,6 +514,7 @@ namespace Questor.Modules.Lookup
                 DebugLogging = false;
                 DebugLootWrecks = false;
                 DebugMissionFittings = false;
+                DebugMoveTo = false;
                 DebugNavigateOnGrid = false;
                 DebugOnframe = false;
                 DebugPerformance = false;
@@ -515,6 +524,7 @@ namespace Questor.Modules.Lookup
                 DebugScheduler = false;
                 DebugStates = false;
                 DebugStatistics = false;
+                DebugStorylineMissions = false;
                 DebugTractorBeams = false;
                 DebugTraveler = false;
                 DebugUI = false;
@@ -829,6 +839,7 @@ namespace Questor.Modules.Lookup
                     //
                     // Debug Settings
                     // 
+                    DebugActivateGate = (bool?)xml.Element("debugActivateGate") ?? false;
                     DebugActivateWeapons = (bool?)xml.Element("debugActivateWeapons") ?? false;
                     DebugAgentInteractionReplyToAgent = (bool?)xml.Element("debugAgentInteractionReplyToAgent") ?? false;
                     DebugAllMissionsOnBlackList = (bool?)xml.Element("debugAllMissionsOnBlackList") ?? false;
@@ -853,6 +864,7 @@ namespace Questor.Modules.Lookup
                     DebugLogging = (bool?)xml.Element("debugLogging") ?? false;
                     DebugLootWrecks = (bool?)xml.Element("debugLootWrecks") ?? false;
                     DebugMissionFittings = (bool?)xml.Element("debugMissionFittings") ?? false;
+                    DebugMoveTo = (bool?)xml.Element("debugMoveTo") ?? false;
                     DebugNavigateOnGrid = (bool?)xml.Element("debugNavigateOnGrid") ?? false;
                     DebugOnframe = (bool?)xml.Element("debugOnframe") ?? false;
                     DebugPerformance = (bool?)xml.Element("debugPerformance") ?? false;                                     //enables more console logging having to do with the sub-states within each state
@@ -862,6 +874,7 @@ namespace Questor.Modules.Lookup
                     DebugScheduler = (bool?)xml.Element("debugScheduler") ?? false;
                     DebugStates = (bool?)xml.Element("debugStates") ?? false;                                               //enables more console logging having to do with the time it takes to execute each state
                     DebugStatistics = (bool?)xml.Element("debugStatistics") ?? false;
+                    DebugStorylineMissions = (bool?)xml.Element("debugStorylineMissions") ?? false;
                     DebugTraveler = (bool?)xml.Element("debugTraveler") ?? false;
                     DebugTractorBeams = (bool?)xml.Element("debugTractorBeams") ?? false;
                     DebugUI = (bool?)xml.Element("debugUI") ?? false;

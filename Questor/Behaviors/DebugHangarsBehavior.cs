@@ -362,7 +362,7 @@ namespace Questor.Behaviors
                     Cache.Instance.SalvageAll = true;
                     Cache.Instance.OpenWrecks = true;
 
-                    if (!Cache.Instance.ReadyCargoHold("CombatMissionsBehavior: Salvage")) break;
+                    if (!Cache.Instance.OpenCargoHold("CombatMissionsBehavior: Salvage")) break;
 
                     if (Settings.Instance.UnloadLootAtStation && salvageCargo.Window.IsReady && (salvageCargo.Capacity - salvageCargo.UsedCapacity) < 100)
                     {
@@ -726,7 +726,7 @@ namespace Questor.Behaviors
 
                 case DebugHangarsBehaviorState.OpenCargoHold:
                     Logging.Log("DebugHangars", "DebugHangarsState.StackLootHangar:", Logging.White);
-                    if (!Cache.Instance.ReadyCargoHold("DebugHangars")) return;
+                    if (!Cache.Instance.OpenCargoHold("DebugHangars")) return;
                     Cache.Instance.DebugInventoryWindows("DebugHangars");
                     _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;
                     Cache.Instance.Paused = true;

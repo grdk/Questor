@@ -23,10 +23,11 @@ namespace Questor.Modules.BackgroundTasks
         private static bool _closeQuestorCMDUplink = true;
         public static bool CloseQuestorFlag = true;
 
-        private void BeginClosingQuestor()
+        public static void BeginClosingQuestor()
         {
             Cache.Instance.EnteredCloseQuestor_DateTime = DateTime.UtcNow;
             Cache.Instance.SessionState = "Quitting";
+            Cleanup.CloseQuestor();
         }
 
         public static bool CloseQuestor()
@@ -363,45 +364,19 @@ namespace Questor.Modules.BackgroundTasks
             return true;
         }
 
-        public void CheckEVEStatus()
+        public static void CheckEVEStatus()
         {
             // get the current process
             Process currentProcess = System.Diagnostics.Process.GetCurrentProcess();
 
             // get the physical mem usage (this only runs between missions)
             Cache.Instance.TotalMegaBytesOfMemoryUsed = ((currentProcess.WorkingSet64 / 1024) / 1024);
-            Logging.Log("Questor", "EVE instance: totalMegaBytesOfMemoryUsed - " +
-                        Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB", Logging.White);
+            Logging.Log("Questor", "EVE instance: totalMegaBytesOfMemoryUsed - " + Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB", Logging.White);
 
-            // If Questor window not visible, schedule a restart of questor in the uplink so that the GUI will start normally
-
-            /*
-             *
-             if (!m_Parent.Visible)
-            //GUI is not visible and CloseQuestorFlag is true, so that his code block only runs once
+            if (Cache.Instance.TotalMegaBytesOfMemoryUsed > (Settings.Instance.EVEProcessMemoryCeiling - 50) && Settings.Instance.EVEProcessMemoryCeilingLogofforExit != "")
             {
-                //m_Parent.Visible = true; //this does not work for some reason - innerspace issue?
-                Cache.Instance.ReasonToStopQuestor =
-                    "The Questor GUI is not visible: did EVE get restarted due to a crash or lag?";
-                Logging.Log(Cache.Instance.ReasonToStopQuestor);
-                Cache.Instance.CloseQuestorCMDLogoff = false;
-                Cache.Instance.CloseQuestorCMDExitGame = true;
-                Cache.Instance.SessionState = "Exiting";
-                BeginClosingQuestor();
-            }
-            else
-
-             */
-
-            if (Cache.Instance.TotalMegaBytesOfMemoryUsed > (Settings.Instance.EVEProcessMemoryCeiling - 50) &&
-                        Settings.Instance.EVEProcessMemoryCeilingLogofforExit != "")
-            {
-                Logging.Log(
-                    "Questor", "Memory usage is above the EVEProcessMemoryCeiling threshold. EVE instance: totalMegaBytesOfMemoryUsed - " +
-                    Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB", Logging.White);
-                Cache.Instance.ReasonToStopQuestor =
-                    "Memory usage is above the EVEProcessMemoryCeiling threshold. EVE instance: totalMegaBytesOfMemoryUsed - " +
-                    Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB";
+                Logging.Log("Questor", "Memory usage is above the EVEProcessMemoryCeiling threshold. EVE instance: totalMegaBytesOfMemoryUsed - " + Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB", Logging.White);
+                Cache.Instance.ReasonToStopQuestor = "Memory usage is above the EVEProcessMemoryCeiling threshold. EVE instance: totalMegaBytesOfMemoryUsed - " + Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB";
                 if (Settings.Instance.EVEProcessMemoryCeilingLogofforExit == "logoff")
                 {
                     Cache.Instance.CloseQuestorCMDLogoff = true;
@@ -418,8 +393,7 @@ namespace Questor.Modules.BackgroundTasks
                     BeginClosingQuestor();
                     return;
                 }
-                Logging.Log(
-                    "Questor", "EVEProcessMemoryCeilingLogofforExit was not set to exit or logoff - doing nothing ", Logging.Red);
+                Logging.Log("Questor", "EVEProcessMemoryCeilingLogofforExit was not set to exit or logoff - doing nothing ", Logging.Red);
             }
             else
             {
@@ -718,11 +692,26 @@ namespace Questor.Modules.BackgroundTasks
                             }
                         }
                     }
-                    _States.CurrentCleanupState = CleanupState.CheckWindowsThatDontBelongInSpace;
+                    _States.CurrentCleanupState = CleanupState.CleanupTasks;
                     break;
 
-                case CleanupState.CheckWindowsThatDontBelongInSpace:
+                case CleanupState.CleanupTasks:
+                    if (Settings.Instance.EVEMemoryManager)
+                    {
+                        if (DateTime.UtcNow > Cache.Instance.NextEVEMemoryManagerAction)
+                        {
 
+                            // get the current process
+                            Process currentProcess = System.Diagnostics.Process.GetCurrentProcess();
+
+                            // get the physical mem usage (this only runs between missions)
+                            Cache.Instance.TotalMegaBytesOfMemoryUsed = ((currentProcess.WorkingSet64 / 1024) / 1024);
+                            Logging.Log("Questor", "EVE instance: totalMegaBytesOfMemoryUsed - " + Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB", Logging.White);
+                            Logging.Log("Cleanup.CleanupTasks", "EVEMemoryManager: running [" + "dotnet memmanager memmanager 524288000 " + "] (500MB ceiling)", Logging.White);
+                            LavishScript.ExecuteCommand("dotnet memmanager memmanager 524288000");
+                            Cache.Instance.NextEVEMemoryManagerAction = DateTime.UtcNow.AddMinutes(5);
+                        }
+                    }
                     _lastCleanupAction = DateTime.UtcNow;
                     _States.CurrentCleanupState = CleanupState.Idle;
                     break;

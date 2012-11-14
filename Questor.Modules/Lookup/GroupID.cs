@@ -110,6 +110,7 @@ namespace Questor.Modules.Lookup
         CustomsOfficial = 446,
         Billboard = 323,
         Merchant = 297,
+        Mission_Merchant = 1006, //dread pirate scarlet
         FactionWarfareNPC = 288,
 
 
@@ -150,6 +151,7 @@ namespace Questor.Modules.Lookup
         ToxicWaste = 282,
         Slaves = 283,
         SmallArms = 280,
+        AccelerationGateKeys = 474,
 
         Plagioclase = 458,
         Spodumain = 461,

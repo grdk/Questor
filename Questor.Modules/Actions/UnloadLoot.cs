@@ -77,7 +77,7 @@ namespace Questor.Modules.Actions
                 _States.CurrentUnloadLootState = UnloadLootState.Done;
             }
 
-            if (!Cache.Instance.ReadyCargoHold("UnloadLoot")) return;
+            if (!Cache.Instance.OpenCargoHold("UnloadLoot")) return;
 
             if (Cache.Instance.CargoHold.IsValid)
             {
@@ -219,7 +219,7 @@ namespace Questor.Modules.Actions
                 _States.CurrentUnloadLootState = UnloadLootState.MoveLoot;
             }
 
-            if (!Cache.Instance.ReadyCargoHold("Unloadloot.MoveAmmo")) return;
+            if (!Cache.Instance.OpenCargoHold("Unloadloot.MoveAmmo")) return;
 
             if (Cache.Instance.CargoHold.IsValid)
             {
@@ -265,7 +265,10 @@ namespace Questor.Modules.Actions
                     //
                     try
                     {
-                        commonMissionCompletionItemsToMove = Cache.Instance.CargoHold.Items.Where(i => i.GroupId == (int)Group.Livestock).ToList();
+                        commonMissionCompletionItemsToMove = Cache.Instance.CargoHold.Items.Where(i => i.GroupId == (int)Group.Livestock || 
+                                                                                                       i.TypeId == (int)TypeID.AngelDiamondTag ||
+                                                                                                       i.TypeId == (int)TypeID.GuristasDiamondTag ||
+                                                                                                       i.GroupId == (int)Group.AccelerationGateKeys).ToList();
                     }
                     catch (Exception exception)
                     {

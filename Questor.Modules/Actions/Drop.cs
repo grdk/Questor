@@ -84,7 +84,7 @@ namespace Questor.Modules.Actions
 
                 case DropState.OpenCargo:
 
-                    if (!Cache.Instance.ReadyCargoHold("Drop")) break;
+                    if (!Cache.Instance.OpenCargoHold("Drop")) break;
 
                     Logging.Log("Drop", "Opening Cargo Hold", Logging.White);
                     _States.CurrentDropState = Item == 00 ? DropState.AllItems : DropState.MoveItems;

@@ -44,6 +44,9 @@ namespace Questor.Storylines
                                {"Materials For War Preparation", new MaterialsForWarPreparation()},
                                {"Transaction Data Delivery", new TransactionDataDelivery()},
                                //{"A Special Delivery", new GenericCourier()}, // Needs 40k m3 cargo capacity (i.e. Iteron Mark V, T2 CHO rigs)
+                               {"Kidnappers Strike - The Interrogation (2 of 10)", new GenericCourier()},//lvl3
+                               {"Kidnappers Strike - Possible Leads (4 of 10)", new GenericCourier()},//lvl3
+                               {"Kidnappers Strike - The Flu Outbreak (6 of 10)", new GenericCourier()},//lvl3
                                /* COURIER/DELIVERY - AMARR */
                                {"Opiate of the Masses", new GenericCourier()},
                                {"Send the Marines!", new GenericCourier()},
@@ -70,15 +73,21 @@ namespace Questor.Storylines
                                {"Brand New Harvesters", new GenericCourier()},
                                {"Heart of the Rogue Drone", new GenericCourier()},
                                {"Their Secret Defense", new GenericCourier()},
-                               /* COURIER/DELIVERY - MORE THAN ONE RACE */
-                               
+
                                /* COMBAT - ALL FACTIONS */
-                               {"Covering Your Tracks", new GenericCombatStoryline()},
-                               {"Evolution", new GenericCombatStoryline()},
-                               {"Patient Zero", new GenericCombatStoryline()},
-                               {"Record Cleaning", new GenericCombatStoryline()},
-                               {"Shipyard Theft", new GenericCombatStoryline()},
-                               {"Soothe the Salvage Beast", new GenericCombatStoryline()},
+                               {"Covering Your Tracks", new GenericCombatStoryline()},//lvl4
+                               {"Evolution", new GenericCombatStoryline()},//lvl4
+                               {"Patient Zero", new GenericCombatStoryline()},//lvl4
+                               {"Record Cleaning", new GenericCombatStoryline()},//lvl4
+                               {"Shipyard Theft", new GenericCombatStoryline()},//lvl4
+                               {"Soothe the Salvage Beast", new GenericCombatStoryline()},//lvl3
+                               {"Kidnappers Strike - Ambush In The Dark (1 of 10)", new GenericCombatStoryline()},//lvl3
+                               {"Kidnappers Strike - The Kidnapping (3 of 10)", new GenericCombatStoryline()},//lvl3
+                               {"Kidnappers Strike - Incriminating Evidence (5 of 10)", new GenericCombatStoryline()},//lvl3
+                               {"Kidnappers Strike - The Secret Meeting (7 of 10)", new GenericCombatStoryline()},//lvl3
+                               {"Kidnappers Strike - Defend the Civilian Convoy (8 of 10)", new GenericCombatStoryline()},//lvl3
+                               {"Kidnappers Strike - Retrieve the Prisoners (9 of 10)", new GenericCombatStoryline()},//lvl3
+                               {"Kidnappers Strike - The Final Battle (10 of 10)", new GenericCombatStoryline()},//lvl3     
                                /* COMBAT - AMARR */
                                {"Blood Farm", new GenericCombatStoryline()},
                                {"Dissidents", new GenericCombatStoryline()},
@@ -111,7 +120,7 @@ namespace Questor.Storylines
                                {"Nine Tenths of the Wormhole", new GenericCombatStoryline()},
                                {"Postmodern Primitives", new GenericCombatStoryline()},
                                {"Quota Season", new GenericCombatStoryline()},
-                               {"The Blood of Angry Men", new GenericCombatStoryline()},
+                               {"The Blood of Angry Men", new GenericCombatStoryline()},           
                                /* COMBAT - MORE THAN ONE RACE */                                                         
                             };
         }
@@ -136,8 +145,22 @@ namespace Questor.Storylines
                     return missionsInJournal.FirstOrDefault(m => m.AgentId == Cache.Instance.CurrentStorylineAgentId);
 
                 missionsInJournal = missionsInJournal.Where(m => !Cache.Instance.AgentBlacklist.Contains(m.AgentId)).ToList();
-                missionsInJournal = missionsInJournal.Where(m => m.Important).ToList();
-                Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] available storyline missions", Logging.Yellow);
+                Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] missions available", Logging.Yellow);
+                if (Settings.Instance.DebugStorylineMissions)
+                {
+                    int i = 1;
+                    foreach (DirectAgentMission _mission in missionsInJournal)
+                    {
+                        Logging.Log("Storyline", "[" + i + "] Named      [" + Cache.Instance.FilterPath(_mission.Name) + ".xml]", Logging.Yellow);
+                        Logging.Log("Storyline", "[" + i + "] AgentID    [" + _mission.AgentId + "]", Logging.Yellow);
+                        Logging.Log("Storyline", "[" + i + "] Important? [" + _mission.Important + "]", Logging.Yellow);
+                        Logging.Log("Storyline", "[" + i + "] State      [" + _mission.State + "]", Logging.Yellow);
+                        Logging.Log("Storyline", "[" + i + "] Type       [" + _mission.Type + "]", Logging.Yellow);
+                        i++;
+                    }
+                } 
+                missionsInJournal = missionsInJournal.Where(m => m.Type.Contains("Storyline")).ToList();
+                Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] storyline missions available", Logging.Yellow);
                 missionsInJournal = missionsInJournal.Where(m => _storylines.ContainsKey(Cache.Instance.FilterPath(m.Name)));
                 Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] storyline missions questor knows how to do", Logging.Yellow);
                 missionsInJournal = missionsInJournal.Where(m => Settings.Instance.MissionBlacklist.All(b => b.ToLower() != Cache.Instance.FilterPath(m.Name).ToLower())).ToList();
@@ -268,7 +291,7 @@ namespace Questor.Storylines
             }
 
             // Yes, open the ships cargo
-            if (!Cache.Instance.ReadyCargoHold("Storyline")) return;
+            if (!Cache.Instance.OpenCargoHold("Storyline")) return;
 
             // If we are not moving items
             if (Cache.Instance.DirectEve.GetLockedItems().Count == 0)

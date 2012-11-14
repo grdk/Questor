@@ -125,7 +125,7 @@ namespace Questor.Behaviors
                         break;
                     }
 
-                    Questor.CheckEVEStatus();
+                    Cleanup.CheckEVEStatus();
                     _States.CurrentMiningState = MiningState.Arm;
                     break;
 
@@ -417,7 +417,7 @@ namespace Questor.Behaviors
 
                     if (Settings.Instance.DebugStates)
                         Logging.Log("Drones.State is", _States.CurrentDroneState.ToString(), Logging.White);
-
+ 
                     // If we are out of ammo, return to base, the mission will fail to complete and the bot will reload the ship
                     // and try the mission again
                     if (_States.CurrentCombatState == CombatState.OutOfAmmo)
@@ -433,7 +433,7 @@ namespace Questor.Behaviors
 
                     //check if we're full
 
-                    if (!Cache.Instance.ReadyCargoHold("Miner: Check cargohold capacity")) break;
+                    if (!Cache.Instance.OpenCargoHold("Miner: Check cargohold capacity")) break;
 
                     //should I check Cache.Instance.ActiveDrones.Any() instead?
                     if (Cache.Instance.CargoHold.IsValid
@@ -441,7 +441,6 @@ namespace Questor.Behaviors
                         && Cache.Instance.CargoHold.Capacity > 0
                         && _States.CurrentDroneState == DroneState.WaitingForTargets)
                     {
-
                         Logging.Log("Miner:MineAsteroid", "We are full, go to base to unload. Capacity is: " + Cache.Instance.CargoHold.Capacity
                             + ", Used: " + Cache.Instance.CargoHold.UsedCapacity, Logging.White);
                         _States.CurrentMiningState = MiningState.GotoBase;
@@ -456,8 +455,7 @@ namespace Questor.Behaviors
                     }
 
 
-                    if (Settings.Instance.DebugStates)
-                        Logging.Log("Miner:MineAsteroid", "Distance to Asteroid is: " + _targetAsteroid.Distance, Logging.White);
+                    if (Settings.Instance.DebugStates) Logging.Log("Miner:MineAsteroid", "Distance to Asteroid is: " + _targetAsteroid.Distance, Logging.White);
 
                     if (_targetAsteroid.Distance < 10000)
                     {
@@ -483,16 +481,14 @@ namespace Questor.Behaviors
 
                         if (Cache.Instance.Targeting.Contains(_targetAsteroid))
                         {
-                            if (Settings.Instance.DebugStates)
-                                Logging.Log("Miner:MineAsteroid", "Targetting asteroid.", Logging.White);
+                            if (Settings.Instance.DebugStates) Logging.Log("Miner:MineAsteroid", "Targetting asteroid.", Logging.White);
                             return;
                             //wait
                         }
                         else if (Cache.Instance.Targets.Contains(_targetAsteroid))
                         {
 
-                            if (Settings.Instance.DebugStates)
-                                Logging.Log("Miner:MineAsteroid", "Asteroid Targetted.", Logging.White);
+                            if (Settings.Instance.DebugStates) Logging.Log("Miner:MineAsteroid", "Asteroid Targetted.", Logging.White);
                             //if(!_targetAsteroid.IsActiveTarget) _targetAsteroid.MakeActiveTarget();
                             List<ModuleCache> miningTools = Cache.Instance.Modules.Where(m => MiningToolGroupIDs.Contains(m.GroupId)).ToList();
 
@@ -530,16 +526,12 @@ namespace Questor.Behaviors
                                     miningTool.Activate(_targetAsteroid.Id);
                                     miningTool.ActivatedTimeStamp = DateTime.UtcNow;
                                 }
-
-
-
                             }
                         } //mine
                         else
-                        { //asteroid isn't targetted
+                        { //asteroid is not targetted
 
-                            if (Settings.Instance.DebugStates)
-                                Logging.Log("Miner:MineAsteroid", "Asteroid not targetted.", Logging.White);
+                            if (Settings.Instance.DebugStates) Logging.Log("Miner:MineAsteroid", "Asteroid not targetted.", Logging.White);
                             if (DateTime.UtcNow < Cache.Instance.NextTargetAction) //if we just did something wait a fraction of a second
                                 return;
 
@@ -556,7 +548,7 @@ namespace Questor.Behaviors
 
                             if (_isJammed)
                             {
-                                // Clear targeting list as it doesn't apply
+                                // Clear targeting list as it does not apply
                                 Cache.Instance.TargetingIDs.Clear();
                                 Logging.Log("Mining", "We are no longer jammed, retargeting", Logging.Teal);
                             }

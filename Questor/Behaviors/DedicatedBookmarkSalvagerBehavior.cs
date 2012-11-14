@@ -526,7 +526,7 @@ namespace Questor.Behaviors
 
                 case DedicatedBookmarkSalvagerBehaviorState.Salvage:
                     if (Settings.Instance.DebugSalvage) Logging.Log("DedicatedBookmarkSalvagerBehavior", "salvage: attempting to open cargo hold", Logging.White);
-                    if (!Cache.Instance.ReadyCargoHold("DedicatedSalvageBehavior: Salvage")) break;
+                    if (!Cache.Instance.OpenCargoHold("DedicatedSalvageBehavior: Salvage")) break;
                     if (Settings.Instance.DebugSalvage) Logging.Log("DedicatedBookmarkSalvagerBehavior", "salvage: done opening cargo hold", Logging.White);
                     Cache.Instance.SalvageAll = true;
                     Cache.Instance.OpenWrecks = true;
@@ -554,7 +554,7 @@ namespace Questor.Behaviors
                         return;
                     }
                     
-                    if (!Cache.Instance.ReadyCargoHold("DedicatedBookmarkSalvageBehavior: Salvage")) break;
+                    if (!Cache.Instance.OpenCargoHold("DedicatedBookmarkSalvageBehavior: Salvage")) break;
 
                     if (Cache.Instance.CargoHold.IsValid && (Cache.Instance.CargoHold.Capacity - Cache.Instance.CargoHold.UsedCapacity) < Settings.Instance.ReserveCargoCapacity)
                     {

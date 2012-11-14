@@ -198,7 +198,7 @@ namespace Questor.Modules.Logging
         {
             // Ammo Consumption statistics
             // Is cargo open?
-            if (!Cache.Instance.ReadyCargoHold("Statistics: AmmoConsumptionStats")) return false;
+            if (!Cache.Instance.OpenCargoHold("Statistics: AmmoConsumptionStats")) return false;
 
             IEnumerable<Ammo> correctAmmo1 = Settings.Instance.Ammo.Where(a => a.DamageType == Cache.Instance.DamageType);
             IEnumerable<DirectItem> ammoCargo = Cache.Instance.CargoHold.Items.Where(i => correctAmmo1.Any(a => a.TypeId == i.TypeId));

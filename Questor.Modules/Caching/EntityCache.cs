@@ -721,7 +721,8 @@ namespace Questor.Modules.Caching
             get
             {
                 bool result = false;
-                result |= GroupId == (int)Group.Merchant;    // Merchant, Convoy?
+                result |= GroupId == (int)Group.Merchant;            // Merchant, Convoy?
+                result |= GroupId == (int)Group.Mission_Merchant;    // Merchant, Convoy? - Dread Pirate Scarlet
                 return result;
             }
         }

@@ -362,7 +362,7 @@ namespace Questor.Behaviors
                     if (!Cache.Instance.InSpace)
                         return;
 
-                    if (!Cache.Instance.ReadyCargoHold("CombatMissionsBehavior: Salvage")) break;
+                    if (!Cache.Instance.OpenCargoHold("CombatMissionsBehavior: Salvage")) break;
                     Cache.Instance.SalvageAll = true;
                     Cache.Instance.OpenWrecks = true;
 

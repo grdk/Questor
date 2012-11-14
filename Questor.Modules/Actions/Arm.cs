@@ -612,7 +612,7 @@ namespace Questor.Modules.Actions
                     if (!_bringItemMoved)
                     {
                         if (Settings.Instance.DebugArm) Logging.Log("Arm.MoveItems", "if (!_missionItemMoved)", Logging.Teal);
-                        if (!Cache.Instance.ReadyCargoHold("Arm.MoveItems")) break;
+                        if (!Cache.Instance.OpenCargoHold("Arm.MoveItems")) break;
                         if (!Cache.Instance.ReadyAmmoHangar("Arm.MoveItems")) break;
                         if (!Cache.Instance.ReadyItemsHangar("Arm.MoveItems")) break;
 
@@ -679,7 +679,7 @@ namespace Questor.Modules.Actions
                     if (!_bringoptionalItemMoved)
                     {
                         if (Settings.Instance.DebugArm) Logging.Log("Arm.MoveItems", "if (!_optionalMissionItemMoved)", Logging.Teal);
-                        if (!Cache.Instance.ReadyCargoHold("Arm.MoveItems")) break;
+                        if (!Cache.Instance.OpenCargoHold("Arm.MoveItems")) break;
                         if (!Cache.Instance.ReadyAmmoHangar("Arm.MoveItems")) break;
                         if (!Cache.Instance.ReadyItemsHangar("Arm.MoveItems")) break;
 
@@ -743,7 +743,7 @@ namespace Questor.Modules.Actions
                     //
                     // load ammo
                     //
-                    if (!Cache.Instance.ReadyCargoHold("Arm.MoveItems")) break;
+                    if (!Cache.Instance.OpenCargoHold("Arm.MoveItems")) break;
                     if (!Cache.Instance.ReadyAmmoHangar("Arm.MoveItems")) break;
 
                     //IEnumerable<DirectItem> AmmoInCargo = Cache.Instance.CargoHold.Items.Where(i => (i.TypeName ?? string.Empty).ToLower() == bringItem);
@@ -818,7 +818,7 @@ namespace Questor.Modules.Actions
                     if (DateTime.UtcNow < Cache.Instance.NextArmAction)
                         break;
 
-                    if (!Cache.Instance.ReadyCargoHold("Arm.WaitForItems")) break;
+                    if (!Cache.Instance.OpenCargoHold("Arm.WaitForItems")) break;
 
                     if (Cache.Instance.CargoHold.Items.Count == 0)
                         break;

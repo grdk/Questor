@@ -53,7 +53,7 @@ namespace Questor.Modules.Activities
             // Open the item hangar (should still be open)
             if (!Cache.Instance.ReadyItemsHangar("CourierMissionCtrl")) return false;
 
-            if (!Cache.Instance.ReadyCargoHold("CourierMissionCtrl")) return false;
+            if (!Cache.Instance.OpenCargoHold("CourierMissionCtrl")) return false;
 
             const string missionItem = "Encoded Data Chip";
             Logging.Log("CourierMissionCtrl", "mission item is: " + missionItem, Logging.White);

@@ -71,12 +71,12 @@ namespace Questor.Storylines
             // Open the item hangar
             if (!Cache.Instance.ReadyItemsHangar("MaterialsForWarPreparation")) return StorylineState.PreAcceptMission;
 
-            if (Cache.Instance.ItemHangar.Window == null)
-            {
-                Logging.Log("MaterialsForWar", "PreAcceptMission: ItemHangar is null", Logging.Orange);
-                if (!Cache.Instance.ReadyItemsHangar("MaterialsForWarPreparation")) return StorylineState.PreAcceptMission;
-                return StorylineState.PreAcceptMission;
-            }
+            //if (Cache.Instance.ItemHangar.Window == null)
+            //{
+            //    Logging.Log("MaterialsForWar", "PreAcceptMission: ItemHangar is null", Logging.Orange);
+            //    if (!Cache.Instance.ReadyItemsHangar("MaterialsForWarPreparation")) return StorylineState.PreAcceptMission;
+            //    return StorylineState.PreAcceptMission;
+            //}
 
             // Is there a market window?
             DirectMarketWindow marketWindow = directEve.Windows.OfType<DirectMarketWindow>().FirstOrDefault();
@@ -87,11 +87,15 @@ namespace Questor.Storylines
             {
                 DirectItem thisOreInhangar = Cache.Instance.ItemHangar.Items.FirstOrDefault(i => i.TypeId == oreid);
                 if (thisOreInhangar != null)
+                {
                     Logging.Log("MaterialsForWarPreparation", "We have [" + Cache.Instance.ItemHangar.Items.Where(i => i.TypeId == oreid).Sum(i => i.Quantity).ToString(CultureInfo.InvariantCulture) + "] " + thisOreInhangar.TypeName + " accepting mission", Logging.White);
+                }
 
                 // Close the market window if there is one
                 if (marketWindow != null)
+                {
                     marketWindow.Close();
+                }
 
                 return StorylineState.AcceptMission;
             }
@@ -109,7 +113,9 @@ namespace Questor.Storylines
 
             // Wait for the window to become ready (this includes loading the ore info)
             if (!marketWindow.IsReady)
+            {
                 return StorylineState.PreAcceptMission;
+            }
 
             // Are we currently viewing ore orders?
             if (marketWindow.DetailTypeId != oreid)

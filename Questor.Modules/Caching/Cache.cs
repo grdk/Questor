@@ -985,6 +985,17 @@ namespace Questor.Modules.Caching
             }
         }
 
+        private DateTime _nextEVEMemoryManagerAction;
+
+        public DateTime NextEVEMemoryManagerAction
+        {
+            get { return _nextEVEMemoryManagerAction; }
+            set
+            {
+                _nextEVEMemoryManagerAction = value;
+                _lastAction = DateTime.UtcNow;
+            }
+        }
         public DateTime LastLocalWatchAction = DateTime.UtcNow;
         public DateTime LastWalletCheck = DateTime.UtcNow;
         public DateTime LastScheduleCheck = DateTime.UtcNow;
@@ -2831,6 +2842,67 @@ namespace Questor.Modules.Caching
 
         public DirectContainer CargoHold { get; set; }
 
+        public bool OpenCargoHold(String module)
+        {
+            if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
+                return false;
+            try
+            {
+                if (DateTime.UtcNow < Cache.Instance.NextOpenCargoAction)
+                {
+                    if (DateTime.UtcNow.Subtract(Cache.Instance.NextOpenCargoAction).TotalSeconds > 0)
+                    {
+                        Logging.Log(module, "Opening CargoHold: waiting [" + Math.Round(Cache.Instance.NextOpenCargoAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + "sec]", Logging.White);
+                    }
+                    return false;
+                }
+
+                Cache.Instance.CargoHold = null;
+                Cache.Instance.CargoHold = Cache.Instance.DirectEve.GetShipsCargo();
+                
+                if (Cache.Instance.InStation || Cache.Instance.InSpace) //do we need to special case pods here?
+                {
+                    if (Cache.Instance.CargoHold.Window == null)
+                    {
+                        // No, command it to open
+                        Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenCargoHoldOfActiveShip);
+                        Cache.Instance.NextOpenCargoAction = DateTime.UtcNow.AddSeconds(Cache.Instance.RandomNumber(1, 2));
+                        Logging.Log(module, "Opening Cargohold of active ship: waiting [" + Math.Round(Cache.Instance.NextOpenCargoAction.Subtract(DateTime.Now).TotalSeconds, 0) + "sec]", Logging.White);
+                        return false;
+                    }
+
+                    if (!Cache.Instance.CargoHold.Window.IsReady)
+                    {
+                        //Logging.Log(module, "cargo window is not ready", Logging.White);
+                        return false;
+                    }
+
+                    if (!Cache.Instance.CargoHold.Window.IsPrimary())
+                    {
+                        if (Settings.Instance.DebugCargoHold) Logging.Log(module, "DebugHangars: cargoHold window is ready and is a secondary inventory window", Logging.DebugHangars);
+                        return true;
+                    }
+
+                    if (Cache.Instance.CargoHold.Window.IsPrimary())
+                    {
+                        if (Settings.Instance.DebugCargoHold) Logging.Log(module, "DebugHangars:Opening cargoHold window as secondary", Logging.DebugHangars);
+                        Cache.Instance.CargoHold.Window.OpenAsSecondary();
+                        Cache.Instance.NextOpenCargoAction = DateTime.Now.AddMilliseconds(1000 + Cache.Instance.RandomNumber(0, 2000));
+                        return false;
+                    }
+                    return true;
+                }
+                return false;
+
+                return true;
+            }
+            catch (Exception exception)
+            {
+                Logging.Log("ReadyCargoHold", "Unable to complete ReadyCargoHold [" + exception + "]", Logging.Teal);
+                return false;
+            }
+        }
+
         public bool ReadyCargoHold(String module)
         {
             if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
@@ -2983,8 +3055,13 @@ namespace Questor.Modules.Caching
                     // Is the ShipHangar ready to be used?
                     if (Cache.Instance.ShipHangar != null && Cache.Instance.ShipHangar.IsValid)
                     {
-                        //Logging.Log("ReadyShipHangar","Ship Hangar is ready to be used (no window needed)",Logging.White);
-                        return true;
+                        if (Cache.Instance.ShipHangar.Items.Any())
+                        {
+                            if (!OpenInventoryWindow("Cache.ReadyShipsHangar")) return false;
+                            //Logging.Log("ReadyShipHangar","Ship Hangar is ready to be used (no window needed)",Logging.White);
+                            return true;
+                        }
+                        return false;
                     }
                 }
                 return false;    
@@ -4863,13 +4940,14 @@ namespace Questor.Modules.Caching
                     {
                         Logging.Log(module, "Add items to repair list", Logging.White);
                         repairWindow.RepairItems(repairAllItems);
+                        NextRepairItemsAction = DateTime.UtcNow.AddSeconds(Settings.Instance.RandomNumber(2, 4));
                         return false;
                     }
                     
                     Logging.Log(module, "Repairing Items", Logging.White);
                     repairWindow.RepairAll();
                     Cache.Instance.RepairAll = false;
-                    NextRepairItemsAction = DateTime.UtcNow.AddSeconds(Settings.Instance.RandomNumber(1, 2));
+                    NextRepairItemsAction = DateTime.UtcNow.AddSeconds(Settings.Instance.RandomNumber(2, 4));
                     return false;
                 }
                 

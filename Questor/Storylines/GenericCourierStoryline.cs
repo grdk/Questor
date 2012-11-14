@@ -57,10 +57,17 @@ namespace Questor.Storylines
             }
             try
             {
-                if (Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() != transportshipName)
+                if (Settings.Instance.DebugArm) Logging.Log("Arm.ActivateTransportShip", "try", Logging.White);
+                if (Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() != transportshipName.ToLower())
                 {
+                    if (Settings.Instance.DebugArm) Logging.Log("Arm.ActivateTransportShip", "if (Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() != transportshipName.ToLower())", Logging.White);
+                    if (!Cache.Instance.ShipHangar.Items.Any()) return StorylineState.Arm; //no ships?!?
+
+                    if (Settings.Instance.DebugArm) Logging.Log("Arm.ActivateTransportShip", "if (!Cache.Instance.ShipHangar.Items.Any()) return StorylineState.Arm; done", Logging.White);
+                    
                     List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
-                    foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName.ToLower() == transportshipName))
+                    if (Settings.Instance.DebugArm) Logging.Log("Arm.ActivateTransportShip", "List<DirectItem> ships = Cache.Instance.ShipHangar.Items;", Logging.White);
+                    foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName.ToLower() == transportshipName.ToLower()))
                     {
                         Logging.Log("Arm", "Making [" + ship.GivenName + "] active", Logging.White);
                         ship.ActivateShip();
@@ -78,7 +85,7 @@ namespace Questor.Storylines
             
             if (DateTime.UtcNow > Cache.Instance.NextArmAction) //default 7 seconds
             {
-                if (Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() == transportshipName)
+                if (Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() == transportshipName.ToLower())
                 {
                     Logging.Log("Arm.ActivateTransportShip", "Done", Logging.White);
                     _States.CurrentArmState = ArmState.Done;
@@ -87,9 +94,6 @@ namespace Questor.Storylines
             }
 
             return StorylineState.Arm;
-
-
-
         }
 
         /// <summary>
@@ -131,7 +135,7 @@ namespace Questor.Storylines
             // Open the item hangar (should still be open)
             if (!Cache.Instance.ReadyItemsHangar("GenericCourierStoryline: MoveItem")) return false;
 
-            if (!Cache.Instance.ReadyCargoHold("GenericCourierStoryline: MoveItem")) return false;
+            if (!Cache.Instance.OpenCargoHold("GenericCourierStoryline: MoveItem")) return false;
 
             // 314 == Giant Sealed Cargo Containers
             const int containersGroupId = 314;
