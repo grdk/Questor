@@ -44,9 +44,6 @@ namespace Questor.Storylines
                                {"Materials For War Preparation", new MaterialsForWarPreparation()},
                                {"Transaction Data Delivery", new TransactionDataDelivery()},
                                //{"A Special Delivery", new GenericCourier()}, // Needs 40k m3 cargo capacity (i.e. Iteron Mark V, T2 CHO rigs)
-                               {"Kidnappers Strike - The Interrogation (2 of 10)", new GenericCourier()},//lvl3
-                               {"Kidnappers Strike - Possible Leads (4 of 10)", new GenericCourier()},//lvl3
-                               {"Kidnappers Strike - The Flu Outbreak (6 of 10)", new GenericCourier()},//lvl3
                                /* COURIER/DELIVERY - AMARR */
                                {"Opiate of the Masses", new GenericCourier()},
                                {"Send the Marines!", new GenericCourier()},
@@ -61,46 +58,38 @@ namespace Questor.Storylines
                                {"Operation Doorstop", new GenericCourier()},
                                /* COURIER/DELIVERY - GALLENTE */
                                ////{"A Fathers Love", new GenericCourier()},
-                               ////{"A Fine Wine", new GenericCourier()}
                                ////{"A Greener World", new GenericCourier()},
                                ////{"Eradication", new GenericCourier()},
                                ////{"Evacuation", new GenericCourier()},
                                ////{"On the Run", new GenericCourier()},
-                               ////{"The Natural Way", new GenericCourier()},
                                /* COURIER/DELIVERY - MINMATAR */
                                {"A Cargo With Attitude", new GenericCourier()},
                                {"A Load of Scrap", new GenericCourier()},
                                {"Brand New Harvesters", new GenericCourier()},
                                {"Heart of the Rogue Drone", new GenericCourier()},
                                {"Their Secret Defense", new GenericCourier()},
-
+                               /* COURIER/DELIVERY - MORE THAN ONE RACE */
+                               
                                /* COMBAT - ALL FACTIONS */
-                               {"Covering Your Tracks", new GenericCombatStoryline()},//lvl4
-                               {"Evolution", new GenericCombatStoryline()},//lvl4
-                               {"Patient Zero", new GenericCombatStoryline()},//lvl4
-                               {"Record Cleaning", new GenericCombatStoryline()},//lvl4
-                               {"Shipyard Theft", new GenericCombatStoryline()},//lvl4
-                               {"Soothe the Salvage Beast", new GenericCombatStoryline()},//lvl3
-                               {"Kidnappers Strike - Ambush In The Dark (1 of 10)", new GenericCombatStoryline()},//lvl3
-                               {"Kidnappers Strike - The Kidnapping (3 of 10)", new GenericCombatStoryline()},//lvl3
-                               {"Kidnappers Strike - Incriminating Evidence (5 of 10)", new GenericCombatStoryline()},//lvl3
-                               {"Kidnappers Strike - The Secret Meeting (7 of 10)", new GenericCombatStoryline()},//lvl3
-                               {"Kidnappers Strike - Defend the Civilian Convoy (8 of 10)", new GenericCombatStoryline()},//lvl3
-                               {"Kidnappers Strike - Retrieve the Prisoners (9 of 10)", new GenericCombatStoryline()},//lvl3
-                               {"Kidnappers Strike - The Final Battle (10 of 10)", new GenericCombatStoryline()},//lvl3     
+                               {"Covering Your Tracks", new GenericCombatStoryline()},
+                               {"Evolution", new GenericCombatStoryline()},
+                               {"Patient Zero", new GenericCombatStoryline()},
+                               {"Record Cleaning", new GenericCombatStoryline()},
+                               {"Shipyard Theft", new GenericCombatStoryline()},
+                               {"Soothe the Salvage Beast", new GenericCombatStoryline()},
                                /* COMBAT - AMARR */
                                {"Blood Farm", new GenericCombatStoryline()},
                                {"Dissidents", new GenericCombatStoryline()},
                                {"Extract the Renegade", new GenericCombatStoryline()},
                                {"Gate to Nowhere", new GenericCombatStoryline()},
-                               {"Racetrack Ruckus", new GenericCombatStoryline()},
-                               {"Jealous Rivals", new GenericCombatStoryline()},
+                               ////{"Racetrack Ruckus", new GenericCombatStoryline()},
                                {"The Mouthy Merc", new GenericCombatStoryline()},
                                /* COMBAT - CALDARI */
                                {"Crowd Control", new GenericCombatStoryline()},
                                {"Forgotten Outpost", new GenericCombatStoryline()},
                                //{"Illegal Mining", new GenericCombatStoryline()}, // Extremely high DPS after shooting structures!
                                {"Innocents in the Crossfire", new GenericCombatStoryline()},
+                               ////{"Jealous Rivals", new GenericCombatStoryline()},
                                {"Stem the Flow", new GenericCombatStoryline()},
                                /* COMBAT - GALLENTE */
                                ////{"Kidnappers Strike - Ambush In The Dark (1 of 10)", new GenericCombatStoryline()},
@@ -120,8 +109,8 @@ namespace Questor.Storylines
                                {"Nine Tenths of the Wormhole", new GenericCombatStoryline()},
                                {"Postmodern Primitives", new GenericCombatStoryline()},
                                {"Quota Season", new GenericCombatStoryline()},
-                               {"The Blood of Angry Men", new GenericCombatStoryline()},           
-                               /* COMBAT - MORE THAN ONE RACE */                                                         
+                               {"The Blood of Angry Men", new GenericCombatStoryline()},
+                               /* COMBAT - MORE THAN ONE RACE */
                             };
         }
 
