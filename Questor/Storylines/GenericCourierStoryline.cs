@@ -64,7 +64,7 @@ namespace Questor.Storylines
                     if (!Cache.Instance.ShipHangar.Items.Any()) return StorylineState.Arm; //no ships?!?
 
                     if (Settings.Instance.DebugArm) Logging.Log("Arm.ActivateTransportShip", "if (!Cache.Instance.ShipHangar.Items.Any()) return StorylineState.Arm; done", Logging.White);
-                    
+
                     List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
                     if (Settings.Instance.DebugArm) Logging.Log("Arm.ActivateTransportShip", "List<DirectItem> ships = Cache.Instance.ShipHangar.Items;", Logging.White);
                     foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName.ToLower() == transportshipName.ToLower()))
@@ -78,11 +78,11 @@ namespace Questor.Storylines
             }
             catch (Exception ex)
             {
-                Logging.Log("GenericCourierStoryline","Exception thrown while attempting to switch to transport ship:" + ex.Message,Logging.White);
+                Logging.Log("GenericCourierStoryline", "Exception thrown while attempting to switch to transport ship:" + ex.Message, Logging.White);
                 Logging.Log("GenericCourierStoryline", "blacklisting this storyline agent for this session because we could not switch to the configured transportship named [" + transportshipName + "]", Logging.White);
                 return StorylineState.BlacklistAgent;
             }
-            
+
             if (DateTime.UtcNow > Cache.Instance.NextArmAction) //default 7 seconds
             {
                 if (Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() == transportshipName.ToLower())
@@ -145,7 +145,7 @@ namespace Questor.Storylines
 
             // We moved the item
 
-            if (to.Items.Any(i => i.GroupId == containersGroupId || i.GroupId==marinesGroupId))
+            if (to.Items.Any(i => i.GroupId == containersGroupId || i.GroupId == marinesGroupId))
                 return true;
 
             if (directEve.GetLockedItems().Count != 0)

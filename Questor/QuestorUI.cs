@@ -364,7 +364,7 @@ namespace Questor
                     {
                         BehaviorComboBox.Items.Add(text);
                     }
-                } 
+                }
                 if (_States.CurrentQuestorState == QuestorState.Mining)
                 {
                     BehaviorComboBox.Items.Clear();
@@ -515,7 +515,6 @@ namespace Questor
             Logging.Log("QuestorUI", "SetDedicatedBookmarkSalvagerBehaviorStatetoGotoBase is now: GotoBase ", Logging.White);
             return 0;
         }
-        
 
         private int ListQuestorCommands(string[] args)
         {
@@ -584,7 +583,7 @@ namespace Questor
 
             if (Cache.Instance.SessionState == "Quitting")
             {
-                if (Cache.Instance.ReasonToStopQuestor == "A message from ccp indicated we were disconnected")
+                if (_States.CurrentQuestorState != QuestorState.CloseQuestor)
                 {
                     Cleanup.CloseQuestor();
                 }
@@ -840,6 +839,7 @@ namespace Questor
                     buttonOpenCharacterXML.Enabled = false;
                     Settings.Instance.CharacterXMLExists = false;
                 }
+
                 //
                 // Does Schedules.xml exist in the directory where we started questor?
                 //
@@ -853,6 +853,7 @@ namespace Questor
                     buttonOpenSchedulesXML.Enabled = false;
                     Settings.Instance.SchedulesXMLExists = false;
                 }
+
                 //
                 // Does QuestorStatistics.exe exist in the directory where we started questor?
                 //
@@ -866,6 +867,7 @@ namespace Questor
                     buttonQuestorStatistics.Enabled = false;
                     Settings.Instance.QuestorStatisticsExists = false;
                 }
+
                 //
                 // Does QuestorSettings.exe exist in the directory where we started questor?
                 //
@@ -879,6 +881,7 @@ namespace Questor
                     buttonQuestorSettings.Enabled = false;
                     Settings.Instance.QuestorSettingsExists = false;
                 }
+
                 //
                 // Does Questormanager.exe exist in the directory where we started questor?
                 //
@@ -919,10 +922,12 @@ namespace Questor
                 if (DateTime.UtcNow.Subtract(Cache.Instance.LastLogMessage).TotalSeconds > 30)
                 {
                     Logging.Log("QuestorUI", "The Last UI Frame Drawn by EVE was [" + Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastFrame).TotalSeconds, 0) + "] seconds ago! This is bad. - Exiting EVE", Logging.Red);
+
                     //
                     // closing eve would be a very good idea here
                     //
                     Cleanup.CloseQuestor();
+
                     //Application.Exit();
                 }
             }
@@ -934,6 +939,7 @@ namespace Questor
                 {
                     Logging.Log("QuestorUI", "The Last Session.IsReady = true was [" + Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastSessionIsReady).TotalSeconds, 0) + "] seconds ago! This is bad. - Exiting EVE", Logging.Red);
                     Cleanup.CloseQuestor();
+
                     //Application.Exit();
                 }
             }
@@ -1020,6 +1026,7 @@ namespace Questor
             PopulateBehaviorStateComboBox();
             PopulateMissionLists();
             _States.LavishEvent_QuestorState();
+
             // If you are at the controls enough to change states... assume that panic needs to do nothing
             //_questor.panicstatereset = true; //this cannot be reset when the index changes, as that happens during natural state changes, this needs to be a mouse event
         }
@@ -1046,7 +1053,7 @@ namespace Questor
 
             if (_States.CurrentQuestorState == QuestorState.DirectionalScannerBehavior)
             {
-                _States.CurrentDirectionalScannerBehaviorState =(DirectionalScannerBehaviorState)Enum.Parse(typeof(DirectionalScannerBehaviorState), BehaviorComboBox.Text);
+                _States.CurrentDirectionalScannerBehaviorState = (DirectionalScannerBehaviorState)Enum.Parse(typeof(DirectionalScannerBehaviorState), BehaviorComboBox.Text);
             }
 
             //if (_States.CurrentQuestorState == QuestorState.DebugInventoryTree)
@@ -1054,22 +1061,23 @@ namespace Questor
             //    _States.CurrentDe =
             //        (DebugHangarsState)
             //        Enum.Parse(typeof(DebugHangarsState), BehaviorComboBox.Text);
-            //} 
+            //}
 
             if (_States.CurrentQuestorState == QuestorState.DebugHangarsBehavior)
             {
-                _States.CurrentDebugHangarBehaviorState =(DebugHangarsBehaviorState)Enum.Parse(typeof(DebugHangarsBehaviorState), BehaviorComboBox.Text);
+                _States.CurrentDebugHangarBehaviorState = (DebugHangarsBehaviorState)Enum.Parse(typeof(DebugHangarsBehaviorState), BehaviorComboBox.Text);
             }
 
             if (_States.CurrentQuestorState == QuestorState.Mining)
             {
-                _States.CurrentMiningState =(MiningState)Enum.Parse(typeof(MiningState), BehaviorComboBox.Text);
+                _States.CurrentMiningState = (MiningState)Enum.Parse(typeof(MiningState), BehaviorComboBox.Text);
             }
 
             try
             {
                 AgentNameData.Text = Cache.Instance.CurrentAgentText;
                 AgentEffectiveStandingsData.Text = Cache.Instance.AgentEffectiveStandingtoMeText;
+
                 //DeclinedTimeData.Text = Cache.Instance.CurrentAgent.DeclineTimer;
                 //
                 // greylist info
@@ -1077,6 +1085,7 @@ namespace Questor
                 MinAgentGreyListStandingsData.Text = Math.Round(Settings.Instance.MinAgentGreyListStandings, 2).ToString(CultureInfo.InvariantCulture);
                 LastGreylistedMissionDeclinedData.Text = Cache.Instance.LastGreylistMissionDeclined;
                 greylistedmissionsdeclineddata.Text = Cache.Instance.GreyListedMissionsDeclined.ToString(CultureInfo.InvariantCulture);
+
                 //
                 // blacklist info
                 //
@@ -1087,13 +1096,14 @@ namespace Questor
             catch (Exception ex)
             {
                 //if we get an exception here ignore it as it should not effect anything, the GUI is only displaying data collected and processed elsewhere
-                if (Settings.Instance.DebugExceptions || (Settings.Instance.DebugUI)) Logging.Log("QuestorUI","Exception was [" + ex.Message + "]",Logging.Teal);
+                if (Settings.Instance.DebugExceptions || (Settings.Instance.DebugUI)) Logging.Log("QuestorUI", "Exception was [" + ex.Message + "]", Logging.Teal);
             }
         }
 
         private void PanicStateComboBoxSelectedIndexChanged(object sender, EventArgs e)
         {
             _States.CurrentPanicState = (PanicState)Enum.Parse(typeof(PanicState), PanicStateComboBox.Text);
+
             // If you are at the controls enough to change states... assume that panic needs to do nothing
             //_questor.panicstatereset = true; //this cannot be reset when the index changes, as that happens during natural state changes, this needs to be a mouse event
             _States.LavishEvent_QuestorPanicState();
@@ -1154,7 +1164,6 @@ namespace Questor
 
         private void TxtExtConsoleTextChanged(object sender, EventArgs e)
         {
-        
         }
 
         private void AutoStartCheckBoxCheckedChanged(object sender, EventArgs e)
@@ -1243,7 +1252,7 @@ namespace Questor
         private void ReloadAllClick(object sender, EventArgs e)
         {
             Cache.Instance.Paused = false;
-            Logging.Log("QuestorUI","ReloadAll button was pressed: changing QuestorState to ReloadAll- when done reloading it shoud return to the configured behavior",Logging.Teal);
+            Logging.Log("QuestorUI", "ReloadAll button was pressed: changing QuestorState to ReloadAll- when done reloading it shoud return to the configured behavior", Logging.Teal);
             _States.CurrentQuestorState = QuestorState.DebugReloadAll;
         }
 

@@ -94,6 +94,7 @@ namespace Questor
             try
             {
                 extra = p.Parse(args);
+
                 //Logging.Log(string.Format("questor: extra = {0}", string.Join(" ", extra.ToArray())));
             }
             catch (OptionException ex)
@@ -132,6 +133,7 @@ namespace Questor
                         foreach (XElement value in values.Root.Elements("char"))
                             CharSchedules.Add(new CharSchedule(value));
                 }
+
                 //
                 // chantling scheduler
                 //
@@ -141,13 +143,13 @@ namespace Questor
                     Logging.Log("Startup", "Error - character not found!", Logging.Red);
                     return;
                 }
-                
+
                 if (schedule.User == null || schedule.PW == null)
                 {
                     Logging.Log("Startup", "Error - Login details not specified in Schedules.xml!", Logging.Red);
                     return;
                 }
-                
+
                 _username = schedule.User;
                 _password = schedule.PW;
                 Logging.Log("Startup", "User: " + schedule.User + " Name: " + schedule.Name, Logging.White);
@@ -163,7 +165,7 @@ namespace Questor
                         Logging.Log("Startup", "Schedule1: Start1: " + schedule.Start1 + " Stop1: " + schedule.Stop1, Logging.White);
                     }
                 }
-                
+
                 if (schedule.StartTime2Specified)
                 {
                     if (DateTime.Now > schedule.Stop1 || DateTime.Now.DayOfYear > schedule.Stop1.DayOfYear) //if after schedule1 stoptime or the next day
@@ -178,7 +180,7 @@ namespace Questor
                         }
                     }
                 }
-                
+
                 if (schedule.StartTime3Specified)
                 {
                     if (DateTime.Now > schedule.Stop2 || DateTime.Now.DayOfYear > schedule.Stop2.DayOfYear) //if after schedule2 stoptime or the next day
@@ -195,6 +197,7 @@ namespace Questor
                         }
                     }
                 }
+
                 //
                 // if we havent found a worksable schedule yet assume schedule 1 is correct. what we want.
                 //
@@ -220,10 +223,10 @@ namespace Questor
                         StartTime = StartTime.AddDays(1); //otherwise, start tomorrow at start time
                 }
                 else if ((StartTime.Subtract(DateTime.Now).TotalMinutes > 1200)) //if we're more than x hours shy of start time, start now
-                    {
-                        StartTime = DateTime.Now;
-                        _readyToStarta = true;
-                    }
+                {
+                    StartTime = DateTime.Now;
+                    _readyToStarta = true;
+                }
 
                 if (StopTime < StartTime)
                     StopTime = StopTime.AddDays(1);
@@ -254,6 +257,7 @@ namespace Questor
                     Logging.Log("Startup", "Already passed start time.  Starting in 15 seconds.", Logging.White);
                     System.Threading.Thread.Sleep(15000);
                 }
+
                 //
                 // chantling scheduler (above)
                 //
@@ -318,7 +322,7 @@ namespace Questor
                     Cache.Instance.SessionState = "Quitting";
                     Cleanup.CloseQuestor();
                 }
-                
+
                 try
                 {
                     _directEve.OnFrame += OnFrame;
@@ -348,7 +352,7 @@ namespace Questor
                     return;
             }
 
-            StartTime = DateTime.UtcNow;
+            StartTime = DateTime.Now;
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -405,6 +409,7 @@ namespace Questor
                     if (string.IsNullOrEmpty(window.Html))
                         continue;
                     Logging.Log("Startup", "windowtitles:" + window.Name + "::" + window.Html, Logging.White);
+
                     //
                     // Close these windows and continue
                     //
@@ -426,6 +431,7 @@ namespace Questor
                         bool sayYes = false;
                         bool sayOk = false;
                         bool quit = false;
+
                         //bool update = false;
 
                         if (!string.IsNullOrEmpty(window.Html))
@@ -457,12 +463,14 @@ namespace Questor
                             close |= window.Html.ToLower().Contains("the EVE cluster has reached its maximum user limit");
                             close |= window.Html.ToLower().Contains("the connection to the server was closed");
                             close |= window.Html.ToLower().Contains("client is already connecting to the server");
+
                             //close |= window.Html.Contains("A client update is available and will now be installed");
                             //
                             // eventually it would be nice to hit ok on this one and let it update
                             //
                             close |= window.Html.ToLower().Contains("client update is available and will now be installed");
                             close |= window.Html.ToLower().Contains("change your trial account to a paying account");
+
                             //
                             // these windows require a restart of eve all together
                             //
@@ -472,26 +480,28 @@ namespace Questor
                             restart |= window.Html.ToLower().Contains("local session information is corrupt");
                             restart |= window.Html.ToLower().Contains("The client's local session"); // information is corrupt");
                             restart |= window.Html.ToLower().Contains("restart the client prior to logging in");
+
                             //
                             // these windows require a quit of eve all together
                             //
                             quit |= window.Html.ToLower().Contains("the socket was closed");
-                            
+
                             //
                             // Modal Dialogs the need "yes" pressed
                             //
                             sayOk |= window.Html.Contains("The transport has not yet been connected, or authentication was not successful");
+
                             //Logging.Log("[Startup] (2) close is: " + close);
                             //Logging.Log("[Startup] (1) window.Html is: " + window.Html);
                             _pulsedelay = 60;
                         }
-                        
+
                         //if (update)
                         //{
                         //    int secRestart = (400 * 3) + Cache.Instance.RandomNumber(3, 18) * 100 + Cache.Instance.RandomNumber(1, 9) * 10;
                         //    LavishScript.ExecuteCommand("uplink exec Echo [${Time}] timedcommand " + secRestart + " OSExecute taskkill /IM launcher.exe");
                         //}
-                        
+
                         if (sayYes)
                         {
                             Logging.Log("Startup", "Found a window that needs 'yes' chosen...", Logging.White);
@@ -520,6 +530,7 @@ namespace Questor
                             Logging.Log("Startup", "Content of modal window (HTML): [" +
                                         (window.Html).Replace("\n", "").Replace("\r", "") + "]", Logging.Red);
                             window.AnswerModal("quit");
+
                             //_directEve.ExecuteCommand(DirectCmd.CmdQuitGame);
                         }
 
@@ -529,6 +540,7 @@ namespace Questor
                             Logging.Log("Startup", "Content of modal window (HTML): [" +
                                         (window.Html).Replace("\n", "").Replace("\r", "") + "]", Logging.Red);
                             window.AnswerModal("restart");
+
                             //_directEve.ExecuteCommand(DirectCmd.CmdQuitGame);
                             continue;
                         }
@@ -541,7 +553,7 @@ namespace Questor
                             window.Close();
                             continue;
                         }
-                        
+
                         if (needHumanIntervention)
                         {
                             Logging.Log("Startup", "ERROR! - Human Intervention is required in this case: halting all login attempts - ERROR!", Logging.Red);

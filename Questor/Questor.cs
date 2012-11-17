@@ -151,7 +151,7 @@ namespace Questor
                         Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: timedcommand 100 windowtaskbar on " + Settings.Instance.CharacterName, Logging.White);
                         LavishScript.ExecuteCommand("timedcommand 100 windowtaskbar on " + Settings.Instance.CharacterName);
 
-                        if (Settings.Instance.EVEWindowXSize != 0 && 
+                        if (Settings.Instance.EVEWindowXSize != 0 &&
                             Settings.Instance.EVEWindowYSize != 0)
                         {
                             Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: timedcommand 150 WindowCharacteristics -size " + Settings.Instance.EVEWindowXSize + "x" + Settings.Instance.EVEWindowYSize, Logging.White);
@@ -336,7 +336,7 @@ namespace Questor
                 }
 
                 //
-                // it is assumed if you got this far that you are in space. If you are 'stuck' in a session change then you'll be stuck another 5 min until the timeout above. 
+                // it is assumed if you got this far that you are in space. If you are 'stuck' in a session change then you'll be stuck another 5 min until the timeout above.
                 //
                 _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.GotoBase;
                 _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.GotoBase;
@@ -481,7 +481,6 @@ namespace Questor
                 return;
             }
 
-
             //DirectAgentMission mission;
             switch (_States.CurrentQuestorState)
             {
@@ -499,12 +498,13 @@ namespace Questor
                         _States.CurrentQuestorState = QuestorState.Start;
                         return;
                     }
-                    
+
                     Logging.Log("Questor", "Settings.Instance.CharacterMode = [" + Settings.Instance.CharacterMode + "]", Logging.Orange);
                     _States.CurrentQuestorState = QuestorState.Error;
                     break;
 
                 case QuestorState.CombatMissionsBehavior:
+
                     //
                     // QuestorState will stay here until changed externally by the behavior we just kicked into starting
                     //
@@ -512,6 +512,7 @@ namespace Questor
                     break;
 
                 case QuestorState.CombatHelperBehavior:
+
                     //
                     // QuestorState will stay here until changed externally by the behavior we just kicked into starting
                     //
@@ -519,6 +520,7 @@ namespace Questor
                     break;
 
                 case QuestorState.DedicatedBookmarkSalvagerBehavior:
+
                     //
                     // QuestorState will stay here until changed externally by the behavior we just kicked into starting
                     //
@@ -526,6 +528,7 @@ namespace Questor
                     break;
 
                 case QuestorState.DirectionalScannerBehavior:
+
                     //
                     // QuestorState will stay here until changed externally by the behavior we just kicked into starting
                     //
@@ -533,6 +536,7 @@ namespace Questor
                     break;
 
                 case QuestorState.DebugHangarsBehavior:
+
                     //
                     // QuestorState will stay here until changed externally by the behavior we just kicked into starting
                     //
@@ -563,7 +567,6 @@ namespace Questor
                             _States.CurrentQuestorState = QuestorState.DedicatedBookmarkSalvagerBehavior;
                             break;
 
-
                         case "mining":
                             Logging.Log("Questor", "Start Mining Behavior", Logging.White);
                             _States.CurrentQuestorState = QuestorState.Mining;
@@ -589,6 +592,7 @@ namespace Questor
                     return;
 
                 case QuestorState.DebugCloseQuestor:
+
                     //Logging.Log("ISBoxerCharacterSet: " + Settings.Instance.Lavish_ISBoxerCharacterSet);
                     //Logging.Log("Profile: " + Settings.Instance.Lavish_InnerspaceProfile);
                     //Logging.Log("Game: " + Settings.Instance.Lavish_Game);
@@ -624,7 +628,7 @@ namespace Questor
                             Logging.Log("Questor", "Debug_Window.IsKillable: [" + window.IsKillable + "]", Logging.White);
                             Logging.Log("Questor", "Debug_Window.Html: [" + window.Html + "]", Logging.White);
                         }
-                        
+
                         //Logging.Log("Questor", "Debug_InventoryWindows", Logging.White);
                         //foreach (DirectWindow window in windows)
                         //{
@@ -645,7 +649,7 @@ namespace Questor
                     return;
 
                 case QuestorState.DebugInventoryTree:
-                    
+
                     if (Cache.Instance.PrimaryInventoryWindow.ExpandCorpHangarView())
                     {
                         Logging.Log("DebugInventoryTree", "ExpandCorpHangar executed", Logging.Teal);

@@ -42,13 +42,13 @@ namespace Questor.Modules.Actions
         private bool _waitingOnAgentResponse;
         private bool _waitingOnMission;
         private bool loadedAmmo = false;
-        
+
         private DateTime _agentWindowTimeStamp = DateTime.MinValue;
         private DateTime _agentStandingsCheckTimeOut = DateTime.MaxValue;
         private DateTime _nextAgentAction;
         private DateTime _waitingOnAgentResponseTimer = DateTime.UtcNow;
         private DateTime _waitingOnMissionTimer = DateTime.UtcNow;
-        
+
         private int LoyaltyPointCounter;
 
         public AgentInteraction()
@@ -133,7 +133,7 @@ namespace Questor.Modules.Actions
 
             if (Agent.Window.AgentResponses.Any())
             {
-                if (Settings.Instance.DebugAgentInteractionReplyToAgent) Logging.Log(module, "we have Agent.Window.AgentResponces", Logging.Yellow);    
+                if (Settings.Instance.DebugAgentInteractionReplyToAgent) Logging.Log(module, "we have Agent.Window.AgentResponces", Logging.Yellow);
             }
 
             _waitingOnAgentResponse = false;
@@ -168,6 +168,7 @@ namespace Questor.Modules.Actions
                     if (Purpose != AgentInteractionPurpose.CompleteMission)
                     {
                         Logging.Log("Agentinteraction", "ReplyToAgent: Found complete button, Changing Purpose to CompleteMission", Logging.White);
+
                         //we have a mission in progress here, attempt to complete it
                         if (DateTime.UtcNow > _agentWindowTimeStamp.AddSeconds(30))
                         {
@@ -181,6 +182,7 @@ namespace Questor.Modules.Actions
                     if (Purpose != AgentInteractionPurpose.StartMission)
                     {
                         Logging.Log("Agentinteraction", "ReplyToAgent: Found request button, Changing Purpose to StartMission", Logging.White);
+
                         //we do not have a mission yet, request one?
                         if (DateTime.UtcNow > _agentWindowTimeStamp.AddSeconds(30))
                         {
@@ -237,6 +239,7 @@ namespace Questor.Modules.Actions
 
                 view.Say();
                 _nextAgentAction = DateTime.UtcNow.AddSeconds(Cache.Instance.RandomNumber(5, 10));
+
                 // No state change
             }
             else if (accept != null || decline != null)
@@ -261,12 +264,14 @@ namespace Questor.Modules.Actions
         {
             Logging.Log("AgentInteraction", "Loading mission xml [" + MissionName + "] from [" + Cache.Instance.MissionXmlPath + "]", Logging.Yellow);
             Cache.Instance.MissionXMLIsAvailable = true;
+
             //
             // this loads the settings global to the mission, NOT individual pockets
             //
             try
             {
                 XDocument missionXml = XDocument.Load(Cache.Instance.MissionXmlPath);
+
                 //load mission specific ammo and WeaponGroupID if specified in the mission xml
                 if (missionXml.Root != null)
                 {
@@ -277,6 +282,7 @@ namespace Questor.Modules.Actions
                         {
                             Cache.Instance.MissionAmmo.Add(new Ammo(ammo));
                         }
+
                         //Cache.Instance.DamageType
                     }
 
@@ -362,7 +368,6 @@ namespace Questor.Modules.Actions
                     Logging.Log("CombatMissionSettings", "ERROR! unable to find [" + factionsXML + "] ERROR! [" + ex.Message + "]", Logging.Red);
                 }
             }
-            
 
             bool roguedrones = false;
             bool mercenaries = false;
@@ -397,7 +402,7 @@ namespace Questor.Modules.Actions
                 seven |= html.Contains("The Damsel In Distress Objectives");
             }
 
-            if (roguedrones)                                 
+            if (roguedrones)
             {
                 Cache.Instance.FactionName = "rogue drones";
                 return;
@@ -418,7 +423,7 @@ namespace Questor.Modules.Actions
                 return;
             }
 
-            Logging.Log("AgentInteraction", "Unable to find the faction for [" + MissionName  + "] when searching through the html (listed below)", Logging.Orange);
+            Logging.Log("AgentInteraction", "Unable to find the faction for [" + MissionName + "] when searching through the html (listed below)", Logging.Orange);
 
             Logging.Log("AgentInteraction", html, Logging.White);
             return;
@@ -480,7 +485,7 @@ namespace Questor.Modules.Actions
                 }
                 return;
             }
-            
+
             _waitingOnMission = false;
 
             MissionName = Cache.Instance.FilterPath(Cache.Instance.Mission.Name);
@@ -494,13 +499,18 @@ namespace Questor.Modules.Actions
                     Logging.Log("AgentInteraction", "Declining blacklisted mission [" + Cache.Instance.Mission.Name + "]", Logging.Yellow);
                 }
 
+                if (CheckFaction())
+                {
+                    Logging.Log("AgentInteraction", "Declining blacklisted mission [" + Cache.Instance.Mission.Name + "] because of faction blacklist", Logging.Yellow);
+                }
+
                 Cache.Instance.LastBlacklistMissionDeclined = MissionName;
                 Cache.Instance.BlackListedMissionsDeclined++;
                 _States.CurrentAgentInteractionState = AgentInteractionState.DeclineMission;
                 _nextAgentAction = DateTime.UtcNow.AddSeconds(Cache.Instance.RandomNumber(5, 10));
                 return;
             }
-            
+
             if (Settings.Instance.DebugDecline) Logging.Log("AgentInteraction", "[" + MissionName + "] is not on the blacklist and might be on the GreyList we havent checked yet", Logging.White);
 
             if (Settings.Instance.DebugAllMissionsOnGreyList || Settings.Instance.MissionGreylist.Any(m => m.ToLower() == MissionName.ToLower())) //-1.7
@@ -514,7 +524,7 @@ namespace Questor.Modules.Actions
                     _nextAgentAction = DateTime.UtcNow.AddSeconds(Cache.Instance.RandomNumber(5, 10));
                     return;
                 }
-                
+
                 Logging.Log("AgentInteraction", "Unable to decline GreyListed mission: AgentEffectiveStandings [" + Cache.Instance.AgentEffectiveStandingtoMe + "] >  MinGreyListStandings [" + Settings.Instance.MinAgentGreyListStandings + "]", Logging.Orange);
             }
             else
@@ -533,11 +543,11 @@ namespace Questor.Modules.Actions
             if (missionBookmark != null)
             {
                 String missionLocationID = missionBookmark.LocationId.ToString();
-                Logging.Log("AgentInteraction","mission bookmark info: [" +  missionLocationID + "]",Logging.White);
+                Logging.Log("AgentInteraction", "mission bookmark info: [" + missionLocationID + "]", Logging.White);
             }
             else
             {
-                Logging.Log("AgentInteraction","There are No Bookmarks Associated with " + Cache.Instance.Mission.Name + " yet",Logging.White);
+                Logging.Log("AgentInteraction", "There are No Bookmarks Associated with " + Cache.Instance.Mission.Name + " yet", Logging.White);
             }
 
             if (html.Contains("The route generated by current autopilot settings contains low security systems!"))
@@ -632,6 +642,7 @@ namespace Questor.Modules.Actions
             {
                 Logging.Log("AgentInteraction", "Mission [" + MissionName + "] already accepted", Logging.Yellow);
                 Logging.Log("AgentInteraction", "Closing conversation", Logging.Yellow);
+
                 //CheckFaction();
                 _States.CurrentAgentInteractionState = AgentInteractionState.CloseConversation;
                 _nextAgentAction = DateTime.UtcNow.AddSeconds(Cache.Instance.RandomNumber(3, 7));
@@ -758,6 +769,7 @@ namespace Questor.Modules.Actions
                         //
                         // what other scenario is there?
                     }
+
                     //add timer to current agent
                     if (!Cache.Instance.AllAgentsStillInDeclineCoolDown && Settings.Instance.MultiAgentSupport)
                     {
@@ -773,7 +785,7 @@ namespace Questor.Modules.Actions
                     Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + "] is above our configured minimum [" + Settings.Instance.MinAgentBlackListStandings + "].  Declining [" + Cache.Instance.Mission.Name + "]", Logging.Yellow);
                 }
             }
-            
+
             //
             // this closes the conversation, blacklists the agent for this session and goes back to base.
             //
@@ -816,6 +828,7 @@ namespace Questor.Modules.Actions
                 {
                     XElement faction =
                         xml.Root.Elements("faction").FirstOrDefault(f => (string)f.Attribute("logo") == logo);
+
                     //Cache.Instance.FactionFit = "Default";
                     Cache.Instance.Fitting = Settings.Instance.DefaultFitting.ToString();
                     Cache.Instance.FactionName = "Default";
@@ -844,6 +857,7 @@ namespace Questor.Modules.Actions
                                             "Faction fitting: No fittings defined for [ " + factionName + " ]",
                                             Logging.Yellow);
                             }
+
                             //Cache.Instance.Fitting = Cache.Instance.FactionFit;
                             return false;
                         }
@@ -868,6 +882,7 @@ namespace Questor.Modules.Actions
                 {
                     Logging.Log("AgentInteraction", "Faction fitting: No fittings defined for [ " + Cache.Instance.FactionName + " ]", Logging.Orange);
                 }
+
                 //Cache.Instance.Fitting = Cache.Instance.FactionFit;
             }
             return false;
@@ -945,6 +960,7 @@ namespace Questor.Modules.Actions
                             {
                                 Logging.Log("AgentInteraction", "ERROR: Mission XML is available for [" + Cache.Instance.MissionName + "] but we still did not complete the mission after 3 tries! - ERROR!", Logging.White);
                                 Settings.Instance.AutoStart = false;
+
                                 //we purposely disable autostart so that when we quit eve and questor here it stays closed until manually restarted as this error is fatal (and repeating)
                                 //Cache.Instance.CloseQuestorCMDLogoff = false;
                                 //Cache.Instance.CloseQuestorCMDExitGame = true;
@@ -956,6 +972,7 @@ namespace Questor.Modules.Actions
                             {
                                 Logging.Log("AgentInteraction", "ERROR: Mission XML is missing for [" + Cache.Instance.MissionName + "] and we we unable to complete the mission after 3 tries! - ERROR!", Logging.White);
                                 Settings.Instance.AutoStart = false; //we purposely disable autostart so that when we quit eve and questor here it stays closed until manually restarted as this error is fatal (and repeating)
+
                                 //Cache.Instance.CloseQuestorCMDLogoff = false;
                                 //Cache.Instance.CloseQuestorCMDExitGame = true;
                                 //Cache.Instance.ReasonToStopQuestor = "Could not complete the mission: [" + Cache.Instance.MissionName + "] after [" + Statistics.Instance.MissionCompletionErrors + "] attempts: objective not complete or missing mission completion item or ???";

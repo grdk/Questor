@@ -1,5 +1,4 @@
-﻿
-namespace Questor.Storylines
+﻿namespace Questor.Storylines
 {
     using System;
     using System.Collections.Generic;

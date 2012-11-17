@@ -1,5 +1,4 @@
-﻿
-namespace Questor.Storylines
+﻿namespace Questor.Storylines
 {
     using System;
     using System.Linq;
@@ -43,7 +42,7 @@ namespace Questor.Storylines
                 item.ActivateShip();
                 return StorylineState.Arm;
             }
-            
+
             Logging.Log("TransactionDataDelivery", "No shuttle found, going in active ship", Logging.Orange);
             return StorylineState.GotoAgent;
         }

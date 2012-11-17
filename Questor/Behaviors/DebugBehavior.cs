@@ -463,7 +463,7 @@ namespace Questor.Behaviors
                         if (_States.CurrentDebugBehaviorState == DebugBehaviorState.Traveler) _States.CurrentDebugBehaviorState = DebugBehaviorState.Error;
                         return;
                     }
-                    
+
                     if (destination.Count == 1 && destination.First() == 0)
                     {
                         destination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
@@ -482,6 +482,7 @@ namespace Questor.Behaviors
                     else
                     {
                         Traveler.ProcessState();
+
                         //we also assume you are connected during a manual set of questor into travel mode (safe assumption considering someone is at the kb)
                         Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;

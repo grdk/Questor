@@ -13,7 +13,6 @@ using Questor.Modules.Actions;
 using Questor.Modules.BackgroundTasks;
 using Questor.Storylines;
 
-
 namespace Questor.Behaviors
 {
     public class MiningBehavior
@@ -61,7 +60,6 @@ namespace Questor.Behaviors
 
         public void ProcessState()
         {
-
             if (Cache.Instance.SessionState == "Quitting")
             {
                 BeginClosingQuestor();
@@ -131,8 +129,9 @@ namespace Questor.Behaviors
 
                 case MiningState.GotoBase:
                     DirectBookmark miningHome = Cache.Instance.BookmarksByLabel("Mining Home").FirstOrDefault();
+
                     //Cache.Instance.DirectEve.Navigation.GetDestinationPath
-                    Traveler.TravelToMiningHomeBookmark(miningHome, "Mining go to base"); 
+                    Traveler.TravelToMiningHomeBookmark(miningHome, "Mining go to base");
 
                     if (_States.CurrentTravelerState == TravelerState.AtDestination) // || DateTime.UtcNow.Subtract(Cache.Instance.EnteredCloseQuestor_DateTime).TotalMinutes > 10)
                     {
@@ -144,6 +143,7 @@ namespace Questor.Behaviors
                     break;
 
                 case MiningState.UnloadLoot:
+
                     //
                     // this state should never be reached in space. if we are in space and in this state we should switch to gotobase
                     //
@@ -177,7 +177,6 @@ namespace Questor.Behaviors
                         _States.CurrentQuestorState = QuestorState.Idle;
                         Logging.Log("MiningBehavior.Unloadloot", "CharacterMode: [" + Settings.Instance.CharacterMode + "], AfterMissionSalvaging: [" + Settings.Instance.AfterMissionSalvaging + "], MiningState: [" + _States.CurrentMiningState + "]", Logging.White);
                         return;
-
                     }
                     break;
 
@@ -193,6 +192,7 @@ namespace Questor.Behaviors
                     break;
 
                 case MiningState.Arm:
+
                     //
                     // this state should never be reached in space. if we are in space and in this state we should switch to gotobase
                     //
@@ -210,6 +210,7 @@ namespace Questor.Behaviors
                         // Load ammo... this "fixes" the problem I experienced with not reloading after second arm phase. The quantity was getting set to 0.
                         _arm.AmmoToLoad.Clear();
                         _arm.AmmoToLoad.Add(Settings.Instance.Ammo.FirstOrDefault());
+
                         //FIXME: bad hack - this shoul dbe fixed differently / elsewhere
                         if (_arm.AmmoToLoad.FirstOrDefault().Quantity == 0) { _arm.AmmoToLoad.FirstOrDefault().Quantity = 333; }
                     }
@@ -250,12 +251,12 @@ namespace Questor.Behaviors
 
                         //exit the station
                         Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdExitStation);
+
                         //set up a wait of 10 seconds so the undock can complete
                         _lastPulse = DateTime.UtcNow.AddSeconds(10);
                         _States.CurrentMiningState = MiningState.GotoBelt;
                     }
                     break;
-
 
                 case MiningState.GotoBelt:
                     if (DateTime.UtcNow.Subtract(_lastPulse).TotalMilliseconds < Time.Instance.QuestorPulse_milliseconds * 2) //default: 1500ms
@@ -274,7 +275,6 @@ namespace Questor.Behaviors
 
                     if (asteroidShortcutGTB != null)
                     {
-
                         if (Cache.Instance.EntityById(_currentBelt.Id).Distance < 65000)
                         {
                             if (_States.CurrentMiningState == MiningState.GotoBelt)
@@ -297,14 +297,13 @@ namespace Questor.Behaviors
 
                         //Traveler.Destination = new MissionBookmarkDestination(belt);
 
-
                         if (belt != null)
                         {
                             if (belt.Distance < 35000)
                             {
                                 if (_States.CurrentMiningState == MiningState.GotoBelt)
                                     _States.CurrentMiningState = MiningState.Mine;
-                                 
+
                                 Traveler.Destination = null;
                             }
                             else
@@ -399,7 +398,6 @@ namespace Questor.Behaviors
                     }
                     break;
 
-
                 case MiningState.MineAsteroid:
                     if (Cache.Instance.EntityById(_targetAsteroid.Id) == null)
                     {
@@ -417,7 +415,7 @@ namespace Questor.Behaviors
 
                     if (Settings.Instance.DebugStates)
                         Logging.Log("Drones.State is", _States.CurrentDroneState.ToString(), Logging.White);
- 
+
                     // If we are out of ammo, return to base, the mission will fail to complete and the bot will reload the ship
                     // and try the mission again
                     if (_States.CurrentCombatState == CombatState.OutOfAmmo)

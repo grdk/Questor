@@ -295,7 +295,7 @@ namespace Questor.Behaviors
                         if (_States.CurrentDirectionalScannerBehaviorState == DirectionalScannerBehaviorState.Traveler) _States.CurrentDirectionalScannerBehaviorState = DirectionalScannerBehaviorState.Error;
                         return;
                     }
-                    
+
                     if (destination.Count == 1 && destination.FirstOrDefault() == 0)
                         destination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
                     if (Traveler.Destination == null || Traveler.Destination.SolarSystemId != destination.LastOrDefault())
@@ -312,6 +312,7 @@ namespace Questor.Behaviors
                     else
                     {
                         Traveler.ProcessState();
+
                         //we also assume you are connected during a manual set of questor into travel mode (safe assumption considering someone is at the kb)
                         Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
@@ -334,7 +335,7 @@ namespace Questor.Behaviors
                                 if (_States.CurrentDirectionalScannerBehaviorState == DirectionalScannerBehaviorState.Traveler) _States.CurrentDirectionalScannerBehaviorState = DirectionalScannerBehaviorState.Error;
                                 return;
                             }
-                            
+
                             Logging.Log("DirectionalScannerBehavior.Traveler", "Arrived at destination", Logging.White);
                             if (_States.CurrentDirectionalScannerBehaviorState == DirectionalScannerBehaviorState.Traveler) _States.CurrentDirectionalScannerBehaviorState = DirectionalScannerBehaviorState.Idle;
                             return;
@@ -354,7 +355,7 @@ namespace Questor.Behaviors
                             if (_States.CurrentDirectionalScannerBehaviorState == DirectionalScannerBehaviorState.GotoNearestStation) _States.CurrentDirectionalScannerBehaviorState = DirectionalScannerBehaviorState.Idle;
                             break;
                         }
-                        
+
                         if (station.Distance < 1900)
                         {
                             if (DateTime.UtcNow > Cache.Instance.NextDockAction)

@@ -139,14 +139,12 @@ namespace Questor.Modules.Actions
             if (nextAction > DateTime.UtcNow)
                 return false;
 
-            if (Cache.Instance.GateInGrid() && (distance/1000)<(int)Distance.MaxPocketsDistanceKm)
+            if (Cache.Instance.GateInGrid() && (distance / 1000) < (int)Distance.MaxPocketsDistanceKm)
             {
-                Logging.Log("QuestorManager.BookmarkDestination","Bookmark [" + bookmark.Title + "][" + Math.Round((distance / 1000) / 149598000, 2) + "] AU away. Which is [" + Math.Round((distance / 1000), 2) + "].", Logging.White);
+                Logging.Log("QuestorManager.BookmarkDestination", "Bookmark [" + bookmark.Title + "][" + Math.Round((distance / 1000) / 149598000, 2) + "] AU away. Which is [" + Math.Round((distance / 1000), 2) + "].", Logging.White);
             }
 
-            Logging.Log("QuestorManager.BookmarkDestination",
-                "Warping to bookmark [" + bookmark.Title + "][" + Math.Round((distance / 1000) / 149598000, 2) + "] AU away. Which is ["+ Math.Round((distance / 1000),2)+"]"
-                ,Logging.White);
+            Logging.Log("QuestorManager.BookmarkDestination", "Warping to bookmark [" + bookmark.Title + "][" + Math.Round((distance / 1000) / 149598000, 2) + "] AU away. Which is [" + Math.Round((distance / 1000), 2) + "]", Logging.White);
 
             bookmark.WarpTo();
             nextAction = DateTime.UtcNow.AddSeconds(30);

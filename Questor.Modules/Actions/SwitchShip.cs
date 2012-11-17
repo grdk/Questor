@@ -1,5 +1,4 @@
-﻿
-namespace Questor.Modules.Actions
+﻿namespace Questor.Modules.Actions
 {
     using System;
     using System.Collections.Generic;
@@ -30,8 +29,8 @@ namespace Questor.Modules.Actions
             switch (_States.CurrentSwitchShipState)
             {
                 case SwitchShipState.Idle:
-
                     break;
+
                 case SwitchShipState.Done:
                     break;
 
@@ -40,6 +39,7 @@ namespace Questor.Modules.Actions
                     break;
 
                 case SwitchShipState.OpenShipHangar:
+
                     // Is the ship hangar open?
                     if (!Cache.Instance.ReadyShipsHangar("SwitchShip")) break;
 
@@ -75,6 +75,7 @@ namespace Questor.Modules.Actions
                     break;
 
                 case SwitchShipState.OpenFittingWindow:
+
                     //let's check first if we need to change fitting at all
                     Logging.Log("SwitchShip", "Fitting: " + defaultFitting + " - currentFit: " + Cache.Instance.CurrentFit, Logging.White);
                     if (defaultFitting.Equals(Cache.Instance.CurrentFit))
@@ -92,12 +93,14 @@ namespace Questor.Modules.Actions
                 case SwitchShipState.WaitForFittingWindow:
 
                     DirectFittingManagerWindow fittingMgr = Cache.Instance.DirectEve.Windows.OfType<DirectFittingManagerWindow>().FirstOrDefault();
+
                     //open it again ?
                     if (fittingMgr == null)
                     {
                         Logging.Log("SwitchShip", "Opening fitting manager", Logging.White);
                         Cache.Instance.DirectEve.OpenFitingManager();
                     }
+
                     //check if it's ready
                     else if (fittingMgr.IsReady)
                     {
@@ -119,6 +122,7 @@ namespace Questor.Modules.Actions
                                 fitting.ShipTypeId == ship.TypeId)
                             {
                                 Logging.Log("SwitchShip", "Found fitting " + fitting.Name, Logging.White);
+
                                 //switch to the requested fitting for the current mission
                                 fitting.Fit();
                                 _lastSwitchShipAction = DateTime.UtcNow;
@@ -133,6 +137,7 @@ namespace Questor.Modules.Actions
                     break;
 
                 case SwitchShipState.WaitForFitting:
+
                     //let's wait 10 seconds
                     if (DateTime.UtcNow.Subtract(_lastSwitchShipAction).TotalMilliseconds > Time.Instance.FittingWindowLoadFittingDelay_seconds &&
                         Cache.Instance.DirectEve.GetLockedItems().Count == 0)

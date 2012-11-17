@@ -461,7 +461,7 @@ namespace Questor.Behaviors
                         return;
                     }
                     else if (destination.Count == 1 && destination.First() == 0)
-                            destination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
+                        destination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
 
                     if (Traveler.Destination == null || Traveler.Destination.SolarSystemId != destination.Last())
                     {
@@ -477,6 +477,7 @@ namespace Questor.Behaviors
                     else
                     {
                         Traveler.ProcessState();
+
                         //we also assume you are connected during a manual set of questor into travel mode (safe assumption considering someone is at the kb)
                         Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
@@ -520,7 +521,7 @@ namespace Questor.Behaviors
                             if (_States.CurrentDebugHangarBehaviorState == DebugHangarsBehaviorState.GotoNearestStation) _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Idle;
                             break;
                         }
-                        
+
                         if (station.Distance < 1900)
                         {
                             if (DateTime.UtcNow > Cache.Instance.NextDockAction)
@@ -570,7 +571,6 @@ namespace Questor.Behaviors
                     Cache.Instance.Paused = true;
                     break;
 
-
                 case DebugHangarsBehaviorState.OpenShipsHangar:
                     Logging.Log("DebugHangars", "DebugHangarsState.OpenShipsHangar:", Logging.White);
                     if (!Cache.Instance.ReadyShipsHangar("DebugHangars")) return;
@@ -579,7 +579,6 @@ namespace Questor.Behaviors
                     Cache.Instance.Paused = true;
                     break;
 
-                
                 case DebugHangarsBehaviorState.StackShipsHangar:
                     Logging.Log("DebugHangars", "DebugHangarsState.StackShipsHangar:", Logging.White);
                     if (!Cache.Instance.StackShipsHangar("DebugHangars")) return;
@@ -638,7 +637,7 @@ namespace Questor.Behaviors
 
                 case DebugHangarsBehaviorState.CloseCorpAmmoHangar:
                     Logging.Log("DebugHangars", "DebugHangarsState.CloseCorpAmmoHangar:", Logging.White);
-                    if (!Cache.Instance.CloseCorpHangar("DebugHangars","AMMO")) return;
+                    if (!Cache.Instance.CloseCorpHangar("DebugHangars", "AMMO")) return;
                     Cache.Instance.DebugInventoryWindows("DebugHangars");
                     _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;
                     Cache.Instance.Paused = true;
@@ -662,7 +661,7 @@ namespace Questor.Behaviors
 
                 case DebugHangarsBehaviorState.CloseCorpLootHangar:
                     Logging.Log("DebugHangars", "DebugHangarsState.CloseCorpLootHangar:", Logging.White);
-                    if (!Cache.Instance.CloseCorpHangar("DebugHangars","LOOT")) return;
+                    if (!Cache.Instance.CloseCorpHangar("DebugHangars", "LOOT")) return;
                     Cache.Instance.DebugInventoryWindows("DebugHangars");
                     _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;
                     Cache.Instance.Paused = true;
@@ -750,7 +749,7 @@ namespace Questor.Behaviors
 
                 case DebugHangarsBehaviorState.GetAmmoHangarID:
                     Logging.Log("DebugHangars", "DebugHangarsState.GetAmmoHangarID:", Logging.White);
-                    if(!Cache.Instance.GetCorpAmmoHangarID()) return;
+                    if (!Cache.Instance.GetCorpAmmoHangarID()) return;
                     Logging.Log("DebugHangars", "AmmoHangarId [" + Cache.Instance.AmmoHangarID + "]", Logging.White);
                     Cache.Instance.DebugInventoryWindows("DebugHangars");
                     _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;
@@ -759,7 +758,7 @@ namespace Questor.Behaviors
 
                 case DebugHangarsBehaviorState.GetLootHangarID:
                     Logging.Log("DebugHangars", "DebugHangarsState.GetLootHangarID:", Logging.White);
-                    if(!Cache.Instance.GetCorpLootHangarID()) return;
+                    if (!Cache.Instance.GetCorpLootHangarID()) return;
                     Logging.Log("DebugHangars", "LootHangarId [" + Cache.Instance.LootHangarID + "]", Logging.White);
                     Cache.Instance.DebugInventoryWindows("DebugHangars");
                     _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;

@@ -1,5 +1,4 @@
-﻿
-namespace Questor.Storylines
+﻿namespace Questor.Storylines
 {
     using System;
     using System.Collections.Generic;
@@ -147,13 +146,14 @@ namespace Questor.Storylines
                         Logging.Log("Storyline", "[" + i + "] Type       [" + _mission.Type + "]", Logging.Yellow);
                         i++;
                     }
-                } 
+                }
                 missionsInJournal = missionsInJournal.Where(m => m.Type.Contains("Storyline")).ToList();
                 Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] storyline missions available", Logging.Yellow);
                 missionsInJournal = missionsInJournal.Where(m => _storylines.ContainsKey(Cache.Instance.FilterPath(m.Name)));
                 Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] storyline missions questor knows how to do", Logging.Yellow);
                 missionsInJournal = missionsInJournal.Where(m => Settings.Instance.MissionBlacklist.All(b => b.ToLower() != Cache.Instance.FilterPath(m.Name).ToLower())).ToList();
                 Logging.Log("Storyline", "Currently have  [" + missionsInJournal.Count() + "] storyline missions questor knows how to do and are not blacklisted", Logging.Yellow);
+
                 //missions = missions.Where(m => !Settings.Instance.MissionGreylist.Any(b => b.ToLower() == Cache.Instance.FilterPath(m.Name).ToLower()));
                 return missionsInJournal.FirstOrDefault();
             }
@@ -312,16 +312,19 @@ namespace Questor.Storylines
                     break;
 
                 case StorylineState.Arm:
+
                     //Logging.Log("Storyline: Arm");
                     _States.CurrentStorylineState = _storyline.Arm(this);
                     break;
 
                 case StorylineState.GotoAgent:
+
                     //Logging.Log("Storyline: GotoAgent");
                     GotoAgent(StorylineState.PreAcceptMission);
                     break;
 
                 case StorylineState.PreAcceptMission:
+
                     //Logging.Log("Storyline: PreAcceptMission-!!");
                     _States.CurrentAgentInteractionState = AgentInteractionState.Idle;
                     _States.CurrentStorylineState = _storyline.PreAcceptMission(this);
@@ -335,7 +338,6 @@ namespace Questor.Storylines
                         _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
                         AgentInteraction.Purpose = AgentInteractionPurpose.DeclineMission;
                         AgentInteraction.AgentId = Cache.Instance.CurrentStorylineAgentId;
-
                     }
 
                     _agentInteraction.ProcessState();
@@ -346,12 +348,13 @@ namespace Questor.Storylines
                     if (_States.CurrentAgentInteractionState == AgentInteractionState.Done)
                     {
                         _States.CurrentAgentInteractionState = AgentInteractionState.Idle;
+
                         // If there is no mission anymore then we're done (we declined it)
-                        
                     }
                     break;
 
                 case StorylineState.AcceptMission:
+
                     //Logging.Log("Storyline: AcceptMission!!-");
                     if (_States.CurrentAgentInteractionState == AgentInteractionState.Idle)
                     {
@@ -371,6 +374,7 @@ namespace Questor.Storylines
                     if (_States.CurrentAgentInteractionState == AgentInteractionState.Done)
                     {
                         _States.CurrentAgentInteractionState = AgentInteractionState.Idle;
+
                         // If there is no mission anymore then we're done (we declined it)
                         _States.CurrentStorylineState = StorylineMission == null ? StorylineState.Done : StorylineState.ExecuteMission;
                     }

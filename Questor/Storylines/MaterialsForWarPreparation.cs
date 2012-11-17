@@ -22,12 +22,16 @@ namespace Questor.Storylines
         public StorylineState Arm(Storyline storyline)
         {
             if (_nextAction > DateTime.UtcNow)
+            {
                 return StorylineState.Arm;
+            }
 
             // Are we in a shuttle?  Yes, go to the agent
             DirectEve directEve = Cache.Instance.DirectEve;
             if (directEve.ActiveShip.GroupId == 31)
+            {
                 return StorylineState.GotoAgent;
+            }
 
             // Open the ship hangar
             if (!Cache.Instance.ReadyShipsHangar("MaterialsForWarPreparation")) return StorylineState.Arm;

@@ -131,33 +131,27 @@ namespace Questor.Behaviors
             ValidSettings = true;
             if (Settings.Instance.Ammo.Select(a => a.DamageType).Distinct().Count() != 4)
             {
-                if (Settings.Instance.Ammo.All(a => a.DamageType != DamageType.EM))
-                    Logging.Log("Settings", ": Missing EM damage type!", Logging.Orange);
-                if (Settings.Instance.Ammo.All(a => a.DamageType != DamageType.Thermal))
-                    Logging.Log("Settings", "Missing Thermal damage type!", Logging.Orange);
-                if (Settings.Instance.Ammo.All(a => a.DamageType != DamageType.Kinetic))
-                    Logging.Log("Settings", "Missing Kinetic damage type!", Logging.Orange);
-                if (Settings.Instance.Ammo.All(a => a.DamageType != DamageType.Explosive))
-                    Logging.Log("Settings", "Missing Explosive damage type!", Logging.Orange);
+                if (Settings.Instance.Ammo.All(a => a.DamageType != DamageType.EM)) Logging.Log("Settings", ": Missing EM damage type!", Logging.Orange);
+                if (Settings.Instance.Ammo.All(a => a.DamageType != DamageType.Thermal)) Logging.Log("Settings", "Missing Thermal damage type!", Logging.Orange);
+                if (Settings.Instance.Ammo.All(a => a.DamageType != DamageType.Kinetic)) Logging.Log("Settings", "Missing Kinetic damage type!", Logging.Orange);
+                if (Settings.Instance.Ammo.All(a => a.DamageType != DamageType.Explosive)) Logging.Log("Settings", "Missing Explosive damage type!", Logging.Orange);
 
                 Logging.Log("Settings", "You are required to specify all 4 damage types in your settings xml file!", Logging.White);
                 ValidSettings = false;
             }
 
-
             if (Cache.Instance.Agent == null || !Cache.Instance.Agent.IsValid)
             {
                 Logging.Log("Settings", "Unable to locate agent [" + Cache.Instance.CurrentAgent + "]", Logging.White);
                 ValidSettings = false;
+                return;
             }
-            else
-            {
-                AgentInteraction.AgentId = Cache.Instance.AgentId;
-                _combatMissionCtrl.AgentId = Cache.Instance.AgentId;
-                _arm.AgentId = Cache.Instance.AgentId;
-                _statistics.AgentID = Cache.Instance.AgentId;
-                AgentID = Cache.Instance.AgentId;
-            }
+
+            AgentInteraction.AgentId = Cache.Instance.AgentId;
+            _combatMissionCtrl.AgentId = Cache.Instance.AgentId;
+            _arm.AgentId = Cache.Instance.AgentId;
+            _statistics.AgentID = Cache.Instance.AgentId;
+            AgentID = Cache.Instance.AgentId;
         }
 
         public void ApplySalvageSettings()
@@ -225,6 +219,7 @@ namespace Questor.Behaviors
             {
                 _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.GotoBase;
             }
+
             if ((DateTime.UtcNow.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalSeconds > 10) && (DateTime.UtcNow.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalSeconds < 60))
             {
                 if (Cache.Instance.QuestorJustStarted)
@@ -242,6 +237,7 @@ namespace Questor.Behaviors
             {
                 Cache.Instance.InMission |= _storyline.StorylineHandler is GenericCombatStoryline && (_storyline.StorylineHandler as GenericCombatStoryline).State == GenericCombatStorylineState.ExecuteMission;
             }
+
             //
             // Panic always runs, not just in space
             //
@@ -271,7 +267,7 @@ namespace Questor.Behaviors
                     _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Storyline;
                     if (_storyline.StorylineHandler is GenericCombatStoryline)
                     {
-                        (_storyline.StorylineHandler as GenericCombatStoryline).State = GenericCombatStorylineState.GotoMission;   
+                        (_storyline.StorylineHandler as GenericCombatStoryline).State = GenericCombatStorylineState.GotoMission;
                     }
                 }
                 else
@@ -305,6 +301,7 @@ namespace Questor.Behaviors
                     if (Cache.Instance.InSpace)
                     {
                         if (Settings.Instance.DebugIdle) Logging.Log("CombatMissionsBehavior", "if (Cache.Instance.InSpace)", Logging.White);
+
                         // Questor does not handle in space starts very well, head back to base to try again
                         Logging.Log("CombatMissionsBehavior", "Started questor while in space, heading back to base in 15 seconds", Logging.White);
                         LastAction = DateTime.UtcNow;
@@ -322,6 +319,7 @@ namespace Questor.Behaviors
                     if (Settings.Instance.AutoStart)
                     {
                         if (Settings.Instance.DebugAutoStart) Logging.Log("CombatMissionsBehavior", "Autostart is currently [" + Settings.Instance.AutoStart + "]", Logging.White);
+
                         // Don't start a new action an hour before downtime
                         if (DateTime.UtcNow.Hour == 10)
                         {
@@ -352,6 +350,7 @@ namespace Questor.Behaviors
                     if (Settings.Instance.DebugAutoStart) Logging.Log("CombatMissionsBehavior", "Autostart is currently [" + Settings.Instance.AutoStart + "]", Logging.White);
                     Cache.Instance.LastScheduleCheck = DateTime.UtcNow;
                     Questor.TimeCheck();   //Should we close questor due to stoptime or runtime?
+
                     //Questor.WalletCheck(); //Should we close questor due to no wallet balance change? (stuck?)
                     break;
 
@@ -376,6 +375,7 @@ namespace Questor.Behaviors
                     break;
 
                 case CombatMissionsBehaviorState.Cleanup:
+
                     //
                     // this States.CurrentCombatMissionBehaviorState is needed because forced disconnects
                     // and crashes can leave "extra" cargo in the
@@ -387,6 +387,7 @@ namespace Questor.Behaviors
                         _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.GotoBase;
                         break;
                     }
+
                     ValidateCombatMissionSettings();
                     Cleanup.CheckEVEStatus();
                     _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Start;
@@ -420,7 +421,7 @@ namespace Questor.Behaviors
 
                     _agentInteraction.ProcessState();
 
-                    if (AgentInteraction.Purpose == AgentInteractionPurpose.CompleteMission) //AgentInteractionPurpose was changed 'on the fly' by agentInteraction 
+                    if (AgentInteraction.Purpose == AgentInteractionPurpose.CompleteMission) //AgentInteractionPurpose was changed 'on the fly' by agentInteraction
                     {
                         if (_States.CurrentAgentInteractionState == AgentInteractionState.Done)
                         {
@@ -469,6 +470,7 @@ namespace Questor.Behaviors
                     break;
 
                 case CombatMissionsBehaviorState.Switch:
+
                     //
                     // this state should never be reached in space. if we are in space and in this state we should switch to gotomission
                     //
@@ -494,6 +496,7 @@ namespace Questor.Behaviors
                     break;
 
                 case CombatMissionsBehaviorState.Arm:
+
                     //
                     // this state should never be reached in space. if we are in space and in this state we should switch to gotomission
                     //
@@ -598,6 +601,7 @@ namespace Questor.Behaviors
 
                 case CombatMissionsBehaviorState.WarpOutStation:
                     DirectBookmark warpOutBookmark = Cache.Instance.BookmarksByLabel(Settings.Instance.BookmarkWarpOut ?? "").OrderByDescending(b => b.CreatedOn).FirstOrDefault(b => b.LocationId == Cache.Instance.DirectEve.Session.SolarSystemId);
+
                     //DirectBookmark _bookmark = Cache.Instance.BookmarksByLabel(Settings.Instance.bookmarkWarpOut + "-" + Cache.Instance.CurrentAgent ?? "").OrderBy(b => b.CreatedOn).FirstOrDefault();
                     long solarid = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
 
@@ -634,7 +638,7 @@ namespace Questor.Behaviors
                 case CombatMissionsBehaviorState.GotoMission:
                     Statistics.Instance.MissionLoggingCompleted = false;
                     Cache.Instance.IsMissionPocketDone = false;
-                    
+
                     var missionDestination = Traveler.Destination as MissionBookmarkDestination;
 
                     if (missionDestination == null || missionDestination.AgentId != AgentID) // We assume that this will always work "correctly" (tm)
@@ -661,6 +665,7 @@ namespace Questor.Behaviors
 
                         // Seeing as we just warped to the mission, start the mission controller
                         _States.CurrentCombatMissionCtrlState = CombatMissionCtrlState.Start;
+
                         //_States.CurrentCombatState = CombatState.CheckTargets;
                         Traveler.Destination = null;
                     }
@@ -701,8 +706,10 @@ namespace Questor.Behaviors
                     {
                         Logging.Log("Combat", "Out of Ammo!", Logging.Orange);
                         _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.GotoBase;
+
                         // Clear looted containers
                         Cache.Instance.LootedContainers.Clear();
+
                         //Cache.Instance.InvalidateBetweenMissionsCache();
                     }
 
@@ -712,6 +719,7 @@ namespace Questor.Behaviors
 
                         // Clear looted containers
                         Cache.Instance.LootedContainers.Clear();
+
                         //Cache.Instance.InvalidateBetweenMissionsCache();
                     }
 
@@ -723,6 +731,7 @@ namespace Questor.Behaviors
 
                         // Clear looted containers
                         Cache.Instance.LootedContainers.Clear();
+
                         //Cache.Instance.InvalidateBetweenMissionsCache();
                     }
                     break;
@@ -744,12 +753,13 @@ namespace Questor.Behaviors
                         {
                             try
                             {
-                                Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID, true);    
+                                Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID, true);
                             }
-                            catch(Exception exception)
+                            catch (Exception exception)
                             {
                                 Logging.Log("CombatMissionsBehavior", "Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID); [" + exception + "]", Logging.Teal);
                             }
+
                             //if (Cache.Instance.Mission == null)
                             //{
                             //    Logging.Log("CombatMissionsBehavior", "Cache.Instance.Mission == null - retry on next iteration", Logging.Teal);
@@ -774,6 +784,7 @@ namespace Questor.Behaviors
                     break;
 
                 case CombatMissionsBehaviorState.CompleteMission:
+
                     //
                     // this state should never be reached in space. if we are in space and in this state we should switch to gotomission
                     //
@@ -787,8 +798,10 @@ namespace Questor.Behaviors
                     {
                         if (DateTime.UtcNow > Cache.Instance.LastInStation.AddSeconds(5) && Cache.Instance.InStation) //do not proceed until we have ben docked for at least a few seconds
                             return;
+
                         //Logging.Log("CombatMissionsBehavior: Starting: Statistics.WriteDroneStatsLog");
                         if (!Statistics.WriteDroneStatsLog()) break;
+
                         //Logging.Log("CombatMissionsBehavior: Starting: Statistics.AmmoConsumptionStatistics");
                         if (!Statistics.AmmoConsumptionStatistics()) break;
 
@@ -813,7 +826,7 @@ namespace Questor.Behaviors
                             _States.CurrentQuestorState = QuestorState.Idle;
                         }
                         else if (Statistics.Instance.LastMissionCompletionError.AddSeconds(10) < DateTime.UtcNow)
-                        {              
+                        {
                             _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Statistics;
                         }
                         else
@@ -826,6 +839,7 @@ namespace Questor.Behaviors
                     break;
 
                 case CombatMissionsBehaviorState.Statistics:
+
                     // only attempt to write the mission statistics logs if one of the mission stats logs is enabled in settings
                     if (Settings.Instance.MissionStats1Log || Settings.Instance.MissionStats3Log || Settings.Instance.MissionStats3Log)
                     {
@@ -851,6 +865,7 @@ namespace Questor.Behaviors
                     break;
 
                 case CombatMissionsBehaviorState.UnloadLoot:
+
                     //
                     // this state should never be reached in space. if we are in space and in this state we should switch to gotomission
                     //
@@ -876,6 +891,7 @@ namespace Questor.Behaviors
                         Cache.Instance.LootAlreadyUnloaded = true;
                         _States.CurrentUnloadLootState = UnloadLootState.Idle;
                         Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID, true);
+
                         //if (Cache.Instance.Mission == null)
                         //{
                         //    Logging.Log("CombatMissionsBehavior", "Cache.Instance.Mission == null - retry on next iteration", Logging.Teal);
@@ -895,12 +911,14 @@ namespace Questor.Behaviors
                             _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Idle;
                             return;
                         }
+
                         //This salvaging decision tree does not belong here and should be separated out into a different QuestorState
                         if (Settings.Instance.AfterMissionSalvaging)
                         {
                             if (Cache.Instance.GetSalvagingBookmark == null)
                             {
                                 Logging.Log("CombatMissionsBehavior.Unloadloot", " No more salvaging bookmarks. Setting FinishedSalvaging Update.", Logging.White);
+
                                 //if (Settings.Instance.CharacterMode == "Salvager")
                                 //{
                                 //    Logging.Log("Salvager mode set and no bookmarks making delay");
@@ -910,6 +928,7 @@ namespace Questor.Behaviors
                                 if (_States.CurrentQuestorState == QuestorState.DedicatedBookmarkSalvagerBehavior)
                                 {
                                     Logging.Log("CombatMissionsBehavior.UnloadLoot", "Character mode is BookmarkSalvager and no bookmarks salvage.", Logging.White);
+
                                     //We just need a NextSalvagerSession timestamp to key off of here to add the delay
                                     _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Idle;
                                 }
@@ -925,6 +944,7 @@ namespace Questor.Behaviors
                             else //There is at least 1 salvage bookmark
                             {
                                 Logging.Log("CombatMissionsBehavior.Unloadloot", "There are [ " + Cache.Instance.BookmarksByLabel(Settings.Instance.BookmarkPrefix + " ").Count + " ] more salvage bookmarks left to process", Logging.White);
+
                                 // Salvage only after multiple missions have been completed
                                 if (Settings.Instance.SalvageMultipleMissionsinOnePass)
                                 {
@@ -935,6 +955,7 @@ namespace Questor.Behaviors
                                         Logging.Log("CombatMissionsBehavior.UnloadLoot", "we are after mission salvaging again because it has been at least [" + (Time.Instance.WrecksDisappearAfter_minutes - Time.Instance.AverageTimeToCompleteAMission_minutes - Time.Instance.AverageTimetoSalvageMultipleMissions_minutes) + "] min since the last session. ", Logging.White);
                                         _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.BeginAfterMissionSalvaging;
                                         Statistics.Instance.StartedSalvaging = DateTime.UtcNow;
+
                                         //FIXME: should we be overwriting this timestamp here? What if this is the 3rd run back and fourth to the station?
                                     }
                                     else //we are salvaging mission 'in one pass' and it has not been enough time since our last run... do another mission
@@ -976,7 +997,7 @@ namespace Questor.Behaviors
                 case CombatMissionsBehaviorState.BeginAfterMissionSalvaging:
                     Statistics.Instance.StartedSalvaging = DateTime.UtcNow; //this will be reset for each "run" between the station and the field if using <unloadLootAtStation>true</unloadLootAtStation>
                     Cache.Instance.IsMissionPocketDone = false;
-                    
+
                     if (DateTime.UtcNow.Subtract(_lastSalvageTrip).TotalMinutes < Time.Instance.DelayBetweenSalvagingSessions_minutes && Settings.Instance.CharacterMode.ToLower() == "salvage".ToLower())
                     {
                         Logging.Log("CombatMissionsBehavior.BeginAftermissionSalvaging", "Too early for next salvage trip", Logging.White);
@@ -1055,7 +1076,7 @@ namespace Questor.Behaviors
                         // found NPCs that will likely kill out fragile salvage boat!
                         List<DirectBookmark> missionSalvageBookmarks = Cache.Instance.BookmarksByLabel(Settings.Instance.BookmarkPrefix + " ");
                         Logging.Log("CombatMissionsBehavior.Salvage", "could not be completed because of NPCs left in the mission: deleting on grid salvage bookmark", Logging.White);
-                        
+
                         if (Settings.Instance.DeleteBookmarksWithNPC)
                         {
                             if (!Cache.Instance.DeleteBookmarksOnGrid("CombatMissionsBehavior.Salvage")) return;
@@ -1087,8 +1108,8 @@ namespace Questor.Behaviors
                         if (!Cache.Instance.UnlootedContainers.Any())
                         {
                             Logging.Log("CombatMissionsBehavior.Salvage", "Finished salvaging the room", Logging.White);
-                            if(!Cache.Instance.DeleteBookmarksOnGrid("CombatMissionsBehavior.Salvage")) return;
-                                Statistics.Instance.FinishedSalvaging = DateTime.UtcNow;
+                            if (!Cache.Instance.DeleteBookmarksOnGrid("CombatMissionsBehavior.Salvage")) return;
+                            Statistics.Instance.FinishedSalvaging = DateTime.UtcNow;
 
                             if (!Cache.Instance.AfterMissionSalvageBookmarks.Any() && !Cache.Instance.GateInGrid())
                             {
@@ -1130,6 +1151,7 @@ namespace Questor.Behaviors
                             }
                             break;
                         }
+
                         //we __cannot ever__ approach in salvage.cs so this section _is_ needed.
                         Salvage.MoveIntoRangeOfWrecks();
                         try
@@ -1139,6 +1161,7 @@ namespace Questor.Behaviors
                             _salvage.ReserveCargoCapacity = 80;
                             _salvage.LootEverything = true;
                             _salvage.ProcessState();
+
                             //Logging.Log("number of max cache ship: " + Cache.Instance.DirectEve.ActiveShip.MaxLockedTargets);
                             //Logging.Log("number of max cache me: " + Cache.Instance.DirectEve.Me.MaxLockedTargets);
                             //Logging.Log("number of max math.min: " + _salvage.MaximumWreckTargets);
@@ -1152,7 +1175,6 @@ namespace Questor.Behaviors
 
                 case CombatMissionsBehaviorState.SalvageUseGate:
                     Cache.Instance.OpenWrecks = true;
-
 
                     if (Cache.Instance.AccelerationGates == null || !Cache.Instance.AccelerationGates.Any())
                     {
@@ -1179,7 +1201,7 @@ namespace Questor.Behaviors
                         _lastPulse = DateTime.UtcNow;
                         return;
                     }
-                    
+
                     if (closest.Distance < (int)Distance.WarptoDistance)
                     {
                         // Move to the target
@@ -1215,10 +1237,11 @@ namespace Questor.Behaviors
                         _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Salvage;
                         return;
                     }
-                    
+
                     if (DateTime.UtcNow.Subtract(_lastPulse).TotalMinutes > 2)
                     {
                         Logging.Log("CombatMissionsBehavior.Salvage", "We have timed out, retry last action", Logging.White);
+
                         // We have reached a timeout, revert to ExecutePocketActions (e.g. most likely Activate)
                         _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.SalvageUseGate;
                     }
@@ -1278,6 +1301,7 @@ namespace Questor.Behaviors
                     else
                     {
                         Traveler.ProcessState();
+
                         //we also assume you are connected during a manual set of questor into travel mode (safe assumption considering someone is at the kb)
                         Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
@@ -1290,14 +1314,14 @@ namespace Questor.Behaviors
                                 _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Error;
                                 return;
                             }
-                            
+
                             if (Cache.Instance.InSpace)
                             {
                                 Logging.Log("CombatMissionsBehavior.Traveler", "Arrived at destination (in space, Questor stopped)", Logging.White);
                                 _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Error;
                                 return;
                             }
-                            
+
                             Logging.Log("CombatMissionsBehavior.Traveler", "Arrived at destination", Logging.White);
                             _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Idle;
                             return;
@@ -1317,7 +1341,7 @@ namespace Questor.Behaviors
                             _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Salvage;
                             break;
                         }
-                        
+
                         if (station.Distance < 1900)
                         {
                             if (DateTime.UtcNow > Cache.Instance.NextDockAction)

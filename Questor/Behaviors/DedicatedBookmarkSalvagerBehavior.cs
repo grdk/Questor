@@ -239,7 +239,7 @@ namespace Questor.Behaviors
                         Logging.Log("DedicatedBookmarkSalvagerBehavior", "Started questor while in space, heading back to base in 15 seconds", Logging.White);
                         LastAction = DateTime.UtcNow;
                         Cache.Instance.NextSalvageTrip = DateTime.UtcNow;
-                         _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.CheckBookmarkAge;
+                        _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.CheckBookmarkAge;
                         break;
                     }
 
@@ -411,6 +411,7 @@ namespace Questor.Behaviors
                                 Logging.Log("DedicatedBookmarkSalvagerBehavior", "CheckBookmarkAge: There are [" + BookmarksThatAreNotReadyYet.Count() + "] Salvage Bookmarks that have not yet aged [" + Settings.Instance.AgeofBookmarksForSalvageBehavior + "] min.", Logging.White);
                             }
                             Logging.Log("DedicatedBookmarkSalvagerBehavior", "CheckBookmarkAge: Character mode is BookmarkSalvager and no bookmarks are ready to salvage.", Logging.White);
+
                             //We just need a NextSalvagerSession timestamp to key off of here to add the delay
                             if (Cache.Instance.InSpace)
                             {
@@ -420,15 +421,15 @@ namespace Questor.Behaviors
                                 _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.GotoBase;
                                 break;
                             }
-                            
+
                             _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.Idle;
                             _States.CurrentQuestorState = QuestorState.Idle;
                             Cache.Instance.NextSalvageTrip = DateTime.UtcNow.AddMinutes(Time.Instance.DelayBetweenSalvagingSessions_minutes);
 
                             break;
                         }
-                        
-                        Logging.Log("DedicatedBookmarkSalvagerBehavior", "CheckBookmarkAge: There are [ " + Cache.Instance.AfterMissionSalvageBookmarks.Count()+ " ] more salvage bookmarks older then:" + Cache.Instance.AgedDate.ToString(CultureInfo.InvariantCulture) + ", left to process", Logging.White);
+
+                        Logging.Log("DedicatedBookmarkSalvagerBehavior", "CheckBookmarkAge: There are [ " + Cache.Instance.AfterMissionSalvageBookmarks.Count() + " ] more salvage bookmarks older then:" + Cache.Instance.AgedDate.ToString(CultureInfo.InvariantCulture) + ", left to process", Logging.White);
                         _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.BeginAfterMissionSalvaging;
                         Statistics.Instance.StartedSalvaging = DateTime.UtcNow;
                     }
@@ -485,6 +486,7 @@ namespace Questor.Behaviors
                             Traveler.Destination = new BookmarkDestination(bookmark);
                         }
                         _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.GotoSalvageBookmark;
+
                         //we know we are connected here
                         Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.LastInWarp = DateTime.UtcNow;
@@ -498,6 +500,7 @@ namespace Questor.Behaviors
                     if (Cache.Instance.GateInGrid())
                     {
                         Logging.Log("DedicatedBookmarkSalvagerBehavior", "GotoSalvageBookmark: We found gate in salvage bookmark. Going back to Base", Logging.White);
+
                         //we know we are connected here
                         Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
@@ -510,6 +513,7 @@ namespace Questor.Behaviors
                     if (_States.CurrentTravelerState == TravelerState.AtDestination)
                     {
                         Logging.Log("DedicatedBookmarkSalvagerBehavior", "GotoSalvageBookmark: Gate not found, we can start salvaging", Logging.White);
+
                         //we know we are connected here
                         Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
@@ -532,13 +536,14 @@ namespace Questor.Behaviors
                     Cache.Instance.OpenWrecks = true;
 
                     const int distanceToCheck = (int)Distance.OnGridWithMe;
+
                     // is there any NPCs within distanceToCheck?
                     EntityCache deadlyNPC = Cache.Instance.Entities.Where(t => t.Distance < distanceToCheck && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeCollidableStructure).OrderBy(t => t.Distance).FirstOrDefault();
 
                     if (deadlyNPC != null)
                     {
                         Logging.Log("DedicatedBookmarkSalvagerBehavior.Salvage", "Npc name:[" + deadlyNPC.Name + "] with groupId:[" + deadlyNPC.GroupId + "].", Logging.White);
-                       
+
                         // found NPCs that will likely kill out fragile salvage boat!
 
                         DirectBookmark bookmark = Cache.Instance.AfterMissionSalvageBookmarks.OrderBy(b => b.CreatedOn).FirstOrDefault();
@@ -547,13 +552,13 @@ namespace Questor.Behaviors
                             Cache.Instance.DeleteBookmarksOnGrid("DedicatedBookmarkSalvageBehavior");
                             return;
                         }
-                        
+
                         Statistics.Instance.FinishedSalvaging = DateTime.UtcNow;
                         Cache.Instance.NextSalvageTrip = DateTime.UtcNow;
                         _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.GotoBase;
                         return;
                     }
-                    
+
                     if (!Cache.Instance.OpenCargoHold("DedicatedBookmarkSalvageBehavior: Salvage")) break;
 
                     if (Cache.Instance.CargoHold.IsValid && (Cache.Instance.CargoHold.Capacity - Cache.Instance.CargoHold.UsedCapacity) < Settings.Instance.ReserveCargoCapacity)

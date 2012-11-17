@@ -462,7 +462,7 @@ namespace Questor.Behaviors
                         if (_States.CurrentCombatHelperBehaviorState == CombatHelperBehaviorState.Traveler) _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.Error;
                     }
                     else if (destination.Count == 1 && destination.First() == 0)
-                            destination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
+                        destination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
                     if (destination != null && (Traveler.Destination == null || Traveler.Destination.SolarSystemId != destination.Last()))
                     {
                         IEnumerable<DirectBookmark> bookmarks = Cache.Instance.DirectEve.Bookmarks.Where(b => b.LocationId == destination.Last()).ToList();
@@ -477,6 +477,7 @@ namespace Questor.Behaviors
                     else
                     {
                         Traveler.ProcessState();
+
                         //we also assume you are connected during a manual set of questor into travel mode (safe assumption considering someone is at the kb)
                         Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                         Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
