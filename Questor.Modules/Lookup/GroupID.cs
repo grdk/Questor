@@ -16,6 +16,7 @@ namespace Questor.Modules.Lookup
         Stargate = 10,
         AsteroidBelt = 9,
         AccelerationGate = 366,
+        JumpBridge = 707,
 
         Capsule = 29,
 
@@ -38,7 +39,7 @@ namespace Questor.Modules.Lookup
         SensorDampener = 208,
         TrackingComputer = 213,
         TrackingDisruptor = 291,
-        
+
         TrackingScript = 907,
         WarpDisruptionScript = 908,
         TrackingDisruptionScript = 909,
@@ -72,11 +73,11 @@ namespace Questor.Modules.Lookup
         HeavyMissilelaunchers = 510,
         AssaultMissilelaunchers = 511,
         DefenderMissilelaunchers = 512,
-        
+
         Miners = 54, // Miner I, Miner II, etc - Mining Tool GroupIDs
         StripMiners = 464, // Strip Miner I, etc - Mining Tool GroupIDs
         ModulatedStripMiners = 483, // Modulated Strip Miners, etc - Mining Tool GroupIDs
-        
+
         SentryGun = 99,                       //Protecting the weak and upholding the law
 
         ProtectiveSentryGun = 180,
@@ -112,7 +113,6 @@ namespace Questor.Modules.Lookup
         Merchant = 297,
         Mission_Merchant = 1006, //dread pirate scarlet
         FactionWarfareNPC = 288,
-
 
         Shuttle = 31,
         Industrial = 28,
@@ -153,6 +153,8 @@ namespace Questor.Modules.Lookup
         SmallArms = 280,
         AccelerationGateKeys = 474,
 
+        Minerals = 18,
+
         Plagioclase = 458,
         Spodumain = 461,
         Kernite = 457,
@@ -169,7 +171,7 @@ namespace Questor.Modules.Lookup
         Hemorphite = 455,
         DarkOchre = 453,
         Ice = 465,
-        
+
         //
         // various NPCs
         //

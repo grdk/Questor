@@ -1,5 +1,4 @@
-﻿
-namespace Questor.Modules.Actions
+﻿namespace Questor.Modules.Actions
 {
     using System;
     using System.Collections.Generic;
@@ -33,7 +32,7 @@ namespace Questor.Modules.Actions
             DirectContainer hangar = null;
 
             if (!Cache.Instance.ReadyItemsHangar("Drop")) return;
-            if (!Cache.Instance.ReadyShipsHangar("Drop")) return;
+            if (!Cache.Instance.OpenShipsHangar("Drop")) return;
 
             if ("Local Hangar" == Hangar)
                 hangar = Cache.Instance.ItemHangar;
@@ -63,7 +62,7 @@ namespace Questor.Modules.Actions
                     }
                     else if ("Ship Hangar" == Hangar)
                     {
-                        if (!Cache.Instance.ReadyShipsHangar("Drop")) return;
+                        if (!Cache.Instance.OpenShipsHangar("Drop")) return;
                     }
                     else
                     {

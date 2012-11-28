@@ -21,7 +21,7 @@ namespace Questor.Modules.BackgroundTasks
     public class Defense
     {
         private DateTime _lastSessionChange = Cache.Instance.StartTime;
-        
+
         private DateTime _lastPulse = DateTime.UtcNow;
         private int _trackingLinkScriptAttempts;
         private int _sensorBoosterScriptAttempts;
@@ -45,8 +45,8 @@ namespace Questor.Modules.BackgroundTasks
                 // We have enough ammo loaded
                 if (module.Charge != null && module.Charge.TypeId == scriptToLoad.TypeId && module.CurrentCharges >= 1)
                 {
-                    Logging.Log("LoadthisScript","module is already loaded with the script we wanted",Logging.Teal);
-                    NextScriptReload[module.ItemId] = DateTime.UtcNow.AddSeconds(15); //mark this weapon as reloaded... by the time we need to reload this timer will have aged enough... 
+                    Logging.Log("LoadthisScript", "module is already loaded with the script we wanted", Logging.Teal);
+                    NextScriptReload[module.ItemId] = DateTime.UtcNow.AddSeconds(15); //mark this weapon as reloaded... by the time we need to reload this timer will have aged enough...
                     return false;
                 }
 
@@ -96,25 +96,26 @@ namespace Questor.Modules.BackgroundTasks
                     continue;
 
                 //if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "Found Activatable Module [typeid: " + module.TypeId + "][groupID: " + module.GroupId +  "]", Logging.White);
-                        
-                if (module.GroupId == (int) Group.TrackingDisruptor ||
-                    module.GroupId == (int) Group.TrackingComputer ||
-                    module.GroupId == (int) Group.TrackingLink ||
-                    module.GroupId == (int) Group.SensorBooster ||
-                    module.GroupId == (int) Group.SensorDampener ||
-                    module.GroupId == (int) Group.AncillaryShieldBooster)
+
+                if (module.GroupId == (int)Group.TrackingDisruptor ||
+                    module.GroupId == (int)Group.TrackingComputer ||
+                    module.GroupId == (int)Group.TrackingLink ||
+                    module.GroupId == (int)Group.SensorBooster ||
+                    module.GroupId == (int)Group.SensorDampener ||
+                    module.GroupId == (int)Group.AncillaryShieldBooster)
                 {
                     //if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "---Found mod that could take a script [typeid: " + module.TypeId + "][groupID: " + module.GroupId + "][module.CurrentCharges [" + module.CurrentCharges + "]", Logging.White);
                     if (module.CurrentCharges < 1)
                     {
-                        if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "Found Activatable Module with no charge[typeID:" + module.TypeId  + "]", Logging.White);
+                        if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "Found Activatable Module with no charge[typeID:" + module.TypeId + "]", Logging.White);
                         DirectItem scriptToLoad;
                         if (module.GroupId == (int)Group.TrackingDisruptor && _trackingDisruptorScriptAttempts < 5)
                         {
                             _trackingDisruptorScriptAttempts++;
                             if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "TrackingDisruptor Found", Logging.White);
                             scriptToLoad = Cache.Instance.CheckCargoForItem(Settings.Instance.TrackingDisruptorScript, 1);
-                            // this needs a counter and an abort after 10 tries or so... or itll keep checking the cargo for a script that may not exist 
+
+                            // this needs a counter and an abort after 10 tries or so... or itll keep checking the cargo for a script that may not exist
                             // every second we are in space!
                             if (scriptToLoad != null)
                             {
@@ -125,7 +126,7 @@ namespace Questor.Modules.BackgroundTasks
                                     Cache.Instance.NextActivateSupportModules = DateTime.UtcNow.AddSeconds(2);
                                     return;
                                 }
-                                
+
                                 if (module.IsActive || module.IsDeactivating || module.IsChangingAmmo || module.InLimboState || module.IsGoingOnline || !module.IsOnline)
                                 {
                                     Cache.Instance.NextActivateSupportModules = DateTime.UtcNow.AddMilliseconds(Time.Instance.DefenceDelay_milliseconds);
@@ -135,7 +136,7 @@ namespace Questor.Modules.BackgroundTasks
 
                                 if (!LoadthisScript(scriptToLoad, module))
                                 {
-                                    ModuleNumber++; 
+                                    ModuleNumber++;
                                     continue;
                                 }
                             }
@@ -143,7 +144,7 @@ namespace Questor.Modules.BackgroundTasks
                             continue;
                         }
 
-                        if (module.GroupId == (int) Group.TrackingComputer && _trackingComputerScriptAttempts < 5)
+                        if (module.GroupId == (int)Group.TrackingComputer && _trackingComputerScriptAttempts < 5)
                         {
                             _trackingComputerScriptAttempts++;
                             if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "TrackingComputer Found", Logging.White);
@@ -175,7 +176,7 @@ namespace Questor.Modules.BackgroundTasks
                             continue;
                         }
 
-                        if (module.GroupId == (int) Group.TrackingLink && _trackingLinkScriptAttempts < 5)
+                        if (module.GroupId == (int)Group.TrackingLink && _trackingLinkScriptAttempts < 5)
                         {
                             _trackingLinkScriptAttempts++;
                             if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "TrackingLink Found", Logging.White);
@@ -207,7 +208,7 @@ namespace Questor.Modules.BackgroundTasks
                             continue;
                         }
 
-                        if (module.GroupId == (int) Group.SensorBooster && _sensorBoosterScriptAttempts < 5)
+                        if (module.GroupId == (int)Group.SensorBooster && _sensorBoosterScriptAttempts < 5)
                         {
                             _sensorBoosterScriptAttempts++;
                             if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "SensorBooster Found", Logging.White);
@@ -239,7 +240,7 @@ namespace Questor.Modules.BackgroundTasks
                             continue;
                         }
 
-                        if (module.GroupId == (int) Group.SensorDampener && _sensorDampenerScriptAttempts < 5)
+                        if (module.GroupId == (int)Group.SensorDampener && _sensorDampenerScriptAttempts < 5)
                         {
                             _sensorDampenerScriptAttempts++;
                             if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "SensorDampener Found", Logging.White);
@@ -381,6 +382,7 @@ namespace Questor.Modules.BackgroundTasks
                         }
                     }
                 }
+
                 //
                 // at this point the module should be active but is not: activate it, set the delay and return. The process will resume on the next tick
                 //
@@ -471,7 +473,7 @@ namespace Questor.Modules.BackgroundTasks
                         if (aggressiveEntities == 0 && Cache.Instance.Entities.Count(e => e.Distance < (int)Distance.OnGridWithMe && e.IsStation) == 1)
                         {
                             Cache.Instance.NextDockAction = DateTime.UtcNow.AddSeconds(15);
-                            Logging.Log("Defense", "Repairing Armor outside station with no aggro (yet): delaying docking for [15]seconds" , Logging.White);
+                            Logging.Log("Defense", "Repairing Armor outside station with no aggro (yet): delaying docking for [15]seconds", Logging.White);
                         }
                     }
 
@@ -501,6 +503,7 @@ namespace Questor.Modules.BackgroundTasks
                         perc = Cache.Instance.DirectEve.ActiveShip.ArmorPercentage;
                         Logging.Log("Defense", "Armor: [" + Math.Round(perc, 0) + "%] Cap: [" + Math.Round(cap, 0) + "%] Armor Repairer: [" + ModuleNumber + "] deactivated [" + Math.Round(Cache.Instance.NextRepModuleAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + "] sec reactivation delay", Logging.White);
                     }
+
                     //Cache.Instance.repair_cycle_time_this_pocket = Cache.Instance.repair_cycle_time_this_pocket + ((int)watch.Elapsed);
                     //Cache.Instance.repair_cycle_time_this_mission = Cache.Instance.repair_cycle_time_this_mission + watch.Elapsed.TotalMinutes;
                     continue;
@@ -538,6 +541,7 @@ namespace Questor.Modules.BackgroundTasks
                 {
                     // Activate if target is far enough
                     activate &= Cache.Instance.Approaching.Distance > Settings.Instance.MinimumPropulsionModuleDistance;
+
                     // Deactivate if target is too close
                     deactivate |= Cache.Instance.Approaching.Distance < Settings.Instance.MinimumPropulsionModuleDistance;
                 }
@@ -611,7 +615,7 @@ namespace Questor.Modules.BackgroundTasks
 
             // this effectively disables control of speed modules when paused, which is expected behavior
             if (Cache.Instance.Paused)
-            { 
+            {
                 return;
             }
 

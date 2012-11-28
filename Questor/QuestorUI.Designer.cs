@@ -132,7 +132,7 @@
             this.NextActivateSupportModuleslbl = new System.Windows.Forms.Label();
             this.NextRepModuleActionData = new System.Windows.Forms.Label();
             this.NextRepModuleActionlbl = new System.Windows.Forms.Label();
-            this.label31 = new System.Windows.Forms.Label();
+            this.NextAfterburnerActionData = new System.Windows.Forms.Label();
             this.NextAfterburnerActionlbl = new System.Windows.Forms.Label();
             this.NextDefenceModuleActionData = new System.Windows.Forms.Label();
             this.NextDefenceModuleActionlbl = new System.Windows.Forms.Label();
@@ -183,6 +183,10 @@
             this.BlacklistedMissionstextbox = new System.Windows.Forms.TextBox();
             this.GreyListedMissionsTextBox = new System.Windows.Forms.TextBox();
             this.tabSchedule = new System.Windows.Forms.TabPage();
+            this.btnSetQuestorQuittingFlag = new System.Windows.Forms.Button();
+            this.brnSetStopTimetoNow = new System.Windows.Forms.Button();
+            this.dataStopTimeSpecified = new System.Windows.Forms.Label();
+            this.lblStopTimeSpecified = new System.Windows.Forms.Label();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.MissionsThisSessionData = new System.Windows.Forms.Label();
             this.MissionsThisSessionlbl = new System.Windows.Forms.Label();
@@ -207,6 +211,8 @@
             this.ScheduleWarninglabel1 = new System.Windows.Forms.Label();
             this.ExitWhenIdleCheckBox = new System.Windows.Forms.CheckBox();
             this.tabStates = new System.Windows.Forms.TabPage();
+            this.btnSendTestEmail = new System.Windows.Forms.Button();
+            this.bttnMaintainConsoleLogs = new System.Windows.Forms.Button();
             this.OutOfAmmo = new System.Windows.Forms.Button();
             this.ReloadAll = new System.Windows.Forms.Button();
             this.label19 = new System.Windows.Forms.Label();
@@ -547,6 +553,7 @@
             this.label273 = new System.Windows.Forms.Label();
             this.label274 = new System.Windows.Forms.Label();
             this.tabLowSlots = new System.Windows.Forms.TabPage();
+            this.bttnResizeEVEWindow = new System.Windows.Forms.Button();
             this.tabMiscInfo.SuspendLayout();
             this.tabTimeStamps.SuspendLayout();
             this.tabMissions.SuspendLayout();
@@ -1168,7 +1175,7 @@
             this.tabTimeStamps.Controls.Add(this.NextActivateSupportModuleslbl);
             this.tabTimeStamps.Controls.Add(this.NextRepModuleActionData);
             this.tabTimeStamps.Controls.Add(this.NextRepModuleActionlbl);
-            this.tabTimeStamps.Controls.Add(this.label31);
+            this.tabTimeStamps.Controls.Add(this.NextAfterburnerActionData);
             this.tabTimeStamps.Controls.Add(this.NextAfterburnerActionlbl);
             this.tabTimeStamps.Controls.Add(this.NextDefenceModuleActionData);
             this.tabTimeStamps.Controls.Add(this.NextDefenceModuleActionlbl);
@@ -1580,14 +1587,14 @@
             this.NextRepModuleActionlbl.TabIndex = 242;
             this.NextRepModuleActionlbl.Text = "NextRepModuleAction";
             // 
-            // label31
+            // NextAfterburnerActionData
             // 
-            this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(214, 193);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(27, 13);
-            this.label31.TabIndex = 241;
-            this.label31.Text = "N/A";
+            this.NextAfterburnerActionData.AutoSize = true;
+            this.NextAfterburnerActionData.Location = new System.Drawing.Point(214, 193);
+            this.NextAfterburnerActionData.Name = "NextAfterburnerActionData";
+            this.NextAfterburnerActionData.Size = new System.Drawing.Size(27, 13);
+            this.NextAfterburnerActionData.TabIndex = 241;
+            this.NextAfterburnerActionData.Text = "N/A";
             // 
             // NextAfterburnerActionlbl
             // 
@@ -2056,6 +2063,10 @@
             // 
             // tabSchedule
             // 
+            this.tabSchedule.Controls.Add(this.btnSetQuestorQuittingFlag);
+            this.tabSchedule.Controls.Add(this.brnSetStopTimetoNow);
+            this.tabSchedule.Controls.Add(this.dataStopTimeSpecified);
+            this.tabSchedule.Controls.Add(this.lblStopTimeSpecified);
             this.tabSchedule.Controls.Add(this.numericUpDown1);
             this.tabSchedule.Controls.Add(this.MissionsThisSessionData);
             this.tabSchedule.Controls.Add(this.MissionsThisSessionlbl);
@@ -2087,6 +2098,42 @@
             this.tabSchedule.Text = "Schedule";
             this.tabSchedule.UseVisualStyleBackColor = true;
             // 
+            // btnSetQuestorQuittingFlag
+            // 
+            this.btnSetQuestorQuittingFlag.Location = new System.Drawing.Point(395, 179);
+            this.btnSetQuestorQuittingFlag.Name = "btnSetQuestorQuittingFlag";
+            this.btnSetQuestorQuittingFlag.Size = new System.Drawing.Size(131, 52);
+            this.btnSetQuestorQuittingFlag.TabIndex = 197;
+            this.btnSetQuestorQuittingFlag.Text = "Debug: Set QuestorQuitting Flag";
+            this.btnSetQuestorQuittingFlag.UseVisualStyleBackColor = true;
+            // 
+            // brnSetStopTimetoNow
+            // 
+            this.brnSetStopTimetoNow.Location = new System.Drawing.Point(532, 179);
+            this.brnSetStopTimetoNow.Name = "brnSetStopTimetoNow";
+            this.brnSetStopTimetoNow.Size = new System.Drawing.Size(131, 52);
+            this.brnSetStopTimetoNow.TabIndex = 196;
+            this.brnSetStopTimetoNow.Text = "Debug: SetStopTime timestamp to NOW";
+            this.brnSetStopTimetoNow.UseVisualStyleBackColor = true;
+            // 
+            // dataStopTimeSpecified
+            // 
+            this.dataStopTimeSpecified.AutoSize = true;
+            this.dataStopTimeSpecified.Location = new System.Drawing.Point(625, 154);
+            this.dataStopTimeSpecified.Name = "dataStopTimeSpecified";
+            this.dataStopTimeSpecified.Size = new System.Drawing.Size(27, 13);
+            this.dataStopTimeSpecified.TabIndex = 195;
+            this.dataStopTimeSpecified.Text = "N/A";
+            // 
+            // lblStopTimeSpecified
+            // 
+            this.lblStopTimeSpecified.AutoSize = true;
+            this.lblStopTimeSpecified.Location = new System.Drawing.Point(529, 154);
+            this.lblStopTimeSpecified.Name = "lblStopTimeSpecified";
+            this.lblStopTimeSpecified.Size = new System.Drawing.Size(94, 13);
+            this.lblStopTimeSpecified.TabIndex = 194;
+            this.lblStopTimeSpecified.Text = "stopTimeSpecified";
+            // 
             // numericUpDown1
             // 
             this.numericUpDown1.Location = new System.Drawing.Point(152, 166);
@@ -2098,7 +2145,7 @@
             // MissionsThisSessionData
             // 
             this.MissionsThisSessionData.AutoSize = true;
-            this.MissionsThisSessionData.Location = new System.Drawing.Point(401, 168);
+            this.MissionsThisSessionData.Location = new System.Drawing.Point(629, 15);
             this.MissionsThisSessionData.Name = "MissionsThisSessionData";
             this.MissionsThisSessionData.Size = new System.Drawing.Size(24, 13);
             this.MissionsThisSessionData.TabIndex = 192;
@@ -2107,7 +2154,7 @@
             // MissionsThisSessionlbl
             // 
             this.MissionsThisSessionlbl.AutoSize = true;
-            this.MissionsThisSessionlbl.Location = new System.Drawing.Point(288, 168);
+            this.MissionsThisSessionlbl.Location = new System.Drawing.Point(516, 15);
             this.MissionsThisSessionlbl.Name = "MissionsThisSessionlbl";
             this.MissionsThisSessionlbl.Size = new System.Drawing.Size(107, 13);
             this.MissionsThisSessionlbl.TabIndex = 191;
@@ -2176,7 +2223,7 @@
             // lastKnownGoodConnectedTimeLabel
             // 
             this.lastKnownGoodConnectedTimeLabel.AutoSize = true;
-            this.lastKnownGoodConnectedTimeLabel.Location = new System.Drawing.Point(463, 132);
+            this.lastKnownGoodConnectedTimeLabel.Location = new System.Drawing.Point(466, 132);
             this.lastKnownGoodConnectedTimeLabel.Name = "lastKnownGoodConnectedTimeLabel";
             this.lastKnownGoodConnectedTimeLabel.Size = new System.Drawing.Size(157, 13);
             this.lastKnownGoodConnectedTimeLabel.TabIndex = 182;
@@ -2306,6 +2353,9 @@
             // 
             // tabStates
             // 
+            this.tabStates.Controls.Add(this.bttnResizeEVEWindow);
+            this.tabStates.Controls.Add(this.btnSendTestEmail);
+            this.tabStates.Controls.Add(this.bttnMaintainConsoleLogs);
             this.tabStates.Controls.Add(this.OutOfAmmo);
             this.tabStates.Controls.Add(this.ReloadAll);
             this.tabStates.Controls.Add(this.label19);
@@ -2320,13 +2370,33 @@
             this.tabStates.Text = "States";
             this.tabStates.UseVisualStyleBackColor = true;
             // 
+            // btnSendTestEmail
+            // 
+            this.btnSendTestEmail.Location = new System.Drawing.Point(544, 124);
+            this.btnSendTestEmail.Name = "btnSendTestEmail";
+            this.btnSendTestEmail.Size = new System.Drawing.Size(131, 23);
+            this.btnSendTestEmail.TabIndex = 172;
+            this.btnSendTestEmail.Text = "Debug: Send Test Email";
+            this.btnSendTestEmail.UseVisualStyleBackColor = true;
+            this.btnSendTestEmail.Click += new System.EventHandler(this.btnSendTestEmail_Click);
+            // 
+            // bttnMaintainConsoleLogs
+            // 
+            this.bttnMaintainConsoleLogs.Location = new System.Drawing.Point(544, 95);
+            this.bttnMaintainConsoleLogs.Name = "bttnMaintainConsoleLogs";
+            this.bttnMaintainConsoleLogs.Size = new System.Drawing.Size(131, 23);
+            this.bttnMaintainConsoleLogs.TabIndex = 171;
+            this.bttnMaintainConsoleLogs.Text = "Maintain Console Logs";
+            this.bttnMaintainConsoleLogs.UseVisualStyleBackColor = true;
+            this.bttnMaintainConsoleLogs.Click += new System.EventHandler(this.bttnMaintainConsoleLogs_Click);
+            // 
             // OutOfAmmo
             // 
-            this.OutOfAmmo.Location = new System.Drawing.Point(544, 65);
+            this.OutOfAmmo.Location = new System.Drawing.Point(544, 63);
             this.OutOfAmmo.Name = "OutOfAmmo";
             this.OutOfAmmo.Size = new System.Drawing.Size(131, 23);
             this.OutOfAmmo.TabIndex = 170;
-            this.OutOfAmmo.Text = "Simulate: OutOfAmmo";
+            this.OutOfAmmo.Text = "Debug: OutOfAmmo";
             this.OutOfAmmo.UseVisualStyleBackColor = true;
             this.OutOfAmmo.Click += new System.EventHandler(this.OutOfAmmoClick);
             // 
@@ -2336,7 +2406,7 @@
             this.ReloadAll.Name = "ReloadAll";
             this.ReloadAll.Size = new System.Drawing.Size(131, 23);
             this.ReloadAll.TabIndex = 169;
-            this.ReloadAll.Text = "ReloadAll()";
+            this.ReloadAll.Text = "Debug: ReloadAll()";
             this.ReloadAll.UseVisualStyleBackColor = true;
             this.ReloadAll.Click += new System.EventHandler(this.ReloadAllClick);
             // 
@@ -2532,7 +2602,7 @@
             // 
             this.AgentInteractionStateComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.AgentInteractionStateComboBox.FormattingEnabled = true;
-            this.AgentInteractionStateComboBox.Location = new System.Drawing.Point(131, 168);
+            this.AgentInteractionStateComboBox.Location = new System.Drawing.Point(130, 167);
             this.AgentInteractionStateComboBox.Name = "AgentInteractionStateComboBox";
             this.AgentInteractionStateComboBox.Size = new System.Drawing.Size(130, 21);
             this.AgentInteractionStateComboBox.TabIndex = 167;
@@ -2543,7 +2613,7 @@
             // 
             this.TravelerStateComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.TravelerStateComboBox.FormattingEnabled = true;
-            this.TravelerStateComboBox.Location = new System.Drawing.Point(131, 138);
+            this.TravelerStateComboBox.Location = new System.Drawing.Point(130, 138);
             this.TravelerStateComboBox.Name = "TravelerStateComboBox";
             this.TravelerStateComboBox.Size = new System.Drawing.Size(130, 21);
             this.TravelerStateComboBox.TabIndex = 166;
@@ -2563,7 +2633,7 @@
             // 
             this.UnloadStateComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.UnloadStateComboBox.FormattingEnabled = true;
-            this.UnloadStateComboBox.Location = new System.Drawing.Point(131, 108);
+            this.UnloadStateComboBox.Location = new System.Drawing.Point(130, 107);
             this.UnloadStateComboBox.Name = "UnloadStateComboBox";
             this.UnloadStateComboBox.Size = new System.Drawing.Size(130, 21);
             this.UnloadStateComboBox.TabIndex = 164;
@@ -2574,7 +2644,7 @@
             // 
             this.ArmStateComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ArmStateComboBox.FormattingEnabled = true;
-            this.ArmStateComboBox.Location = new System.Drawing.Point(131, 78);
+            this.ArmStateComboBox.Location = new System.Drawing.Point(131, 76);
             this.ArmStateComboBox.Name = "ArmStateComboBox";
             this.ArmStateComboBox.Size = new System.Drawing.Size(130, 21);
             this.ArmStateComboBox.TabIndex = 163;
@@ -2585,7 +2655,7 @@
             // 
             this.StorylineStateComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.StorylineStateComboBox.FormattingEnabled = true;
-            this.StorylineStateComboBox.Location = new System.Drawing.Point(131, 47);
+            this.StorylineStateComboBox.Location = new System.Drawing.Point(130, 46);
             this.StorylineStateComboBox.Name = "StorylineStateComboBox";
             this.StorylineStateComboBox.Size = new System.Drawing.Size(130, 21);
             this.StorylineStateComboBox.TabIndex = 162;
@@ -2596,7 +2666,7 @@
             // 
             this.CombatMissionCtrlStateComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.CombatMissionCtrlStateComboBox.FormattingEnabled = true;
-            this.CombatMissionCtrlStateComboBox.Location = new System.Drawing.Point(131, 17);
+            this.CombatMissionCtrlStateComboBox.Location = new System.Drawing.Point(130, 16);
             this.CombatMissionCtrlStateComboBox.Name = "CombatMissionCtrlStateComboBox";
             this.CombatMissionCtrlStateComboBox.Size = new System.Drawing.Size(130, 21);
             this.CombatMissionCtrlStateComboBox.TabIndex = 160;
@@ -2604,7 +2674,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(0, 20);
+            this.label13.Location = new System.Drawing.Point(1, 19);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(124, 13);
             this.label13.TabIndex = 159;
@@ -2613,7 +2683,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(46, 49);
+            this.label12.Location = new System.Drawing.Point(47, 49);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(78, 13);
             this.label12.TabIndex = 157;
@@ -2622,7 +2692,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(8, 171);
+            this.label7.Location = new System.Drawing.Point(9, 170);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(116, 13);
             this.label7.TabIndex = 156;
@@ -2631,7 +2701,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(52, 111);
+            this.label6.Location = new System.Drawing.Point(52, 110);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(72, 13);
             this.label6.TabIndex = 155;
@@ -3173,7 +3243,7 @@
             this.btnStackItemsHangar.UseVisualStyleBackColor = true;
             this.btnStackItemsHangar.Click += new System.EventHandler(this.btnStackItemsHangar_Click);
             // 
-            // btnReadyItemsHangar
+            // btnOpenItemsHangar
             // 
             this.btnOpenItemsHangar.Location = new System.Drawing.Point(11, 19);
             this.btnOpenItemsHangar.Name = "btnOpenItemsHangar";
@@ -5776,6 +5846,16 @@
             this.tabLowSlots.Text = "LowSlots";
             this.tabLowSlots.UseVisualStyleBackColor = true;
             // 
+            // bttnResizeEVEWindow
+            // 
+            this.bttnResizeEVEWindow.Location = new System.Drawing.Point(544, 155);
+            this.bttnResizeEVEWindow.Name = "bttnResizeEVEWindow";
+            this.bttnResizeEVEWindow.Size = new System.Drawing.Size(131, 47);
+            this.bttnResizeEVEWindow.TabIndex = 173;
+            this.bttnResizeEVEWindow.Text = "Debug: Resize EVE Window to 1280x960";
+            this.bttnResizeEVEWindow.UseVisualStyleBackColor = true;
+            this.bttnResizeEVEWindow.Click += new System.EventHandler(this.bttnResizeEVEWindow_Click);
+            // 
             // QuestorfrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -5957,7 +6037,7 @@
         private System.Windows.Forms.Label NextActivateSupportModuleslbl;
         private System.Windows.Forms.Label NextRepModuleActionData;
         private System.Windows.Forms.Label NextRepModuleActionlbl;
-        private System.Windows.Forms.Label label31;
+        private System.Windows.Forms.Label NextAfterburnerActionData;
         private System.Windows.Forms.Label NextAfterburnerActionlbl;
         private System.Windows.Forms.Label NextDefenceModuleActionData;
         private System.Windows.Forms.Label NextDefenceModuleActionlbl;
@@ -6374,6 +6454,13 @@
         private System.Windows.Forms.Button bttnCloseCargoHold;
         private System.Windows.Forms.Button bttnStackCargoHold;
         private System.Windows.Forms.Button bttnOpenCargoHold;
+        private System.Windows.Forms.Label dataStopTimeSpecified;
+        private System.Windows.Forms.Label lblStopTimeSpecified;
+        private System.Windows.Forms.Button btnSetQuestorQuittingFlag;
+        private System.Windows.Forms.Button brnSetStopTimetoNow;
+        private System.Windows.Forms.Button bttnMaintainConsoleLogs;
+        private System.Windows.Forms.Button btnSendTestEmail;
+        private System.Windows.Forms.Button bttnResizeEVEWindow;
     }
 }
 

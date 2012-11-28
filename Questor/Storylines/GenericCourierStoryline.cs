@@ -20,7 +20,7 @@ namespace Questor.Storylines
         {
             if (_nextAction > DateTime.UtcNow)
                 return StorylineState.Arm;
-            if (!Cache.Instance.ReadyShipsHangar("Arm"))
+            if (!Cache.Instance.OpenShipsHangar("Arm"))
                 return StorylineState.Arm;
 
             // Are we in an industrial?  Yes, goto the agent

@@ -48,6 +48,7 @@ namespace Questor.Modules.Logging
         ///   Singleton implementation
         /// </summary>
         private static readonly Statistics _instance = new Statistics();
+
         public DateTime LastMissionCompletionError;
 
         public static Statistics Instance
@@ -77,17 +78,14 @@ namespace Questor.Modules.Logging
                 if (containerEntity != null)
                 {
                     // Log all items found in the wreck
-                    File.AppendAllText(Settings.Instance.WreckLootStatisticsFile,
-                                       "TIME: " + string.Format("{0:dd/MM/yyyy HH:mm:ss}", DateTimeForLogs) + "\n");
+                    File.AppendAllText(Settings.Instance.WreckLootStatisticsFile, "TIME: " + string.Format("{0:dd/MM/yyyy HH:mm:ss}", DateTimeForLogs) + "\n");
                     File.AppendAllText(Settings.Instance.WreckLootStatisticsFile, "NAME: " + containerEntity.Name + "\n");
                     File.AppendAllText(Settings.Instance.WreckLootStatisticsFile, "ITEMS:" + "\n");
                     foreach (ItemCache item in items.OrderBy(i => i.TypeId))
                     {
-                        File.AppendAllText(Settings.Instance.WreckLootStatisticsFile,
-                                           "TypeID: " + item.TypeId.ToString(CultureInfo.InvariantCulture) + "\n");
+                        File.AppendAllText(Settings.Instance.WreckLootStatisticsFile, "TypeID: " + item.TypeId.ToString(CultureInfo.InvariantCulture) + "\n");
                         File.AppendAllText(Settings.Instance.WreckLootStatisticsFile, "Name: " + item.Name + "\n");
-                        File.AppendAllText(Settings.Instance.WreckLootStatisticsFile,
-                                           "Quantity: " + item.Quantity.ToString(CultureInfo.InvariantCulture) + "\n");
+                        File.AppendAllText(Settings.Instance.WreckLootStatisticsFile, "Quantity: " + item.Quantity.ToString(CultureInfo.InvariantCulture) + "\n");
                         File.AppendAllText(Settings.Instance.WreckLootStatisticsFile, "=\n");
                     }
                     File.AppendAllText(Settings.Instance.WreckLootStatisticsFile, ";" + "\n");
@@ -126,11 +124,11 @@ namespace Questor.Modules.Logging
                 {
                     File.Delete(Settings.Instance.PocketObjectStatisticsFile);
                 }
+
                 //
                 // build header
                 //
-                string objectline =
-                    "Name;Distance;TypeId;GroupId;CategoryId;IsNPC;IsPlayer;TargetValue;Velocity;ID;\r\n";
+                string objectline = "Name;Distance;TypeId;GroupId;CategoryId;IsNPC;IsPlayer;TargetValue;Velocity;ID;\r\n";
                 //Logging.Log("Statistics",";PocketObjectStatistics;" + objectline,Logging.White);
                 File.AppendAllText(Settings.Instance.PocketObjectStatisticsFile, objectline);
 
@@ -149,6 +147,7 @@ namespace Questor.Modules.Logging
                     objectline += thing.TargetValue + ";";
                     objectline += Math.Round(thing.Velocity, 0) + ";";
                     objectline += thing.Id + ";\r\n";
+
                     //
                     // can we somehow get the X,Y,Z coord? If we could we could use this info to build some kind of grid layout...
                     // or at least know the distances between all the NPCs... thus be able to infer which NPCs were in which 'groups'
@@ -161,7 +160,7 @@ namespace Questor.Modules.Logging
             return true;
         }
 
-        public static bool EntityStatistics(List<EntityCache> things)
+        public static bool EntityStatistics(IEnumerable<EntityCache> things)
         {
             string objectline = "Name;Distance;TypeId;GroupId;CategoryId;IsNPC;IsPlayer;TargetValue;Velocity;ID;\r\n";
             Logging.Log("Statistics", ";EntityStatistics;" + objectline, Logging.White);
@@ -184,6 +183,7 @@ namespace Questor.Modules.Logging
                 objectline += thing.TargetValue + ";";
                 objectline += Math.Round(thing.Velocity, 0) + ";";
                 objectline += thing.Id + ";\r\n";
+
                 //
                 // can we somehow get the X,Y,Z coord? If we could we could use this info to build some kinda mission simulator...
                 // or at least know the distances between all the NPCs... thus be able to infer which NPCs were in which 'groups'
@@ -221,6 +221,7 @@ namespace Questor.Modules.Logging
             //else //assume LocalTime
             //{
             DateTimeForLogs = DateTime.Now;
+
             //}
 
             if (Settings.Instance.DroneStatsLog && !Statistics.Instance.DroneLoggingCompleted)
@@ -229,8 +230,8 @@ namespace Questor.Modules.Logging
                 if (Settings.Instance.UseDrones &&
                      Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Capsule &&
                      Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Shuttle &&
-                     Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Frigate && 
-                     Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Industrial && 
+                     Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Frigate &&
+                     Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Industrial &&
                      Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.TransportShip &&
                      Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Freighter)
                 {
@@ -264,6 +265,7 @@ namespace Questor.Modules.Logging
                     Statistics.Instance.DroneLoggingCompleted = true;
                 }
             }
+
             // Lost drone statistics stuff ends here
             return true;
         }
@@ -277,11 +279,12 @@ namespace Questor.Modules.Logging
             //else //assume LocalTime
             //{
             DateTimeForLogs = DateTime.Now;
+
             //}
 
             if (Settings.Instance.SessionsLog)
             {
-                if ((int)Cache.Instance.DirectEve.Me.Wealth != 0 || (int)Cache.Instance.DirectEve.Me.Wealth != -2147483648) // this hopefully resolves having negative maxint in the session logs occasionally
+                if (Cache.Instance.MyWalletBalance != 0 || Cache.Instance.MyWalletBalance != -2147483648) // this hopefully resolves having negative maxint in the session logs occasionally
                 {
                     //
                     // prepare the Questor Session Log - keeps track of starts, restarts and exits, and hopefully the reasons
@@ -299,7 +302,7 @@ namespace Questor.Modules.Logging
                     line += "0" + ";";                                       //RunningTime
                     line += Cache.Instance.SessionState + ";";               //SessionState
                     line += "" + ";";                                        //LastMission
-                    line += Cache.Instance.DirectEve.Me.Wealth + ";";        //WalletBalance
+                    line += Cache.Instance.MyWalletBalance + ";";        //WalletBalance
                     line += Cache.Instance.TotalMegaBytesOfMemoryUsed + ";"; //MemoryUsage
                     line += "Starting" + ";";                                //Reason
                     line += ";";                                             //IskGenerated
@@ -328,6 +331,7 @@ namespace Questor.Modules.Logging
             //else //assume LocalTime
             //{
             DateTimeForLogs = DateTime.Now;
+
             //}
 
             if (Settings.Instance.SessionsLog) // if false we do not write a sessionlog, doubles as a flag so we don't write the sessionlog more than once
@@ -339,7 +343,9 @@ namespace Questor.Modules.Logging
                 // Get the path
 
                 if (!Directory.Exists(Settings.Instance.SessionsLogPath))
+                {
                     Directory.CreateDirectory(Settings.Instance.SessionsLogPath);
+                }
 
                 Cache.Instance.SessionIskPerHrGenerated = ((int)Cache.Instance.SessionIskGenerated / (DateTime.UtcNow.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalMinutes / 60));
                 Cache.Instance.SessionLootPerHrGenerated = ((int)Cache.Instance.SessionLootGenerated / (DateTime.UtcNow.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalMinutes / 60));
@@ -349,14 +355,16 @@ namespace Questor.Modules.Logging
 
                 // Write the header
                 if (!File.Exists(Settings.Instance.SessionsLogFile))
+                {
                     File.AppendAllText(Settings.Instance.SessionsLogFile, "Date;RunningTime;SessionState;LastMission;WalletBalance;MemoryUsage;Reason;IskGenerated;LootGenerated;LPGenerated;Isk/Hr;Loot/Hr;LP/HR;Total/HR;\r\n");
+                }
 
                 // Build the line
-                var line = DateTimeForLogs + ";";                                  // Date
+                var line = DateTimeForLogs + ";";                               // Date
                 line += Cache.Instance.SessionRunningTime + ";";                // RunningTime
                 line += Cache.Instance.SessionState + ";";                      // SessionState
                 line += Cache.Instance.MissionName + ";";                       // LastMission
-                line += ((int)Cache.Instance.DirectEve.Me.Wealth + ";");        // WalletBalance
+                line += Cache.Instance.MyWalletBalance + ";";                   // WalletBalance
                 line += ((int)Cache.Instance.TotalMegaBytesOfMemoryUsed + ";"); // MemoryUsage
                 line += Cache.Instance.ReasonToStopQuestor + ";";               // Reason to Stop Questor
                 line += Cache.Instance.SessionIskGenerated + ";";               // Isk Generated This Session
@@ -387,6 +395,7 @@ namespace Questor.Modules.Logging
             //else //assume LocalTime
             //{
             DateTimeForLogs = DateTime.Now;
+
             //}
 
             // We are not supposed to create bookmarks
@@ -417,7 +426,7 @@ namespace Questor.Modules.Logging
                 pocketstatsLine += currentPocketName + ";";                                           //Mission Name
                 pocketstatsLine += "pocket" + (Cache.Instance.PocketNumber) + ";";                                        //Pocket number
                 pocketstatsLine += ((int)DateTime.UtcNow.Subtract(Statistics.Instance.StartedMission).TotalMinutes) + ";";    //Time to Complete
-                pocketstatsLine += ((long)(Cache.Instance.DirectEve.Me.Wealth - Cache.Instance.WealthatStartofPocket)) + ";";       //Isk
+                pocketstatsLine += Cache.Instance.MyWalletBalance - Cache.Instance.WealthatStartofPocket + ";";       //Isk
                 pocketstatsLine += Cache.Instance.PanicAttemptsThisPocket + ";";               //Panics
                 pocketstatsLine += ((int)Cache.Instance.LowestShieldPercentageThisPocket) + ";";      //LowestShields
                 pocketstatsLine += ((int)Cache.Instance.LowestArmorPercentageThisPocket) + ";";       //LowestArmor
@@ -430,8 +439,9 @@ namespace Questor.Modules.Logging
                 Logging.Log("Statistics: WritePocketStatistics", "Writing pocket statistics to [ " + Settings.Instance.PocketStatisticsFile + " ] and clearing stats for next pocket", Logging.White);
                 File.AppendAllText(Settings.Instance.PocketStatisticsFile, pocketstatsLine);
             }
+
             // Update statistic values for next pocket stats
-            Cache.Instance.WealthatStartofPocket = Cache.Instance.DirectEve.Me.Wealth;
+            Cache.Instance.WealthatStartofPocket = Cache.Instance.MyWalletBalance;
             Statistics.Instance.StartedPocket = DateTime.UtcNow;
             Cache.Instance.PanicAttemptsThisPocket = 0;
             Cache.Instance.LowestShieldPercentageThisPocket = 101;
@@ -440,6 +450,7 @@ namespace Questor.Modules.Logging
             Cache.Instance.RepairCycleTimeThisPocket = 0;
             Cache.Instance.WrecksThisMission += Cache.Instance.WrecksThisPocket;
             Cache.Instance.WrecksThisPocket = 0;
+            Cache.Instance.OrbitEntityNamed = null;
         }
 
         public static void WriteMissionStatistics(long statisticsForThisAgent)
@@ -451,11 +462,12 @@ namespace Questor.Modules.Logging
             //else //assume LocalTime
             //{
             DateTimeForLogs = DateTime.Now;
+
             //}
 
             if (Cache.Instance.InSpace)
             {
-                Logging.Log("Statistics","We have started questor in space, assume we do not need to write any statistics at the moment.",Logging.Teal);
+                Logging.Log("Statistics", "We have started questor in space, assume we do not need to write any statistics at the moment.", Logging.Teal);
                 Statistics.Instance.MissionLoggingCompleted = true; //if the mission was completed more than 10 min ago assume the logging has been done already.
                 return;
             }
@@ -509,10 +521,10 @@ namespace Questor.Modules.Logging
                     Statistics.Instance.MissionLoggingCompleted = true; //if it is not true - this means we should not be trying to log mission stats atm
                 }
             }
-            
+
             if (AgentLPRetrievalAttempts > 20)
             {
-                Logging.Log("Statistics", "WriteMissionStatistics: We do not have loyalty points with the current agent yet, still -1, attempt # [" +  AgentLPRetrievalAttempts + "] giving up", Logging.White);
+                Logging.Log("Statistics", "WriteMissionStatistics: We do not have loyalty points with the current agent yet, still -1, attempt # [" + AgentLPRetrievalAttempts + "] giving up", Logging.White);
                 AgentLPRetrievalAttempts = 0;
                 Statistics.Instance.MissionLoggingCompleted = true; //if it is not true - this means we should not be trying to log mission stats atm
                 return;
@@ -529,7 +541,7 @@ namespace Questor.Modules.Logging
 
             Statistics.Instance.MissionsThisSession++;
             if (Settings.Instance.DebugStatistics) Logging.Log("Statistics", "We jumped through all the hoops: now do the mission logging", Logging.White);
-            Cache.Instance.SessionIskGenerated = (Cache.Instance.SessionIskGenerated + (Cache.Instance.DirectEve.Me.Wealth - Cache.Instance.Wealth));
+            Cache.Instance.SessionIskGenerated = (Cache.Instance.SessionIskGenerated + (Cache.Instance.MyWalletBalance - Cache.Instance.Wealth));
             Cache.Instance.SessionLootGenerated = (Cache.Instance.SessionLootGenerated + Statistics.Instance.LootValue);
             Cache.Instance.SessionLPGenerated = (Cache.Instance.SessionLPGenerated + (Cache.Instance.Agent.LoyaltyPoints - Statistics.Instance.LoyaltyPoints));
             Logging.Log("Statistics", "Printing All Statistics Related Variables to the console log:", Logging.White);
@@ -542,7 +554,7 @@ namespace Questor.Modules.Logging
             Logging.Log("Statistics", "StartedSalvaging: [ " + Statistics.Instance.StartedSalvaging + "]", Logging.White);
             Logging.Log("Statistics", "FinishedSalvaging: [ " + Statistics.Instance.FinishedSalvaging + "]", Logging.White);
             Logging.Log("Statistics", "Wealth before mission: [ " + Cache.Instance.Wealth + "]", Logging.White);
-            Logging.Log("Statistics", "Wealth after mission: [ " + Cache.Instance.DirectEve.Me.Wealth + "]", Logging.White);
+            Logging.Log("Statistics", "Wealth after mission: [ " + Cache.Instance.MyWalletBalance + "]", Logging.White);
             Logging.Log("Statistics", "Value of Loot from the mission: [" + Statistics.Instance.LootValue + "]", Logging.White);
             Logging.Log("Statistics", "Total LP after mission:  [" + Cache.Instance.Agent.LoyaltyPoints + "]", Logging.White);
             Logging.Log("Statistics", "Total LP before mission: [" + Statistics.Instance.LoyaltyPoints + "]", Logging.White);
@@ -583,13 +595,14 @@ namespace Questor.Modules.Logging
                 line += ((int)Statistics.Instance.FinishedMission.Subtract(Statistics.Instance.StartedMission).TotalMinutes) + ";";         // TimeMission
                 line += ((int)Statistics.Instance.FinishedSalvaging.Subtract(Statistics.Instance.StartedSalvaging).TotalMinutes) + ";";     // Time Doing After Mission Salvaging
                 line += ((int)DateTime.UtcNow.Subtract(Statistics.Instance.StartedMission).TotalMinutes) + ";";                                // Total Time doing Mission
-                line += ((int)(Cache.Instance.DirectEve.Me.Wealth - Cache.Instance.Wealth)) + ";";                                          // Isk (balance difference from start and finish of mission: is not accurate as the wallet ticks from bounty kills are every x minuts)
+                line += ((int)(Cache.Instance.MyWalletBalance - Cache.Instance.Wealth)) + ";";                                          // Isk (balance difference from start and finish of mission: is not accurate as the wallet ticks from bounty kills are every x minuts)
                 line += Statistics.Instance.LootValue + ";";                                                                         // Loot
                 line += (Cache.Instance.Agent.LoyaltyPoints - Statistics.Instance.LoyaltyPoints) + ";\r\n";                                 // LP
 
                 // The mission is finished
                 File.AppendAllText(Settings.Instance.MissionStats1LogFile, line);
                 Logging.Log("Statistics", "writing mission log1 to  [ " + Settings.Instance.MissionStats1LogFile + " ]", Logging.White);
+
                 //Logging.Log("Date;Mission;TimeMission;TimeSalvage;TotalTime;Isk;Loot;LP;");
                 //Logging.Log(line);
             }
@@ -606,7 +619,7 @@ namespace Questor.Modules.Logging
                 string line2 = string.Format("{0:MM/dd/yyyy HH:mm:ss}", DateTimeForLogs) + ";";                                                // Date
                 line2 += Cache.Instance.MissionName + ";";                                                                                  // Mission
                 line2 += ((int)Statistics.Instance.FinishedMission.Subtract(Statistics.Instance.StartedMission).TotalMinutes) + ";";        // TimeMission
-                line2 += ((int)(Cache.Instance.DirectEve.Me.Wealth - Cache.Instance.Wealth)) + ";";                                         // Isk
+                line2 += ((int)(Cache.Instance.MyWalletBalance - Cache.Instance.Wealth)) + ";";                                         // Isk
                 line2 += Statistics.Instance.LootValue + ";";                                                                        // Loot
                 line2 += (Cache.Instance.Agent.LoyaltyPoints - Statistics.Instance.LoyaltyPoints) + ";";                                    // LP
                 line2 += Statistics.Instance.LostDrones + ";";                                                                       // Lost Drones
@@ -616,6 +629,7 @@ namespace Questor.Modules.Logging
                 // The mission is finished
                 Logging.Log("Statistics", "writing mission log2 to [ " + Settings.Instance.MissionStats2LogFile + " ]", Logging.White);
                 File.AppendAllText(Settings.Instance.MissionStats2LogFile, line2);
+
                 //Logging.Log("Date;Mission;Time;Isk;Loot;LP;LostDrones;AmmoConsumption;AmmoValue;");
                 //Logging.Log(line2);
             }
@@ -632,7 +646,7 @@ namespace Questor.Modules.Logging
                 string line3 = DateTimeForLogs + ";";                                                                                           // Date
                 line3 += Cache.Instance.MissionName + ";";                                                                                   // Mission
                 line3 += ((int)Statistics.Instance.FinishedMission.Subtract(Statistics.Instance.StartedMission).TotalMinutes) + ";";         // TimeMission
-                line3 += ((long)(Cache.Instance.DirectEve.Me.Wealth - Cache.Instance.Wealth)) + ";";                                         // Isk
+                line3 += ((long)(Cache.Instance.MyWalletBalance - Cache.Instance.Wealth)) + ";";                                         // Isk
                 line3 += ((long)Statistics.Instance.LootValue) + ";";                                                                        // Loot
                 line3 += ((long)Cache.Instance.Agent.LoyaltyPoints - Statistics.Instance.LoyaltyPoints) + ";";                               // LP
                 line3 += Statistics.Instance.DroneRecalls + ";";                                                                             // Lost Drones
@@ -649,12 +663,13 @@ namespace Questor.Modules.Logging
                 line3 += Cache.Instance.MissionXMLIsAvailable.ToString(CultureInfo.InvariantCulture) + ";";
                 line3 += Cache.Instance.FactionName + ";";                                                                                   // FactionName that the mission is against
                 line3 += Cache.Instance.MissionSolarSystem + ";";                                                                            // SolarSystem the mission was located in
-                line3 += Cache.Instance.DungeonId + ";";                                                                                     // DungeonID - the unique identifier for this mission 
+                line3 += Cache.Instance.DungeonId + ";";                                                                                     // DungeonID - the unique identifier for this mission
                 line3 += "\r\n";
 
                 // The mission is finished
                 Logging.Log("Statistics", "writing mission log3 to  [ " + Settings.Instance.MissionStats3LogFile + " ]", Logging.White);
                 File.AppendAllText(Settings.Instance.MissionStats3LogFile, line3);
+
                 //Logging.Log("Date;Mission;Time;Isk;Loot;LP;LostDrones;AmmoConsumption;AmmoValue;Panics;LowestShield;LowestArmor;LowestCap;RepairCycles;AfterMissionsalvageTime;TotalMissionTime;");
                 //Logging.Log(line3);
             }
@@ -677,9 +692,11 @@ namespace Questor.Modules.Logging
                 // The mission is finished
                 Logging.Log("Statistics", "writing mission dungeonID log to  [ " + Settings.Instance.MissionDungeonIdLogFile + " ]", Logging.White);
                 File.AppendAllText(Settings.Instance.MissionDungeonIdLogFile, line4);
+
                 //Logging.Log("Date;Mission;Time;Isk;Loot;LP;LostDrones;AmmoConsumption;AmmoValue;Panics;LowestShield;LowestArmor;LowestCap;RepairCycles;AfterMissionsalvageTime;TotalMissionTime;");
                 //Logging.Log(line3);
             }
+
             // Disable next log line
             Statistics.Instance.MissionLoggingCompleted = true;
             Statistics.Instance.LootValue = 0;
@@ -709,14 +726,16 @@ namespace Questor.Modules.Logging
             Cache.Instance.TimeSpentInMissionOutOfRange = 0;           // time spent in range - with targets to kill (or no targets?!)
             Cache.Instance.MissionSolarSystem = null;
             Cache.Instance.DungeonId = "n/a";
+            Cache.Instance.OrbitEntityNamed = null;
         }
-        
+
         public void ProcessState()
         {
             switch (State)
             {
                 case StatisticsState.Idle:
                     Logging.Log("Statistics", "State=StatisticsState.Idle", Logging.White);
+
                     //This State should only start every 20 seconds
                     //if (DateTime.UtcNow.Subtract(_lastCleanupAction).TotalSeconds < 20)
                     //    break;
@@ -733,11 +752,13 @@ namespace Questor.Modules.Logging
                     break;
 
                 case StatisticsState.Done:
+
                     //_lastStatisticsAction = DateTime.UtcNow;
                     State = StatisticsState.Idle;
                     break;
 
                 default:
+
                     // Next state
                     State = StatisticsState.Idle;
                     break;

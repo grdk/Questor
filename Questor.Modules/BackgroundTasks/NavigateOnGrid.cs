@@ -50,11 +50,13 @@ namespace Questor.Modules.BackgroundTasks
                                         AvoidBumpingThingsTimeStamp = DateTime.UtcNow;
                                         SafeDistanceFromStructureMultiplier++;
                                     }
+
                                     if (DateTime.UtcNow > AvoidBumpingThingsTimeStamp.AddMinutes(5) && !AvoidBumpingThingsWarningSent)
                                     {
                                         Logging.Log("NavigateOnGrid", "We are stuck on a object and have been trying to orbit away from it for over 5 min", Logging.Orange);
                                         AvoidBumpingThingsWarningSent = true;
                                     }
+
                                     if (DateTime.UtcNow > AvoidBumpingThingsTimeStamp.AddMinutes(15))
                                     {
                                         Cache.Instance.CloseQuestorCMDLogoff = false;
@@ -93,8 +95,21 @@ namespace Questor.Modules.BackgroundTasks
                     {
                         if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("CombatMissionCtrl.NavigateIntoRange", "We are not approaching nor orbiting", Logging.Teal);
 
-                        EntityCache structure = Cache.Instance.Entities.Where(i => i.Name.Contains("Gate")).OrderBy(t => t.Distance).ThenBy(t => t.Distance).FirstOrDefault();
+                        //
+                        // Prefer to orbit the last structure defined in 
+                        // Cache.Instance.OrbitEntityNamed
+                        //
+                        EntityCache structure = null;
+                        if (!string.IsNullOrEmpty(Cache.Instance.OrbitEntityNamed))
+                        {
+                            structure = Cache.Instance.Entities.Where(i => i.Name.Contains(Cache.Instance.OrbitEntityNamed)).OrderBy(t => t.Distance).FirstOrDefault();
+                        }
 
+                        if (structure == null)
+                        {
+                            structure = Cache.Instance.Entities.Where(i => i.Name.Contains("Gate")).OrderBy(t => t.Distance).FirstOrDefault();    
+                        }
+                        
                         if (Settings.Instance.OrbitStructure && structure != null)
                         {
                             structure.Orbit(Cache.Instance.OrbitDistance);

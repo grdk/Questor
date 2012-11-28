@@ -224,7 +224,7 @@ namespace Questor.Modules.Activities
             //
             if (Cache.Instance.InSpace && Settings.Instance.DefendWhileTraveling)
             {
-                if (!Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked || (Cache.Instance.LastSessionChange.AddSeconds(60) > DateTime.Now))
+                if (!Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked || (Cache.Instance.LastSessionChange.AddSeconds(60) > DateTime.UtcNow))
                 {
                     if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToMiningHomeBookmark: _combat.ProcessState()", Logging.White);
                     _combat.ProcessState();
@@ -232,6 +232,7 @@ namespace Questor.Modules.Activities
                     {
                         if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToMiningHomeBookmark: we are not scrambled - pulling drones.", Logging.White);
                         Cache.Instance.IsMissionPocketDone = true; //tells drones.cs that we can pull drones
+
                         //Logging.Log("CombatmissionBehavior","TravelToAgentStation: not pointed",Logging.White);
                     }
                     else if (Cache.Instance.TargetedBy.Any(t => t.IsWarpScramblingMe))
@@ -246,8 +247,6 @@ namespace Questor.Modules.Activities
 
             Cache.Instance.OpenWrecks = false;
 
-
-
             if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToMiningHomeBookmark:      Cache.Instance.AgentStationId [" + Cache.Instance.AgentStationID + "]", Logging.White);
             if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToMiningHomeBookmark:  Cache.Instance.AgentSolarSystemId [" + Cache.Instance.AgentSolarSystemID + "]", Logging.White);
 
@@ -258,6 +257,7 @@ namespace Questor.Modules.Activities
                 //Cache.Instance.DirectEve.Navigation.GetLocation((long)myHomeBookmark.LocationId).SetDestination();
 
                 _destination = new BookmarkDestination(myHomeBookmark);
+
                 //_destination = new StationDestination(Cache.Instance.AgentSolarSystemID, Cache.Instance.AgentStationID, Cache.Instance.AgentStationName);
                 _States.CurrentTravelerState = TravelerState.Idle;
                 return;
@@ -268,7 +268,7 @@ namespace Questor.Modules.Activities
                 Traveler.ProcessState();
 
                 //we also assume you are connected during a manual set of questor into travel mode (safe assumption considering someone is at the kb)
-                Cache.Instance.LastKnownGoodConnectedTime = DateTime.Now;
+                Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                 Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
 
                 if (_States.CurrentTravelerState == TravelerState.AtDestination)
@@ -310,7 +310,6 @@ namespace Questor.Modules.Activities
             }
             return;
         }
-
 
         public static void TravelHome(string module)
         {

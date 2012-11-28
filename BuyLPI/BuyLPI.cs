@@ -1,11 +1,11 @@
 ﻿// ------------------------------------------------------------------------------
-//   <copyright from='2010' to='2015' company='THEHACKERWITHIN.COM'>
-//     Copyright (c) TheHackerWithin.COM. All Rights Reserved.
+// <copyright from='2010' to='2015' company='THEHACKERWITHIN.COM'>
+// Copyright (c) TheHackerWithin.COM. All Rights Reserved.
 //
-//     Please look in the accompanying license.htm file for the license that
-//     applies to this source code. (a copy can also be found at:
-//     http://www.thehackerwithin.com/license.htm)
-//   </copyright>
+// Please look in the accompanying license.htm file for the license that
+// applies to this source code. (a copy can also be found at:
+// http://www.thehackerwithin.com/license.htm)
+// </copyright>
 // -------------------------------------------------------------------------------
 
 namespace BuyLPI
@@ -14,13 +14,16 @@ namespace BuyLPI
     using System.Linq;
     using System.Threading;
     using DirectEve;
+    //using InnerSpaceAPI;
     using System.Globalization;
     using Questor.Modules.Logging;
+    using Questor.Modules.Lookup;
     using Questor.Modules.Caching;
     using Questor.Modules.BackgroundTasks;
 
     internal class BuyLPI
     {
+        public static DateTime DateTimeForLogs;
         private const int WaitMillis = 3500;
         private static long _lastLoyaltyPoints;
         private static DateTime _nextAction;
@@ -28,15 +31,20 @@ namespace BuyLPI
         private static string _type;
         private static int? _quantity;
         private static int? _totalQuantityOfOrders;
-        private static DateTime _done = DateTime.UtcNow.AddYears(10);
+        private static DateTime _done = DateTime.UtcNow.AddDays(10);
         private static DirectEve _directEve;
         private static DateTime _lastPulse;
         private static Cleanup _cleanup;
 
         private static void Main(string[] args)
         {
+            DateTimeForLogs = DateTime.Now;
+            //Logging.Log("BuyLPI", "BuyLPI: Test", Logging.White);
+            //InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs, "BuyLPI: Test2"));
+            
             if (args.Length == 0)
             {
+                //InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs, "BuyLPI: 0 arguments"));
                 Logging.Log("BuyLPI", "Syntax:", Logging.White);
                 Logging.Log("BuyLPI", "DotNet BuyLPI BuyLPI <TypeName or TypeId> [Quantity]", Logging.White);
                 Logging.Log("BuyLPI", "(Quantity is optional)", Logging.White);
@@ -72,6 +80,7 @@ namespace BuyLPI
                 _totalQuantityOfOrders = dummy;
             }
 
+            //InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs, "Starting BuyLPI... - innerspace Echo"));
             Logging.Log("BuyLPI", "Starting BuyLPI...", Logging.White);
             _cleanup = new Cleanup();
             _directEve = new DirectEve();
@@ -80,10 +89,13 @@ namespace BuyLPI
 
             // Sleep until we're done
             while (_done.AddSeconds(5) > DateTime.UtcNow)
+            {
                 Thread.Sleep(50);
+            }
 
             _directEve.Dispose();
             Logging.Log("BuyLPI", "BuyLPI finished.", Logging.White);
+            //InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTimeForLogs, "BuyLPI: Finished 2"));
         }
 
         private static void OnFrame(object sender, EventArgs eventArgs)
@@ -96,6 +108,7 @@ namespace BuyLPI
             // Only pulse state changes every 1.5s
             if (DateTime.UtcNow.Subtract(_lastPulse).TotalMilliseconds < 300)
                 return;
+
             _lastPulse = DateTime.UtcNow;
 
             // Session is not ready yet, do not continue
@@ -115,6 +128,15 @@ namespace BuyLPI
 
             if (DateTime.UtcNow < Cache.Instance.NextInSpaceorInStation)
                 return;
+
+            if (Cache.Instance.SessionState != "Quitting")
+            {
+                // Update settings (settings only load if character name changed)
+                if (!Settings.Instance.DefaultSettingsLoaded)
+                {
+                    Settings.Instance.LoadSettings();
+                }
+            }
 
             // Start _cleanup.ProcessState
             // Description: Closes Windows, and eventually other things considered 'cleanup' useful to more than just Questor(Missions) but also Anomalies, Mining, etc
@@ -184,7 +206,7 @@ namespace BuyLPI
             // Check ISK
             if (_directEve.Me.Wealth < offer.IskCost)
             {
-                Logging.Log("BuyLPI", "Not enough ISK left: you have [" + Math.Round(_directEve.Me.Wealth, 0) + "] and you need  [" + offer.IskCost + "]", Logging.White);
+                Logging.Log("BuyLPI", "Not enough ISK left: you have [" + Math.Round(_directEve.Me.Wealth, 0) + "] and you need [" + offer.IskCost + "]", Logging.White);
                 _done = DateTime.UtcNow;
                 return;
             }

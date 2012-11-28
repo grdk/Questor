@@ -4,24 +4,34 @@
   <!--         DEBUG SETTINGS        -->
   <!--                                                -->
   
+  <debugActivateGate>false</debugActivateGate>
   <debugActivateWeapons>false</debugActivateWeapons>
+  <DebugAgentInteractionReplyToAgent>false</DebugAgentInteractionReplyToAgent>
   <debugAllMissionsOnBlackList>false</debugAllMissionsOnBlackList>
   <debugAllMissionsOnGreyList>false</debugAllMissionsOnGreyList>
   <debugArm>false</debugArm>
   <debugAttachVSDebugger>false</debugAttachVSDebugger>
   <debugAutoStart>false</debugAutoStart>
+  <DebugBlackList>false</DebugBlackList>
+  <DebugCargoHold>false</DebugCargoHold>
   <debugCleanup>false</debugCleanup>
   <debugDecline>false</debugDecline>
   <debugDefense>false</debugDefense>
   <debugDroneHealth>false</debugDroneHealth>
   <debugExceptions>false</debugExceptions>
+  <DebugFittingMgr>false</DebugFittingMgr>
   <debugGotobase>false</debugGotobase>
+  <DebugGreyList>false</DebugGreyList>
   <debugHangars>false</debugHangars>
   <debugIdle>false</debugIdle>
   <debugItemHangar>false</debugItemHangar>
   <debugLoadScripts>false</debugLoadScripts>
   <debugLogging>false</debugLogging>
   <debugLootWrecks>false</debugLootWrecks>
+  <DebugLootValue>false</DebugLootValue>
+  <DebugMaintainConsoleLogs>false</DebugMaintainConsoleLogs>
+  <DebugMissionFittings>false</DebugMissionFittings>
+  <DebugMoveTo>false</DebugMoveTo>
   <debugNavigateOnGrid>false</debugNavigateOnGrid>
   <debugOnframe>false</debugOnframe>
   <debugPerformance>false</debugPerformance>
@@ -31,7 +41,9 @@
   <debugScheduler>false</debugScheduler>
   <debugStates>false</debugStates>
   <debugStatistics>false</debugStatistics>
+  <DebugStorylineMissions>false</DebugStorylineMissions>
   <debugTraveler>false</debugTraveler>
+  <DebugTractorBeams>false</DebugTractorBeams>
   <debugUI>false</debugUI>
   <debugUnloadLoot>false</debugUnloadLoot>
   <debugValuedump>false</debugValuedump>
@@ -87,11 +99,11 @@
   <!--                                                         -->
   
   <!-- Wait for mission decline timer to expire before declining again -->
-  <waitDecline>true</waitDecline>
+  <waitDecline>false</waitDecline>
   <!-- MinAgentBlackListStandings is a number between -10 and 10 and is used for WaitDecline if WaitDecline is true, MinAgentBlackListStandings will only kick in if your standings have gone below MinAgentBlackListStandings -->
-  <minAgentBlackListStandings>-2.5</minAgentBlackListStandings>
+  <minAgentBlackListStandings>5.5</minAgentBlackListStandings>
   <!-- MinAgentGreyListStandings is a number between -10 and 10 and is used to determine if you can decline more greylist missions, Once you drop below this threshold greylist missions will be accepted in order to keep your standings up -->
-  <minAgentGreyListStandings>-1.7</minAgentGreyListStandings>
+  <minAgentGreyListStandings>6.0</minAgentGreyListStandings>
   <!-- Missionspath is a string and is used for the path in /.net programs/ to point questor to where you want it to use the mission xmls from -->
   <missionsPath>Caldari Missions</missionsPath><!-- needs to be customized -->
   <!-- Run missions that take us into low security space? - READ: DANGEROUS!!! -->
@@ -424,6 +436,17 @@
   <!-- Drones normally kill low value targets (frigates) first. If you would prefer your drones to kill high value targets first set this to true -->
   <dronesKillHighValueTargets>false</dronesKillHighValueTargets>
 
+  <!--                                                        -->
+  <!-- EMAIL SETTINGS -->
+  <!--                                                        -->
+  <emailSupport>false</emailSupport>
+  <emailAddress></emailAddress>
+  <emailPassword></emailPassword>
+  <emailSMTPServer></emailSMTPServer> <!--  ex: mail.myEmailProvider.com-->
+  <emailSMTPPort>25</emailSMTPPort>
+  <emailAddressToSendAlerts></emailAddressToSendAlerts>
+  <emailEnableSSL>false</emailEnableSSL>
+  
   <!--                                                        -->
   <!-- MISSION BLACKLIST SETTINGS -->
   <!--                                                        -->

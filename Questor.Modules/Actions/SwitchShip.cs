@@ -1,4 +1,6 @@
-﻿namespace Questor.Modules.Actions
+﻿using Questor.Modules.BackgroundTasks;
+
+namespace Questor.Modules.Actions
 {
     using System;
     using System.Collections.Generic;
@@ -41,7 +43,7 @@
                 case SwitchShipState.OpenShipHangar:
 
                     // Is the ship hangar open?
-                    if (!Cache.Instance.ReadyShipsHangar("SwitchShip")) break;
+                    if (!Cache.Instance.OpenShipsHangar("SwitchShip")) break;
 
                     Logging.Log("SwitchShip", "Activating combat ship", Logging.White);
 
@@ -56,12 +58,12 @@
                     {
                         if (DateTime.UtcNow.Subtract(_lastSwitchShipAction).TotalSeconds > Time.Instance.SwitchShipsDelay_seconds)
                         {
-                            if (!Cache.Instance.ReadyShipsHangar("Arm")) break;
+                            if (!Cache.Instance.OpenShipsHangar("SwitchShip")) break;
 
                             List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
                             foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName.ToLower() == shipName))
                             {
-                                Logging.Log("Arm", "Making [" + ship.GivenName + "] active", Logging.White);
+                                Logging.Log("SwitchShip", "Making [" + ship.GivenName + "] active", Logging.White);
 
                                 ship.ActivateShip();
                                 Logging.Log("SwitchShip", "Activated", Logging.White);
@@ -70,7 +72,7 @@
                             }
                         }
                     }
-                    _States.CurrentSwitchShipState = Settings.Instance.UseFittingManager ? SwitchShipState.OpenFittingWindow : SwitchShipState.Done;
+                    _States.CurrentSwitchShipState = Settings.Instance.UseFittingManager ? SwitchShipState.OpenFittingWindow : SwitchShipState.Cleanup;
 
                     break;
 
@@ -154,6 +156,12 @@
                 case SwitchShipState.NotEnoughAmmo:
                     Logging.Log("SwitchShip", "Out of Ammo, checking a solution ...", Logging.White);
                     break;
+
+                case SwitchShipState.Cleanup:
+                    if (!Cleanup.CloseInventoryWindows()) break;
+                    _States.CurrentSwitchShipState = SwitchShipState.Done;
+                    break;
+
             }
         }
     }

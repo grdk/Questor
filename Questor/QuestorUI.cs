@@ -1,5 +1,4 @@
-﻿
-using Questor.Modules.BackgroundTasks;
+﻿using Questor.Modules.Alerts;
 using Questor.Properties;
 
 namespace Questor
@@ -17,6 +16,7 @@ namespace Questor
     using global::Questor.Modules.Logging;
     using global::Questor.Modules.Lookup;
     using global::Questor.Modules.States;
+    using global::Questor.Modules.BackgroundTasks;
 
     public partial class QuestorfrmMain : Form
     {
@@ -198,7 +198,7 @@ namespace Questor
                         NextLootActionData.Text = Cache.Instance.NextLootAction.ToLongTimeString();
                         LastJettisonData.Text = Cache.Instance.LastJettison.ToLongTimeString();
                         NextDefenceModuleActionData.Text = Cache.Instance.NextDefenseModuleAction.ToLongTimeString();
-                        NextAfterburnerActionlbl.Text = Cache.Instance.NextAfterburnerAction.ToLongTimeString();
+                        NextAfterburnerActionData.Text = Cache.Instance.NextAfterburnerAction.ToLongTimeString();
                         NextRepModuleActionData.Text = Cache.Instance.NextRepModuleAction.ToLongTimeString();
                         NextActivateSupportModulesData.Text = Cache.Instance.NextActivateSupportModules.ToLongTimeString();
                         NextApproachActionData.Text = Cache.Instance.NextApproachAction.ToLongTimeString();
@@ -221,6 +221,7 @@ namespace Questor
                         AutostartData.Text = Settings.Instance.AutoStart.ToString(CultureInfo.InvariantCulture);
 
                         DamageTypeData.Text = Cache.Instance.DamageType.ToString();
+
                         //OrbitDistanceData.Text = Cache.Instance.OrbitDistance.ToString(CultureInfo.InvariantCulture);
                         //AgentStationIDData.Text = Cache.Instance.AgentStationID.ToString(CultureInfo.InvariantCulture);
                         //AgentIdData.Text = Cache.Instance.AgentId.ToString(CultureInfo.InvariantCulture);
@@ -278,8 +279,9 @@ namespace Questor
                 _nextScheduleUpdate = DateTime.UtcNow.AddSeconds(90);
                 if (Cache.Instance.StopTimeSpecified)
                 {
-                    ScheduledStopTimeData.Text = Cache.Instance.StopTime.ToShortTimeString();
+                    ScheduledStopTimeData.Text = Cache.Instance.StopTime.ToLongTimeString();
                 }
+
                 //
                 // if control is enabled (checked) then update ManualStopTime so that on next idle questor will check to see if it needs to stop
                 //
@@ -580,6 +582,7 @@ namespace Questor
             lastInSpaceData.Text = "[" + Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastInSpace).TotalSeconds, 0) + "] sec ago";
             lastInStationData.Text = "[" + Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastInStation).TotalSeconds, 0) + "] sec ago";
             lastKnownGoodConnectedTimeData.Text = "[" + Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastKnownGoodConnectedTime).TotalMinutes, 0) + "] min ago";
+            dataStopTimeSpecified.Text = Cache.Instance.StopTimeSpecified.ToString();
 
             if (Cache.Instance.SessionState == "Quitting")
             {
@@ -1629,6 +1632,41 @@ namespace Questor
             Logging.Log("QuestorUI", "Close Cargo Hold button was pressed", Logging.Teal);
             _States.CurrentQuestorState = QuestorState.DebugHangarsBehavior;
             _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.CloseCargoHold;
+        }
+
+        private void btnSetQuestorQuittingFlag_Click(object sender, EventArgs e)
+        {
+            Logging.Log("QuestorUI", "Setting: Cache.Instance.SessionState to [Quitting] - the next Questor.Idle state should see and process this.", Logging.Debug);
+            Cache.Instance.SessionState = "Quitting";
+        }
+
+        private void brnSetStopTimetoNow_Click(object sender, EventArgs e)
+        {
+            Logging.Log("QuestorUI", "Setting: Cache.Instance.StopTime to [" + DateTime.Now +"] - the next Questor.Idle state should see and process this.", Logging.Debug);
+            Cache.Instance.StopTimeSpecified = true;
+            Cache.Instance.NextTimeCheckAction = DateTime.UtcNow;
+            Cache.Instance.StopTime = DateTime.Now; //(use local time not UTC time because this is Arm schedule related timer)
+        }
+
+        private void bttnMaintainConsoleLogs_Click(object sender, EventArgs e)
+        {
+            Logging.Log("QuestorUI", "Starting Logging.MaintainConsoleLogs() Routine.", Logging.Debug);
+            Logging.MaintainConsoleLogs();
+        }
+
+        private void btnSendTestEmail_Click(object sender, EventArgs e)
+        {
+            Logging.Log("QuestorUI", "This Button Sends a test email to the configured email address", Logging.Debug);
+            Email.SendEmail("Someone Pushed the Test Email Button","This is Just a Test Email from Questor");
+        }
+
+        private void bttnResizeEVEWindow_Click(object sender, EventArgs e)
+        {
+            Logging.Log("QuestorUI", "Running Innerspace command: timedcommand 150 WindowCharacteristics -size " + 1280 + "x" + 960, Logging.White);
+            LavishScript.ExecuteCommand("timedcommand 150 WindowCharacteristics -size " + 1280 + "x" + 960);
+            Logging.Log("QuestorUI", "Running Innerspace command: timedcommand 200 WindowCharacteristics -pos " + 0 + "," + 0, Logging.White);
+            LavishScript.ExecuteCommand("timedcommand 200 WindowCharacteristics -pos " + 0 + "," + 0);
+                        
         }
     }
 }

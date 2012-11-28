@@ -58,7 +58,7 @@ namespace QuestorManager.Actions
                 case BuyLPIState.ReadyItemhangar:
 
                     if (!Cache.Instance.ReadyItemsHangar("BuyLPI")) return;
-                    if (!Cache.Instance.ReadyShipsHangar("BuyLPI")) return;
+                    if (!Cache.Instance.OpenShipsHangar("BuyLPI")) return;
 
                     _States.CurrentBuyLPIState = BuyLPIState.OpenLpStore;
                     break;
@@ -100,7 +100,7 @@ namespace QuestorManager.Actions
                             _States.CurrentBuyLPIState = BuyLPIState.Done;
                             break;
                         }
-                    _States.CurrentBuyLPIState = BuyLPIState.CheckPetition;
+                        _States.CurrentBuyLPIState = BuyLPIState.CheckPetition;
                     }
                     _States.CurrentBuyLPIState = BuyLPIState.OpenLpStore;
                     break;
@@ -130,35 +130,33 @@ namespace QuestorManager.Actions
                         // Check items
                         foreach (DirectLoyaltyPointOfferRequiredItem requiredItem in _offer.RequiredItems)
                         {
-                            DirectItem ship =
-                                Cache.Instance.ShipHangar.Items.FirstOrDefault(i => i.TypeId == requiredItem.TypeId);
-                            DirectItem item =
-                                Cache.Instance.ItemHangar.Items.FirstOrDefault(i => i.TypeId == requiredItem.TypeId);
-                                if (item == null || item.Quantity < requiredItem.Quantity)
+                            DirectItem ship = Cache.Instance.ShipHangar.Items.FirstOrDefault(i => i.TypeId == requiredItem.TypeId);
+                            DirectItem item = Cache.Instance.ItemHangar.Items.FirstOrDefault(i => i.TypeId == requiredItem.TypeId);
+                            if (item == null || item.Quantity < requiredItem.Quantity)
+                            {
+                                if (ship == null || ship.Quantity < requiredItem.Quantity)
                                 {
-                                    if (ship == null || ship.Quantity < requiredItem.Quantity)
-                                    {
-                                        Logging.Log("BuyLPI", "Missing [" + requiredItem.Quantity + "] x [" +
-                                                    requiredItem.TypeName + "]", Logging.White);
+                                    Logging.Log("BuyLPI", "Missing [" + requiredItem.Quantity + "] x [" +
+                                                requiredItem.TypeName + "]", Logging.White);
 
-                                        //if(!_form.chkBuyItems.Checked)
-                                        //{
-                                        //    Logging.Log("BuyLPI","Done, do not buy item");
-                                        //    States.CurrentBuyLPIState = BuyLPIState.Done;
-                                        //    break;
-                                        //}
+                                    //if(!_form.chkBuyItems.Checked)
+                                    //{
+                                    //    Logging.Log("BuyLPI","Done, do not buy item");
+                                    //    States.CurrentBuyLPIState = BuyLPIState.Done;
+                                    //    break;
+                                    //}
 
-                                        Logging.Log("BuyLPI", "Are buying the item [" + requiredItem.TypeName + "]",
-                                                Logging.White);
-                                        _requiredUnit = Convert.ToInt32(requiredItem.Quantity);
-                                        _requiredItemId = requiredItem.TypeId;
-                                        _States.CurrentBuyLPIState = BuyLPIState.OpenMarket;
-                                        return;
-                                    }
+                                    Logging.Log("BuyLPI", "Are buying the item [" + requiredItem.TypeName + "]",
+                                            Logging.White);
+                                    _requiredUnit = Convert.ToInt32(requiredItem.Quantity);
+                                    _requiredItemId = requiredItem.TypeId;
+                                    _States.CurrentBuyLPIState = BuyLPIState.OpenMarket;
+                                    return;
                                 }
-                                _States.CurrentBuyLPIState = BuyLPIState.AcceptOffer;
                             }
-                            _States.CurrentBuyLPIState = BuyLPIState.OpenLpStore;
+                            _States.CurrentBuyLPIState = BuyLPIState.AcceptOffer;
+                        }
+                        _States.CurrentBuyLPIState = BuyLPIState.OpenLpStore;
                     }
                     break;
 

@@ -99,22 +99,46 @@ namespace QuestorManager
             ItemsToRefine = new List<ItemCache>();
             _directEve = new DirectEve();
             Cache.Instance.DirectEve = _directEve;
-            XDocument invTypes = XDocument.Load(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\InvTypes.xml");
 
-            InvTypesById = new Dictionary<int, InvType>();
-            if (invTypes.Root != null)
-                foreach (XElement element in invTypes.Root.Elements("invtype"))
-                    InvTypesById.Add((int)element.Attribute("id"), new InvType(element));
+            //
+            // Invtypes.xml
+            //
+            try
+            {
+                Cache.Instance.InvTypes = XDocument.Load(Settings.Instance.Path + "\\InvTypes.xml");
 
-            List.Clear();
-            if (invTypes.Root != null)
-                foreach (XElement element in invTypes.Root.Elements("invtype"))
+                List.Clear();
+
+                InvTypesById = new Dictionary<int, InvType>();
+                if (Cache.Instance.InvTypes.Root != null)
                 {
-                    _item = new ListItems();
-                    _item.Id = (int)element.Attribute("id");
-                    _item.Name = (string)element.Attribute("name");
-                    List.Add(_item);
+                    foreach (XElement element in Cache.Instance.InvTypes.Root.Elements("invtype"))
+                    {
+                        InvTypesById.Add((int)element.Attribute("id"), new InvType(element));
+
+                        _item = new ListItems();
+                        _item.Id = (int)element.Attribute("id");
+                        _item.Name = (string)element.Attribute("name");
+                        List.Add(_item);
+                    }
                 }
+            }
+            catch (Exception exception)
+            {
+                Logging.Log("QuestorManager", "Unable to load [" + Settings.Instance.Path + "\\InvIgnore.xml" + "][" + exception + "]", Logging.Teal);
+            }
+
+            //
+            // InvIgnore.xml
+            //
+            try
+            {
+                Cache.Instance.invIgnore = XDocument.Load(Settings.Instance.Path + "\\InvIgnore.xml"); //items to ignore
+            }
+            catch (Exception exception)
+            {
+                Logging.Log("QuestorManager.Valuedump", "Unable to load [" + Settings.Instance.Path + "\\InvIgnore.xml" + "][" + exception + "]", Logging.Teal);
+            }
 
             RefreshAvailableXMLJobs();
             _directEve.OnFrame += OnFrame;
@@ -418,7 +442,7 @@ namespace QuestorManager
 
                 case QuestormanagerState.MakeShip:
 
-                    if (!Cache.Instance.ReadyShipsHangar("QuestorManager")) break;
+                    if (!Cache.Instance.OpenShipsHangar("QuestorManager")) break;
 
                     if (DateTime.UtcNow > _lastAction)
                     {
@@ -1082,7 +1106,7 @@ namespace QuestorManager
                                 Logging.White);
                     return -1;
                 }
-                
+
                 string savedjobtoload = Path.Combine(Settings.Instance.Path, args[1] + ".jobs");
                 if (File.Exists(savedjobtoload))
                 {
@@ -1090,16 +1114,17 @@ namespace QuestorManager
                     {
                         ReadXML(savedjobtoload);
                     }
-                        //catch
-                        //{
-                        //
-                        //}
+
+                    //catch
+                    //{
+                    //
+                    //}
                     finally
                     {
                     }
                     return 0;
                 }
-                
+
                 Logging.Log("QuestorManager", "LoadSavedTaskList: File Job file [" + savedjobtoload + "] does not exist", Logging.Orange);
                 return -1;
             }

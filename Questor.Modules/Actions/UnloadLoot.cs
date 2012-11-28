@@ -87,12 +87,20 @@ namespace Questor.Modules.Actions
                 //IEnumerable<DirectItem> somelootToMove = lootToMove;
                 if (Settings.Instance.DebugUnloadLoot) Logging.Log("UnloadLootState.MoveLoot", "foreach (DirectItem item in lootToMove) (start)", Logging.White);
 
+                int y = lootToMove.Count();
+                int x = 1;
+                    
                 foreach (DirectItem item in lootToMove)
                 {
                     if (!Cache.Instance.InvTypesById.ContainsKey(item.TypeId))
                         continue;
 
-                    Statistics.Instance.LootValue += (int)item.AveragePrice() * Math.Max(item.Quantity, 1);
+                    if (item.Volume != 0)
+                    {
+                        if (Settings.Instance.DebugLootValue) Logging.Log("UnloadLoot.Lootvalue","[" + x + "of" + y + "] ItemName [" + item.TypeName + "] ItemTypeID [" + item.TypeId + "] AveragePrice[" + (int)item.AveragePrice() + "]",Logging.Debug);
+                        Statistics.Instance.LootValue += (int)item.AveragePrice() * Math.Max(item.Quantity, 1);
+                    }
+                    x++;
                 }
 
                 if (Settings.Instance.DebugUnloadLoot) Logging.Log("UnloadLootState.MoveLoot", "foreach (DirectItem item in lootToMove) (done)", Logging.White);
@@ -190,6 +198,8 @@ namespace Questor.Modules.Actions
                 return;
             }
 
+            if (Settings.Instance.DebugUnloadLoot) Logging.Log("Unloadloot.MoveAmmo", "Entering MoveAmmo(), again...", Logging.White);
+            
             if (AmmoIsBeingMoved)
             {
                 if (Cache.Instance.DirectEve.GetLockedItems().Count != 0)
@@ -221,7 +231,7 @@ namespace Questor.Modules.Actions
 
             if (!Cache.Instance.OpenCargoHold("Unloadloot.MoveAmmo")) return;
 
-            if (Cache.Instance.CargoHold.IsValid)
+            if (Cache.Instance.CargoHold.Window.IsReady)
             {
                 if (Settings.Instance.DebugUnloadLoot) Logging.Log("UnloadLootState.MoveAmmo", "if (Cache.Instance.CargoHold.IsValid && Cache.Instance.CargoHold.Items.Any())", Logging.Teal);
 

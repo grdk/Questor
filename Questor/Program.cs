@@ -40,7 +40,7 @@ namespace Questor
         public static DateTime AppStarted = DateTime.UtcNow;
         private static string _username;
         private static string _password;
-        private static string _character;
+        public static string _character;
         private static string _scriptFile;
         private static bool _loginOnly;
         private static bool _showHelp;
@@ -130,29 +130,33 @@ namespace Questor
                 {
                     XDocument values = XDocument.Load(Path.Combine(path, "Schedules.xml"));
                     if (values.Root != null)
+                    {
                         foreach (XElement value in values.Root.Elements("char"))
+                        {
                             CharSchedules.Add(new CharSchedule(value));
+                        }
+                    }
                 }
 
                 //
                 // chantling scheduler
                 //
-                CharSchedule schedule = CharSchedules.FirstOrDefault(v => v.Name == _character);
+                CharSchedule schedule = CharSchedules.FirstOrDefault(v => v.ScheduleCharacterName == _character);
                 if (schedule == null)
                 {
                     Logging.Log("Startup", "Error - character not found!", Logging.Red);
                     return;
                 }
 
-                if (schedule.User == null || schedule.PW == null)
+                if (schedule.LoginUserName == null || schedule.LoginPassWord == null)
                 {
                     Logging.Log("Startup", "Error - Login details not specified in Schedules.xml!", Logging.Red);
                     return;
                 }
 
-                _username = schedule.User;
-                _password = schedule.PW;
-                Logging.Log("Startup", "User: " + schedule.User + " Name: " + schedule.Name, Logging.White);
+                _username = schedule.LoginUserName;
+                _password = schedule.LoginPassWord;
+                Logging.Log("Startup", "User: " + schedule.LoginUserName + " Name: " + schedule.ScheduleCharacterName, Logging.White);
 
                 if (schedule.StartTimeSpecified)
                 {
@@ -191,9 +195,7 @@ namespace Questor
                             StartTime = schedule.Start3;
                             StopTime = schedule.Stop3;
                             StopTimeSpecified = true;
-                            Logging.Log("Startup",
-                                        "Schedule3: Start3: " + schedule.Start3 + " Stop3: " + schedule.Stop3,
-                                        Logging.White);
+                            Logging.Log("Startup", "Schedule3: Start3: " + schedule.Start3 + " Stop3: " + schedule.Stop3, Logging.White);
                         }
                     }
                 }

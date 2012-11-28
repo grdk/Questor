@@ -32,7 +32,7 @@ namespace Questor.Modules.Lookup
         public static Settings Instance = new Settings();
         public string CharacterName;
         private DateTime _lastModifiedDate;
-        
+
         public Settings()
         {
             Ammo = new List<Ammo>();
@@ -88,7 +88,11 @@ namespace Questor.Modules.Lookup
         public bool DebugLoadScripts { get; set; }
         public bool DebugLogging { get; set; }
         public bool DebugLootWrecks { get; set; }
+
+        public bool DebugLootValue { get; set; }
+
         public bool DebugNavigateOnGrid { get; set; }
+        public bool DebugMaintainConsoleLogs { get; set; }
         public bool DebugMissionFittings { get; set; }
         public bool DebugMoveTo { get; set; }
         public bool DebugOnframe { get; set; }
@@ -398,12 +402,12 @@ namespace Questor.Modules.Lookup
         public bool DronesKillHighValueTargets { get; set; }
         public int MaterialsForWarOreID { get; set; }
         public int MaterialsForWarOreQty { get; set; }
-        
+
         //
         // number of days of console logs to keep (anything older will be deleted on startup)
         //
         public int ConsoleLogDaysOfLogsToKeep { get; set; }
-        
+
         //
         // Mission Blacklist / Greylist Settings
         //
@@ -427,6 +431,23 @@ namespace Questor.Modules.Lookup
         public int? EVEWindowYSize { get; set; }
 
         //
+        // Email SMTP settings
+        //
+        public bool EmailSupport { get; set; }
+
+        public string EmailAddress { get; set; }
+
+        public string EmailPassword { get; set; }
+
+        public string EmailSMTPServer { get; set; }
+
+        public int EmailSMTPPort { get; set; }
+
+        public string EmailAddressToSendAlerts { get; set; }
+
+        public bool? EmailEnableSSL { get; set; }
+
+        //
         // path information - used to load the XML and used in other modules
         //
         public string Path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -439,7 +460,16 @@ namespace Questor.Modules.Lookup
         {
             try
             {
-                Settings.Instance.CharacterName = Cache.Instance.DirectEve.Me.Name;
+                if (Cache.Instance.ScheduleCharacterName != null)
+                {
+                    Settings.Instance.CharacterName = Cache.Instance.ScheduleCharacterName;
+                    //Logging.Log("Settings", "CharacterName was pulled from the Scheduler: [" + Settings.Instance.CharacterName + "]", Logging.White);
+                }
+                else
+                {
+                    Settings.Instance.CharacterName = Cache.Instance.DirectEve.Me.Name;
+                    //Logging.Log("Settings", "CharacterName was pulled from your live EVE session: [" + Settings.Instance.CharacterName + "]", Logging.White);
+                }
             }
             catch (Exception)
             {
@@ -447,7 +477,7 @@ namespace Questor.Modules.Lookup
             }
 
             Settings.Instance.SettingsPath = System.IO.Path.Combine(Settings.Instance.Path, Cache.Instance.FilterPath(Settings.Instance.CharacterName) + ".xml");
-            
+
             if (Settings.Instance.SettingsPath == System.IO.Path.Combine(Settings.Instance.Path, ".xml"))
             {
                 if (Cache.Instance.LastInStation.AddMinutes(600) > DateTime.UtcNow)
@@ -460,7 +490,7 @@ namespace Questor.Modules.Lookup
                     Cleanup.CloseQuestor();
                     return;
                 }
-                
+
                 Logging.Log("Settings", "CharacterName not defined! - Are we logged in yet? Did we lose connection to eve?", Logging.White);
                 Settings.Instance.CharacterName = "AtLoginScreenNoCharactersLoggedInYet";
                 //Cache.Instance.SessionState = "Quitting";
@@ -513,6 +543,8 @@ namespace Questor.Modules.Lookup
                 DebugLoadScripts = false;
                 DebugLogging = false;
                 DebugLootWrecks = false;
+                DebugLootValue = false;
+                DebugMaintainConsoleLogs = false;
                 DebugMissionFittings = false;
                 DebugMoveTo = false;
                 DebugNavigateOnGrid = false;
@@ -617,7 +649,7 @@ namespace Questor.Modules.Lookup
                 LoginQuestorLavishScriptCmd = false;
                 LoginQuestorLavishScriptContents = string.Empty;
                 MinimizeEveAfterStartingUp = false;
-                
+
                 WalletBalanceChangeLogOffDelay = 30;
                 WalletBalanceChangeLogOffDelayLogoffOrExit = "exit";
                 SecondstoWaitAfterExitingCloseQuestorBeforeExitingEVE = 240;
@@ -632,20 +664,24 @@ namespace Questor.Modules.Lookup
                 //
                 UndockDelay = 10; //Delay when undocking - not in use
                 UndockPrefix = "Insta";
+
                 //Undock bookmark prefix - used by traveler - not in use
                 BookmarkWarpOut = "";
 
                 //
                 // Location of the Questor GUI on startup (default is off the screen)
                 //
-                WindowXPosition = 600;
+                WindowXPosition = 0;
+
                 //windows position (needs to be changed, default is off screen)
-                WindowYPosition = 400;
+                WindowYPosition = 0;
+
                 //windows position (needs to be changed, default is off screen)
-                EVEWindowXPosition = 111;
-                EVEWindowYPosition = 111;
-                EVEWindowXSize = 111;
-                EVEWindowYSize = 111;
+                EVEWindowXPosition = 0;
+                EVEWindowYPosition = 0;
+                EVEWindowXSize = 0;
+                EVEWindowYSize = 0;
+
                 //
                 // Ship Names
                 //
@@ -722,7 +758,7 @@ namespace Questor.Modules.Lookup
                 // 29013 Scan Resolution Dampening Script // sensor dampener
                 // 29001 Tracking Speed Script            // tracking enhancer and tracking computer
                 // 28999 Optimal Range Script             // tracking enhancer and tracking computer
-                
+
                 // 3554  Cap Booster 100
                 // 11283 Cap Booster 150
                 // 11285 Cap Booster 200
@@ -736,7 +772,7 @@ namespace Questor.Modules.Lookup
                 // 31998 Navy Cap Booster 200
                 // 32006 Navy Cap Booster 400
                 // 32014 Navy Cap Booster 800
-                
+
                 TrackingDisruptorScript = 29007;
                 TrackingComputerScript = 29001;
                 TrackingLinkScript = 29001;
@@ -744,7 +780,6 @@ namespace Questor.Modules.Lookup
                 SensorDampenerScript = 29015;
                 AncillaryShieldBoosterScript = 11289;
                 CapacitorInjectorScript = 11289;
-
 
                 //
                 // Speed and Movement Settings
@@ -802,6 +837,17 @@ namespace Questor.Modules.Lookup
                 MaximumLowValueTargets = 0;
 
                 //
+                // Email Settings
+                //
+                EmailSupport = false;
+                EmailAddress = "";
+                EmailPassword = "";
+                EmailSMTPServer = "";
+                EmailSMTPPort = 25;
+                EmailAddressToSendAlerts = "";
+                EmailEnableSSL = false;
+
+                //
                 // Clear various lists
                 //
                 Ammo.Clear();
@@ -838,7 +884,7 @@ namespace Questor.Modules.Lookup
 
                     //
                     // Debug Settings
-                    // 
+                    //
                     DebugActivateGate = (bool?)xml.Element("debugActivateGate") ?? false;
                     DebugActivateWeapons = (bool?)xml.Element("debugActivateWeapons") ?? false;
                     DebugAgentInteractionReplyToAgent = (bool?)xml.Element("debugAgentInteractionReplyToAgent") ?? false;
@@ -863,6 +909,8 @@ namespace Questor.Modules.Lookup
                     DebugLoadScripts = (bool?)xml.Element("debugLoadScripts") ?? false;
                     DebugLogging = (bool?)xml.Element("debugLogging") ?? false;
                     DebugLootWrecks = (bool?)xml.Element("debugLootWrecks") ?? false;
+                    DebugLootValue = (bool?)xml.Element("debugLootValue") ?? false;
+                    DebugMaintainConsoleLogs = (bool?)xml.Element("debugMaintainConsoleLogs") ?? false;
                     DebugMissionFittings = (bool?)xml.Element("debugMissionFittings") ?? false;
                     DebugMoveTo = (bool?)xml.Element("debugMoveTo") ?? false;
                     DebugNavigateOnGrid = (bool?)xml.Element("debugNavigateOnGrid") ?? false;
@@ -986,7 +1034,7 @@ namespace Questor.Modules.Lookup
                     }
                     catch
                     {
-                        Logging.Log("Settings","Invalid Format for eveWindow Settings - skipping",Logging.Teal);
+                        Logging.Log("Settings", "Invalid Format for eveWindow Settings - skipping", Logging.Teal);
                     }
 
                     try
@@ -1013,7 +1061,7 @@ namespace Questor.Modules.Lookup
                         LootHangar = (string)xml.Element("lootHangar");
                         if (string.IsNullOrEmpty(Settings.Instance.LootHangar))
                         {
-                            Logging.Log("Settings","Loothangar [" +  "ItemsHangar" + "]",Logging.White);
+                            Logging.Log("Settings", "Loothangar [" + "ItemsHangar" + "]", Logging.White);
                         }
                         else
                         {
@@ -1045,11 +1093,9 @@ namespace Questor.Modules.Lookup
                     }
                     catch (Exception exception)
                     {
-                        Logging.Log("Settings","Error Loading Hangar Settings [" + exception + "]",Logging.Teal);
+                        Logging.Log("Settings", "Error Loading Hangar Settings [" + exception + "]", Logging.Teal);
                     }
-                    
 
-                    
                     try
                     {
                         //
@@ -1075,13 +1121,12 @@ namespace Questor.Modules.Lookup
                         AgeofBookmarksForSalvageBehavior = (int?)xml.Element("ageofBookmarksForSalvageBehavior") ?? 45;
                         AgeofSalvageBookmarksToExpire = (int?)xml.Element("ageofSalvageBookmarksToExpire") ?? 120;
                         LootOnlyWhatYouCanWithoutSlowingDownMissionCompletion = (bool?)xml.Element("lootOnlyWhatYouCanWithoutSlowingDownMissionCompletion") ?? false;
-    
                     }
                     catch (Exception exception)
                     {
                         Logging.Log("Settings", "Error Loading Loot and Salvage Settings [" + exception + "]", Logging.Teal);
                     }
-                    
+
                     //
                     // at what memory usage do we need to restart this session?
                     //
@@ -1153,6 +1198,7 @@ namespace Questor.Modules.Lookup
                     MaximumHighValueTargets = (int?)xml.Element("maximumHighValueTargets") ?? 2;
                     MaximumLowValueTargets = (int?)xml.Element("maximumLowValueTargets") ?? 2;
                     DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage = (int?)xml.Element("doNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage") ?? 60;
+
                     //
                     // Script Settings - TypeIDs for the scripts you would like to use in these modules
                     //
@@ -1237,6 +1283,17 @@ namespace Questor.Modules.Lookup
                     BelowThisHealthLevelRemoveFromDroneBay = (int?)xml.Element("belowThisHealthLevelRemoveFromDroneBay") ?? 150;
 
                     //
+                    // Email Settings
+                    //
+                    EmailSupport = (bool?)xml.Element("emailSupport") ?? false;
+                    EmailAddress = (string)xml.Element("emailAddress") ?? "";
+                    EmailPassword = (string)xml.Element("emailPassword") ?? "";
+                    EmailSMTPServer = (string)xml.Element("emailSMTPServer") ?? "";
+                    EmailSMTPPort = (int?)xml.Element("emailSMTPPort") ?? 25;
+                    EmailAddressToSendAlerts = (string)xml.Element("emailAddressToSendAlerts") ?? "";
+                    EmailEnableSSL = (bool?)xml.Element("emailEnableSSL") ?? false;
+
+                    //
                     // number of days of console logs to keep (anything older will be deleted on startup)
                     //
                     ConsoleLogDaysOfLogsToKeep = (int?)xml.Element("consoleLogDaysOfLogsToKeep") ?? 14;
@@ -1274,22 +1331,17 @@ namespace Questor.Modules.Lookup
                             if (i >= 2)
                             {
                                 MultiAgentSupport = true;
-                                Logging.Log(
-                                    "Settings", "Found more than one agent in your character XML: MultiAgentSupport is [" +
-                                    MultiAgentSupport.ToString(CultureInfo.InvariantCulture) + "]", Logging.White);
+                                Logging.Log("Settings", "Found more than one agent in your character XML: MultiAgentSupport is [" + MultiAgentSupport.ToString(CultureInfo.InvariantCulture) + "]", Logging.White);
                             }
                             else
                             {
                                 MultiAgentSupport = false;
-                                Logging.Log(
-                                    "Settings", "Found only one agent in your character XML: MultiAgentSupport is [" +
-                                    MultiAgentSupport.ToString(CultureInfo.InvariantCulture) + "]", Logging.White);
+                                Logging.Log("Settings", "Found only one agent in your character XML: MultiAgentSupport is [" + MultiAgentSupport.ToString(CultureInfo.InvariantCulture) + "]", Logging.White);
                             }
                         }
                         else
                         {
-                            Logging.Log(
-                                "Settings", "agentList exists in your characters config but no agents were listed.", Logging.Red);
+                            Logging.Log("Settings", "agentList exists in your characters config but no agents were listed.", Logging.Red);
                         }
                     }
                     else
@@ -1328,6 +1380,7 @@ namespace Questor.Modules.Lookup
                             Logging.Log("Settings", "No faction fittings specified.  Fitting manager will not be used.", Logging.Orange);
                         }
                     }
+
                     //
                     // Fitting based on the name of the mission
                     //
@@ -1372,7 +1425,7 @@ namespace Questor.Modules.Lookup
                     //
                     MissionGreylist.Clear();
                     XElement xmlElementGreyListSection = xml.Element("graylist");
-                    
+
                     if (xmlElementGreyListSection != null)
                     {
                         Logging.Log("Settings", "Loading Mission Greylist", Logging.White);
@@ -1404,6 +1457,7 @@ namespace Questor.Modules.Lookup
                     }
                 }
             }
+
             //
             // if enabled the following would keep you from looting or salvaging small wrecks
             //

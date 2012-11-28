@@ -1,5 +1,4 @@
-﻿
-namespace Questor.Modules.Actions
+﻿namespace Questor.Modules.Actions
 {
     using System;
     using System.Linq;

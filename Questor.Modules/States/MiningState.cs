@@ -10,7 +10,7 @@
         GotoBelt,
         Mine,
         MineAsteroid,
-        GotoBase, 
+        GotoBase,
         UnloadLoot,
         Error,
         Paused,

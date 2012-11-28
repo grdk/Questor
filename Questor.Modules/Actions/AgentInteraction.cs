@@ -504,6 +504,11 @@ namespace Questor.Modules.Actions
                     Logging.Log("AgentInteraction", "Declining blacklisted mission [" + Cache.Instance.Mission.Name + "] because of faction blacklist", Logging.Yellow);
                 }
 
+                //
+                // this is tracking declined missions before they are actually declined (bad?)
+                // to fix this wed have to move this tracking stuff to the decline state and pass a reason we are
+                // declining the mission to that process too... not knowing why we are declining is downright silly
+                //
                 Cache.Instance.LastBlacklistMissionDeclined = MissionName;
                 Cache.Instance.BlackListedMissionsDeclined++;
                 _States.CurrentAgentInteractionState = AgentInteractionState.DeclineMission;
@@ -701,78 +706,89 @@ namespace Questor.Modules.Actions
                 return;
 
             // Check for agent decline timer
-            if (Settings.Instance.WaitDecline)
+            
+            string html = Agent.Window.Briefing;
+            if (html.Contains("Declining a mission from this agent within the next"))
             {
-                string html = Agent.Window.Briefing;
-                if (html.Contains("Declining a mission from this agent within the next"))
+                //this need to divide by 10 was a remnant of the html scrape method we were using before. this can likely be removed now.
+                if (Cache.Instance.AgentEffectiveStandingtoMe != 0)
                 {
-                    //this need to divide by 10 was a remnant of the html scrape method we were using before. this can likely be removed now.
-                    if (Cache.Instance.AgentEffectiveStandingtoMe != 0)
+                    if (Cache.Instance.AgentEffectiveStandingtoMe > 10)
                     {
-                        if (Cache.Instance.AgentEffectiveStandingtoMe > 10)
+                        Logging.Log("AgentInteraction", "if (Cache.Instance.AgentEffectiveStandingtoMe > 10)", Logging.Yellow);
+                        Cache.Instance.AgentEffectiveStandingtoMe = Cache.Instance.AgentEffectiveStandingtoMe / 10;
+                    }
+
+                    if (Settings.Instance.MinAgentBlackListStandings > 10)
+                    {
+                        Logging.Log("AgentInteraction", "if (Cache.Instance.AgentEffectiveStandingtoMe > 10)", Logging.Yellow);
+                        Settings.Instance.MinAgentBlackListStandings = Settings.Instance.MinAgentBlackListStandings / 10;
+                    }
+
+                    Logging.Log("AgentInteraction", "Agent decline timer detected. Current standings: " + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + ". Minimum standings: " + Math.Round(Settings.Instance.MinAgentBlackListStandings, 2), Logging.Yellow);
+                }
+
+                var hourRegex = new Regex("\\s(?<hour>\\d+)\\shour");
+                var minuteRegex = new Regex("\\s(?<minute>\\d+)\\sminute");
+                Match hourMatch = hourRegex.Match(html);
+                Match minuteMatch = minuteRegex.Match(html);
+                int hours = 0;
+                int minutes = 0;
+                if (hourMatch.Success)
+                {
+                    string hourValue = hourMatch.Groups["hour"].Value;
+                    hours = Convert.ToInt32(hourValue);
+                }
+                if (minuteMatch.Success)
+                {
+                    string minuteValue = minuteMatch.Groups["minute"].Value;
+                    minutes = Convert.ToInt32(minuteValue);
+                }
+
+                int secondsToWait = ((hours * 3600) + (minutes * 60) + 60);
+                AgentsList currentAgent = Settings.Instance.AgentsList.FirstOrDefault(i => i.Name == Cache.Instance.CurrentAgent);
+
+                //
+                // standings are below the blacklist minimum 
+                // (any lower and we might lose access to this agent)
+                // and no other agents are NOT available (or are also in cooldown)
+                //
+                if (Settings.Instance.WaitDecline)
+                {
+                    //
+                    // if true we ALWAYS wait (or switch agents?!?)
+                    //
+                    _nextAgentAction = DateTime.UtcNow.AddSeconds(secondsToWait);
+                    Logging.Log("AgentInteraction", "Waiting " + (secondsToWait / 60) + " minutes to try decline again because waitDecline setting is set to true", Logging.Yellow);
+                    CloseConversation();
+                    _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
+                    return;
+                }
+
+                //
+                // if WaitDecline is false we only wait if standings are below our configured minimums
+                //
+                if (Cache.Instance.AgentEffectiveStandingtoMe <= Settings.Instance.MinAgentBlackListStandings)
+                {
+                    if (Settings.Instance.DebugDecline) Logging.Log("AgentInteraction", "if (Cache.Instance.AgentEffectiveStandingtoMe <= Settings.Instance.MinAgentBlackListStandings)", Logging.Debug);
+                    if (Settings.Instance.MultiAgentSupport)
+                    {
+                        if (Settings.Instance.DebugDecline) Logging.Log("AgentInteraction", "if (Settings.Instance.MultiAgentSupport)", Logging.Debug);
+                        if (Cache.Instance.AllAgentsStillInDeclineCoolDown)
                         {
-                            Cache.Instance.AgentEffectiveStandingtoMe = Cache.Instance.AgentEffectiveStandingtoMe / 10;
+                            //
+                            // wait.
+                            //
+                            _nextAgentAction = DateTime.UtcNow.AddSeconds(secondsToWait);
+                            Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + "] at or below configured minimum of [" + Settings.Instance.MinAgentBlackListStandings + "].  Waiting " + (secondsToWait / 60) + " minutes to try decline again because no other agents were avail for use.", Logging.Yellow);
+                            CloseConversation();
+                            _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
+                            return;
                         }
-                        if (Settings.Instance.MinAgentBlackListStandings > 10)
-                        {
-                            Settings.Instance.MinAgentBlackListStandings = Settings.Instance.MinAgentBlackListStandings / 10;
-                        }
-                        Logging.Log("AgentInteraction", "Agent decline timer detected. Current standings: " + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + ". Minimum standings: " + Math.Round(Settings.Instance.MinAgentBlackListStandings, 2), Logging.Yellow);
-                    }
 
-                    var hourRegex = new Regex("\\s(?<hour>\\d+)\\shour");
-                    var minuteRegex = new Regex("\\s(?<minute>\\d+)\\sminute");
-                    Match hourMatch = hourRegex.Match(html);
-                    Match minuteMatch = minuteRegex.Match(html);
-                    int hours = 0;
-                    int minutes = 0;
-                    if (hourMatch.Success)
-                    {
-                        string hourValue = hourMatch.Groups["hour"].Value;
-                        hours = Convert.ToInt32(hourValue);
-                    }
-                    if (minuteMatch.Success)
-                    {
-                        string minuteValue = minuteMatch.Groups["minute"].Value;
-                        minutes = Convert.ToInt32(minuteValue);
-                    }
-
-                    int secondsToWait = ((hours * 3600) + (minutes * 60) + 60);
-                    AgentsList currentAgent = Settings.Instance.AgentsList.FirstOrDefault(i => i.Name == Cache.Instance.CurrentAgent);
-
-                    //
-                    // standings are below the blacklist minimum and no other agents are NOT available (yet?)
-                    //
-                    if (Cache.Instance.AgentEffectiveStandingtoMe <= Settings.Instance.MinAgentBlackListStandings && Cache.Instance.AllAgentsStillInDeclineCoolDown)
-                    {
-                        _nextAgentAction = DateTime.UtcNow.AddSeconds(secondsToWait);
-                        Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + "] at or below configured minimum of [" + Settings.Instance.MinAgentBlackListStandings + "].  Waiting " + (secondsToWait / 60) + " minutes to try decline again.", Logging.Yellow);
-                        CloseConversation();
-
-                        _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
-                        return;
-                    }
-
-                    //
-                    // standings are below the blacklist minimum and other agents are available
-                    //
-                    // add timer to current agent
-                    if (Cache.Instance.AgentEffectiveStandingtoMe <= Settings.Instance.MinAgentBlackListStandings && !Cache.Instance.AllAgentsStillInDeclineCoolDown && Settings.Instance.MultiAgentSupport)
-                    {
                         //
+                        //Change Agents
                         //
-                        // this whole section needs reworking
-                        //
-                        // we have bad standings and no agent to switch to (or only 1 configured)
-                        // we have bad standings and we DO have an agent to switch to
-                        // we have decent standings and can decline again
-                        //
-                        // what other scenario is there?
-                    }
-
-                    //add timer to current agent
-                    if (!Cache.Instance.AllAgentsStillInDeclineCoolDown && Settings.Instance.MultiAgentSupport)
-                    {
                         if (currentAgent != null) currentAgent.DeclineTimer = DateTime.UtcNow.AddSeconds(secondsToWait);
                         CloseConversation();
 
@@ -782,8 +798,15 @@ namespace Questor.Modules.Actions
                         _States.CurrentAgentInteractionState = AgentInteractionState.ChangeAgent;
                         return;
                     }
-                    Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + "] is above our configured minimum [" + Settings.Instance.MinAgentBlackListStandings + "].  Declining [" + Cache.Instance.Mission.Name + "]", Logging.Yellow);
+
+                    _nextAgentAction = DateTime.UtcNow.AddSeconds(secondsToWait);
+                    Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + "] at or below configured minimum of [" + Settings.Instance.MinAgentBlackListStandings + "].  Waiting " + (secondsToWait / 60) + " minutes to try decline again.", Logging.Yellow);
+                    CloseConversation();
+                    _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
+                    return;
                 }
+
+                Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + "] is above our configured minimum [" + Settings.Instance.MinAgentBlackListStandings + "].  Declining [" + Cache.Instance.Mission.Name + "] note: WaitDecline is false", Logging.Yellow);
             }
 
             //
@@ -826,8 +849,7 @@ namespace Questor.Modules.Actions
                 XDocument xml = XDocument.Load(Path.Combine(Settings.Instance.Path, "Factions.xml"));
                 if (xml.Root != null)
                 {
-                    XElement faction =
-                        xml.Root.Elements("faction").FirstOrDefault(f => (string)f.Attribute("logo") == logo);
+                    XElement faction = xml.Root.Elements("faction").FirstOrDefault(f => (string)f.Attribute("logo") == logo);
 
                     //Cache.Instance.FactionFit = "Default";
                     Cache.Instance.Fitting = Settings.Instance.DefaultFitting.ToString();
@@ -838,24 +860,21 @@ namespace Questor.Modules.Actions
                         Cache.Instance.FactionName = factionName;
                         Logging.Log("AgentInteraction", "Mission enemy faction: " + factionName, Logging.Yellow);
                         if (Settings.Instance.FactionBlacklist.Any(m => m.ToLower() == factionName.ToLower()))
-                            return true;
-                        if (Settings.Instance.UseFittingManager &&
-                            Settings.Instance.FactionFitting.Any(m => m.Faction.ToLower() == factionName.ToLower()))
                         {
-                            FactionFitting factionFitting =
-                                Settings.Instance.FactionFitting.FirstOrDefault(
-                                    m => m.Faction.ToLower() == factionName.ToLower());
+                            return true;
+                        }
+
+                        if (Settings.Instance.UseFittingManager && Settings.Instance.FactionFitting.Any(m => m.Faction.ToLower() == factionName.ToLower()))
+                        {
+                            FactionFitting factionFitting = Settings.Instance.FactionFitting.FirstOrDefault(m => m.Faction.ToLower() == factionName.ToLower());
                             if (factionFitting != null)
                             {
                                 Cache.Instance.FactionFit = factionFitting.Fitting;
-                                Logging.Log("AgentInteraction", "Faction fitting: " + factionFitting.Faction,
-                                            Logging.Yellow);
+                                Logging.Log("AgentInteraction", "Faction fitting: " + factionFitting.Faction, Logging.Yellow);
                             }
                             else
                             {
-                                Logging.Log("AgentInteraction",
-                                            "Faction fitting: No fittings defined for [ " + factionName + " ]",
-                                            Logging.Yellow);
+                                Logging.Log("AgentInteraction", "Faction fitting: No fittings defined for [ " + factionName + " ]", Logging.Yellow);
                             }
 
                             //Cache.Instance.Fitting = Cache.Instance.FactionFit;
@@ -864,8 +883,7 @@ namespace Questor.Modules.Actions
                     }
                     else
                     {
-                        Logging.Log("AgentInteraction",
-                                    "Faction fitting: Missing Factions.xml :aborting faction fittings", Logging.Yellow);
+                        Logging.Log("AgentInteraction", "Faction fitting: Missing Factions.xml :aborting faction fittings", Logging.Yellow);
                     }
                 }
             }
@@ -916,10 +934,14 @@ namespace Questor.Modules.Actions
         public void ProcessState()
         {
             if (!Cache.Instance.InStation)
+            {
                 return;
+            }
 
             if (Cache.Instance.InSpace)
+            {
                 return;
+            }
 
             foreach (DirectWindow window in Cache.Instance.Windows)
             {

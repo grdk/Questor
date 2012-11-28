@@ -420,8 +420,7 @@ namespace Questor.Modules.Actions
 
                     Cache.Instance.CloseQuestorCMDLogoff = false;
                     Cache.Instance.CloseQuestorCMDExitGame = true;
-                    Cache.Instance.ReasonToStopQuestor =
-                        "TravelerDestination.MissionBookmarkDestination: Invalid mission bookmark! - Lag?! Closing EVE";
+                    Cache.Instance.ReasonToStopQuestor = "TravelerDestination.MissionBookmarkDestination: Invalid mission bookmark! - Lag?! Closing EVE";
                     Logging.Log("TravelerDestination", Cache.Instance.ReasonToStopQuestor, Logging.Red);
                     Cache.Instance.SessionState = "Quitting";
                 }

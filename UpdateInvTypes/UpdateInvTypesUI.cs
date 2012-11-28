@@ -91,7 +91,7 @@
                 {
                     types = _invTypes.Skip(Progress.Value).Take(Progress.Step).ToList();
                 }
-                
+
                 try
                 {
                     IEnumerable<InvType> needUpdating = types.Where(type => !type.LastUpdate.HasValue || DateTime.UtcNow.Subtract(type.LastUpdate.Value).TotalDays > 4).ToList();
@@ -167,8 +167,8 @@
                 {
                     Progress.Value = Progress.Value + types.Count();
                     Progress.Step = _numOfItemIDsToCheckAtOnce;
-                    _nextEVECentralQuery = DateTime.UtcNow.AddMilliseconds(300);  
-                    
+                    _nextEVECentralQuery = DateTime.UtcNow.AddMilliseconds(300);
+
                     if (Progress.Value >= _invTypes.Count - 1)
                     {
                         _doUpdate = false;

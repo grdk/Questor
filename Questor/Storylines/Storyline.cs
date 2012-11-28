@@ -62,6 +62,7 @@
                                ////{"Evacuation", new GenericCourier()},
                                ////{"On the Run", new GenericCourier()},
                                /* COURIER/DELIVERY - MINMATAR */
+                               {"Very Important Pirates", new GenericCourier()},
                                {"A Cargo With Attitude", new GenericCourier()},
                                {"A Load of Scrap", new GenericCourier()},
                                {"Brand New Harvesters", new GenericCourier()},

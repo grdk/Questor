@@ -1,5 +1,4 @@
-﻿
-namespace Questor.Modules.BackgroundTasks
+﻿namespace Questor.Modules.BackgroundTasks
 {
     using System;
     using Questor.Modules.Caching;
@@ -15,6 +14,7 @@ namespace Questor.Modules.BackgroundTasks
             switch (_States.CurrentLocalWatchState)
             {
                 case LocalWatchState.Idle:
+
                     //checking local every 5 second
                     if (DateTime.UtcNow.Subtract(_lastAction).TotalSeconds < Time.Instance.CheckLocalDelay_seconds)
                         break;
@@ -23,6 +23,7 @@ namespace Questor.Modules.BackgroundTasks
                     break;
 
                 case LocalWatchState.CheckLocal:
+
                     //
                     // this ought to cache the name of the system, and the number of ppl in local (or similar)
                     // and only query everyone in local for standings changes if something has changed...
@@ -34,6 +35,7 @@ namespace Questor.Modules.BackgroundTasks
                     break;
 
                 default:
+
                     // Next state
                     _States.CurrentLocalWatchState = LocalWatchState.Idle;
                     break;

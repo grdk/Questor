@@ -34,7 +34,7 @@ namespace Questor.Storylines
             }
 
             // Open the ship hangar
-            if (!Cache.Instance.ReadyShipsHangar("MaterialsForWarPreparation")) return StorylineState.Arm;
+            if (!Cache.Instance.OpenShipsHangar("MaterialsForWarPreparation")) return StorylineState.Arm;
 
             //  Look for a shuttle
             DirectItem item = Cache.Instance.ShipHangar.Items.FirstOrDefault(i => i.Quantity == -1 && i.GroupId == 31);

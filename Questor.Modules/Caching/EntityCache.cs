@@ -508,6 +508,7 @@ namespace Questor.Modules.Caching
                 return result;
             }
         }
+
         /// <summary>
         /// Cruiser includes all elite-variants
         /// </summary>
@@ -533,42 +534,43 @@ namespace Questor.Modules.Caching
         {
             get
             {
-                 bool result = false;
-                 result |= GroupId == (int)Group.Storyline_Cruiser;
-                 result |= GroupId == (int)Group.Storyline_Mission_Cruiser;
-                 result |= GroupId == (int)Group.Asteroid_Angel_Cartel_Cruiser;
-                 result |= GroupId == (int)Group.Asteroid_Blood_Raiders_Cruiser;
-                 result |= GroupId == (int)Group.Asteroid_Guristas_Cruiser;
-                 result |= GroupId == (int)Group.Asteroid_Sanshas_Nation_Cruiser;
-                 result |= GroupId == (int)Group.Asteroid_Serpentis_Cruiser;
-                 result |= GroupId == (int)Group.Deadspace_Angel_Cartel_Cruiser;
-                 result |= GroupId == (int)Group.Deadspace_Blood_Raiders_Cruiser;
-                 result |= GroupId == (int)Group.Deadspace_Guristas_Cruiser;
-                 result |= GroupId == (int)Group.Deadspace_Sanshas_Nation_Cruiser;
-                 result |= GroupId == (int)Group.Deadspace_Serpentis_Cruiser;
-                 result |= GroupId == (int)Group.Mission_Amarr_Empire_Cruiser;
-                 result |= GroupId == (int)Group.Mission_Caldari_State_Cruiser;
-                 result |= GroupId == (int)Group.Mission_Gallente_Federation_Cruiser;
-                 result |= GroupId == (int)Group.Mission_Khanid_Cruiser;
-                 result |= GroupId == (int)Group.Mission_CONCORD_Cruiser;
-                 result |= GroupId == (int)Group.Mission_Mordu_Cruiser;
-                 result |= GroupId == (int)Group.Mission_Minmatar_Republic_Cruiser;
-                 result |= GroupId == (int)Group.Asteroid_Rogue_Drone_Cruiser;
-                 result |= GroupId == (int)Group.Asteroid_Angel_Cartel_Commander_Cruiser;
-                 result |= GroupId == (int)Group.Asteroid_Blood_Raiders_Commander_Cruiser;
-                 result |= GroupId == (int)Group.Asteroid_Guristas_Commander_Cruiser;
-                 result |= GroupId == (int)Group.Deadspace_Rogue_Drone_Cruiser;
-                 result |= GroupId == (int)Group.Asteroid_Sanshas_Nation_Commander_Cruiser;
-                 result |= GroupId == (int)Group.Asteroid_Serpentis_Commander_Cruiser;
-                 result |= GroupId == (int)Group.Mission_Generic_Cruisers;
-                 result |= GroupId == (int)Group.Deadspace_Overseer_Cruiser;
-                 result |= GroupId == (int)Group.Mission_Thukker_Cruiser;
-                 result |= GroupId == (int)Group.Mission_Generic_Battle_Cruisers;
-                 result |= GroupId == (int)Group.Asteroid_Rogue_Drone_Commander_Cruiser;
-                 result |= GroupId == (int)Group.Mission_Faction_Cruiser;
-                 return result;
+                bool result = false;
+                result |= GroupId == (int)Group.Storyline_Cruiser;
+                result |= GroupId == (int)Group.Storyline_Mission_Cruiser;
+                result |= GroupId == (int)Group.Asteroid_Angel_Cartel_Cruiser;
+                result |= GroupId == (int)Group.Asteroid_Blood_Raiders_Cruiser;
+                result |= GroupId == (int)Group.Asteroid_Guristas_Cruiser;
+                result |= GroupId == (int)Group.Asteroid_Sanshas_Nation_Cruiser;
+                result |= GroupId == (int)Group.Asteroid_Serpentis_Cruiser;
+                result |= GroupId == (int)Group.Deadspace_Angel_Cartel_Cruiser;
+                result |= GroupId == (int)Group.Deadspace_Blood_Raiders_Cruiser;
+                result |= GroupId == (int)Group.Deadspace_Guristas_Cruiser;
+                result |= GroupId == (int)Group.Deadspace_Sanshas_Nation_Cruiser;
+                result |= GroupId == (int)Group.Deadspace_Serpentis_Cruiser;
+                result |= GroupId == (int)Group.Mission_Amarr_Empire_Cruiser;
+                result |= GroupId == (int)Group.Mission_Caldari_State_Cruiser;
+                result |= GroupId == (int)Group.Mission_Gallente_Federation_Cruiser;
+                result |= GroupId == (int)Group.Mission_Khanid_Cruiser;
+                result |= GroupId == (int)Group.Mission_CONCORD_Cruiser;
+                result |= GroupId == (int)Group.Mission_Mordu_Cruiser;
+                result |= GroupId == (int)Group.Mission_Minmatar_Republic_Cruiser;
+                result |= GroupId == (int)Group.Asteroid_Rogue_Drone_Cruiser;
+                result |= GroupId == (int)Group.Asteroid_Angel_Cartel_Commander_Cruiser;
+                result |= GroupId == (int)Group.Asteroid_Blood_Raiders_Commander_Cruiser;
+                result |= GroupId == (int)Group.Asteroid_Guristas_Commander_Cruiser;
+                result |= GroupId == (int)Group.Deadspace_Rogue_Drone_Cruiser;
+                result |= GroupId == (int)Group.Asteroid_Sanshas_Nation_Commander_Cruiser;
+                result |= GroupId == (int)Group.Asteroid_Serpentis_Commander_Cruiser;
+                result |= GroupId == (int)Group.Mission_Generic_Cruisers;
+                result |= GroupId == (int)Group.Deadspace_Overseer_Cruiser;
+                result |= GroupId == (int)Group.Mission_Thukker_Cruiser;
+                result |= GroupId == (int)Group.Mission_Generic_Battle_Cruisers;
+                result |= GroupId == (int)Group.Asteroid_Rogue_Drone_Commander_Cruiser;
+                result |= GroupId == (int)Group.Mission_Faction_Cruiser;
+                return result;
             }
         }
+
         /// <summary>
         /// Battlecruiser includes all elite-variants
         /// </summary>
@@ -621,6 +623,7 @@ namespace Questor.Modules.Caching
                 return result;
             }
         }
+
         /// <summary>
         /// Battleship includes all elite-variants
         /// </summary>
@@ -767,7 +770,7 @@ namespace Questor.Modules.Caching
             if (_directEntity != null && _directEntity.LockTarget())
             {
                 Cache.Instance.TargetingIDs[Id] = DateTime.UtcNow;
-                return true;    
+                return true;
             }
             return false;
         }
@@ -781,6 +784,7 @@ namespace Questor.Modules.Caching
         public void Jump()
         {
             if (_directEntity != null)
+
                 //Cache.Instance._lastDockedorJumping = DateTime.UtcNow;
                 _directEntity.Jump();
         }
@@ -820,7 +824,6 @@ namespace Questor.Modules.Caching
         public void Orbit(int range)
         {
             Cache.Instance.Approaching = this;
-
 
             if (_directEntity != null && DateTime.UtcNow > Cache.Instance.NextOrbit)
             {

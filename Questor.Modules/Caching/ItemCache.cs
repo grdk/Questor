@@ -286,10 +286,10 @@ namespace Questor.Modules.Caching
                     {
                         return null;
                     }
-                    
+
                     return InvType.MedianSell / InvType.Volume;
                 }
-                
+
                 return InvType.MedianBuy / InvType.Volume;
             }
         }
@@ -304,10 +304,10 @@ namespace Questor.Modules.Caching
                     {
                         return null;
                     }
-                    
+
                     return InvType.MedianSell;
                 }
-                
+
                 return InvType.MedianBuy;
             }
         }

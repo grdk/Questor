@@ -186,11 +186,8 @@ namespace Questor.Behaviors
                 return;
             }
 
-            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            //this local is safe check is useless as their is no localwatch processstate running every tick...
-            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            //If local unsafe go to base and do not start mission again
-            if (Settings.Instance.FinishWhenNotSafe && (_States.CurrentCombatMissionBehaviorState != CombatMissionsBehaviorState.GotoNearestStation /*|| State!=QuestorState.GotoBase*/))
+            //If local unsafe go to base and do not start mission again (for the whole session?)
+            if (Settings.Instance.FinishWhenNotSafe && (_States.CurrentCombatMissionBehaviorState != CombatMissionsBehaviorState.GotoNearestStation))
             {
                 //need to remove spam
                 if (Cache.Instance.InSpace && !Cache.Instance.LocalSafe(Settings.Instance.LocalBadStandingPilotsToTolerate, Settings.Instance.LocalBadStandingLevelToConsiderBad))
@@ -294,6 +291,9 @@ namespace Questor.Behaviors
 
                     if (Cache.Instance.StopBot)
                     {
+                        //
+                        // this is used by the 'local is safe' routines - standings checks - at the moment is stops questor for the rest of the session.
+                        //
                         if (Settings.Instance.DebugIdle) Logging.Log("CombatMissionsBehavior", "if (Cache.Instance.StopBot)", Logging.White);
                         return;
                     }
@@ -739,7 +739,11 @@ namespace Questor.Behaviors
                 case CombatMissionsBehaviorState.GotoBase:
                     if (Settings.Instance.DebugGotobase) Logging.Log("CombatMissionsBehavior", "GotoBase: AvoidBumpingThings()", Logging.White);
 
-                    if (Settings.Instance.AvoidBumpingThings) NavigateOnGrid.AvoidBumpingThings(Cache.Instance.BigObjects.FirstOrDefault(), "CombatMissionsBehaviorState.GotoBase");
+                    if (Settings.Instance.AvoidBumpingThings)
+                    {
+                        if (Settings.Instance.DebugGotobase) Logging.Log("CombatMissionsBehavior", "GotoBase: if (Settings.Instance.AvoidBumpingThings)", Logging.White);
+                        NavigateOnGrid.AvoidBumpingThings(Cache.Instance.BigObjects.FirstOrDefault(), "CombatMissionsBehaviorState.GotoBase");
+                    }
 
                     if (Settings.Instance.DebugGotobase) Logging.Log("CombatMissionsBehavior", "GotoBase: Traveler.TravelHome()", Logging.White);
 

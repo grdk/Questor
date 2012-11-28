@@ -52,7 +52,7 @@ namespace Questor.Modules.Actions
         private bool UseMissionShip; //false; // Were we successful in activating the mission specific ship?
         private bool CustomFittingFound;
         private bool WaitForFittingToLoad = true;
-        
+
         public void LoadSpecificAmmo(IEnumerable<DamageType> damageTypes)
         {
             AmmoToLoad.Clear();
@@ -65,7 +65,7 @@ namespace Questor.Modules.Actions
             if (!DefaultFittingChecked)
             {
                 if (!Cache.Instance.OpenFittingManagerWindow(module)) return false;
-                
+
                 if (Settings.Instance.DebugFittingMgr) Logging.Log(module, "Character Settings XML says Default Fitting is [" + Cache.Instance.DefaultFitting + "]", Logging.White);
 
                 if (Cache.Instance.FittingManagerWindow.Fittings.Any())
@@ -77,7 +77,7 @@ namespace Questor.Modules.Actions
                         //ok found it
                         if (Settings.Instance.DebugFittingMgr)
                         {
-                            Logging.Log(module, "[" + i +  "] Found a Fitting Named [" + fitting.Name + "]", Logging.Teal);
+                            Logging.Log(module, "[" + i + "] Found a Fitting Named [" + fitting.Name + "]", Logging.Teal);
                         }
 
                         if (fitting.Name.ToLower().Equals(Cache.Instance.DefaultFitting.ToLower()))
@@ -97,11 +97,11 @@ namespace Questor.Modules.Actions
                     DefaultFittingFound = false;
                     return true;
                 }
-                
+
                 if (!DefaultFittingFound)
                 {
                     Logging.Log("Arm.LoadFitting", "Error! Could not find Default Fitting [" + Cache.Instance.DefaultFitting.ToLower() + "].  Disabling fitting manager.", Logging.Orange);
-                    DefaultFittingChecked = true; 
+                    DefaultFittingChecked = true;
                     DefaultFittingFound = false;
                     Settings.Instance.UseFittingManager = false;
                     Logging.Log("Arm.LoadFitting", "Closing Fitting Manager", Logging.White);
@@ -144,12 +144,14 @@ namespace Questor.Modules.Actions
                     break;
 
                 case ArmState.NotEnoughDrones:
+
                     //This is logged in questor.cs - do not double log
                     //Logging.Log("Arm","Armstate.NotEnoughDrones");
                     //State = ArmState.Idle;
                     break;
 
                 case ArmState.NotEnoughAmmo:
+
                     //This is logged in questor.cs - do not double log
                     //Logging.Log("Arm","Armstate.NotEnoughAmmo");
                     //State = ArmState.Idle;
@@ -170,6 +172,7 @@ namespace Questor.Modules.Actions
                     bringOptionalItemQuantity = Math.Max(Cache.Instance.BringOptionalMissionItemQuantity, 1);
                     _bringoptionalItemMoved = false;
                     CheckCargoForOptionalBringItem = true;
+
                     //CheckCargoForAmmo = true;
 
                     _States.CurrentArmState = ArmState.OpenShipHangar;
@@ -182,7 +185,7 @@ namespace Questor.Modules.Actions
                 case ArmState.SwitchToSalvageShip:
                     if (DateTime.UtcNow > Cache.Instance.NextArmAction) //default 10 seconds
                     {
-                        if (!Cache.Instance.ReadyShipsHangar("Arm")) break;
+                        if (!Cache.Instance.OpenShipsHangar("Arm")) break;
 
                         if (_States.CurrentArmState == ArmState.OpenShipHangar)
                         {
@@ -218,7 +221,7 @@ namespace Questor.Modules.Actions
 
                     if (Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() != transportshipName)
                     {
-                        if (!Cache.Instance.ReadyShipsHangar("Arm")) break;
+                        if (!Cache.Instance.OpenShipsHangar("Arm")) break;
 
                         List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
                         foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName.ToLower() == transportshipName))
@@ -260,7 +263,7 @@ namespace Questor.Modules.Actions
                         {
                             if (DateTime.UtcNow > Cache.Instance.NextArmAction)
                             {
-                                if (!Cache.Instance.ReadyShipsHangar("Arm")) break;
+                                if (!Cache.Instance.OpenShipsHangar("Arm")) break;
 
                                 List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
                                 foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName.ToLower() == salvageshipName.ToLower()))
@@ -269,8 +272,10 @@ namespace Questor.Modules.Actions
                                     ship.ActivateShip();
                                     Cache.Instance.NextArmAction = DateTime.UtcNow.AddSeconds(Time.Instance.SwitchShipsDelay_seconds);
                                 }
+
                                 return;
                             }
+
                             return;
                         }
 
@@ -289,8 +294,8 @@ namespace Questor.Modules.Actions
                     }
                     break;
 
-                case ArmState.ActivateCombatShip:                    
-                    if (DateTime.UtcNow < Cache.Instance.NextArmAction) 
+                case ArmState.ActivateCombatShip:
+                    if (DateTime.UtcNow < Cache.Instance.NextArmAction)
                         return;
 
                     //if (!Cache.Instance.CloseCargoHold("Arm.ActivateCombatShip")) return;
@@ -316,7 +321,7 @@ namespace Questor.Modules.Actions
                     //
                     // If we have a mission-specific ship defined, switch to it
                     //
-                    if (!string.IsNullOrEmpty(Cache.Instance.MissionShip) &&  TryMissionShip)
+                    if (!string.IsNullOrEmpty(Cache.Instance.MissionShip) && TryMissionShip)
                     {
                         shipNameToUseNow = Cache.Instance.MissionShip;
                         TryMissionShip = true;
@@ -325,16 +330,16 @@ namespace Questor.Modules.Actions
                     {
                         TryMissionShip = false;
                     }
-                     
+
                     //
                     // if we have a ship to use defined and we are not currently in that defined ship. change to that ship
                     //
                     if (Settings.Instance.DebugArm) Logging.Log("Arm.ActivateCombatShip", "shipNameToUseNow = [" + shipNameToUseNow + "]", Logging.Teal);
                     if (Settings.Instance.DebugArm) Logging.Log("Arm.ActivateCombatShip", "Cache.Instance.DirectEve.ActiveShip.GivenName   = [" + Cache.Instance.DirectEve.ActiveShip.GivenName + "]", Logging.Teal);
-                    
+
                     if ((!string.IsNullOrEmpty(shipNameToUseNow) && Cache.Instance.DirectEve.ActiveShip.GivenName != shipNameToUseNow))
                     {
-                        if (!Cache.Instance.ReadyShipsHangar("Arm.ActivateCombatShip")) break;
+                        if (!Cache.Instance.OpenShipsHangar("Arm.ActivateCombatShip")) break;
 
                         List<DirectItem> shipsInShipHangar = Cache.Instance.ShipHangar.Items;
                         DirectItem shipToUseNow = shipsInShipHangar.FirstOrDefault(s => s.GivenName != null && s.GivenName.ToLower() == shipNameToUseNow.ToLower());
@@ -347,7 +352,7 @@ namespace Questor.Modules.Actions
                             {
                                 UseMissionShip = true;
                             }
-                                
+
                             if (TryMissionShip && !UseMissionShip)
                             {
                                 Logging.Log("Arm.ActivateCombatShip", "Unable to find the ship specified in the missionfitting.  Using default combat ship and default fitting.", Logging.Orange);
@@ -366,7 +371,6 @@ namespace Questor.Modules.Actions
                             Logging.Log("Arm.ActivateCombatShip", "Could not find [" + shipNameToUseNow + "] ship!", Logging.Red);
                             return;
                         }
-                        
                     }
 
                     if (TryMissionShip)
@@ -467,6 +471,7 @@ namespace Questor.Modules.Actions
                                 {
                                     Cache.Instance.NextArmAction = DateTime.UtcNow.AddSeconds(Time.Instance.SwitchShipsDelay_seconds);
                                     Logging.Log("Arm.LoadFitting", "Found fitting [ " + fitting.Name + " ][" + Math.Round(Cache.Instance.NextArmAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + "sec]", Logging.White);
+
                                     //switch to the requested fitting for the current mission
                                     fitting.Fit();
                                     _lastArmAction = DateTime.UtcNow;
@@ -494,7 +499,7 @@ namespace Questor.Modules.Actions
                             }
                         }
                     }
-                    
+
                     if (!Cache.Instance.CloseFittingManager("Arm.LoadFitting")) return;
                     _States.CurrentArmState = ArmState.MoveItems;
                     break;
@@ -509,7 +514,7 @@ namespace Questor.Modules.Actions
                     }
                     else if (Settings.Instance.UseStationRepair)
                     {
-                        if (!Cache.Instance.RepairDrones("Arm.RepairShop [Drones]")) break; //attempt to use repair facilities if avail in station        
+                        if (!Cache.Instance.RepairDrones("Arm.RepairShop [Drones]")) break; //attempt to use repair facilities if avail in station
                     }
 
                     _States.CurrentArmState = ArmState.MoveDrones;
@@ -582,7 +587,7 @@ namespace Questor.Modules.Actions
                     if (ItemsAreBeingMoved)
                     {
                         if (Settings.Instance.DebugArm) Logging.Log("ArmState.MoveItems", "if (ItemsAreBeingMoved)", Logging.Teal);
-                            
+
                         if (Cache.Instance.DirectEve.GetLockedItems().Count != 0)
                         {
                             if (DateTime.UtcNow.Subtract(Cache.Instance.NextArmAction).TotalSeconds > 120)
@@ -600,6 +605,7 @@ namespace Questor.Modules.Actions
                         ItemsAreBeingMoved = false;
                         return;
                     }
+
                     //
                     // Bring item
                     //
@@ -814,6 +820,7 @@ namespace Questor.Modules.Actions
                     break;
 
                 case ArmState.WaitForItems:
+
                     // Wait 5 seconds after moving
                     if (DateTime.UtcNow < Cache.Instance.NextArmAction)
                         break;
