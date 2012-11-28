@@ -97,6 +97,9 @@ namespace Questor.Modules.Lookup
         public bool DebugMoveTo { get; set; }
         public bool DebugOnframe { get; set; }
         public bool DebugPerformance { get; set; }
+
+        public bool DebugQuestorManager { get; set; }
+        
         public bool DebugReloadAll { get; set; }
         public bool DebugReloadorChangeAmmo { get; set; }
         public bool DebugSalvage { get; set; }
@@ -550,6 +553,7 @@ namespace Questor.Modules.Lookup
                 DebugNavigateOnGrid = false;
                 DebugOnframe = false;
                 DebugPerformance = false;
+                DebugQuestorManager = false;
                 DebugReloadAll = false;
                 DebugReloadorChangeAmmo = false;
                 DebugSalvage = false;
@@ -916,6 +920,7 @@ namespace Questor.Modules.Lookup
                     DebugNavigateOnGrid = (bool?)xml.Element("debugNavigateOnGrid") ?? false;
                     DebugOnframe = (bool?)xml.Element("debugOnframe") ?? false;
                     DebugPerformance = (bool?)xml.Element("debugPerformance") ?? false;                                     //enables more console logging having to do with the sub-states within each state
+                    DebugQuestorManager = (bool?)xml.Element("debugQuestorManager") ?? false;
                     DebugReloadAll = (bool?)xml.Element("debugReloadAll") ?? false;
                     DebugReloadorChangeAmmo = (bool?)xml.Element("debugReloadOrChangeAmmo") ?? false;
                     DebugSalvage = (bool?)xml.Element("debugSalvage") ?? false;

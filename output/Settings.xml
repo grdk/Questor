@@ -35,6 +35,7 @@
   <debugNavigateOnGrid>false</debugNavigateOnGrid>
   <debugOnframe>false</debugOnframe>
   <debugPerformance>false</debugPerformance>
+  <debugQuestorManager>false</debugQuestorManager>
   <debugReloadAll>false</debugReloadAll>
   <debugReloadorChangeAmmo>false</debugReloadorChangeAmmo>
   <debugSalvage>false</debugSalvage>
