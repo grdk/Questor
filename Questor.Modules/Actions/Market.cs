@@ -218,7 +218,7 @@ namespace Questor.Modules.Actions
 
         public static bool SaveMineralprices(string module)
         {
-            Logging.Log("Valuedump", "Updating reprocess prices", Logging.White);
+            Logging.Log(module, "Updating reprocess prices", Logging.White);
 
             // a quick price check table
             Dictionary<string, double> mineralPrices = new Dictionary<string, double>();
@@ -255,7 +255,7 @@ namespace Questor.Modules.Actions
                 }
             }
 
-            Logging.Log("ValueDump", "Saving [" + InvTypesXMLData + "]", Logging.White);
+            Logging.Log(module, "Saving [" + InvTypesXMLData + "]", Logging.White);
 
             XDocument xdoc = new XDocument(new XElement("invtypes"));
             foreach (InvTypeMarket type in InvTypesById.Values.OrderBy(i => i.Id))
@@ -272,7 +272,7 @@ namespace Questor.Modules.Actions
             }
             catch (Exception ex)
             {
-                Logging.Log("ValueDump", "Unable to save [" + InvTypesXMLData + "], is it a file permissions issue? Is the file open and locked? exception was [ " + ex.Message + "]", Logging.Orange);
+                Logging.Log(module, "Unable to save [" + InvTypesXMLData + "], is it a file permissions issue? Is the file open and locked? exception was [ " + ex.Message + "]", Logging.Orange);
                 return false;
             }
 
@@ -288,7 +288,7 @@ namespace Questor.Modules.Actions
                 InvTypeMarket invType;
                 if (!InvTypesById.TryGetValue(item.TypeId, out invType))
                 {
-                    Logging.Log("Valuedump", "Unknown TypeId " + item.TypeId + " for " + item.Name + ", adding to the list", Logging.Orange);
+                    Logging.Log(module, "Unknown TypeId " + item.TypeId + " for " + item.Name + ", adding to the list", Logging.Orange);
                     invType = new InvTypeMarket(item);
                     InvTypesById.Add(item.TypeId, invType);
                     updated = true;
@@ -303,7 +303,7 @@ namespace Questor.Modules.Actions
                     {
                         if (!InvTypesById.TryGetValue(material.TypeId, out invType))
                         {
-                            Logging.Log("Valuedump", "Unknown TypeId [" + material.TypeId + "] for [" + material.Name + "]", Logging.White);
+                            Logging.Log(module, "Unknown TypeId [" + material.TypeId + "] for [" + material.Name + "]", Logging.White);
                             continue;
                         }
                         material.InvType = invType;
@@ -313,7 +313,7 @@ namespace Questor.Modules.Actions
                         if ((!exists && matsPerItem > 0) || (exists && InvTypesById[item.TypeId].Reprocess[material.Name] != matsPerItem))
                         {
                             if (exists)
-                                Logging.Log("ValueDump",
+                                Logging.Log(module,
                                     Logging.Orange + " [" + Logging.White +
                                     item.Name +
                                     Logging.Orange + "][" + Logging.White +
@@ -328,14 +328,14 @@ namespace Questor.Modules.Actions
                     }
                     catch (Exception ex)
                     {
-                        Logging.Log("ValueDump", "Unknown TypeId [" + material.TypeId + "] for [" + material.Name + "] Exception was: " + ex, Logging.Orange);
+                        Logging.Log(module, "Unknown TypeId [" + material.TypeId + "] for [" + material.Name + "] Exception was: " + ex, Logging.Orange);
                         continue;
                     }
                 }
 
                 if (updItem)
                 {
-                    Logging.Log("ValueDump", "Updated [" + item.Name + "] refine materials", Logging.White);
+                    Logging.Log(module, "Updated [" + item.Name + "] refine materials", Logging.White);
                 }
                 updated |= updItem;
             }
@@ -391,18 +391,18 @@ namespace Questor.Modules.Actions
             {
                 if (ItemsToRefine.Count != 0)
                 {
-                    Logging.Log("ValueDump", ItemsToSell.Count + " items left to sell. Refining Items Next.", Logging.White);
+                    Logging.Log(module, ItemsToSell.Count + " items left to sell. Refining Items Next.", Logging.White);
                     _States.CurrentValueDumpState = ValueDumpState.RefineItems;
                     return false;
                 }
 
-                Logging.Log("ValueDump", ItemsToSell.Count + " items left to sell. Done.", Logging.White);
+                Logging.Log(module, ItemsToSell.Count + " items left to sell. Done.", Logging.White);
                 _States.CurrentValueDumpState = ValueDumpState.Done;
                 return false;
             }
 
             //if (!_form.RefineCheckBox.Checked)
-            Logging.Log("ValueDump", ItemsToSell.Count + " items left to sell", Logging.White);
+            Logging.Log(module, ItemsToSell.Count + " items left to sell", Logging.White);
 
             _currentItem = ItemsToSell[0];
             ItemsToSell.RemoveAt(0);
@@ -413,7 +413,7 @@ namespace Questor.Modules.Actions
                 _currentItem.GroupId == (int)Group.SecureContainer
                )
             {
-                Logging.Log("ValueDump", "Skipping " + _currentItem.Name, Logging.White);
+                Logging.Log(module, "Skipping " + _currentItem.Name, Logging.White);
                 return false;
             }
 
@@ -426,7 +426,7 @@ namespace Questor.Modules.Actions
                     {
                         if (_currentItem.TypeId == (int)element.Attribute("id"))
                         {
-                            Logging.Log("ValueDump", "Skipping [" + _currentItem.Name + "] because it is listed in InvIgnore.xml", Logging.White);
+                            Logging.Log(module, "Skipping [" + _currentItem.Name + "] because it is listed in InvIgnore.xml", Logging.White);
                             return false;
                         }
                     }
@@ -434,7 +434,7 @@ namespace Questor.Modules.Actions
             }
             catch (Exception exception)
             {
-                if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump", "invIgnore processing caused an exception [" + exception + "]", Logging.Debug);
+                if (Settings.Instance.DebugValuedump) Logging.Log(module, "invIgnore processing caused an exception [" + exception + "]", Logging.Debug);
             }
 
             return true;
@@ -449,7 +449,7 @@ namespace Questor.Modules.Actions
             DirectItem directItem = Cache.Instance.ItemHangar.Items.FirstOrDefault(i => i.ItemId == _currentItem.Id);
             if (directItem == null)
             {
-                Logging.Log("ValueDump", "Item " + _currentItem.Name + " no longer exists in the hanger", Logging.White);
+                Logging.Log(module, "Item " + _currentItem.Name + " no longer exists in the hanger", Logging.White);
                 return false;
             }
 
@@ -465,12 +465,12 @@ namespace Questor.Modules.Actions
                 //
                 if (sellWindow == null || !sellWindow.IsReady || sellWindow.Item.ItemId != _currentItem.Id)
                 {
-                    Logging.Log("ValueDump", "Starting QuickSell for " + _currentItem.Name, Logging.White);
+                    Logging.Log(module, "Starting QuickSell for " + _currentItem.Name, Logging.White);
                     if (!directItem.QuickSell())
                     {
                         _lastExecute = DateTime.UtcNow.AddSeconds(-5);
 
-                        Logging.Log("ValueDump", "QuickSell failed for " + _currentItem.Name + ", retrying in 5 seconds", Logging.White);
+                        Logging.Log(module, "QuickSell failed for " + _currentItem.Name + ", retrying in 5 seconds", Logging.White);
                         return false;
                     }
                     return false;
@@ -506,7 +506,7 @@ namespace Questor.Modules.Actions
 
             if (sellWindow != null && (!sellWindow.OrderId.HasValue || !sellWindow.Price.HasValue || !sellWindow.RemainingVolume.HasValue))
             {
-                Logging.Log("ValueDump", "No order available for " + _currentItem.Name, Logging.White);
+                Logging.Log(module, "No order available for " + _currentItem.Name, Logging.White);
 
                 sellWindow.Cancel();
                 //
@@ -544,7 +544,7 @@ namespace Questor.Modules.Actions
 
                     if (refinePrice > totalPrice)
                     {
-                        Logging.Log("ValueDump.InspectRefinery", "[" + _currentItem.Name + "[" + quantity + "units] is worth more as mins [Refine each: " + (refinePrice / portions).ToString("#,##0.00") + "][Sell each: " + price.ToString("#,##0.00") + "][Refine total: " + refinePrice.ToString("#,##0.00") + "][Sell total: " + totalPrice.ToString("#,##0.00") + "]", Logging.White);
+                        Logging.Log(module, "InspectRefinery [" + _currentItem.Name + "[" + quantity + "units] is worth more as mins [Refine each: " + (refinePrice / portions).ToString("#,##0.00") + "][Sell each: " + price.ToString("#,##0.00") + "][Refine total: " + refinePrice.ToString("#,##0.00") + "][Sell total: " + totalPrice.ToString("#,##0.00") + "]", Logging.White);
 
                         // Add it to the refine list
                         ItemsToRefine.Add(_currentItem);
@@ -561,7 +561,7 @@ namespace Questor.Modules.Actions
                 {
                     if (!_currentItem.InvType.MedianBuy.HasValue)
                     {
-                        Logging.Log("ValueDump", "No historical price available for " + _currentItem.Name,
+                        Logging.Log(module, "No historical price available for " + _currentItem.Name,
                                     Logging.White);
 
                         sellWindow.Cancel();
@@ -577,7 +577,7 @@ namespace Questor.Modules.Actions
                     // If percentage < 85% and total price > 1m isk then skip this item (we don't undersell)
                     if (perc < 0.85 && total > 1000000)
                     {
-                        Logging.Log("ValueDump", "Not underselling item " + _currentItem.Name +
+                        Logging.Log(module, "Not underselling item " + _currentItem.Name +
                                                    Logging.Orange + " [" + Logging.White +
                                                    "Median buy price: " +
                                                    _currentItem.InvType.MedianBuy.Value.ToString("#,##0.00") +
@@ -608,7 +608,7 @@ namespace Questor.Modules.Actions
 
                 if (sell)
                 {
-                    Logging.Log("ValueDump", "Selling " + quantity + " of " + _currentItem.Name +
+                    Logging.Log(module, "Selling " + quantity + " of " + _currentItem.Name +
                                                Logging.Orange + " [" + Logging.White +
                                                "Sell price: " + (price * quantity).ToString("#,##0.00") +
                                                Logging.Orange + "]" + Logging.White +
@@ -647,7 +647,7 @@ namespace Questor.Modules.Actions
 
                 if (refinePrice > totalPriceR || totalPriceR <= 1500000 || _currentItem.TypeId == 30497)
                 {
-                    Logging.Log("ValueDump.InspectRefinery", "[" + _currentItem.Name + "[" + quantityR + "units] is worth more as mins [Refine each: " + (refinePrice / portions).ToString("#,##0.00") + "][Sell each: " + priceR.ToString("#,##0.00") + "][Refine total: " + refinePrice.ToString("#,##0.00") + "][Sell total: " + totalPriceR.ToString("#,##0.00") + "]", Logging.White);
+                    Logging.Log(module, "InspectRefinery [" + _currentItem.Name + "[" + quantityR + "units] is worth more as mins [Refine each: " + (refinePrice / portions).ToString("#,##0.00") + "][Sell each: " + priceR.ToString("#,##0.00") + "][Refine total: " + refinePrice.ToString("#,##0.00") + "][Sell total: " + totalPriceR.ToString("#,##0.00") + "]", Logging.White);
 
                     // Add it to the refine list
                     ItemsToRefine.Add(_currentItem);
@@ -656,7 +656,7 @@ namespace Questor.Modules.Actions
                 {
                     if (Settings.Instance.DebugValuedump)
                     {
-                        Logging.Log("ValueDump.InspectRefinery", "[" + _currentItem.Name + "[" + quantityR + "units] is worth more to sell [Refine each: " + (refinePrice / portions).ToString("#,##0.00") + "][Sell each: " + priceR.ToString("#,##0.00") + "][Refine total: " + refinePrice.ToString("#,##0.00") + "][Sell total: " + totalPriceR.ToString("#,##0.00") + "]", Logging.White);
+                        Logging.Log(module, "InspectRefinery [" + _currentItem.Name + "[" + quantityR + "units] is worth more to sell [Refine each: " + (refinePrice / portions).ToString("#,##0.00") + "][Sell each: " + priceR.ToString("#,##0.00") + "][Refine total: " + refinePrice.ToString("#,##0.00") + "][Sell total: " + totalPriceR.ToString("#,##0.00") + "]", Logging.White);
                     }
                 }
             }
@@ -692,22 +692,29 @@ namespace Questor.Modules.Actions
         {
             if (refine)
             {
-                if (!Cache.Instance.ReadyItemsHangar("ValueDump")) return false;
+                if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: if (refine)", Logging.Debug);
+                        
+                if (!Cache.Instance.ReadyItemsHangar(module)) return false;
                 DirectReprocessingWindow reprocessingWindow = Cache.Instance.DirectEve.Windows.OfType<DirectReprocessingWindow>().FirstOrDefault();
 
                 if (reprocessingWindow == null)
                 {
+                    if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: if (reprocessingWindow == null)", Logging.Debug);
+                
                     if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > Time.Instance.Marketlookupdelay_seconds)
                     {
                         IEnumerable<DirectItem> refineItems = Cache.Instance.ItemHangar.Items.Where(i => ItemsToRefine.Any(r => r.Id == i.ItemId)).ToList();
                         if (refineItems.Any())
                         {
+                            if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: if (refineItems.Any())", Logging.Debug);
+
                             Cache.Instance.DirectEve.ReprocessStationItems(refineItems);
+                            if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: Cache.Instance.DirectEve.ReprocessStationItems(refineItems);", Logging.Debug);
                             _lastExecute = DateTime.UtcNow;
                             return false;
                         }
 
-                        if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump.RefineItems", "if (refineItems.Any()) was false", Logging.Debug);
+                        if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: if (refineItems.Any()) was false", Logging.Debug);
                         return false;
                     }
 
@@ -716,27 +723,37 @@ namespace Questor.Modules.Actions
 
                 if (reprocessingWindow.NeedsQuote)
                 {
+                    if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: if (reprocessingWindow.NeedsQuote)", Logging.Debug);
+
                     if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > Time.Instance.Marketlookupdelay_seconds)
                     {
+                        if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > Time.Instance.Marketlookupdelay_seconds)", Logging.Debug);
+
                         reprocessingWindow.GetQuotes();
                         _lastExecute = DateTime.UtcNow;
                         return false;
                     }
 
-                    if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump.RefineItems", "waiting for: if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > Time.Instance.Marketlookupdelay_seconds)", Logging.Debug);
+                    if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: waiting for: if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > Time.Instance.Marketlookupdelay_seconds)", Logging.Debug);
                     return false;
                 }
+
+                if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: // Wait till we have a quote", Logging.Debug);
 
                 // Wait till we have a quote
                 if (reprocessingWindow.Quotes.Count == 0)
                 {
+                    if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: if (reprocessingWindow.Quotes.Count == 0)", Logging.Debug);
                     _lastExecute = DateTime.UtcNow;
                     return false;
                 }
 
+                if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: // Wait another 5 seconds to view the quote and then reprocess the stuff", Logging.Debug);
+
                 // Wait another 5 seconds to view the quote and then reprocess the stuff
                 if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > Time.Instance.Marketlookupdelay_seconds)
                 {
+                    if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: if (DateTime.UtcNow.Subtract(_lastExecute).TotalSeconds > Time.Instance.Marketlookupdelay_seconds)", Logging.Debug);
                     // TODO: We should wait for the items to appear in our hangar and then sell them...
                     reprocessingWindow.Reprocess();
                     return true;
@@ -744,8 +761,10 @@ namespace Questor.Modules.Actions
             }
             else
             {
-                if (!Cache.Instance.OpenCargoHold("ValueDump")) return false;
-                if (!Cache.Instance.ReadyAmmoHangar("ValueDump")) return false;
+                if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: if (!refine)", Logging.Debug);
+                
+                if (!Cache.Instance.OpenCargoHold(module)) return false;
+                if (!Cache.Instance.ReadyAmmoHangar(module)) return false;
 
                 IEnumerable<DirectItem> refineItems = Cache.Instance.ItemHangar.Items.Where(i => ItemsToRefine.Any(r => r.Id == i.ItemId)).ToList();
                 if (refineItems.Any())

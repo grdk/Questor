@@ -108,16 +108,19 @@ namespace ValueDump
                     break;
 
                 case ValueDumpState.CheckMineralPrices:
+                    if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump", "case ValueDumpState.CheckMineralPrices:", Logging.Debug);
                     if (!Market.CheckMineralPrices("ValueDump", RefineCheckBox.Checked)) return;
                     _States.CurrentValueDumpState = ValueDumpState.SaveMineralPrices;
                     break;
 
                 case ValueDumpState.SaveMineralPrices:
+                    if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump", "case ValueDumpState.SaveMineralPrices:", Logging.Debug);
                     if (!Market.SaveMineralprices("ValueDump")) return;
                     _States.CurrentValueDumpState = ValueDumpState.Idle;    
                     break;
 
                 case ValueDumpState.GetItems:
+                    if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump", "case ValueDumpState.GetItems:", Logging.Debug);
                     if (!Cache.Instance.ReadyItemsHangar("ValueDump")) break;
                     Logging.Log("ValueDump", "Loading hangar items", Logging.White);
 
@@ -133,6 +136,7 @@ namespace ValueDump
                     break;
 
                 case ValueDumpState.UpdatePrices:
+                    if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump", "case ValueDumpState.UpdatePrices:", Logging.Debug);
                     if (!Market.UpdatePrices("ValueDump", cbxSell.Checked, RefineCheckBox.Checked, cbxUndersell.Checked)) return;
                     //
                     // we are out of items
@@ -141,31 +145,37 @@ namespace ValueDump
                     break;
 
                 case ValueDumpState.NextItem:
+                    if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump", "case ValueDumpState.NextItem:", Logging.Debug);
                     if (!Market.NextItem("ValueDump")) return;
                     _States.CurrentValueDumpState = ValueDumpState.StartQuickSell;
                     break;
 
                 case ValueDumpState.StartQuickSell:
+                    if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump", "case ValueDumpState.StartQuickSell:", Logging.Debug);
                     if (!Market.StartQuickSell("ValueDump", cbxSell.Checked)) return;
                     _States.CurrentValueDumpState = ValueDumpState.InspectOrder;
                     break;
 
                 case ValueDumpState.InspectOrder:
+                    if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump", "case ValueDumpState.InspectOrder:", Logging.Debug);
                     if (!Market.Inspectorder("ValueDump", cbxSell.Checked, RefineCheckBox.Checked, cbxUndersell.Checked, (double)RefineEfficiencyInput.Value)) return;
                     _States.CurrentValueDumpState = ValueDumpState.WaitingToFinishQuickSell;
                     break;
 
                 case ValueDumpState.InspectRefinery:
-                    if (!Market.InspectRefinery("ValueDump", (double)RefineEfficiencyInput.Value))
+                    if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump", "case ValueDumpState.InspectRefinery:", Logging.Debug);
+                    if (!Market.InspectRefinery("ValueDump", (double)RefineEfficiencyInput.Value)) return;
                     _States.CurrentValueDumpState = ValueDumpState.NextItem;
                     break;
 
                 case ValueDumpState.WaitingToFinishQuickSell:
+                    if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump", "case ValueDumpState.WaitingToFinishQuickSell:", Logging.Debug);
                     if (!Market.WaitingToFinishQuickSell("ValueDump")) return;
                     _States.CurrentValueDumpState = ValueDumpState.NextItem;
                     break;
 
                 case ValueDumpState.RefineItems:
+                    if (Settings.Instance.DebugValuedump) Logging.Log("ValueDump", "case ValueDumpState.RefineItems:", Logging.Debug);
                     if (Market.RefineItems("ValueDump", RefineCheckBox.Checked)) return;
                     _States.CurrentValueDumpState = ValueDumpState.Idle;
                     break;
