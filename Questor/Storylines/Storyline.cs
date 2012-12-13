@@ -44,25 +44,37 @@
                                {"Transaction Data Delivery", new TransactionDataDelivery()},
                                //{"A Special Delivery", new GenericCourier()}, // Needs 40k m3 cargo capacity (i.e. Iteron Mark V, T2 CHO rigs)
                                /* COURIER/DELIVERY - AMARR */
+                               /* COURIER/DELIVERY - AMARR - LEVEL 4 */
                                {"Opiate of the Masses", new GenericCourier()},
                                {"Send the Marines!", new GenericCourier()},
                                {"The Governors Ball", new GenericCourier()},
                                {"The State of the Empire", new GenericCourier()},
                                {"Unmasking the Traitor", new GenericCourier()},
                                /* COURIER/DELIVERY - CALDARI */
+                               /* COURIER/DELIVERY - CALDARI - LEVEL 1 */
+                               //{"A Fathers Love", new GenericCourier()},
+                               //{"A Greener World", new GenericCourier()},
+                               //{"Eradication", new GenericCourier()},
+                               //{"Evacuation", new GenericCourier()},
+                               //{"On the Run", new GenericCourier()},
+                               /* COURIER/DELIVERY - CALDARI - LEVEL 4 */
                                {"A Desperate Rescue", new GenericCourier()},
                                {"Black Ops Crisis", new GenericCourier()},
                                {"Fire and Ice", new GenericCourier()},
                                {"Hunting Black Dog", new GenericCourier()},
                                {"Operation Doorstop", new GenericCourier()},
                                /* COURIER/DELIVERY - GALLENTE */
-                               ////{"A Fathers Love", new GenericCourier()},
-                               ////{"A Greener World", new GenericCourier()},
-                               ////{"Eradication", new GenericCourier()},
-                               ////{"Evacuation", new GenericCourier()},
-                               ////{"On the Run", new GenericCourier()},
+                               /* COURIER/DELIVERY - GALLENTE - LEVEL 1 */
+                               //{"A Little Work On The Side", new GenericCourier()},
+                               //{"Ancient Treasures", new GenericCourier()},
+                               //{"Pieces of the Past", new GenericCourier()},
+                               //{"The Latest Style", new GenericCourier()},
+                               //{"Wartime Advances", new GenericCourier()},
+                               /* COURIER/DELIVERY - GALLENTE - LEVEL 4 */
+                               ////{"A Fine Wine", new GenericCourier()},
+                               ////{"The Natural Way", new GenericCourier()},
                                /* COURIER/DELIVERY - MINMATAR */
-                               {"Very Important Pirates", new GenericCourier()},
+                               /* COURIER/DELIVERY - MINMATAR - LEVEL 4 */
                                {"A Cargo With Attitude", new GenericCourier()},
                                {"A Load of Scrap", new GenericCourier()},
                                {"Brand New Harvesters", new GenericCourier()},
@@ -82,14 +94,14 @@
                                {"Dissidents", new GenericCombatStoryline()},
                                {"Extract the Renegade", new GenericCombatStoryline()},
                                {"Gate to Nowhere", new GenericCombatStoryline()},
-                               ////{"Racetrack Ruckus", new GenericCombatStoryline()},
+                               {"Racetrack Ruckus", new GenericCombatStoryline()},
+                               {"Jealous Rivals", new GenericCombatStoryline()},
                                {"The Mouthy Merc", new GenericCombatStoryline()},
                                /* COMBAT - CALDARI */
                                {"Crowd Control", new GenericCombatStoryline()},
                                {"Forgotten Outpost", new GenericCombatStoryline()},
                                //{"Illegal Mining", new GenericCombatStoryline()}, // Extremely high DPS after shooting structures!
                                {"Innocents in the Crossfire", new GenericCombatStoryline()},
-                               ////{"Jealous Rivals", new GenericCombatStoryline()},
                                {"Stem the Flow", new GenericCombatStoryline()},
                                /* COMBAT - GALLENTE */
                                ////{"Kidnappers Strike - Ambush In The Dark (1 of 10)", new GenericCombatStoryline()},
@@ -104,7 +116,7 @@
                                ////{"Whispers in the Dark - The Outpost (4 of 4)", new GenericCombatStoryline()},
                                /* COMBAT - MINMATAR */
                                {"Amarrian Excavators", new GenericCombatStoryline()},
-                               ////{"Diplomatic Incident", new GenericCombatStoryline()},
+                               {"Diplomatic Incident", new GenericCombatStoryline()},
                                {"Matriarch", new GenericCombatStoryline()},  
                                {"Nine Tenths of the Wormhole", new GenericCombatStoryline()},
                                {"Postmodern Primitives", new GenericCombatStoryline()},
