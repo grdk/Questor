@@ -1,8 +1,9 @@
-﻿using System;
-using System.Windows.Forms;
-
+﻿
 namespace GridMon
 {
+    using System;
+    using System.Windows.Forms;
+
     internal static class Program
     {
         /// <summary>

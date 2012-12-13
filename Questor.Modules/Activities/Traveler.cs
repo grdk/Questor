@@ -325,25 +325,29 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            TravelHomeCounter++;
-            if (myHomeBookmarks == null || TravelHomeCounter > 30)
+            //only call bookmark stuff if UseHomebookmark is true
+            if (Settings.Instance.UseHomebookmark)
             {
-                TravelHomeCounter = 0;
-                myHomeBookmarks = Cache.Instance.BookmarksByLabel(Settings.Instance.HomeBookmarkName).ToList();
-            }
-
-            if (myHomeBookmarks.Any())
-            {
-                DirectBookmark oldestHomeBookmark = myHomeBookmarks.OrderBy(b => b.CreatedOn).FirstOrDefault();
-                if (oldestHomeBookmark != null && oldestHomeBookmark.LocationId != null)
+                TravelHomeCounter++;
+                if (myHomeBookmarks == null || TravelHomeCounter > 30)
                 {
-                    TravelToHomeBookmark(oldestHomeBookmark, module);
+                    TravelHomeCounter = 0;
+                    myHomeBookmarks = Cache.Instance.BookmarksByLabel(Settings.Instance.HomeBookmarkName).ToList();
+                }
+
+                if (myHomeBookmarks.Any())
+                {
+                    DirectBookmark oldestHomeBookmark = myHomeBookmarks.OrderBy(b => b.CreatedOn).FirstOrDefault();
+                    if (oldestHomeBookmark != null && oldestHomeBookmark.LocationId != null)
+                    {
+                        TravelToHomeBookmark(oldestHomeBookmark, module);
+                        return;
+                    }
                     return;
                 }
-                return;
-            }
 
-            Logging.Log("Traveler.TravelHome", "HomeBookmarkName bookmark not found! using AgentsStation info instead: We were Looking for bookmark starting with [" + Settings.Instance.HomeBookmarkName + "] found none.", Logging.Orange);
+                Logging.Log("Traveler.TravelHome", "HomeBookmarkName bookmark not found! using AgentsStation info instead: We were Looking for bookmark starting with [" + Settings.Instance.HomeBookmarkName + "] found none.", Logging.Orange);
+            } 
             TravelToAgentsStation(module);
             return;
         }

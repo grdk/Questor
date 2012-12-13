@@ -155,7 +155,7 @@ namespace BuyLPI
                 return;
             }
 
-            if (!Cache.Instance.ReadyItemsHangar("BuyLPI")) return;
+            if (!Cache.Instance.OpenItemsHangar("BuyLPI")) return;
 
             if (!Cache.Instance.OpenLPStore("BuyLPI")) return;
 

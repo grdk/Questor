@@ -1668,5 +1668,17 @@ namespace Questor
             LavishScript.ExecuteCommand("timedcommand 200 WindowCharacteristics -pos " + 0 + "," + 0);
                         
         }
+
+        private void bttnLogEntitiesOnGrid_Click(object sender, EventArgs e)
+        {
+            Logging.Log("QuestorUI", "Starting Statistics.EntityStatistics(Cache.Instance.Entities); Routine.", Logging.Debug);
+            Statistics.EntityStatistics(Cache.Instance.Entities);
+        }
+
+        private void bttnLogContainersOnGrid_Click(object sender, EventArgs e)
+        {
+            Logging.Log("QuestorUI", "Statistics.EntityStatistics(Cache.Instance.Containers); Routine.", Logging.Debug);
+            Statistics.EntityStatistics(Cache.Instance.Containers);
+        }
     }
 }

@@ -104,6 +104,9 @@ namespace Questor.Modules.Lookup
         public bool DebugReloadorChangeAmmo { get; set; }
         public bool DebugSalvage { get; set; }
         public bool DebugScheduler { get; set; }
+
+        public bool DebugSkillTraining { get; set; }
+
         public bool DebugStatistics { get; set; }
         public bool DebugStorylineMissions { get; set; }
         public bool DebugTractorBeams { get; set; }
@@ -196,6 +199,12 @@ namespace Questor.Modules.Lookup
         public string SalvageShipName { get; set; }
         public string TransportShipName { get; set; }
         public string TravelShipName { get; set; }
+
+        //
+        //Use Homebookmark
+        //
+        public bool UseHomebookmark { get; set; }
+
 
         //
         // Storage location for loot, ammo, and bookmarks
@@ -558,6 +567,7 @@ namespace Questor.Modules.Lookup
                 DebugReloadorChangeAmmo = false;
                 DebugSalvage = false;
                 DebugScheduler = false;
+                DebugSkillTraining = true;
                 DebugStates = false;
                 DebugStatistics = false;
                 DebugStorylineMissions = false;
@@ -694,6 +704,9 @@ namespace Questor.Modules.Lookup
                 TransportShipName = "Transport";
                 TravelShipName = "Travel";
 
+                //
+                // Usage of Homebookmark @ dedicated salvager
+                UseHomebookmark = false;
                 //
                 // Storage Location for Loot, Ammo, Bookmarks
                 //
@@ -925,6 +938,7 @@ namespace Questor.Modules.Lookup
                     DebugReloadorChangeAmmo = (bool?)xml.Element("debugReloadOrChangeAmmo") ?? false;
                     DebugSalvage = (bool?)xml.Element("debugSalvage") ?? false;
                     DebugScheduler = (bool?)xml.Element("debugScheduler") ?? false;
+                    DebugSkillTraining = (bool?)xml.Element("debugSkillTraining") ?? false;
                     DebugStates = (bool?)xml.Element("debugStates") ?? false;                                               //enables more console logging having to do with the time it takes to execute each state
                     DebugStatistics = (bool?)xml.Element("debugStatistics") ?? false;
                     DebugStorylineMissions = (bool?)xml.Element("debugStorylineMissions") ?? false;
@@ -1050,11 +1064,23 @@ namespace Questor.Modules.Lookup
                         CombatShipName = (string)xml.Element("combatShipName") ?? "My frigate of doom";
                         SalvageShipName = (string)xml.Element("salvageShipName") ?? "My Destroyer of salvage";
                         TransportShipName = (string)xml.Element("transportShipName") ?? "My Hauler of transportation";
-                        TravelShipName = (string)xml.Element("travelShipName") ?? "My Shuttle of traveling";
+                        TravelShipName = (string)xml.Element ("travelShipName") ?? "My Shuttle of traveling";
                     }
                     catch (Exception exception)
                     {
                         Logging.Log("Settings", "Error Loading Ship Name Settings [" + exception + "]", Logging.Teal);
+                    }
+
+                    try
+                    {
+                        //
+                        // Storage Location for Loot, Ammo, Bookmarks
+                        //
+                        UseHomebookmark = (bool?)xml.Element("UseHomebookmark") ?? false;
+                    }
+                    catch (Exception exception)
+                    {
+                        Logging.Log("Settings", "Error Loading UseHomebookmark [" + exception + "]", Logging.Teal);
                     }
 
                     try

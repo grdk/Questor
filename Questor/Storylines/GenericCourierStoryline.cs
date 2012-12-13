@@ -133,7 +133,7 @@ namespace Questor.Storylines
             var directEve = Cache.Instance.DirectEve;
 
             // Open the item hangar (should still be open)
-            if (!Cache.Instance.ReadyItemsHangar("GenericCourierStoryline: MoveItem")) return false;
+            if (!Cache.Instance.OpenItemsHangar("GenericCourierStoryline: MoveItem")) return false;
 
             if (!Cache.Instance.OpenCargoHold("GenericCourierStoryline: MoveItem")) return false;
 

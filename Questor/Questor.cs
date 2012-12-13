@@ -32,6 +32,7 @@ namespace Questor
         private readonly DirectEve _directEve;
 
         private DateTime _lastPulse;
+        private static DateTime _nextQuestorAction = DateTime.UtcNow.AddHours(-1);
         private readonly CombatMissionsBehavior _combatMissionsBehavior;
         private readonly CombatHelperBehavior _combatHelperBehavior;
         private readonly DedicatedBookmarkSalvagerBehavior _dedicatedBookmarkSalvagerBehavior;
@@ -355,6 +356,11 @@ namespace Questor
 
         public bool OnframeProcessEveryPulse()
         {
+            if (_directEve.Login.AtLogin)
+            {
+                return false;
+            }
+
             // New frame, invalidate old cache
             Cache.Instance.InvalidateCache();
 
@@ -466,7 +472,7 @@ namespace Questor
                 DebugPerformanceStopandDisplayTimer("Defense.ProcessState");
             }
 
-            if (Cache.Instance.Paused)
+            if (Cache.Instance.Paused || DateTime.UtcNow < _nextQuestorAction)
             {
                 Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                 Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;

@@ -332,11 +332,21 @@ namespace Questor.Modules.Activities
                         if (!Combat.ReloadAll(target)) return;
                     }
 
-                    if (Cache.Instance.PriorityTargets.All(pt => pt.Id != target.Id))
+                    if (Cache.Instance.DirectEve.ActiveShip.MaxLockedTargets > 0)
                     {
-                        //Adds the target we want to kill to the priority list so that combat.cs will kill it (especially if it is an LCO this is important)
-                        Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Adding [" + target.Name + "][ID: " + target.Id + "] as a priority target", Logging.Teal);
-                        Cache.Instance.AddPriorityTargets(new[] { target }, Priority.PriorityKillTarget);
+                        if (target.IsTarget || target.IsTargeting) //This target is already targeted no need to target it again
+                        {
+                            //noop
+                        }
+                        else if (!Cache.Instance.IgnoreTargets.Contains(target.Name.Trim()))
+                        {
+                            Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Targeting [" + target.Name + "][ID: " + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                            target.LockTarget();
+                        }
+                        else if (Cache.Instance.IgnoreTargets.Contains(target.Name.Trim()))
+                        {
+                            Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "We have attempted to target an NPC that is on the ignore list (why?) Name [" + target.Name + "][" + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                        }
                     }
                 }
                 NavigateOnGrid.NavigateIntoRange(target, "CombatMissionCtrl." + _pocketActions[_currentAction]);
@@ -1346,13 +1356,16 @@ namespace Questor.Modules.Activities
                     if (!Cache.Instance.OpenCargoHold("CombatMissionCtrl.LootItemAction")) return;
                     if (Cache.Instance.CargoHold.Window.IsReady)
                     {
-                        done |= Cache.Instance.CargoHold.Items.Any(i => (items.Contains(i.TypeName) && (i.Quantity >= quantity)));
+                        if (Cache.Instance.CargoHold.Items.Any(i => (items.Contains(i.TypeName) && (i.Quantity >= quantity))))
+                        {
+                            done = true;
+                        }
                     }
                 }
 
                 if (done)
                 {
-                    Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "We are done looting", Logging.Teal);
+                    Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "We are done looting - we have the item(s)", Logging.Teal);
 
                     // now that we have completed this action revert OpenWrecks to false
                     Cache.Instance.OpenWrecks = false;
@@ -1367,7 +1380,7 @@ namespace Questor.Modules.Activities
                 //IOrderedEnumerable<EntityCache> containers = Cache.Instance.Containers.Where(e => !Cache.Instance.LootedContainers.Contains(e.Id)).OrderByDescending(e => e.Id);
                 if (!containers.Any())
                 {
-                    Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "We are done looting", Logging.Teal);
+                    Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "We are done looting - no containers left to loot", Logging.Teal);
 
                     _currentAction++;
                     return;

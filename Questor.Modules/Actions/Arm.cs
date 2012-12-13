@@ -542,7 +542,7 @@ namespace Questor.Modules.Actions
                     }
 
                     if (!Cache.Instance.ReadyAmmoHangar("Arm.MoveDrones")) break;
-                    if (!Cache.Instance.ReadyItemsHangar("Arm.MoveDrones")) break;
+                    if (!Cache.Instance.OpenItemsHangar("Arm.MoveDrones")) break;
 
                     DirectItem drone = Cache.Instance.ItemHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).FirstOrDefault(i => i.TypeId == Settings.Instance.DroneTypeId) ??
                                        Cache.Instance.AmmoHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).FirstOrDefault(i => i.TypeId == Settings.Instance.DroneTypeId);
@@ -555,7 +555,7 @@ namespace Questor.Modules.Actions
                         break;
                     }
 
-                    if (!Cache.Instance.ReadyDroneBay("Arm.MoveDrones")) break;
+                    if (!Cache.Instance.OpenDroneBay("Arm.MoveDrones")) break;
 
                     double neededDrones = Math.Floor((Cache.Instance.DroneBay.Capacity - Cache.Instance.DroneBay.UsedCapacity) / drone.Volume);
                     Logging.Log("Arm.MoveDrones", "neededDrones: " + neededDrones, Logging.White);
@@ -620,12 +620,16 @@ namespace Questor.Modules.Actions
                         if (Settings.Instance.DebugArm) Logging.Log("Arm.MoveItems", "if (!_missionItemMoved)", Logging.Teal);
                         if (!Cache.Instance.OpenCargoHold("Arm.MoveItems")) break;
                         if (!Cache.Instance.ReadyAmmoHangar("Arm.MoveItems")) break;
-                        if (!Cache.Instance.ReadyItemsHangar("Arm.MoveItems")) break;
+                        if (!Cache.Instance.OpenItemsHangar("Arm.MoveItems")) break;
 
                         IEnumerable<DirectItem> cargoItems = Cache.Instance.CargoHold.Items.Where(i => (i.TypeName ?? string.Empty).ToLower() == bringItem);
 
-                        DirectItem hangarItem = Cache.Instance.ItemHangar.Items.FirstOrDefault(i => (i.TypeName ?? string.Empty).ToLower() == bringItem) ??
-                                                Cache.Instance.AmmoHangar.Items.FirstOrDefault(i => (i.TypeName ?? string.Empty).ToLower() == bringItem);
+                        DirectItem hangarItem;
+                        hangarItem = Cache.Instance.ItemHangar.Items.FirstOrDefault(i => (i.TypeName ?? string.Empty).ToLower() == bringItem);
+                        if (hangarItem == null)
+                        {
+                            hangarItem = Cache.Instance.AmmoHangar.Items.FirstOrDefault(i => (i.TypeName ?? string.Empty).ToLower() == bringItem);
+                        }
 
                         if (CheckCargoForBringItem)
                         {
@@ -687,12 +691,16 @@ namespace Questor.Modules.Actions
                         if (Settings.Instance.DebugArm) Logging.Log("Arm.MoveItems", "if (!_optionalMissionItemMoved)", Logging.Teal);
                         if (!Cache.Instance.OpenCargoHold("Arm.MoveItems")) break;
                         if (!Cache.Instance.ReadyAmmoHangar("Arm.MoveItems")) break;
-                        if (!Cache.Instance.ReadyItemsHangar("Arm.MoveItems")) break;
+                        if (!Cache.Instance.OpenItemsHangar("Arm.MoveItems")) break;
 
                         IEnumerable<DirectItem> cargoItems = Cache.Instance.CargoHold.Items.Where(i => (i.TypeName ?? string.Empty).ToLower() == bringOptionalItem);
 
-                        DirectItem hangarItem = Cache.Instance.ItemHangar.Items.FirstOrDefault(i => (i.TypeName ?? string.Empty).ToLower() == bringOptionalItem) ??
-                                                Cache.Instance.AmmoHangar.Items.FirstOrDefault(i => (i.TypeName ?? string.Empty).ToLower() == bringOptionalItem);
+                        DirectItem hangarItem;
+                        hangarItem = Cache.Instance.ItemHangar.Items.FirstOrDefault(i => (i.TypeName ?? string.Empty).ToLower() == bringOptionalItem);
+                        if (hangarItem == null)
+                        {
+                            hangarItem = Cache.Instance.AmmoHangar.Items.FirstOrDefault(i => (i.TypeName ?? string.Empty).ToLower() == bringOptionalItem);
+                        }
 
                         if (CheckCargoForOptionalBringItem)
                         {

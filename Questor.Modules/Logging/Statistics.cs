@@ -162,7 +162,7 @@ namespace Questor.Modules.Logging
 
         public static bool EntityStatistics(IEnumerable<EntityCache> things)
         {
-            string objectline = "Name;Distance;TypeId;GroupId;CategoryId;IsNPC;IsPlayer;TargetValue;Velocity;ID;\r\n";
+            string objectline = "Name;Distance;TypeId;GroupId;CategoryId;IsNPC;IsPlayer;TargetValue;Velocity;HaveLootRights;IsContainer;ID;\r\n";
             Logging.Log("Statistics", ";EntityStatistics;" + objectline, Logging.White);
 
             if (!things.Any()) //if their are no entries, return
@@ -182,6 +182,8 @@ namespace Questor.Modules.Logging
                 objectline += thing.IsPlayer + ";";
                 objectline += thing.TargetValue + ";";
                 objectline += Math.Round(thing.Velocity, 0) + ";";
+                objectline += thing.HaveLootRights + ";";
+                objectline += thing.IsContainer + ";";
                 objectline += thing.Id + ";\r\n";
 
                 //
@@ -237,7 +239,7 @@ namespace Questor.Modules.Logging
                 {
                     if (Cache.Instance.InvTypesById.ContainsKey(Settings.Instance.DroneTypeId))
                     {
-                        if (!Cache.Instance.ReadyDroneBay("Statistics: WriteDroneStatsLog")) return false;
+                        if (!Cache.Instance.OpenDroneBay("Statistics: WriteDroneStatsLog")) return false;
                         if (!Cache.Instance.DroneBay.IsValid) return true; //if the dronebay does not exist, assume we cant log any drone stats
 
                         InvType drone = Cache.Instance.InvTypesById[Settings.Instance.DroneTypeId];

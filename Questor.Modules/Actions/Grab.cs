@@ -33,7 +33,7 @@
 
             DirectContainer hangar = null;
 
-            if (!Cache.Instance.ReadyItemsHangar("Grab")) return;
+            if (!Cache.Instance.OpenItemsHangar("Grab")) return;
             if (!Cache.Instance.OpenShipsHangar("Grab")) return;
 
             if ("Local Hangar" == Hangar)
@@ -59,7 +59,7 @@
 
                     if ("Local Hangar" == Hangar)
                     {
-                        if (!Cache.Instance.ReadyItemsHangar("Drop")) return;
+                        if (!Cache.Instance.OpenItemsHangar("Drop")) return;
                     }
                     else if ("Ship Hangar" == Hangar)
                     {

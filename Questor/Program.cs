@@ -8,11 +8,6 @@
 //  </copyright>
 //-------------------------------------------------------------------------------
 
-using System.Globalization;
-//using LavishScriptAPI;
-using Questor.Modules.BackgroundTasks;
-using Questor.Modules.Caching;
-
 namespace Questor
 {
     using System;
@@ -24,6 +19,10 @@ namespace Questor
     using System.IO;
     using System.Timers;
     using Mono.Options;
+    using System.Globalization;
+    using LavishScriptAPI;
+    using global::Questor.Modules.BackgroundTasks;
+    using global::Questor.Modules.Caching;
     using global::Questor.Modules.Logging;
     using global::Questor.Modules.Lookup;
     using DirectEve;
@@ -42,10 +41,12 @@ namespace Questor
         private static string _password;
         public static string _character;
         private static string _scriptFile;
+        private static string _scriptAfterLoginFile;
         private static bool _loginOnly;
         private static bool _showHelp;
         private static int _maxRuntime;
         private static bool _chantlingScheduler;
+        private static bool _loginNowIgnoreScheduler;
 
         private static double _minutesToStart;
         private static bool _readyToStarta;
@@ -85,8 +86,10 @@ namespace Questor
                 {"p|password=", "the user's {PASSWORD}.", v => _password = v},
                 {"c|character=", "the {CHARACTER} to use.", v => _character = v},
                 {"s|script=", "a {SCRIPT} file to execute before login.", v => _scriptFile = v},
-                {"l|login", "login only and exit.", v => _loginOnly = v != null},
+                {"t|scriptAfterLogin=", "a {SCRIPT} file to execute after login.", v => _scriptAfterLoginFile = v},
+                {"l|loginOnly", "login only and exit.", v => _loginOnly = v != null},
                 {"x|chantling", "use chantling's scheduler", v => _chantlingScheduler = v != null},
+                {"n|loginNow", "Login using info in scheduler", v => _loginNowIgnoreScheduler = v != null},
                 {"h|help", "show this message and exit", v => _showHelp = v != null}
                 };
 
@@ -114,251 +117,293 @@ namespace Questor
                 return;
             }
 
+            if (_loginNowIgnoreScheduler && !_chantlingScheduler)
+            {
+                _chantlingScheduler = true;
+            }
+
             if (_chantlingScheduler && string.IsNullOrEmpty(_character))
             {
                 Logging.Log("Startup", "Error: to use chantling's scheduler, you also need to provide a character name!", Logging.Red);
                 return;
             }
 
+            //
+            // login using info from schedules.xml
+            //
             if (_chantlingScheduler && !string.IsNullOrEmpty(_character))
             {
-                string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                _character = _character.Replace("\"", "");  // strip quotation marks if any are present
-
-                CharSchedules = new List<CharSchedule>();
-                if (path != null)
-                {
-                    XDocument values = XDocument.Load(Path.Combine(path, "Schedules.xml"));
-                    if (values.Root != null)
-                    {
-                        foreach (XElement value in values.Root.Elements("char"))
-                        {
-                            CharSchedules.Add(new CharSchedule(value));
-                        }
-                    }
-                }
-
-                //
-                // chantling scheduler
-                //
-                CharSchedule schedule = CharSchedules.FirstOrDefault(v => v.ScheduleCharacterName == _character);
-                if (schedule == null)
-                {
-                    Logging.Log("Startup", "Error - character not found!", Logging.Red);
-                    return;
-                }
-
-                if (schedule.LoginUserName == null || schedule.LoginPassWord == null)
-                {
-                    Logging.Log("Startup", "Error - Login details not specified in Schedules.xml!", Logging.Red);
-                    return;
-                }
-
-                _username = schedule.LoginUserName;
-                _password = schedule.LoginPassWord;
-                Logging.Log("Startup", "User: " + schedule.LoginUserName + " Name: " + schedule.ScheduleCharacterName, Logging.White);
-
-                if (schedule.StartTimeSpecified)
-                {
-                    if (schedule.Start1 > schedule.Stop1) schedule.Stop1 = schedule.Stop1.AddDays(1);
-                    if (DateTime.Now.AddHours(2) > schedule.Start1 && DateTime.Now < schedule.Stop1)
-                    {
-                        StartTime = schedule.Start1;
-                        StopTime = schedule.Stop1;
-                        StopTimeSpecified = true;
-                        Logging.Log("Startup", "Schedule1: Start1: " + schedule.Start1 + " Stop1: " + schedule.Stop1, Logging.White);
-                    }
-                }
-
-                if (schedule.StartTime2Specified)
-                {
-                    if (DateTime.Now > schedule.Stop1 || DateTime.Now.DayOfYear > schedule.Stop1.DayOfYear) //if after schedule1 stoptime or the next day
-                    {
-                        if (schedule.Start2 > schedule.Stop2) schedule.Stop2 = schedule.Stop2.AddDays(1);
-                        if (DateTime.Now.AddHours(2) > schedule.Start2 && DateTime.Now < schedule.Stop2)
-                        {
-                            StartTime = schedule.Start2;
-                            StopTime = schedule.Stop2;
-                            StopTimeSpecified = true;
-                            Logging.Log("Startup", "Schedule2: Start2: " + schedule.Start2 + " Stop2: " + schedule.Stop2, Logging.White);
-                        }
-                    }
-                }
-
-                if (schedule.StartTime3Specified)
-                {
-                    if (DateTime.Now > schedule.Stop2 || DateTime.Now.DayOfYear > schedule.Stop2.DayOfYear) //if after schedule2 stoptime or the next day
-                    {
-                        if (schedule.Start3 > schedule.Stop3) schedule.Stop3 = schedule.Stop3.AddDays(1);
-                        if (DateTime.Now.AddHours(2) > schedule.Start3 && DateTime.Now < schedule.Stop3)
-                        {
-                            StartTime = schedule.Start3;
-                            StopTime = schedule.Stop3;
-                            StopTimeSpecified = true;
-                            Logging.Log("Startup", "Schedule3: Start3: " + schedule.Start3 + " Stop3: " + schedule.Stop3, Logging.White);
-                        }
-                    }
-                }
-
-                //
-                // if we havent found a worksable schedule yet assume schedule 1 is correct. what we want.
-                //
-                if (schedule.StartTimeSpecified && StartTime == DateTime.MaxValue)
-                {
-                    StartTime = schedule.Start1;
-                    StopTime = schedule.Stop1;
-                    Logging.Log("Startup", "Forcing Schedule 1 because none of the schedules started within 2 hours", Logging.White);
-                    Logging.Log("Startup", "Schedule 1: Start1: " + schedule.Start1 + " Stop1: " + schedule.Stop1, Logging.White);
-                }
-
-                if (schedule.StartTimeSpecified || schedule.StartTime2Specified || schedule.StartTime3Specified)
-                    StartTime = StartTime.AddSeconds(R.Next(0, (RandStartDelay * 60)));
-
-                if ((DateTime.Now > StartTime))
-                {
-                    if ((DateTime.Now.Subtract(StartTime).TotalMinutes < 1200)) //if we're less than x hours past start time, start now
-                    {
-                        StartTime = DateTime.Now;
-                        _readyToStarta = true;
-                    }
-                    else
-                        StartTime = StartTime.AddDays(1); //otherwise, start tomorrow at start time
-                }
-                else if ((StartTime.Subtract(DateTime.Now).TotalMinutes > 1200)) //if we're more than x hours shy of start time, start now
-                {
-                    StartTime = DateTime.Now;
-                    _readyToStarta = true;
-                }
-
-                if (StopTime < StartTime)
-                    StopTime = StopTime.AddDays(1);
-
-                //if (schedule.RunTime > 0) //if runtime is specified, overrides stop time
-                //    StopTime = StartTime.AddMinutes(schedule.RunTime); //minutes of runtime
-
-                //if (schedule.RunTime < 18 && schedule.RunTime > 0)     //if runtime is 10 or less, assume they meant hours
-                //    StopTime = StartTime.AddHours(schedule.RunTime);   //hours of runtime
-
-                Logging.Log("Startup", " Start Time: " + StartTime + " - Stop Time: " + StopTime, Logging.White);
-
-                if (!_readyToStarta)
-                {
-                    _minutesToStart = StartTime.Subtract(DateTime.Now).TotalMinutes;
-                    Logging.Log("Startup", "Starting at " + StartTime + ". " + String.Format("{0:0.##}", _minutesToStart) + " minutes to go.", Logging.Yellow);
-                    Timer.Elapsed += new ElapsedEventHandler(TimerEventProcessor);
-                    if (_minutesToStart > 0)
-                        Timer.Interval = (int)(_minutesToStart * 60000);
-                    else
-                        Timer.Interval = 1000;
-                    Timer.Enabled = true;
-                    Timer.Start();
-                }
-                else
-                {
-                    _readyToStart = true;
-                    Logging.Log("Startup", "Already passed start time.  Starting in 15 seconds.", Logging.White);
-                    System.Threading.Thread.Sleep(15000);
-                }
-
-                //
-                // chantling scheduler (above)
-                //
-                try
-                {
-                    _directEve = new DirectEve();
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log("Startup", "Error on Loading DirectEve, maybe server is down", Logging.Orange);
-                    Logging.Log("Startup", string.Format("DirectEVE: Exception {0}...", ex), Logging.White);
-                    Cache.Instance.CloseQuestorCMDLogoff = false;
-                    Cache.Instance.CloseQuestorCMDExitGame = true;
-                    Cache.Instance.CloseQuestorEndProcess = true;
-                    Settings.Instance.AutoStart = true;
-                    Cache.Instance.ReasonToStopQuestor = "Error on Loading DirectEve, maybe server is down";
-                    Cache.Instance.SessionState = "Quitting";
-                    Cleanup.CloseQuestor();
-                }
-
-                try
-                {
-                    _directEve.OnFrame += OnFrame;
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log("Startup", string.Format("DirectEVE.OnFrame: Exception {0}...", ex), Logging.White);
-                }
-
-                while (!_done)
-                {
-                    System.Threading.Thread.Sleep(50);
-                }
-
-                try
-                {
-                    _directEve.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log("Startup", string.Format("DirectEVE.Dispose: Exception {0}...", ex), Logging.White);
-                }
+                LoginUsingScheduler();
             }
 
+            //
+            // direct login, no schedules.xml
+            //
             if (!string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_password) && !string.IsNullOrEmpty(_character))
             {
-                _readyToStart = true;
+                LoginUsingUserNamePassword();
+            }
 
-                try
+            if (_done) //this is just here for clarity, we are really held up in LoginUsingScheduler() or LoginUsingUserNamePassword(); until done == true
+            {
+                if (!string.IsNullOrEmpty(_scriptAfterLoginFile))
                 {
-                    _directEve = new DirectEve();
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log("Startup", "Error on Loading DirectEve, maybe server is down", Logging.Orange);
-                    Logging.Log("Startup", string.Format("DirectEVE: Exception {0}...", ex), Logging.White);
-                    Cache.Instance.CloseQuestorCMDLogoff = false;
-                    Cache.Instance.CloseQuestorCMDExitGame = true;
-                    Cache.Instance.CloseQuestorEndProcess = true;
-                    Settings.Instance.AutoStart = true;
-                    Cache.Instance.ReasonToStopQuestor = "Error on Loading DirectEve, maybe server is down";
-                    Cache.Instance.SessionState = "Quitting";
-                    Cleanup.CloseQuestor();
-                }
-
-                try
-                {
-                    _directEve.OnFrame += OnFrame;
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log("Startup", string.Format("DirectEVE.OnFrame: Exception {0}...", ex), Logging.White);
-                }
-
-                // Sleep until we're done
-                while (!_done)
-                {
-                    System.Threading.Thread.Sleep(50);
-                }
-
-                try
-                {
-                    _directEve.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log("Startup", string.Format("DirectEVE.Dispose: Exception {0}...", ex), Logging.White);
+                    Logging.Log("Startup", "Running Script After Login: [ timedcommand 150 runscript " + _scriptAfterLoginFile + "]", Logging.Teal);
+                    LavishScript.ExecuteCommand("timedcommand 150 runscript " + _scriptAfterLoginFile);
                 }
 
                 // If the last parameter is false, then we only auto-login
                 if (_loginOnly)
+                {
+                    Logging.Log("Startup", "_loginOnly: done and exiting", Logging.Teal);
                     return;
+                }
             }
 
             StartTime = DateTime.Now;
 
+            //
+            // We should only get this far if run if we are already logged in...
+            // launch questor
+            //
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Logging.Log("Startup", "We are logged in: Launching Questor", Logging.Teal);
             Application.Run(new QuestorfrmMain());
+        }
+
+        private static void LoginUsingScheduler()
+        {
+            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            _character = _character.Replace("\"", "");  // strip quotation marks if any are present
+
+            CharSchedules = new List<CharSchedule>();
+            if (path != null)
+            {
+                XDocument values = XDocument.Load(Path.Combine(path, "Schedules.xml"));
+                if (values.Root != null)
+                {
+                    foreach (XElement value in values.Root.Elements("char"))
+                    {
+                        CharSchedules.Add(new CharSchedule(value));
+                    }
+                }
+            }
+
+            //
+            // chantling scheduler
+            //
+            CharSchedule schedule = CharSchedules.FirstOrDefault(v => v.ScheduleCharacterName == _character);
+            if (schedule == null)
+            {
+                Logging.Log("Startup", "Error - character not found!", Logging.Red);
+                return;
+            }
+
+            if (schedule.LoginUserName == null || schedule.LoginPassWord == null)
+            {
+                Logging.Log("Startup", "Error - Login details not specified in Schedules.xml!", Logging.Red);
+                return;
+            }
+
+            _username = schedule.LoginUserName;
+            _password = schedule.LoginPassWord;
+            Logging.Log("Startup", "User: " + schedule.LoginUserName + " Name: " + schedule.ScheduleCharacterName, Logging.White);
+
+            if (schedule.StartTimeSpecified)
+            {
+                if (schedule.Start1 > schedule.Stop1) schedule.Stop1 = schedule.Stop1.AddDays(1);
+                if (DateTime.Now.AddHours(2) > schedule.Start1 && DateTime.Now < schedule.Stop1)
+                {
+                    StartTime = schedule.Start1;
+                    StopTime = schedule.Stop1;
+                    StopTimeSpecified = true;
+                    Logging.Log("Startup", "Schedule1: Start1: " + schedule.Start1 + " Stop1: " + schedule.Stop1, Logging.White);
+                }
+            }
+
+            if (schedule.StartTime2Specified)
+            {
+                if (DateTime.Now > schedule.Stop1 || DateTime.Now.DayOfYear > schedule.Stop1.DayOfYear) //if after schedule1 stoptime or the next day
+                {
+                    if (schedule.Start2 > schedule.Stop2) schedule.Stop2 = schedule.Stop2.AddDays(1);
+                    if (DateTime.Now.AddHours(2) > schedule.Start2 && DateTime.Now < schedule.Stop2)
+                    {
+                        StartTime = schedule.Start2;
+                        StopTime = schedule.Stop2;
+                        StopTimeSpecified = true;
+                        Logging.Log("Startup", "Schedule2: Start2: " + schedule.Start2 + " Stop2: " + schedule.Stop2, Logging.White);
+                    }
+                }
+            }
+
+            if (schedule.StartTime3Specified)
+            {
+                if (DateTime.Now > schedule.Stop2 || DateTime.Now.DayOfYear > schedule.Stop2.DayOfYear) //if after schedule2 stoptime or the next day
+                {
+                    if (schedule.Start3 > schedule.Stop3) schedule.Stop3 = schedule.Stop3.AddDays(1);
+                    if (DateTime.Now.AddHours(2) > schedule.Start3 && DateTime.Now < schedule.Stop3)
+                    {
+                        StartTime = schedule.Start3;
+                        StopTime = schedule.Stop3;
+                        StopTimeSpecified = true;
+                        Logging.Log("Startup", "Schedule3: Start3: " + schedule.Start3 + " Stop3: " + schedule.Stop3, Logging.White);
+                    }
+                }
+            }
+
+            //
+            // if we havent found a worksable schedule yet assume schedule 1 is correct. what we want.
+            //
+            if (schedule.StartTimeSpecified && StartTime == DateTime.MaxValue)
+            {
+                StartTime = schedule.Start1;
+                StopTime = schedule.Stop1;
+                Logging.Log("Startup", "Forcing Schedule 1 because none of the schedules started within 2 hours", Logging.White);
+                Logging.Log("Startup", "Schedule 1: Start1: " + schedule.Start1 + " Stop1: " + schedule.Stop1, Logging.White);
+            }
+
+            if (schedule.StartTimeSpecified || schedule.StartTime2Specified || schedule.StartTime3Specified)
+                StartTime = StartTime.AddSeconds(R.Next(0, (RandStartDelay * 60)));
+
+            if ((DateTime.Now > StartTime))
+            {
+                if ((DateTime.Now.Subtract(StartTime).TotalMinutes < 1200)) //if we're less than x hours past start time, start now
+                {
+                    StartTime = DateTime.Now;
+                    _readyToStarta = true;
+                }
+                else
+                    StartTime = StartTime.AddDays(1); //otherwise, start tomorrow at start time
+            }
+            else if ((StartTime.Subtract(DateTime.Now).TotalMinutes > 1200)) //if we're more than x hours shy of start time, start now
+            {
+                StartTime = DateTime.Now;
+                _readyToStarta = true;
+            }
+
+            if (StopTime < StartTime)
+                StopTime = StopTime.AddDays(1);
+
+            //if (schedule.RunTime > 0) //if runtime is specified, overrides stop time
+            //    StopTime = StartTime.AddMinutes(schedule.RunTime); //minutes of runtime
+
+            //if (schedule.RunTime < 18 && schedule.RunTime > 0)     //if runtime is 10 or less, assume they meant hours
+            //    StopTime = StartTime.AddHours(schedule.RunTime);   //hours of runtime
+
+            if (_loginNowIgnoreScheduler)
+            {
+                _readyToStarta = true;
+            }
+            else Logging.Log("Startup", " Start Time: " + StartTime + " - Stop Time: " + StopTime, Logging.White);
+
+            if (!_readyToStarta)
+            {
+                _minutesToStart = StartTime.Subtract(DateTime.Now).TotalMinutes;
+                Logging.Log("Startup", "Starting at " + StartTime + ". " + String.Format("{0:0.##}", _minutesToStart) + " minutes to go.", Logging.Yellow);
+                Timer.Elapsed += new ElapsedEventHandler(TimerEventProcessor);
+                if (_minutesToStart > 0)
+                    Timer.Interval = (int)(_minutesToStart * 60000);
+                else
+                    Timer.Interval = 1000;
+                Timer.Enabled = true;
+                Timer.Start();
+            }
+            else
+            {
+                _readyToStart = true;
+                Logging.Log("Startup", "Already passed start time.  Starting in 15 seconds.", Logging.White);
+                System.Threading.Thread.Sleep(15000);
+            }
+
+            //
+            // chantling scheduler (above)
+            //
+            try
+            {
+                _directEve = new DirectEve();
+            }
+            catch (Exception ex)
+            {
+                Logging.Log("Startup", "Error on Loading DirectEve, maybe server is down", Logging.Orange);
+                Logging.Log("Startup", string.Format("DirectEVE: Exception {0}...", ex), Logging.White);
+                Cache.Instance.CloseQuestorCMDLogoff = false;
+                Cache.Instance.CloseQuestorCMDExitGame = true;
+                Cache.Instance.CloseQuestorEndProcess = true;
+                Settings.Instance.AutoStart = true;
+                Cache.Instance.ReasonToStopQuestor = "Error on Loading DirectEve, maybe server is down";
+                Cache.Instance.SessionState = "Quitting";
+                Cleanup.CloseQuestor();
+            }
+
+            try
+            {
+                _directEve.OnFrame += OnFrame;
+            }
+            catch (Exception ex)
+            {
+                Logging.Log("Startup", string.Format("DirectEVE.OnFrame: Exception {0}...", ex), Logging.White);
+            }
+
+            while (!_done)
+            {
+                System.Threading.Thread.Sleep(50); //this runs while we wait to login
+            }
+
+            try
+            {
+                _directEve.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Logging.Log("Startup", string.Format("DirectEVE.Dispose: Exception {0}...", ex), Logging.White);
+            }
+        }
+
+        private static void LoginUsingUserNamePassword()
+        {
+            _readyToStart = true;
+
+            try
+            {
+                _directEve = new DirectEve();
+            }
+            catch (Exception ex)
+            {
+                Logging.Log("Startup", "Error on Loading DirectEve, maybe server is down", Logging.Orange);
+                Logging.Log("Startup", string.Format("DirectEVE: Exception {0}...", ex), Logging.White);
+                Cache.Instance.CloseQuestorCMDLogoff = false;
+                Cache.Instance.CloseQuestorCMDExitGame = true;
+                Cache.Instance.CloseQuestorEndProcess = true;
+                Settings.Instance.AutoStart = true;
+                Cache.Instance.ReasonToStopQuestor = "Error on Loading DirectEve, maybe server is down";
+                Cache.Instance.SessionState = "Quitting";
+                Cleanup.CloseQuestor();
+            }
+
+            try
+            {
+                _directEve.OnFrame += OnFrame;
+            }
+            catch (Exception ex)
+            {
+                Logging.Log("Startup", string.Format("DirectEVE.OnFrame: Exception {0}...", ex), Logging.White);
+            }
+
+            // Sleep until we're done
+            while (!_done)
+            {
+                System.Threading.Thread.Sleep(50); //this runs while we wait to login
+            }
+
+            try
+            {
+                _directEve.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Logging.Log("Startup", string.Format("DirectEVE.Dispose: Exception {0}...", ex), Logging.White);
+            }
         }
 
         private static void OnFrame(object sender, EventArgs e)
@@ -625,7 +670,7 @@ namespace Questor
                 return;
             }
 
-            if (_directEve.Login.AtLogin)
+            if (_directEve.Login.AtLogin && !_directEve.Login.IsLoading && !_directEve.Login.IsConnecting)
             {
                 //if (!_directEve.HasSupportInstances())
                 //{
@@ -634,7 +679,7 @@ namespace Questor
                 //    _humanInterventionRequired = true;
                 //}
 
-                if (DateTime.UtcNow.Subtract(AppStarted).TotalSeconds > 15)
+                if (DateTime.UtcNow.Subtract(AppStarted).TotalSeconds > 5)
                 {
                     Logging.Log("Startup", "Login account [" + _username + "]", Logging.White);
                     _directEve.Login.Login(_username, _password);
@@ -644,14 +689,16 @@ namespace Questor
                 }
             }
 
-            if (_directEve.Login.AtCharacterSelection && _directEve.Login.IsCharacterSelectionReady)
+            if (_directEve.Login.AtCharacterSelection && _directEve.Login.IsCharacterSelectionReady && !_directEve.Login.IsConnecting && !_directEve.Login.IsLoading)
             {
-                if (DateTime.UtcNow.Subtract(AppStarted).TotalSeconds > 30)
+                if (DateTime.UtcNow.Subtract(AppStarted).TotalSeconds > 20)
                 {
                     foreach (DirectLoginSlot slot in _directEve.Login.CharacterSlots)
                     {
                         if (slot.CharId.ToString(CultureInfo.InvariantCulture) != _character && System.String.Compare(slot.CharName, _character, System.StringComparison.OrdinalIgnoreCase) != 0)
+                        {
                             continue;
+                        }
 
                         Logging.Log("Startup", "Activating character [" + slot.CharName + "]", Logging.White);
                         slot.Activate();

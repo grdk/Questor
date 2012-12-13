@@ -519,7 +519,8 @@
                                 close |= window.Html.Contains("Do you wish to proceed with this dangerous action?");
                                 // Yes we know the mission is not complete, Questor will just redo the mission
                                 close |= window.Html.Contains("weapons in that group are already full");
-                                close |= window.Html.Contains("You have to be at the drop off location to deliver the items in person");
+                                //close |= window.Html.Contains("You have to be at the drop off location to deliver the items in person");
+
                                 //fitting window message(s)
                                 close |= window.Html.Contains("No rigs were added to or removed from the ship");
                                 //In station - Flying Between Hangars
@@ -566,6 +567,8 @@
                                 // LP Store "Accept offer" dialog
                                 //
                                 sayOk |= window.Html.Contains("Are you sure you want to accept this offer?");
+                                sayOk |= window.Html.Contains("Repairing these items will cost");
+                                
                                 //
                                 // Modal Dialogs the need "no" pressed
                                 //
@@ -611,7 +614,13 @@
 
                             if (sayOk)
                             {
-                                Logging.Log("Cleanup", "Saying OK to modal window for lpstore offer.", Logging.White);
+                                Logging.Log("Cleanup", "Found a window that needs 'ok' chosen...", Logging.White);
+                                Logging.Log("Cleanup", "Content of modal window (HTML): [" + (window.Html).Replace("\n", "").Replace("\r", "") + "]", Logging.White);
+
+                                if (window.Html.Contains("Repairing these items will cost"))
+                                {
+                                    Cache.Instance.doneUsingRepairWindow = true;
+                                }
                                 window.AnswerModal("OK");
                                 continue;
                             }

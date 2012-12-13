@@ -50,7 +50,7 @@
                     
                     if (DestinationHangarName == "Local Hangar")
                     {
-                        if (!Cache.Instance.ReadyItemsHangar("Drop")) return;
+                        if (!Cache.Instance.OpenItemsHangar("Drop")) return;
                         dropHangar = Cache.Instance.ItemHangar;
                     }
                     else if (DestinationHangarName == "Ship Hangar")

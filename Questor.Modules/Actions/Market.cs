@@ -8,19 +8,18 @@
 //   </copyright>
 // -------------------------------------------------------------------------------
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
-using Questor.Modules.States;
-
 namespace Questor.Modules.Actions
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Xml.Linq;
     using DirectEve;
+    using global::Questor.Modules.Caching;
     using global::Questor.Modules.Logging;
     using global::Questor.Modules.Lookup;
-    using global::Questor.Modules.Caching;
-
+    using global::Questor.Modules.States;
+    
     public class Market
     {
         //private DateTime _lastPulse;
@@ -694,7 +693,7 @@ namespace Questor.Modules.Actions
             {
                 if (Settings.Instance.DebugValuedump) Logging.Log(module, "RefineItems: if (refine)", Logging.Debug);
                         
-                if (!Cache.Instance.ReadyItemsHangar(module)) return false;
+                if (!Cache.Instance.OpenItemsHangar(module)) return false;
                 DirectReprocessingWindow reprocessingWindow = Cache.Instance.DirectEve.Windows.OfType<DirectReprocessingWindow>().FirstOrDefault();
 
                 if (reprocessingWindow == null)

@@ -163,8 +163,11 @@ namespace Questor.Modules.Actions
                     }
                 }
 
-                if (complete != null && quit != null && close != null && (Statistics.Instance.MissionCompletionErrors == 0))
+                if (complete != null && quit != null && close != null && Statistics.Instance.MissionCompletionErrors == 0)
                 {
+                    //
+                    // this should run for ANY courier and likely needs to be changed when we implement generic courier support
+                    //
                     if (Purpose != AgentInteractionPurpose.CompleteMission)
                     {
                         Logging.Log("Agentinteraction", "ReplyToAgent: Found complete button, Changing Purpose to CompleteMission", Logging.White);
@@ -955,6 +958,7 @@ namespace Questor.Modules.Actions
                         //errors that are repeatable and unavoidable even after a restart of eve/questor
                         needHumanIntervention |= window.Html.Contains("One or more mission objectives have not been completed");
                         needHumanIntervention |= window.Html.Contains("Please check your mission journal for further information");
+                        needHumanIntervention |= window.Html.Contains("You have to be at the drop off location to deliver the items in person");
 
                         sayyes |= window.Html.Contains("objectives requiring a total capacity");
                         sayyes |= window.Html.Contains("your ship only has space for");

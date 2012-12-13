@@ -50,7 +50,7 @@
             DirectEve directEve = Cache.Instance.DirectEve;
 
             // Open the item hangar (should still be open)
-            if (!Cache.Instance.ReadyItemsHangar("CourierMissionCtrl")) return false;
+            if (!Cache.Instance.OpenItemsHangar("CourierMissionCtrl")) return false;
 
             if (!Cache.Instance.OpenCargoHold("CourierMissionCtrl")) return false;
 

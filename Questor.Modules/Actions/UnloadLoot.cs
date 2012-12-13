@@ -33,6 +33,7 @@ namespace Questor.Modules.Actions
         private static IEnumerable<DirectItem> ammoToMove;
         private static IEnumerable<DirectItem> scriptsToMove;
         private static IEnumerable<DirectItem> commonMissionCompletionItemsToMove;
+        private static IEnumerable<DirectItem> missionGateKeysToMove; 
 
         //public UnloadLoot()
         //{
@@ -270,14 +271,42 @@ namespace Questor.Modules.Actions
                     }
 
                     //
+                    // Add gatekeys to the list of things to move to the AmmoHangar
+                    //
+                    try
+                    {
+                        missionGateKeysToMove = Cache.Instance.CargoHold.Items.Where(i => i.TypeId == (int)TypeID.AngelDiamondTag ||
+                                                                                          i.TypeId == (int)TypeID.GuristasDiamondTag ||
+                                                                                          i.GroupId == (int)Group.AccelerationGateKeys).ToList();
+                    }
+                    catch (Exception exception)
+                    {
+                        if (Settings.Instance.DebugUnloadLoot) Logging.Log("Unloadloot.MoveAmmo", "No Mission GateKeys Found in CargoHold: moving on. [" + exception + "]", Logging.White);
+                    }
+
+                    if (missionGateKeysToMove != null)
+                    {
+                        if (Settings.Instance.DebugUnloadLoot) Logging.Log("Unloadloot.MoveAmmo", "if (missionGateKeysToMove != null)", Logging.White);
+                        if (missionGateKeysToMove.Any())
+                        {
+                            if (Settings.Instance.DebugUnloadLoot) Logging.Log("Unloadloot.MoveAmmo", "if (missionGateKeysToMove.Any())", Logging.White);
+                            if (!Cache.Instance.ReadyAmmoHangar("UnloadLoot")) return;
+                            Logging.Log("Unloadloot.MoveAmmo", "Moving [" + missionGateKeysToMove.Count() + "] Mission GateKeys to AmmoHangar", Logging.White);
+                            AmmoIsBeingMoved = true;
+                            Cache.Instance.AmmoHangar.Add(missionGateKeysToMove);
+                            _nextUnloadAction = DateTime.UtcNow.AddSeconds(Cache.Instance.RandomNumber(2, 4));
+                            return;
+                        }
+                        if (Settings.Instance.DebugUnloadLoot) Logging.Log("Unloadloot.MoveAmmo", "No Mission GateKeys Found in CargoHold: moving on.", Logging.White);
+                    }
+                    
+
+                    //
                     // Add mission item  to the list of things to move
                     //
                     try
                     {
-                        commonMissionCompletionItemsToMove = Cache.Instance.CargoHold.Items.Where(i => i.GroupId == (int)Group.Livestock ||
-                                                                                                       i.TypeId == (int)TypeID.AngelDiamondTag ||
-                                                                                                       i.TypeId == (int)TypeID.GuristasDiamondTag ||
-                                                                                                       i.GroupId == (int)Group.AccelerationGateKeys).ToList();
+                        commonMissionCompletionItemsToMove = Cache.Instance.CargoHold.Items.Where(i => i.GroupId == (int)Group.Livestock).ToList();
                     }
                     catch (Exception exception)
                     {
@@ -292,7 +321,7 @@ namespace Questor.Modules.Actions
                             if (commonMissionCompletionItemsToMove.Any())
                             {
                                 if (Settings.Instance.DebugUnloadLoot) Logging.Log("Unloadloot", "if (commonMissionCompletionItemsToMove.Any())", Logging.White);
-                                if (!Cache.Instance.ReadyItemsHangar("Unloadloot.MoveAmmo")) return;
+                                if (!Cache.Instance.OpenItemsHangar("Unloadloot.MoveAmmo")) return;
                                 Logging.Log("Unloadloot.MoveAmmo", "Moving [" + commonMissionCompletionItemsToMove.Count() + "] Mission Completion items to ItemHangar", Logging.White);
                                 Cache.Instance.ItemHangar.Add(commonMissionCompletionItemsToMove);
                                 AmmoIsBeingMoved = true;
@@ -350,7 +379,7 @@ namespace Questor.Modules.Actions
                         if (scriptsToMove.Any())
                         {
                             if (Settings.Instance.DebugUnloadLoot) Logging.Log("Unloadloot.MoveAmmo", "if (scriptsToMove.Any())", Logging.White);
-                            if (!Cache.Instance.ReadyItemsHangar("Unloadloot.MoveAmmo")) return;
+                            if (!Cache.Instance.OpenItemsHangar("Unloadloot.MoveAmmo")) return;
                             Logging.Log("Unloadloot.MoveAmmo", "Moving [" + scriptsToMove.Count() + "] Scripts to ItemHangar", Logging.White);
                             AmmoIsBeingMoved = true;
                             Cache.Instance.ItemHangar.Add(scriptsToMove);

@@ -211,6 +211,7 @@
             this.ScheduleWarninglabel1 = new System.Windows.Forms.Label();
             this.ExitWhenIdleCheckBox = new System.Windows.Forms.CheckBox();
             this.tabStates = new System.Windows.Forms.TabPage();
+            this.bttnResizeEVEWindow = new System.Windows.Forms.Button();
             this.btnSendTestEmail = new System.Windows.Forms.Button();
             this.bttnMaintainConsoleLogs = new System.Windows.Forms.Button();
             this.OutOfAmmo = new System.Windows.Forms.Button();
@@ -553,7 +554,8 @@
             this.label273 = new System.Windows.Forms.Label();
             this.label274 = new System.Windows.Forms.Label();
             this.tabLowSlots = new System.Windows.Forms.TabPage();
-            this.bttnResizeEVEWindow = new System.Windows.Forms.Button();
+            this.bttnLogEntitiesOnGrid = new System.Windows.Forms.Button();
+            this.bttnLogContainersOnGrid = new System.Windows.Forms.Button();
             this.tabMiscInfo.SuspendLayout();
             this.tabTimeStamps.SuspendLayout();
             this.tabMissions.SuspendLayout();
@@ -2353,6 +2355,8 @@
             // 
             // tabStates
             // 
+            this.tabStates.Controls.Add(this.bttnLogContainersOnGrid);
+            this.tabStates.Controls.Add(this.bttnLogEntitiesOnGrid);
             this.tabStates.Controls.Add(this.bttnResizeEVEWindow);
             this.tabStates.Controls.Add(this.btnSendTestEmail);
             this.tabStates.Controls.Add(this.bttnMaintainConsoleLogs);
@@ -2370,9 +2374,19 @@
             this.tabStates.Text = "States";
             this.tabStates.UseVisualStyleBackColor = true;
             // 
+            // bttnResizeEVEWindow
+            // 
+            this.bttnResizeEVEWindow.Location = new System.Drawing.Point(544, 135);
+            this.bttnResizeEVEWindow.Name = "bttnResizeEVEWindow";
+            this.bttnResizeEVEWindow.Size = new System.Drawing.Size(131, 47);
+            this.bttnResizeEVEWindow.TabIndex = 173;
+            this.bttnResizeEVEWindow.Text = "Debug: Resize EVE Window to 1280x960";
+            this.bttnResizeEVEWindow.UseVisualStyleBackColor = true;
+            this.bttnResizeEVEWindow.Click += new System.EventHandler(this.bttnResizeEVEWindow_Click);
+            // 
             // btnSendTestEmail
             // 
-            this.btnSendTestEmail.Location = new System.Drawing.Point(544, 124);
+            this.btnSendTestEmail.Location = new System.Drawing.Point(544, 106);
             this.btnSendTestEmail.Name = "btnSendTestEmail";
             this.btnSendTestEmail.Size = new System.Drawing.Size(131, 23);
             this.btnSendTestEmail.TabIndex = 172;
@@ -2382,7 +2396,7 @@
             // 
             // bttnMaintainConsoleLogs
             // 
-            this.bttnMaintainConsoleLogs.Location = new System.Drawing.Point(544, 95);
+            this.bttnMaintainConsoleLogs.Location = new System.Drawing.Point(544, 77);
             this.bttnMaintainConsoleLogs.Name = "bttnMaintainConsoleLogs";
             this.bttnMaintainConsoleLogs.Size = new System.Drawing.Size(131, 23);
             this.bttnMaintainConsoleLogs.TabIndex = 171;
@@ -2392,7 +2406,7 @@
             // 
             // OutOfAmmo
             // 
-            this.OutOfAmmo.Location = new System.Drawing.Point(544, 63);
+            this.OutOfAmmo.Location = new System.Drawing.Point(544, 48);
             this.OutOfAmmo.Name = "OutOfAmmo";
             this.OutOfAmmo.Size = new System.Drawing.Size(131, 23);
             this.OutOfAmmo.TabIndex = 170;
@@ -2402,7 +2416,7 @@
             // 
             // ReloadAll
             // 
-            this.ReloadAll.Location = new System.Drawing.Point(544, 33);
+            this.ReloadAll.Location = new System.Drawing.Point(544, 19);
             this.ReloadAll.Name = "ReloadAll";
             this.ReloadAll.Size = new System.Drawing.Size(131, 23);
             this.ReloadAll.TabIndex = 169;
@@ -5846,15 +5860,25 @@
             this.tabLowSlots.Text = "LowSlots";
             this.tabLowSlots.UseVisualStyleBackColor = true;
             // 
-            // bttnResizeEVEWindow
+            // bttnLogEntitiesOnGrid
             // 
-            this.bttnResizeEVEWindow.Location = new System.Drawing.Point(544, 155);
-            this.bttnResizeEVEWindow.Name = "bttnResizeEVEWindow";
-            this.bttnResizeEVEWindow.Size = new System.Drawing.Size(131, 47);
-            this.bttnResizeEVEWindow.TabIndex = 173;
-            this.bttnResizeEVEWindow.Text = "Debug: Resize EVE Window to 1280x960";
-            this.bttnResizeEVEWindow.UseVisualStyleBackColor = true;
-            this.bttnResizeEVEWindow.Click += new System.EventHandler(this.bttnResizeEVEWindow_Click);
+            this.bttnLogEntitiesOnGrid.Location = new System.Drawing.Point(544, 189);
+            this.bttnLogEntitiesOnGrid.Name = "bttnLogEntitiesOnGrid";
+            this.bttnLogEntitiesOnGrid.Size = new System.Drawing.Size(131, 23);
+            this.bttnLogEntitiesOnGrid.TabIndex = 174;
+            this.bttnLogEntitiesOnGrid.Text = "Log Entities on Grid";
+            this.bttnLogEntitiesOnGrid.UseVisualStyleBackColor = true;
+            this.bttnLogEntitiesOnGrid.Click += new System.EventHandler(this.bttnLogEntitiesOnGrid_Click);
+            // 
+            // bttnLogContainersOnGrid
+            // 
+            this.bttnLogContainersOnGrid.Location = new System.Drawing.Point(544, 218);
+            this.bttnLogContainersOnGrid.Name = "bttnLogContainersOnGrid";
+            this.bttnLogContainersOnGrid.Size = new System.Drawing.Size(131, 23);
+            this.bttnLogContainersOnGrid.TabIndex = 175;
+            this.bttnLogContainersOnGrid.Text = "Log Containers on Grid";
+            this.bttnLogContainersOnGrid.UseVisualStyleBackColor = true;
+            this.bttnLogContainersOnGrid.Click += new System.EventHandler(this.bttnLogContainersOnGrid_Click);
             // 
             // QuestorfrmMain
             // 
@@ -6461,6 +6485,8 @@
         private System.Windows.Forms.Button bttnMaintainConsoleLogs;
         private System.Windows.Forms.Button btnSendTestEmail;
         private System.Windows.Forms.Button bttnResizeEVEWindow;
+        private System.Windows.Forms.Button bttnLogContainersOnGrid;
+        private System.Windows.Forms.Button bttnLogEntitiesOnGrid;
     }
 }
 

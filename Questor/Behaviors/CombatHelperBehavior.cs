@@ -359,10 +359,9 @@ namespace Questor.Behaviors
                     break;
 
                 case CombatHelperBehaviorState.Salvage:
-                    if (!Cache.Instance.InSpace)
-                        return;
+                    if (!Cache.Instance.InSpace) return;
 
-                    if (!Cache.Instance.OpenCargoHold("CombatMissionsBehavior: Salvage")) break;
+                    if (!Cache.Instance.OpenCargoHold("CombatMissionsBehavior: Salvage")) return;
                     Cache.Instance.SalvageAll = true;
                     Cache.Instance.OpenWrecks = true;
 
@@ -376,10 +375,8 @@ namespace Questor.Behaviors
                         break;
                     }
 
-                    if (!Cache.Instance.UnlootedContainers.Any())
-                    {
-                        break;
-                    }
+                    if (!Cache.Instance.UnlootedContainers.Any()) return;
+
                     //we __cannot ever__ approach in salvage.cs so this section _is_ needed.
                     Salvage.MoveIntoRangeOfWrecks();
                     try
