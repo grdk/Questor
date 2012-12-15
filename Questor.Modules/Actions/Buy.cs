@@ -1,5 +1,4 @@
-﻿
-namespace Questor.Modules.Actions
+﻿namespace Questor.Modules.Actions
 {
     using System;
     using System.Collections.Generic;
@@ -27,7 +26,7 @@ namespace Questor.Modules.Actions
             if (Cache.Instance.InSpace)
                 return;
 
-            if (DateTime.Now < Cache.Instance.LastInSpace.AddSeconds(20)) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
+            if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20)) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
                 return;
 
             DirectMarketWindow marketWindow = Cache.Instance.DirectEve.Windows.OfType<DirectMarketWindow>().FirstOrDefault();
@@ -67,7 +66,7 @@ namespace Questor.Modules.Actions
 
                 case BuyState.LoadItem:
 
-                    _lastAction = DateTime.Now;
+                    _lastAction = DateTime.UtcNow;
 
                     if (marketWindow != null && marketWindow.DetailTypeId != Item)
                     {
@@ -81,7 +80,7 @@ namespace Questor.Modules.Actions
 
                 case BuyState.BuyItem:
 
-                    if (DateTime.Now.Subtract(_lastAction).TotalSeconds < 5)
+                    if (DateTime.UtcNow.Subtract(_lastAction).TotalSeconds < 5)
                         break;
 
                     if (marketWindow != null)
@@ -112,7 +111,7 @@ namespace Questor.Modules.Actions
 
                 case BuyState.WaitForItems:
                     // Wait 5 seconds after moving
-                    if (DateTime.Now.Subtract(_lastAction).TotalSeconds < 5)
+                    if (DateTime.UtcNow.Subtract(_lastAction).TotalSeconds < 5)
                         break;
 
                     // Close the market window if there is one

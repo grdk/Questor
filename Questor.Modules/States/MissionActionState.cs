@@ -11,7 +11,9 @@ namespace Questor.Modules.States
 {
     public enum ActionState
     {
+        LogWhatIsOnGrid,
         MoveTo,
+        OrbitEntity,
         MoveToBackground,
         Activate,
         WaitUntilTargeted,

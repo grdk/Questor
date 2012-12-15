@@ -15,11 +15,12 @@ namespace Questor.Modules.Lookup
         Station = 15,
         Stargate = 10,
         AsteroidBelt = 9,
-        AccellerationGate = 366,
+        AccelerationGate = 366,
+        JumpBridge = 707,
 
         Capsule = 29,
 
-        // Note: This includes microwarpdrives as well!
+        // Note: This includes MicroWarpDrives as well!
         Afterburner = 46,
 
         CapacitorInjector = 76,
@@ -38,6 +39,12 @@ namespace Questor.Modules.Lookup
         SensorDampener = 208,
         TrackingComputer = 213,
         TrackingDisruptor = 291,
+
+        TrackingScript = 907,
+        WarpDisruptionScript = 908,
+        TrackingDisruptionScript = 909,
+        SensorBoosterScript = 910,
+        SensorDampenerScript = 911,
 
         ProximityDrone = 97,
         CombatDrone = 100,
@@ -66,6 +73,11 @@ namespace Questor.Modules.Lookup
         HeavyMissilelaunchers = 510,
         AssaultMissilelaunchers = 511,
         DefenderMissilelaunchers = 512,
+
+        Miners = 54, // Miner I, Miner II, etc - Mining Tool GroupIDs
+        StripMiners = 464, // Strip Miner I, etc - Mining Tool GroupIDs
+        ModulatedStripMiners = 483, // Modulated Strip Miners, etc - Mining Tool GroupIDs
+
         SentryGun = 99,                       //Protecting the weak and upholding the law
 
         ProtectiveSentryGun = 180,
@@ -92,11 +104,15 @@ namespace Questor.Modules.Lookup
 
         Wreck = 186,
 
+        Livestock = 283, //this includes most CommonMissionCompletionitems like Militants and Marines
+
         ConcordDrone = 301,
         PoliceDrone = 182,
         CustomsOfficial = 446,
         Billboard = 323,
         Merchant = 297,
+        Mission_Merchant = 1006, //dread pirate scarlet
+        FactionWarfareNPC = 288,
 
         Shuttle = 31,
         Industrial = 28,
@@ -135,6 +151,26 @@ namespace Questor.Modules.Lookup
         ToxicWaste = 282,
         Slaves = 283,
         SmallArms = 280,
+        AccelerationGateKeys = 474,
+
+        Minerals = 18,
+
+        Plagioclase = 458,
+        Spodumain = 461,
+        Kernite = 457,
+        Hedbergite = 454,
+        Arkonor = 450,
+        Bistot = 451,
+        Pyroxeres = 459,
+        Crokite = 452,
+        Jaspet = 456,
+        Omber = 469,
+        Scordite = 460,
+        Gneiss = 467,
+        Veldspar = 462,
+        Hemorphite = 455,
+        DarkOchre = 453,
+        Ice = 465,
 
         //
         // various NPCs

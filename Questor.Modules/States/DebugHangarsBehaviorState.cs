@@ -2,7 +2,7 @@
 {
     public enum DebugHangarsBehaviorState
     {
-        OpenItemsHangar,
+        ReadyItemsHangar,
         StackItemsHangar,
         CloseItemsHangar,
         OpenShipsHangar,

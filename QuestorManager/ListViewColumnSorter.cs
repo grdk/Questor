@@ -29,6 +29,7 @@ namespace QuestorManager
         public int Compare(Object a, Object b)
         {
             int menor = -1, mayor = 1;
+
             //
             if (Sorting == SortOrder.None)
                 return 0;
@@ -41,6 +42,7 @@ namespace QuestorManager
                 menor = 1;
                 mayor = -1;
             }
+
             //
             switch (CompararPor)
             {
@@ -49,13 +51,14 @@ namespace QuestorManager
                     {
                         DateTime f1 = DateTime.Parse(s1);
                         DateTime f2 = DateTime.Parse(s2);
+
                         //
                         if (f1 < f2)
                             return menor;
-                        
+
                         if (f1 == f2)
                             return 0;
-                        
+
                         return mayor;
                     }
                     catch
@@ -70,10 +73,10 @@ namespace QuestorManager
                         decimal n2 = decimal.Parse(s2);
                         if (n1 < n2)
                             return menor;
-                        
+
                         if (n1 == n2)
                             return 0;
-                        
+
                         return mayor;
                     }
                     catch

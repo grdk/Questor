@@ -14,7 +14,6 @@ namespace GoToBM
     internal static class Program
     {
         private static DirectEve _directEve;
-        private static Traveler _traveler;
         private static Cleanup _cleanup;
         private static Defense _defense;
         private static DirectBookmark _bookmark;
@@ -39,7 +38,6 @@ namespace GoToBM
             _directEve = new DirectEve();
             Cache.Instance.DirectEve = _directEve;
             _directEve.OnFrame += OnFrame;
-            _traveler = new Traveler();
             _cleanup = new Cleanup();
             _defense = new Defense();
 
@@ -55,31 +53,31 @@ namespace GoToBM
 
         private static void OnFrame(object sender, EventArgs e)
         {
-            if (DateTime.Now.Subtract(_lastPulse).TotalMilliseconds < 1500)
+            if (DateTime.UtcNow.Subtract(_lastPulse).TotalMilliseconds < 1500)
                 return;
-            _lastPulse = DateTime.Now;
+            _lastPulse = DateTime.UtcNow;
 
             // New frame, invalidate old cache
             Cache.Instance.InvalidateCache();
 
-            Cache.Instance.LastFrame = DateTime.Now;
+            Cache.Instance.LastFrame = DateTime.UtcNow;
 
             // Session is not ready yet, do not continue
             if (!Cache.Instance.DirectEve.Session.IsReady)
                 return;
 
             if (Cache.Instance.DirectEve.Session.IsReady)
-                Cache.Instance.LastSessionIsReady = DateTime.Now;
+                Cache.Instance.LastSessionIsReady = DateTime.UtcNow;
 
             // We are not in space or station, don't do shit yet!
             if (!Cache.Instance.InSpace && !Cache.Instance.InStation)
             {
-                Cache.Instance.NextInSpaceorInStation = DateTime.Now.AddSeconds(12);
-                Cache.Instance.LastSessionChange = DateTime.Now;
+                Cache.Instance.NextInSpaceorInStation = DateTime.UtcNow.AddSeconds(12);
+                Cache.Instance.LastSessionChange = DateTime.UtcNow;
                 return;
             }
 
-            if (DateTime.Now < Cache.Instance.NextInSpaceorInStation)
+            if (DateTime.UtcNow < Cache.Instance.NextInSpaceorInStation)
                 return;
 
             // We always check our defense state if we're in space, regardless of questor state
@@ -130,9 +128,9 @@ namespace GoToBM
                     _done = true;
                     return;
                 }
-                _traveler.Destination = new BookmarkDestination(_bookmark);
+                Traveler.Destination = new BookmarkDestination(_bookmark);
             }
-            _traveler.ProcessState();
+            Traveler.ProcessState();
             if (_States.CurrentTravelerState == TravelerState.AtDestination)
             {
                 _done = true;

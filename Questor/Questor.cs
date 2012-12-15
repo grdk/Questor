@@ -8,18 +8,17 @@
 //   </copyright>
 // -------------------------------------------------------------------------------
 
-using System.Globalization;
-using Questor.Behaviors;
-using Questor.Modules.Combat;
-
 namespace Questor
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using DirectEve;
+    using System.Globalization;
     using System.Linq;
+    using DirectEve;
+    using global::Questor.Behaviors;
     using global::Questor.Modules.Caching;
+    using global::Questor.Modules.Combat;
     using global::Questor.Modules.Logging;
     using global::Questor.Modules.Lookup;
     using global::Questor.Modules.States;
@@ -33,15 +32,17 @@ namespace Questor
         private readonly DirectEve _directEve;
 
         private DateTime _lastPulse;
+        private static DateTime _nextQuestorAction = DateTime.UtcNow.AddHours(-1);
         private readonly CombatMissionsBehavior _combatMissionsBehavior;
         private readonly CombatHelperBehavior _combatHelperBehavior;
         private readonly DedicatedBookmarkSalvagerBehavior _dedicatedBookmarkSalvagerBehavior;
         private readonly DirectionalScannerBehavior _directionalScannerBehavior;
         private readonly DebugHangarsBehavior _debugHangarsBehavior;
+        private readonly MiningBehavior _miningBehavior;
         private readonly Cleanup _cleanup;
 
         public DateTime LastAction;
-
+        public string ScheduleCharacterName = Program._character;
         public bool PanicStateReset = false;
         private bool _runOnce30SecAfterStartupalreadyProcessed;
 
@@ -50,7 +51,7 @@ namespace Questor
         public Questor(QuestorfrmMain form1)
         {
             _mParent = form1;
-            _lastPulse = DateTime.Now;
+            _lastPulse = DateTime.UtcNow;
 
             _defense = new Defense();
             _combatMissionsBehavior = new CombatMissionsBehavior();
@@ -58,9 +59,12 @@ namespace Questor
             _dedicatedBookmarkSalvagerBehavior = new DedicatedBookmarkSalvagerBehavior();
             _directionalScannerBehavior = new DirectionalScannerBehavior();
             _debugHangarsBehavior = new DebugHangarsBehavior();
+            _miningBehavior = new MiningBehavior();
             _cleanup = new Cleanup();
             _watch = new Stopwatch();
 
+            ScheduleCharacterName = Program._character;
+            Cache.Instance.ScheduleCharacterName = ScheduleCharacterName;
             // State fixed on ExecuteMission
             _States.CurrentQuestorState = QuestorState.Idle;
 
@@ -138,38 +142,45 @@ namespace Questor
         {
             if (!_runOnce30SecAfterStartupalreadyProcessed && DateTime.Now > Cache.Instance.QuestorStarted_DateTime.AddSeconds(30))
             {
-                if (Settings.Instance.CharacterName != null && DateTime.Now > Cache.Instance.NextStartupAction)
+                if (Settings.Instance.CharacterXMLExists && DateTime.UtcNow > Cache.Instance.NextStartupAction)
                 {
                     _runOnce30SecAfterStartupalreadyProcessed = true;
                     if (Settings.Instance.UseInnerspace)
                     {
-                        //enable windowtaskbar = on, so that minimized windows do not make us die in a fire.
-                        Logging.Log("Questor", "Running Innerspace command: windowtaskbar on " + Settings.Instance.CharacterName, Logging.White);
-                        LavishScript.ExecuteCommand("windowtaskbar on " + Settings.Instance.CharacterName);
-
-                        Logging.Log("Questor", "Running Innerspace command: WindowText EVE - " + Settings.Instance.CharacterName, Logging.White);
+                        Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: WindowText EVE - " + Settings.Instance.CharacterName, Logging.White);
                         LavishScript.ExecuteCommand("WindowText EVE - " + Settings.Instance.CharacterName);
+                        //enable windowtaskbar = on, so that minimized windows do not make us die in a fire.
+                        Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: timedcommand 100 windowtaskbar on " + Settings.Instance.CharacterName, Logging.White);
+                        LavishScript.ExecuteCommand("timedcommand 100 windowtaskbar on " + Settings.Instance.CharacterName);
+
+                        if (Settings.Instance.EVEWindowXSize >= 100 && Settings.Instance.EVEWindowYSize >= 100)
+                        {
+                            Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: timedcommand 150 WindowCharacteristics -size " + Settings.Instance.EVEWindowXSize + "x" + Settings.Instance.EVEWindowYSize, Logging.White);
+                            LavishScript.ExecuteCommand("timedcommand 150 WindowCharacteristics -size " + Settings.Instance.EVEWindowXSize + "x" + Settings.Instance.EVEWindowYSize);
+                            Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: timedcommand 200 WindowCharacteristics -pos " + Settings.Instance.EVEWindowXPosition + "," + Settings.Instance.EVEWindowYPosition, Logging.White);
+                            LavishScript.ExecuteCommand("timedcommand 200 WindowCharacteristics -pos " + Settings.Instance.EVEWindowXPosition + "," + Settings.Instance.EVEWindowYPosition);
+                        }
 
                         if (Settings.Instance.MinimizeEveAfterStartingUp)
                         {
-                            Logging.Log("Questor", "MinimizeEveAfterStartingUp is true: Minimizing EVE with: WindowCharacteristics -visibility minimize", Logging.White);
+                            Logging.Log("Questor.RunOnce30SecAfterStartup", "MinimizeEveAfterStartingUp is true: Minimizing EVE with: WindowCharacteristics -visibility minimize", Logging.White);
                             LavishScript.ExecuteCommand("WindowCharacteristics -visibility minimize");
                         }
 
                         if (Settings.Instance.LoginQuestorArbitraryOSCmd)
                         {
-                            Logging.Log("Questor", "After Questor Login: executing LoginQuestorArbitraryOSCmd", Logging.White);
+                            Logging.Log("Questor.RunOnce30SecAfterStartup", "After Questor Login: executing LoginQuestorArbitraryOSCmd", Logging.White);
                             LavishScript.ExecuteCommand("Echo [${Time}] OSExecute " + Settings.Instance.LoginQuestorOSCmdContents.ToString(CultureInfo.InvariantCulture));
                             LavishScript.ExecuteCommand("OSExecute " + Settings.Instance.LoginQuestorOSCmdContents.ToString(CultureInfo.InvariantCulture));
-                            Logging.Log("Questor", "Done: executing LoginQuestorArbitraryOSCmd", Logging.White);
+                            Logging.Log("Questor.RunOnce30SecAfterStartup", "Done: executing LoginQuestorArbitraryOSCmd", Logging.White);
                         }
 
                         if (Settings.Instance.LoginQuestorLavishScriptCmd)
                         {
-                            Logging.Log("Questor", "After Questor Login: executing LoginQuestorLavishScriptCmd", Logging.White);
+                            Logging.Log("Questor.RunOnce30SecAfterStartup", "After Questor Login: executing LoginQuestorLavishScriptCmd", Logging.White);
                             LavishScript.ExecuteCommand("Echo [${Time}] runscript " + Settings.Instance.LoginQuestorLavishScriptContents.ToString(CultureInfo.InvariantCulture));
                             LavishScript.ExecuteCommand("runscript " + Settings.Instance.LoginQuestorLavishScriptContents.ToString(CultureInfo.InvariantCulture));
-                            Logging.Log("Questor", "Done: executing LoginQuestorLavishScriptCmd", Logging.White);
+                            Logging.Log("Questor.RunOnce30SecAfterStartup", "Done: executing LoginQuestorLavishScriptCmd", Logging.White);
                         }
 
                         Logging.MaintainConsoleLogs();
@@ -177,8 +188,8 @@ namespace Questor
                 }
                 else
                 {
-                    Logging.Log("Questor", "RunOnce30SecAfterStartup: Settings.Instance.CharacterName is still null", Logging.Orange);
-                    Cache.Instance.NextStartupAction = DateTime.Now.AddSeconds(30);
+                    Logging.Log("Questor.RunOnce30SecAfterStartup", "RunOnce30SecAfterStartup: Settings.Instance.CharacterName is still null", Logging.Orange);
+                    Cache.Instance.NextStartupAction = DateTime.UtcNow.AddSeconds(30);
                     _runOnce30SecAfterStartupalreadyProcessed = false;
                     return;
                 }
@@ -198,22 +209,13 @@ namespace Questor
                 Logging.Log(whatWeAreTiming, " took " + _watch.ElapsedMilliseconds + "ms", Logging.White);
         }
 
-        public static void BeginClosingQuestor()
+        public static bool TimeCheck()
         {
-            Cache.Instance.EnteredCloseQuestor_DateTime = DateTime.Now;
-            Cache.Instance.SessionState = "Quitting";
-            _States.CurrentQuestorState = QuestorState.CloseQuestor;
-            return;
-        }
+            if (DateTime.UtcNow < Cache.Instance.NextTimeCheckAction)
+                return false;
 
-        public static void TimeCheck()
-        {
-            if (DateTime.Now < Cache.Instance.NextTimeCheckAction)
-                return;
-
-            Cache.Instance.NextTimeCheckAction = DateTime.Now.AddMinutes(5);
-            Logging.Log("Questor",
-                        "Checking: Current time [" + DateTime.Now.ToString(CultureInfo.InvariantCulture) +
+            Cache.Instance.NextTimeCheckAction = DateTime.UtcNow.AddSeconds(90);
+            Logging.Log("Questor", "Checking: Current time [" + DateTime.Now.ToString(CultureInfo.InvariantCulture) +
                         "] StopTimeSpecified [" + Cache.Instance.StopTimeSpecified +
                         "] StopTime [ " + Cache.Instance.StopTime +
                         "] ManualStopTime = " + Cache.Instance.ManualStopTime, Logging.White);
@@ -227,9 +229,10 @@ namespace Questor
                 Cache.Instance.CloseQuestorCMDLogoff = false;
                 Cache.Instance.CloseQuestorCMDExitGame = true;
                 Cache.Instance.SessionState = "Exiting";
-                BeginClosingQuestor();
-                return;
+                Cleanup.BeginClosingQuestor();
+                return true;
             }
+
             if (Cache.Instance.StopTimeSpecified)
             {
                 if (DateTime.Now >= Cache.Instance.StopTime)
@@ -240,10 +243,11 @@ namespace Questor
                     Cache.Instance.CloseQuestorCMDLogoff = false;
                     Cache.Instance.CloseQuestorCMDExitGame = true;
                     Cache.Instance.SessionState = "Exiting";
-                    BeginClosingQuestor();
-                    return;
+                    Cleanup.BeginClosingQuestor();
+                    return true;
                 }
             }
+
             if (DateTime.Now >= Cache.Instance.ManualRestartTime)
             {
                 Logging.Log("Questor", "Time to stop. ManualRestartTime reached. Quitting game.", Logging.White);
@@ -252,9 +256,10 @@ namespace Questor
                 Cache.Instance.CloseQuestorCMDLogoff = false;
                 Cache.Instance.CloseQuestorCMDExitGame = true;
                 Cache.Instance.SessionState = "Exiting";
-                BeginClosingQuestor();
-                return;
+                Cleanup.BeginClosingQuestor();
+                return true;
             }
+
             if (DateTime.Now >= Cache.Instance.ManualStopTime)
             {
                 Logging.Log("Questor", "Time to stop. ManualStopTime reached. Quitting game.", Logging.White);
@@ -263,9 +268,10 @@ namespace Questor
                 Cache.Instance.CloseQuestorCMDLogoff = false;
                 Cache.Instance.CloseQuestorCMDExitGame = true;
                 Cache.Instance.SessionState = "Exiting";
-                BeginClosingQuestor();
-                return;
+                Cleanup.BeginClosingQuestor();
+                return true;
             }
+
             if (Cache.Instance.ExitWhenIdle)
             {
                 Logging.Log("Questor", "ExitWhenIdle set to true.  Quitting game.", Logging.White);
@@ -274,9 +280,10 @@ namespace Questor
                 Cache.Instance.CloseQuestorCMDLogoff = false;
                 Cache.Instance.CloseQuestorCMDExitGame = true;
                 Cache.Instance.SessionState = "Exiting";
-                BeginClosingQuestor();
-                return;
+                Cleanup.BeginClosingQuestor();
+                return true;
             }
+
             if (Cache.Instance.MissionsThisSession > Cache.Instance.StopSessionAfterMissionNumber)
             {
                 Logging.Log("Questor", "MissionsThisSession [" + Cache.Instance.MissionsThisSession + "] is greater than StopSessionAfterMissionNumber [" + Cache.Instance.StopSessionAfterMissionNumber + "].  Quitting game.", Logging.White);
@@ -285,49 +292,60 @@ namespace Questor
                 Cache.Instance.CloseQuestorCMDLogoff = false;
                 Cache.Instance.CloseQuestorCMDExitGame = true;
                 Cache.Instance.SessionState = "Exiting";
-                BeginClosingQuestor();
-                return;
+                Cleanup.BeginClosingQuestor();
+                return true;
             }
+            return false;
         }
 
         public static void WalletCheck()
         {
-            Cache.Instance.LastWalletCheck = DateTime.Now;
+            if (_States.CurrentQuestorState == QuestorState.Mining) { return; }
+
+            Cache.Instance.LastWalletCheck = DateTime.UtcNow;
+
             //Logging.Log("[Questor] Wallet Balance Debug Info: LastKnownGoodConnectedTime = " + Settings.Instance.lastKnownGoodConnectedTime);
-            //Logging.Log("[Questor] Wallet Balance Debug Info: DateTime.Now - LastKnownGoodConnectedTime = " + DateTime.Now.Subtract(Settings.Instance.LastKnownGoodConnectedTime).TotalSeconds);
-            if (Math.Round(DateTime.Now.Subtract(Cache.Instance.LastKnownGoodConnectedTime).TotalMinutes) > 1)
+            //Logging.Log("[Questor] Wallet Balance Debug Info: DateTime.UtcNow - LastKnownGoodConnectedTime = " + DateTime.UtcNow.Subtract(Settings.Instance.LastKnownGoodConnectedTime).TotalSeconds);
+            if (Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastKnownGoodConnectedTime).TotalMinutes) > 1)
             {
                 Logging.Log("Questor", String.Format("Wallet Balance Has Not Changed in [ {0} ] minutes.",
                                           Math.Round(
-                                              DateTime.Now.Subtract(Cache.Instance.LastKnownGoodConnectedTime).
+                                              DateTime.UtcNow.Subtract(Cache.Instance.LastKnownGoodConnectedTime).
                                                   TotalMinutes, 0)), Logging.White);
             }
 
             //Settings.Instance.WalletBalanceChangeLogOffDelay = 2;  //used for debugging purposes
             //Logging.Log("Cache.Instance.lastKnownGoodConnectedTime is currently: " + Cache.Instance.LastKnownGoodConnectedTime);
-            if (Math.Round(DateTime.Now.Subtract(Cache.Instance.LastKnownGoodConnectedTime).TotalMinutes) < Settings.Instance.WalletBalanceChangeLogOffDelay)
+            if (Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastKnownGoodConnectedTime).TotalMinutes) < Settings.Instance.WalletBalanceChangeLogOffDelay)
             {
-                if ((long)Cache.Instance.MyWalletBalance != (long)Cache.Instance.DirectEve.Me.Wealth)
+                try
                 {
-                    Cache.Instance.LastKnownGoodConnectedTime = DateTime.Now;
-                    Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
+                    if ((long)Cache.Instance.MyWalletBalance != (long)Cache.Instance.DirectEve.Me.Wealth)
+                    {
+                        Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
+                        Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Logging.Log("Questor.WalletCheck", "Checking my wallet balance caused an exception [" + exception + "]", Logging.White);
                 }
             }
             else if (Settings.Instance.WalletBalanceChangeLogOffDelay != 0)
             {
-                if ((Cache.Instance.InStation) || (Math.Round(DateTime.Now.Subtract(Cache.Instance.LastKnownGoodConnectedTime).TotalMinutes) > Settings.Instance.WalletBalanceChangeLogOffDelay + 5))
+                if ((Cache.Instance.InStation) || (Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastKnownGoodConnectedTime).TotalMinutes) > Settings.Instance.WalletBalanceChangeLogOffDelay + 5))
                 {
-                    Logging.Log("Questor", String.Format("Questor: Wallet Balance Has Not Changed in [ {0} ] minutes. Switching to QuestorState.CloseQuestor", Math.Round(DateTime.Now.Subtract(Cache.Instance.LastKnownGoodConnectedTime).TotalMinutes, 0)), Logging.White);
+                    Logging.Log("Questor", String.Format("Questor: Wallet Balance Has Not Changed in [ {0} ] minutes. Switching to QuestorState.CloseQuestor", Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastKnownGoodConnectedTime).TotalMinutes, 0)), Logging.White);
                     Cache.Instance.ReasonToStopQuestor = "Wallet Balance did not change for over " + Settings.Instance.WalletBalanceChangeLogOffDelay + "min";
                     Cache.Instance.CloseQuestorCMDLogoff = false;
                     Cache.Instance.CloseQuestorCMDExitGame = true;
                     Cache.Instance.SessionState = "Exiting";
-                    BeginClosingQuestor();
+                    Cleanup.BeginClosingQuestor();
                     return;
                 }
 
                 //
-                // it is assumed if you got this far that you are in space. If you are 'stuck' in a session change then you'll be stuck another 5 min until the timeout above. 
+                // it is assumed if you got this far that you are in space. If you are 'stuck' in a session change then you'll be stuck another 5 min until the timeout above.
                 //
                 _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.GotoBase;
                 _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.GotoBase;
@@ -336,71 +354,38 @@ namespace Questor
             }
         }
 
-        public static void CheckEVEStatus()
-        {
-            // get the current process
-            Process currentProcess = System.Diagnostics.Process.GetCurrentProcess();
-
-            // get the physical mem usage (this only runs between missions)
-            Cache.Instance.TotalMegaBytesOfMemoryUsed = ((currentProcess.WorkingSet64 / 1024) / 1024);
-            Logging.Log("Questor", "EVE instance: totalMegaBytesOfMemoryUsed - " +
-                        Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB", Logging.White);
-
-            if (Cache.Instance.TotalMegaBytesOfMemoryUsed > (Settings.Instance.EVEProcessMemoryCeiling - 50) &&
-                        Settings.Instance.EVEProcessMemoryCeilingLogofforExit != "")
-            {
-                Logging.Log(
-                    "Questor", ": Memory usage is above the EVEProcessMemoryCeiling threshold. EVE instance: totalMegaBytesOfMemoryUsed - " +
-                    Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB", Logging.White);
-                Cache.Instance.ReasonToStopQuestor =
-                    "Memory usage is above the EVEProcessMemoryCeiling threshold. EVE instance: totalMegaBytesOfMemoryUsed - " +
-                    Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB";
-                if (Settings.Instance.EVEProcessMemoryCeilingLogofforExit == "logoff")
-                {
-                    Cache.Instance.CloseQuestorCMDLogoff = true;
-                    Cache.Instance.CloseQuestorCMDExitGame = false;
-                    Cache.Instance.SessionState = "LoggingOff";
-                    BeginClosingQuestor();
-                    return;
-                }
-                if (Settings.Instance.EVEProcessMemoryCeilingLogofforExit == "exit")
-                {
-                    Cache.Instance.CloseQuestorCMDLogoff = false;
-                    Cache.Instance.CloseQuestorCMDExitGame = true;
-                    Cache.Instance.SessionState = "Exiting";
-                    BeginClosingQuestor();
-                    return;
-                }
-                Logging.Log(
-                    "Questor", "EVEProcessMemoryCeilingLogofforExit was not set to exit or logoff - doing nothing ", Logging.White);
-            }
-            else
-            {
-                Cache.Instance.SessionState = "Running";
-            }
-        }
-
         public bool OnframeProcessEveryPulse()
         {
+            if (_directEve.Login.AtLogin)
+            {
+                return false;
+            }
+
             // New frame, invalidate old cache
             Cache.Instance.InvalidateCache();
 
-            Cache.Instance.LastFrame = DateTime.Now;
+            Cache.Instance.LastFrame = DateTime.UtcNow;
 
             // Only pulse state changes every 1.5s
-            if (DateTime.Now.Subtract(_lastPulse).TotalMilliseconds < Time.Instance.QuestorPulse_milliseconds) //default: 1500ms
-                return false;
-            _lastPulse = DateTime.Now;
-
-            // Update settings (settings only load if character name changed)
-            if (!Settings.Instance.DefaultSettingsLoaded)
+            if (DateTime.UtcNow.Subtract(_lastPulse).TotalMilliseconds < Time.Instance.QuestorPulse_milliseconds) //default: 1500ms
             {
-                Settings.Instance.LoadSettings();
+                return false;
             }
-            
+
+            _lastPulse = DateTime.UtcNow;
+
+            if (Cache.Instance.SessionState != "Quitting")
+            {
+                // Update settings (settings only load if character name changed)
+                if (!Settings.Instance.DefaultSettingsLoaded)
+                {
+                    Settings.Instance.LoadSettings();
+                }
+            }
+
             if (DateTime.Now < Cache.Instance.QuestorStarted_DateTime.AddSeconds(30))
             {
-                Cache.Instance.LastKnownGoodConnectedTime = DateTime.Now;
+                Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
             }
 
             // Start _cleanup.ProcessState
@@ -418,41 +403,44 @@ namespace Questor
 
             // Session is not ready yet, do not continue
             if (!Cache.Instance.DirectEve.Session.IsReady)
+            {
                 return false;
+            }
 
             if (Cache.Instance.DirectEve.Session.IsReady)
-                Cache.Instance.LastSessionIsReady = DateTime.Now;
+            {
+                Cache.Instance.LastSessionIsReady = DateTime.UtcNow;
+            }
 
             // We are not in space or station, don't do shit yet!
             if (!Cache.Instance.InSpace && !Cache.Instance.InStation)
             {
-                Cache.Instance.NextInSpaceorInStation = DateTime.Now.AddSeconds(12);
-                Cache.Instance.LastSessionChange = DateTime.Now;
+                Cache.Instance.NextInSpaceorInStation = DateTime.UtcNow.AddSeconds(12);
+                Cache.Instance.LastSessionChange = DateTime.UtcNow;
                 return false;
             }
 
-            if (DateTime.Now < Cache.Instance.NextInSpaceorInStation)
+            if (DateTime.UtcNow < Cache.Instance.NextInSpaceorInStation)
             {
                 if (Cache.Instance.DirectEve.ActiveShip.GroupId == (int)Group.Capsule)
                 {
                     Logging.Log("Panic", "We are in a pod. Don't wait for the session wait timer to expire!", Logging.Red);
-                    Cache.Instance.NextInSpaceorInStation = DateTime.Now;
+                    Cache.Instance.NextInSpaceorInStation = DateTime.UtcNow;
                     return true;
                 }
                 return false;
             }
 
             // Check 3D rendering
-            if (Cache.Instance.DirectEve.Session.IsInSpace &&
-                Cache.Instance.DirectEve.Rendering3D != !Settings.Instance.Disable3D)
-                Cache.Instance.DirectEve.Rendering3D = !Settings.Instance.Disable3D;
-
-            if (DateTime.Now.Subtract(Cache.Instance.LastUpdateOfSessionRunningTime).TotalSeconds <
-                Time.Instance.SessionRunningTimeUpdate_seconds)
+            if (Cache.Instance.DirectEve.Session.IsInSpace && Cache.Instance.DirectEve.Rendering3D != !Settings.Instance.Disable3D)
             {
-                Cache.Instance.SessionRunningTime =
-                    (int)DateTime.Now.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalMinutes;
-                Cache.Instance.LastUpdateOfSessionRunningTime = DateTime.Now;
+                Cache.Instance.DirectEve.Rendering3D = !Settings.Instance.Disable3D;
+            }
+
+            if (DateTime.UtcNow.Subtract(Cache.Instance.LastUpdateOfSessionRunningTime).TotalSeconds < Time.Instance.SessionRunningTimeUpdate_seconds)
+            {
+                Cache.Instance.SessionRunningTime = (int)DateTime.UtcNow.Subtract(Cache.Instance.QuestorStarted_DateTime).TotalMinutes;
+                Cache.Instance.LastUpdateOfSessionRunningTime = DateTime.UtcNow;
             }
             return true;
         }
@@ -460,13 +448,13 @@ namespace Questor
         private void OnFrame(object sender, EventArgs e)
         {
             if (!OnframeProcessEveryPulse()) return;
-            if (Settings.Instance.DebugOnframe) Logging.Log("Questor", "Onframe: this is Questor.cs [" + DateTime.Now + "] by default the next pulse will be in [" + Time.Instance.QuestorPulse_milliseconds + "]milliseconds", Logging.Teal);
+            if (Settings.Instance.DebugOnframe) Logging.Log("Questor", "Onframe: this is Questor.cs [" + DateTime.UtcNow + "] by default the next pulse will be in [" + Time.Instance.QuestorPulse_milliseconds + "]milliseconds", Logging.Teal);
 
             RunOnce30SecAfterStartup();
 
             if (!Cache.Instance.Paused)
             {
-                if (DateTime.Now.Subtract(Cache.Instance.LastWalletCheck).TotalMinutes > Time.Instance.WalletCheck_minutes && !Settings.Instance.DefaultSettingsLoaded)
+                if (DateTime.UtcNow.Subtract(Cache.Instance.LastWalletCheck).TotalMinutes > Time.Instance.WalletCheck_minutes && !Settings.Instance.DefaultSettingsLoaded)
                 {
                     WalletCheck();
                 }
@@ -474,7 +462,7 @@ namespace Questor
 
             // We always check our defense state if we're in space, regardless of questor state
             // We also always check panic
-            if ((Cache.Instance.LastInSpace.AddSeconds(2) > DateTime.Now) && Cache.Instance.InSpace)
+            if ((Cache.Instance.LastInSpace.AddSeconds(2) > DateTime.UtcNow) && Cache.Instance.InSpace)
             {
                 DebugPerformanceClearandStartTimer();
                 if (!Cache.Instance.DoNotBreakInvul)
@@ -484,9 +472,9 @@ namespace Questor
                 DebugPerformanceStopandDisplayTimer("Defense.ProcessState");
             }
 
-            if (Cache.Instance.Paused)
+            if (Cache.Instance.Paused || DateTime.UtcNow < _nextQuestorAction)
             {
-                Cache.Instance.LastKnownGoodConnectedTime = DateTime.Now;
+                Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
                 Cache.Instance.MyWalletBalance = Cache.Instance.DirectEve.Me.Wealth;
                 Cache.Instance.GotoBaseNow = false;
                 Cache.Instance.SessionState = string.Empty;
@@ -497,19 +485,21 @@ namespace Questor
             {
                 if (_States.CurrentQuestorState != QuestorState.CloseQuestor)
                 {
-                    BeginClosingQuestor();
+                    Cleanup.BeginClosingQuestor();
                 }
             }
 
             // When in warp there's nothing we can do, so ignore everything
             if (Cache.Instance.InWarp)
+            {
                 return;
+            }
 
             //DirectAgentMission mission;
             switch (_States.CurrentQuestorState)
             {
                 case QuestorState.Idle:
-                    TimeCheck(); //Should we close questor due to stoptime or runtime?
+                    if (TimeCheck()) return; //Should we close questor due to stoptime or runtime?
 
                     if (Cache.Instance.StopBot)
                     {
@@ -517,17 +507,18 @@ namespace Questor
                         return;
                     }
 
-                    if (_States.CurrentQuestorState == QuestorState.Idle && Settings.Instance.CharacterMode != "none")
+                    if (_States.CurrentQuestorState == QuestorState.Idle && Settings.Instance.CharacterMode != "none" && Settings.Instance.CharacterName != null)
                     {
                         _States.CurrentQuestorState = QuestorState.Start;
                         return;
                     }
-                    
+
                     Logging.Log("Questor", "Settings.Instance.CharacterMode = [" + Settings.Instance.CharacterMode + "]", Logging.Orange);
                     _States.CurrentQuestorState = QuestorState.Error;
                     break;
 
                 case QuestorState.CombatMissionsBehavior:
+
                     //
                     // QuestorState will stay here until changed externally by the behavior we just kicked into starting
                     //
@@ -535,6 +526,7 @@ namespace Questor
                     break;
 
                 case QuestorState.CombatHelperBehavior:
+
                     //
                     // QuestorState will stay here until changed externally by the behavior we just kicked into starting
                     //
@@ -542,6 +534,7 @@ namespace Questor
                     break;
 
                 case QuestorState.DedicatedBookmarkSalvagerBehavior:
+
                     //
                     // QuestorState will stay here until changed externally by the behavior we just kicked into starting
                     //
@@ -549,6 +542,7 @@ namespace Questor
                     break;
 
                 case QuestorState.DirectionalScannerBehavior:
+
                     //
                     // QuestorState will stay here until changed externally by the behavior we just kicked into starting
                     //
@@ -556,6 +550,7 @@ namespace Questor
                     break;
 
                 case QuestorState.DebugHangarsBehavior:
+
                     //
                     // QuestorState will stay here until changed externally by the behavior we just kicked into starting
                     //
@@ -565,6 +560,10 @@ namespace Questor
                 case QuestorState.DebugReloadAll:
                     if (!Combat.ReloadAll(Cache.Instance.EntitiesNotSelf.OrderBy(t => t.Distance).FirstOrDefault(t => t.Distance < (double)Distance.OnGridWithMe))) return;
                     _States.CurrentQuestorState = QuestorState.Start;
+                    break;
+
+                case QuestorState.Mining:
+                    _miningBehavior.ProcessState();
                     break;
 
                 case QuestorState.Start:
@@ -580,6 +579,12 @@ namespace Questor
                         case "salvage":
                             Logging.Log("Questor", "Start Salvaging Behavior", Logging.White);
                             _States.CurrentQuestorState = QuestorState.DedicatedBookmarkSalvagerBehavior;
+                            break;
+
+                        case "mining":
+                            Logging.Log("Questor", "Start Mining Behavior", Logging.White);
+                            _States.CurrentQuestorState = QuestorState.Mining;
+                            _States.CurrentMiningState = MiningState.Start;
                             break;
 
                         case "combat helper":
@@ -601,6 +606,7 @@ namespace Questor
                     return;
 
                 case QuestorState.DebugCloseQuestor:
+
                     //Logging.Log("ISBoxerCharacterSet: " + Settings.Instance.Lavish_ISBoxerCharacterSet);
                     //Logging.Log("Profile: " + Settings.Instance.Lavish_InnerspaceProfile);
                     //Logging.Log("Game: " + Settings.Instance.Lavish_Game);
@@ -620,36 +626,44 @@ namespace Questor
                     return;
 
                 case QuestorState.DebugWindows:
-                    List<DirectWindow> windows = Cache.Instance.Windows;
+                    List<DirectWindow> windows = Cache.Instance.DirectEve.Windows;
 
-                    foreach (DirectWindow window in windows)
+                    if (windows != null && windows.Any())
                     {
-                        Logging.Log("Questor", "--------------------------------------------------", Logging.Orange);
-                        Logging.Log("Questor", "Debug_Window.Name: [" + window.Name + "]", Logging.White);
-                        Logging.Log("Questor", "Debug_Window.Caption: [" + window.Caption + "]", Logging.White);
-                        Logging.Log("Questor", "Debug_Window.Type: [" + window.Type + "]", Logging.White);
-                        Logging.Log("Questor", "Debug_Window.IsModal: [" + window.IsModal + "]", Logging.White);
-                        Logging.Log("Questor", "Debug_Window.IsDialog: [" + window.IsDialog + "]", Logging.White);
-                        Logging.Log("Questor", "Debug_Window.Id: [" + window.Id + "]", Logging.White);
-                        Logging.Log("Questor", "Debug_Window.IsKillable: [" + window.IsKillable + "]", Logging.White);
-                        //Logging.Log("Questor", "Debug_Window.Html: [" + window.Html + "]", Logging.White);
-                    }
-                    Logging.Log("Questor", "Debug_InventoryWindows", Logging.White);
-                    foreach (DirectWindow window in windows)
-                    {
-                        if (window.Type.Contains("inventory"))
+                        foreach (DirectWindow window in windows)
                         {
+                            Logging.Log("Questor", "--------------------------------------------------", Logging.Orange);
                             Logging.Log("Questor", "Debug_Window.Name: [" + window.Name + "]", Logging.White);
-                            Logging.Log("Questor", "Debug_Window.Type: [" + window.Type + "]", Logging.White);
                             Logging.Log("Questor", "Debug_Window.Caption: [" + window.Caption + "]", Logging.White);
-                            //Logging.Log("Questor", "Debug_Window.Type: [" + window. + "]", Logging.White);
+                            Logging.Log("Questor", "Debug_Window.Type: [" + window.Type + "]", Logging.White);
+                            Logging.Log("Questor", "Debug_Window.IsModal: [" + window.IsModal + "]", Logging.White);
+                            Logging.Log("Questor", "Debug_Window.IsDialog: [" + window.IsDialog + "]", Logging.White);
+                            Logging.Log("Questor", "Debug_Window.Id: [" + window.Id + "]", Logging.White);
+                            Logging.Log("Questor", "Debug_Window.IsKillable: [" + window.IsKillable + "]", Logging.White);
+                            Logging.Log("Questor", "Debug_Window.Html: [" + window.Html + "]", Logging.White);
                         }
+
+                        //Logging.Log("Questor", "Debug_InventoryWindows", Logging.White);
+                        //foreach (DirectWindow window in windows)
+                        //{
+                        //    if (window.Type.Contains("inventory"))
+                        //    {
+                        //        Logging.Log("Questor", "Debug_Window.Name: [" + window.Name + "]", Logging.White);
+                        //        Logging.Log("Questor", "Debug_Window.Type: [" + window.Type + "]", Logging.White);
+                        //        Logging.Log("Questor", "Debug_Window.Caption: [" + window.Caption + "]", Logging.White);
+                        //        //Logging.Log("Questor", "Debug_Window.Type: [" + window. + "]", Logging.White);
+                        //    }
+                        //}
+                    }
+                    else
+                    {
+                        Logging.Log("Questor", "DebugWindows: No Windows Found", Logging.White);
                     }
                     _States.CurrentQuestorState = QuestorState.Error;
                     return;
 
                 case QuestorState.DebugInventoryTree:
-                    
+
                     if (Cache.Instance.PrimaryInventoryWindow.ExpandCorpHangarView())
                     {
                         Logging.Log("DebugInventoryTree", "ExpandCorpHangar executed", Logging.Teal);

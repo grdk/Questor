@@ -1,5 +1,4 @@
-﻿
-namespace Questor.Modules.Actions
+﻿namespace Questor.Modules.Actions
 {
     using System;
     using System.Linq;
@@ -24,7 +23,7 @@ namespace Questor.Modules.Actions
             if (Cache.Instance.InSpace)
                 return;
 
-            if (DateTime.Now < Cache.Instance.LastInSpace.AddSeconds(20)) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
+            if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20)) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
                 return;
 
             //DirectMarketWindow marketWindow = Cache.Instance.DirectEve.Windows.OfType<DirectMarketWindow>().FirstOrDefault();
@@ -42,9 +41,9 @@ namespace Questor.Modules.Actions
 
                 case SellState.StartQuickSell:
 
-                    if (DateTime.Now.Subtract(_lastAction).TotalSeconds < 1)
+                    if (DateTime.UtcNow.Subtract(_lastAction).TotalSeconds < 1)
                         break;
-                    _lastAction = DateTime.Now;
+                    _lastAction = DateTime.UtcNow;
 
                     if (!Cache.Instance.OpenItemsHangar("Sell")) break;
 
@@ -62,7 +61,7 @@ namespace Questor.Modules.Actions
                     Logging.Log("Sell", "Starting QuickSell for " + Item, Logging.White);
                     if (!directItem.QuickSell())
                     {
-                        _lastAction = DateTime.Now.AddSeconds(-5);
+                        _lastAction = DateTime.UtcNow.AddSeconds(-5);
 
                         Logging.Log("Sell", "QuickSell failed for " + Item + ", retrying in 5 seconds", Logging.White);
                         break;
@@ -77,7 +76,7 @@ namespace Questor.Modules.Actions
                     //    break;
 
                     // Mark as new execution
-                    _lastAction = DateTime.Now;
+                    _lastAction = DateTime.UtcNow;
 
                     Logging.Log("Sell", "Inspecting sell order for " + Item, Logging.White);
                     _States.CurrentSellState = SellState.InspectOrder;
@@ -85,7 +84,7 @@ namespace Questor.Modules.Actions
 
                 case SellState.InspectOrder:
                     // Let the order window stay open for 2 seconds
-                    if (DateTime.Now.Subtract(_lastAction).TotalSeconds < 2)
+                    if (DateTime.UtcNow.Subtract(_lastAction).TotalSeconds < 2)
                         break;
                     if (sellWindow != null)
                     {
@@ -104,7 +103,7 @@ namespace Questor.Modules.Actions
                         sellWindow.Accept();
                         _States.CurrentSellState = SellState.WaitingToFinishQuickSell;
                     }
-                    _lastAction = DateTime.Now;
+                    _lastAction = DateTime.UtcNow;
                     break;
 
                 case SellState.WaitingToFinishQuickSell:

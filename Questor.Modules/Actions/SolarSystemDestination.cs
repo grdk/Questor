@@ -30,12 +30,12 @@ namespace Questor.Modules.Actions
             // The destination is the solar system, not the station in the solar system.
             if (Cache.Instance.DirectEve.Session.IsInStation)
             {
-                if (_nextAction < DateTime.Now)
+                if (_nextAction < DateTime.UtcNow)
                 {
                     Logging.Log("QuestorManager.SolarSystemDestination", "Exiting station", Logging.White);
 
                     Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdExitStation);
-                    _nextAction = DateTime.Now.AddSeconds(30);
+                    _nextAction = DateTime.UtcNow.AddSeconds(30);
                 }
 
                 // We are not there yet

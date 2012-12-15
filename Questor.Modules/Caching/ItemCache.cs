@@ -176,7 +176,7 @@ namespace Questor.Modules.Caching
                 if (TypeId == 3804) return true;    // VIPs
                 if (TypeId == 3806) return true;    // Refugees
                 if (TypeId == 3808) return true;    // Prisoners
-                //if (TypeId == 3810) return true;    // Marines **Common Mission Completion Item
+                //if (TypeId == 3810) return true;  // Marines **Common Mission Completion Item
                 if (TypeId == 12865) return true;   // Quafe Ultra
                 if (TypeId == 13267) return true;   // Janitor
                 if (TypeId == 17765) return true;   // Exotic Dancers
@@ -286,10 +286,10 @@ namespace Questor.Modules.Caching
                     {
                         return null;
                     }
-                    
+
                     return InvType.MedianSell / InvType.Volume;
                 }
-                
+
                 return InvType.MedianBuy / InvType.Volume;
             }
         }
@@ -304,10 +304,10 @@ namespace Questor.Modules.Caching
                     {
                         return null;
                     }
-                    
+
                     return InvType.MedianSell;
                 }
-                
+
                 return InvType.MedianBuy;
             }
         }

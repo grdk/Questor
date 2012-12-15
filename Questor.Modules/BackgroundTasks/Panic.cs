@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------
 //   <copyright from='2010' to='2015' company='THEHACKERWITHIN.COM'>
 //     Copyright (c) TheHackerWithin.COM. All Rights Reserved.
 //
@@ -26,11 +26,11 @@ namespace Questor.Modules.BackgroundTasks
         private double _lastNormalZ;
 
         private DateTime _resumeTime;
-        private DateTime _nextWarpScrambledWarning = DateTime.Now;
+        private DateTime _nextWarpScrambledWarning = DateTime.UtcNow;
         private DateTime _lastPulse;
 
-        private DateTime _lastWarpScrambled = DateTime.Now;
-        private DateTime _lastPriorityTargetLogging = DateTime.Now;
+        private DateTime _lastWarpScrambled = DateTime.UtcNow;
+        private DateTime _lastPriorityTargetLogging = DateTime.UtcNow;
         private bool _delayedResume;
         private int _randomDelay;
 
@@ -39,9 +39,9 @@ namespace Questor.Modules.BackgroundTasks
         public void ProcessState()
         {
             // Only pulse state changes every 500ms
-            if (DateTime.Now.Subtract(_lastPulse).TotalMilliseconds < 500) //default: 500ms
+            if (DateTime.UtcNow.Subtract(_lastPulse).TotalMilliseconds < 500) //default: 500ms
                 return;
-            _lastPulse = DateTime.Now;
+            _lastPulse = DateTime.UtcNow;
 
             switch (_States.CurrentPanicState)
             {
@@ -72,10 +72,10 @@ namespace Questor.Modules.BackgroundTasks
                     if (Cache.Instance.DirectEve.ActiveShip.Entity == null)
                         return;
 
-                    if (DateTime.Now < Cache.Instance.LastSessionChange.AddSeconds(10))
+                    if (DateTime.UtcNow < Cache.Instance.LastSessionChange.AddSeconds(10))
                         return;
 
-                    if ((long)Cache.Instance.DirectEve.ActiveShip.StructurePercentage == 0) //if your hull is 0 you are dead or bugged, wait. 
+                    if ((long)Cache.Instance.DirectEve.ActiveShip.StructurePercentage == 0) //if your hull is 0 you are dead or bugged, wait.
                         return;
 
                     if (Cache.Instance.DirectEve.ActiveShip.GroupId == (int)Group.Capsule)
@@ -86,7 +86,7 @@ namespace Questor.Modules.BackgroundTasks
                     else if (Cache.Instance.InMission && Cache.Instance.InSpace && Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage < Settings.Instance.MinimumCapacitorPct && Cache.Instance.DirectEve.ActiveShip.GroupId != 31)
                     {
                         // Only check for cap-panic while in a mission, not while doing anything else
-                        Logging.Log("Panic","Start panicking, capacitor [" + Math.Round(Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage,0) + "%] below [" + Settings.Instance.MinimumCapacitorPct + "%] S[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ShieldPercentage, 0) + "%] A[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ArmorPercentage, 0) + "%] C[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage, 0) + "%]",Logging.Red);
+                        Logging.Log("Panic", "Start panicking, capacitor [" + Math.Round(Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage, 0) + "%] below [" + Settings.Instance.MinimumCapacitorPct + "%] S[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ShieldPercentage, 0) + "%] A[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ArmorPercentage, 0) + "%] C[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage, 0) + "%]", Logging.Red);
 
                         //Questor.panic_attempts_this_mission;
                         Cache.Instance.PanicAttemptsThisMission++;
@@ -95,14 +95,14 @@ namespace Questor.Modules.BackgroundTasks
                     }
                     else if (Cache.Instance.InSpace && Cache.Instance.DirectEve.ActiveShip.ShieldPercentage < Settings.Instance.MinimumShieldPct)
                     {
-                        Logging.Log("Panic","Start panicking, shield [" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ShieldPercentage, 0) + "%] below [" + Settings.Instance.MinimumShieldPct + "%] S[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ShieldPercentage, 0) + "%] A[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ArmorPercentage, 0) + "%] C[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage, 0) + "%]", Logging.Red);
+                        Logging.Log("Panic", "Start panicking, shield [" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ShieldPercentage, 0) + "%] below [" + Settings.Instance.MinimumShieldPct + "%] S[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ShieldPercentage, 0) + "%] A[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ArmorPercentage, 0) + "%] C[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage, 0) + "%]", Logging.Red);
                         Cache.Instance.PanicAttemptsThisMission++;
                         Cache.Instance.PanicAttemptsThisPocket++;
                         _States.CurrentPanicState = PanicState.StartPanicking;
                     }
                     else if (Cache.Instance.InSpace && Cache.Instance.DirectEve.ActiveShip.ArmorPercentage < Settings.Instance.MinimumArmorPct)
                     {
-                        Logging.Log("Panic","Start panicking, armor [" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ArmorPercentage, 0) + "%] below [" + Settings.Instance.MinimumArmorPct + "%] S[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ShieldPercentage, 0) + "%] A[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ArmorPercentage, 0) + "%] C[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage, 0) + "%]", Logging.Red);
+                        Logging.Log("Panic", "Start panicking, armor [" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ArmorPercentage, 0) + "%] below [" + Settings.Instance.MinimumArmorPct + "%] S[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ShieldPercentage, 0) + "%] A[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.ArmorPercentage, 0) + "%] C[" + Math.Round(Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage, 0) + "%]", Logging.Red);
                         Cache.Instance.PanicAttemptsThisMission++;
                         Cache.Instance.PanicAttemptsThisPocket++;
                         _States.CurrentPanicState = PanicState.StartPanicking;
@@ -111,11 +111,10 @@ namespace Questor.Modules.BackgroundTasks
                     _delayedResume = false;
                     if (Cache.Instance.InMission)
                     {
-                        int frigates = Cache.Instance.Entities.Count(e => e.IsFrigate && e.IsPlayer);
-                        int cruisers = Cache.Instance.Entities.Count(e => e.IsCruiser && e.IsPlayer);
-                        int battlecruisers = Cache.Instance.Entities.Count(e => e.IsBattlecruiser && e.IsPlayer);
-                        int battleships = Cache.Instance.Entities.Count(e => e.IsBattleship && e.IsPlayer);
-
+                        int frigates = Cache.Instance.EntitiesNotSelf.Count(e => e.IsFrigate && e.IsPlayer);
+                        int cruisers = Cache.Instance.EntitiesNotSelf.Count(e => e.IsCruiser && e.IsPlayer);
+                        int battlecruisers = Cache.Instance.EntitiesNotSelf.Count(e => e.IsBattlecruiser && e.IsPlayer);
+                        int battleships = Cache.Instance.EntitiesNotSelf.Count(e => e.IsBattleship && e.IsPlayer);
                         if (Settings.Instance.FrigateInvasionLimit > 0 && frigates >= Settings.Instance.FrigateInvasionLimit)
                         {
                             _delayedResume = true;
@@ -175,14 +174,14 @@ namespace Questor.Modules.BackgroundTasks
                         Cache.Instance.AddPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsJammingMe), Priority.Jamming);
                         Cache.Instance.AddPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsSensorDampeningMe), Priority.Dampening);
                         if (Cache.Instance.Modules.Any(m => m.IsTurret))
-                            Cache.Instance.AddPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsTrackingDisruptingMe),Priority.TrackingDisrupting);
+                            Cache.Instance.AddPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsTrackingDisruptingMe), Priority.TrackingDisrupting);
 
-                        if (Math.Round(DateTime.Now.Subtract(_lastPriorityTargetLogging).TotalMinutes) > 5)
+                        if (Math.Round(DateTime.UtcNow.Subtract(_lastPriorityTargetLogging).TotalMinutes) > 5)
                         {
-                            _lastPriorityTargetLogging = DateTime.Now;
+                            _lastPriorityTargetLogging = DateTime.UtcNow;
                             foreach (EntityCache target in Cache.Instance.PriorityTargets)
                             {
-                                Logging.Log("Panic.ListPriorityTargets","[" + target.Name + "][ID: " + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away] WARP[" + target.IsWarpScramblingMe + "] ECM[" + target.IsJammingMe + "] Damp[" + target.IsSensorDampeningMe + "] TP[" + target.IsTargetPaintingMe + "] NEUT[" + target.IsNeutralizingMe + "]", Logging.Teal);
+                                Logging.Log("Panic.ListPriorityTargets", "[" + target.Name + "][ID: " + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away] WARP[" + target.IsWarpScramblingMe + "] ECM[" + target.IsJammingMe + "] Damp[" + target.IsSensorDampeningMe + "] TP[" + target.IsTargetPaintingMe + "] NEUT[" + target.IsNeutralizingMe + "]", Logging.Teal);
                                 continue;
                             }
                         }
@@ -193,6 +192,7 @@ namespace Questor.Modules.BackgroundTasks
                 //       and the bot wont go into Panic mode while still "StartPanicking"
                 case PanicState.StartPanicking:
                 case PanicState.Panicking:
+
                     // Add any warp scramblers to the priority list
                     Cache.Instance.AddPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsWarpScramblingMe), Priority.WarpScrambler);
 
@@ -229,26 +229,25 @@ namespace Questor.Modules.BackgroundTasks
                             if (Cache.Instance.PriorityTargets.Any(pt => pt.IsWarpScramblingMe))
                             {
                                 EntityCache WarpScrambledBy = Cache.Instance.PriorityTargets.FirstOrDefault(pt => pt.IsWarpScramblingMe);
-                                if (WarpScrambledBy != null && DateTime.Now > _nextWarpScrambledWarning)
+                                if (WarpScrambledBy != null && DateTime.UtcNow > _nextWarpScrambledWarning)
                                 {
-                                    _nextWarpScrambledWarning = DateTime.Now.AddSeconds(20);
+                                    _nextWarpScrambledWarning = DateTime.UtcNow.AddSeconds(20);
                                     Logging.Log("Panic", "We are scrambled by: [" + Logging.White + WarpScrambledBy.Name + Logging.Orange + "][" + Logging.White + Math.Round(WarpScrambledBy.Distance, 0) + Logging.Orange + "][" + Logging.White + WarpScrambledBy.Id + Logging.Orange + "]",
                                                 Logging.Orange);
-                                    _lastWarpScrambled = DateTime.Now;
+                                    _lastWarpScrambled = DateTime.UtcNow;
                                 }
                             }
                             else
                             {
-                                if (DateTime.Now > Cache.Instance.NextWarpTo || DateTime.Now.Subtract(_lastWarpScrambled).TotalSeconds < Time.Instance.WarpScrambledNoDelay_seconds) //this will effectively spam warpto as soon as you are free of warp disruption if you were warp disrupted in the past 10 seconds)
+                                if (DateTime.UtcNow > Cache.Instance.NextWarpTo || DateTime.UtcNow.Subtract(_lastWarpScrambled).TotalSeconds < Time.Instance.WarpScrambledNoDelay_seconds) //this will effectively spam warpto as soon as you are free of warp disruption if you were warp disrupted in the past 10 seconds)
                                 {
                                     Logging.Log("Panic", "Warping to [" + station.Name + "][" + Math.Round((station.Distance / 1000) / 149598000, 2) + " AU away]", Logging.Red);
                                     Cache.Instance.IsMissionPocketDone = true;
                                     station.WarpToAndDock();
-                                    //_nextDock = DateTime.MinValue;
                                 }
                                 else
                                 {
-                                    Logging.Log("Panic", "Warping will be attempted again after [" + Math.Round(Cache.Instance.NextWarpTo.Subtract(DateTime.Now).TotalSeconds, 0) + "sec]", Logging.Red);
+                                    Logging.Log("Panic", "Warping will be attempted again after [" + Math.Round(Cache.Instance.NextWarpTo.Subtract(DateTime.UtcNow).TotalSeconds, 0) + "sec]", Logging.Red);
                                 }
 
                                 if (Cache.Instance.DirectEve.ActiveShip.GroupId == (int)Group.Capsule)
@@ -261,25 +260,25 @@ namespace Questor.Modules.BackgroundTasks
                         {
                             if (station.Distance < (int)Distance.DockingRange)
                             {
-                                if (DateTime.Now > Cache.Instance.NextDockAction)
+                                if (DateTime.UtcNow > Cache.Instance.NextDockAction)
                                 {
                                     Logging.Log("Panic", "Docking with [" + station.Name + "][" + Math.Round((station.Distance / 1000) / 149598000, 2) + " AU away]", Logging.Red);
                                     station.Dock();
                                 }
-                                else
+                                else if (Math.Round(Cache.Instance.NextUndockAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) > 2)
                                 {
-                                    Logging.Log("Panic", "Docking will be attempted in [" + Math.Round(Cache.Instance.NextUndockAction.Subtract(DateTime.Now).TotalSeconds, 0) + "sec]", Logging.Red);
+                                    Logging.Log("Panic", "Docking will be attempted in [" + Math.Round(Cache.Instance.NextUndockAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + "sec]", Logging.Red);
                                 }
                             }
                             else
                             {
-                                if (DateTime.Now > Cache.Instance.NextTravelerAction)
+                                if (DateTime.UtcNow > Cache.Instance.NextTravelerAction)
                                 {
                                     if (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != station.Id)
                                     {
                                         Logging.Log("Panic", "Approaching to [" + station.Name + "] which is [" + Math.Round(station.Distance / 1000, 0) + "k away]", Logging.Red);
                                         station.Approach();
-                                        Cache.Instance.NextTravelerAction = DateTime.Now.AddSeconds(Time.Instance.ApproachDelay_seconds);
+                                        Cache.Instance.NextTravelerAction = DateTime.UtcNow.AddSeconds(Time.Instance.ApproachDelay_seconds);
                                     }
                                     else
                                     {
@@ -288,7 +287,7 @@ namespace Questor.Modules.BackgroundTasks
                                 }
                                 else
                                 {
-                                    Logging.Log("Panic", "Approaching has been delayed for [" + Math.Round(Cache.Instance.NextWarpTo.Subtract(DateTime.Now).TotalSeconds, 0) + "sec]", Logging.Red);
+                                    Logging.Log("Panic", "Approaching has been delayed for [" + Math.Round(Cache.Instance.NextWarpTo.Subtract(DateTime.UtcNow).TotalSeconds, 0) + "sec]", Logging.Red);
                                 }
                             }
                         }
@@ -296,7 +295,7 @@ namespace Questor.Modules.BackgroundTasks
                     }
                     else if (Cache.Instance.InSpace)
                     {
-                        if (DateTime.Now.Subtract(Cache.Instance.LastLoggingAction).TotalSeconds > 15)
+                        if (DateTime.UtcNow.Subtract(Cache.Instance.LastLoggingAction).TotalSeconds > 15)
                         {
                             Logging.Log("Panic", "No station found in local?", Logging.Red);
                         }
@@ -314,16 +313,16 @@ namespace Questor.Modules.BackgroundTasks
                         if (Cache.Instance.TargetedBy.Any(t => t.IsWarpScramblingMe))
                         {
                             Logging.Log("Panic", "We are still warp scrambled!", Logging.Red); //This runs every 'tick' so we should see it every 1.5 seconds or so
-                            _lastWarpScrambled = DateTime.Now;
+                            _lastWarpScrambled = DateTime.UtcNow;
                         }
-                        else if (DateTime.Now > Cache.Instance.NextWarpTo | DateTime.Now.Subtract(_lastWarpScrambled).TotalSeconds < 10) //this will effectively spam warpto as soon as you are free of warp disruption if you were warp disrupted in the past 10 seconds
+                        else if (DateTime.UtcNow > Cache.Instance.NextWarpTo | DateTime.UtcNow.Subtract(_lastWarpScrambled).TotalSeconds < 10) //this will effectively spam warpto as soon as you are free of warp disruption if you were warp disrupted in the past 10 seconds
                         {
                             Logging.Log("Panic", "Warping to [" + Cache.Instance.Star.Name + "][" + Math.Round((Cache.Instance.Star.Distance / 1000) / 149598000, 2) + " AU away]", Logging.Red);
                             Cache.Instance.Star.WarpTo();
                         }
                         else
                         {
-                            Logging.Log("Panic", "Warping has been delayed for [" + Math.Round(Cache.Instance.NextWarpTo.Subtract(DateTime.Now).TotalSeconds, 0) + "sec]", Logging.Red);
+                            Logging.Log("Panic", "Warping has been delayed for [" + Math.Round(Cache.Instance.NextWarpTo.Subtract(DateTime.UtcNow).TotalSeconds, 0) + "sec]", Logging.Red);
                         }
                     }
                     else
@@ -334,6 +333,7 @@ namespace Questor.Modules.BackgroundTasks
                     break;
 
                 case PanicState.Panic:
+
                     // Do not resume until you're no longer in a capsule
                     if (Cache.Instance.DirectEve.ActiveShip.GroupId == (int)Group.Capsule)
                         break;
@@ -365,16 +365,17 @@ namespace Questor.Modules.BackgroundTasks
                     {
                         Logging.Log("Panic", "Delaying resume for " + _randomDelay + " seconds", Logging.Red);
                         Cache.Instance.IsMissionPocketDone = false;
-                        _resumeTime = DateTime.Now.AddSeconds(_randomDelay);
+                        _resumeTime = DateTime.UtcNow.AddSeconds(_randomDelay);
                     }
                     break;
 
                 case PanicState.DelayedResume:
-                    if (DateTime.Now > _resumeTime)
+                    if (DateTime.UtcNow > _resumeTime)
                         _States.CurrentPanicState = PanicState.Resume;
                     break;
 
                 case PanicState.Resume:
+
                     // Don't do anything here
                     break;
             }

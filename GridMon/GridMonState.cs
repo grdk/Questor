@@ -1,5 +1,4 @@
-﻿
-namespace GridMon
+﻿namespace GridMon
 {
     public enum GridMonState
     {
