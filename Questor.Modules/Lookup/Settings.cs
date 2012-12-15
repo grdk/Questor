@@ -205,7 +205,6 @@ namespace Questor.Modules.Lookup
         //
         public bool UseHomebookmark { get; set; }
 
-
         //
         // Storage location for loot, ammo, and bookmarks
         //
@@ -458,6 +457,13 @@ namespace Questor.Modules.Lookup
         public string EmailAddressToSendAlerts { get; set; }
 
         public bool? EmailEnableSSL { get; set; }
+
+        //
+        // Skill Training Settings
+        //
+        public bool ThisToonShouldBeTrainingSkills { get; set; } //as opposed to another toon on the same account
+
+        public string SkillTrainerScript { get; set; } //This needs to be in your "Innerspace\Scripts\" Directory
 
         //
         // path information - used to load the XML and used in other modules
@@ -865,6 +871,13 @@ namespace Questor.Modules.Lookup
                 EmailEnableSSL = false;
 
                 //
+                // Skill Training Settings
+                //
+                ThisToonShouldBeTrainingSkills = true;
+                //This needs to be in your "Innerspace\Scripts\" Directory
+                SkillTrainerScript = "";
+                    
+                //
                 // Clear various lists
                 //
                 Ammo.Clear();
@@ -1064,7 +1077,7 @@ namespace Questor.Modules.Lookup
                         CombatShipName = (string)xml.Element("combatShipName") ?? "My frigate of doom";
                         SalvageShipName = (string)xml.Element("salvageShipName") ?? "My Destroyer of salvage";
                         TransportShipName = (string)xml.Element("transportShipName") ?? "My Hauler of transportation";
-                        TravelShipName = (string)xml.Element ("travelShipName") ?? "My Shuttle of traveling";
+                        TravelShipName = (string)xml.Element("travelShipName") ?? "My Shuttle of traveling";
                     }
                     catch (Exception exception)
                     {
@@ -1324,6 +1337,12 @@ namespace Questor.Modules.Lookup
                     EmailAddressToSendAlerts = (string)xml.Element("emailAddressToSendAlerts") ?? "";
                     EmailEnableSSL = (bool?)xml.Element("emailEnableSSL") ?? false;
 
+                    //
+                    // Skill Training Settings
+                    //
+                    ThisToonShouldBeTrainingSkills = (bool?)xml.Element("thisToonShouldBeTrainingSkills") ?? true;
+                    //This needs to be in your "Innerspace\Scripts\" Directory
+                    SkillTrainerScript = (string)xml.Element("skillTrainerScript") ?? "skilltrainer.iss";
                     //
                     // number of days of console logs to keep (anything older will be deleted on startup)
                     //

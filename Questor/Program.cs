@@ -141,7 +141,65 @@ namespace Questor
             //
             if (!string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_password) && !string.IsNullOrEmpty(_character))
             {
-                LoginUsingUserNamePassword();
+                _readyToStart = true;
+            }
+
+            try
+            {
+                _directEve = new DirectEve();
+            }
+            catch (Exception ex)
+            {
+                Logging.Log("Startup", "Error on Loading DirectEve, maybe server is down", Logging.Orange);
+                Logging.Log("Startup", string.Format("DirectEVE: Exception {0}...", ex), Logging.White);
+                Cache.Instance.CloseQuestorCMDLogoff = false;
+                Cache.Instance.CloseQuestorCMDExitGame = true;
+                Cache.Instance.CloseQuestorEndProcess = true;
+                Settings.Instance.AutoStart = true;
+                Cache.Instance.ReasonToStopQuestor = "Error on Loading DirectEve, maybe server is down";
+                Cache.Instance.SessionState = "Quitting";
+                Cleanup.CloseQuestor();
+            }
+
+            try
+            {
+                if (_directEve.HasSupportInstances())
+                {
+                    Logging.Log("Startup", "You have a valid directeve.lic file and have instances available", Logging.Orange);
+                }
+                else
+                {
+                    Logging.Log("Startup", "You have 0 Support Instances available [ _directEve.HasSupportInstances() is false ]", Logging.Orange);
+                }
+
+            }
+            catch (Exception exception)
+            {
+                Logging.Log("Questor", "Exception while checking: _directEve.HasSupportInstances() - exception was: [" + exception + "]", Logging.Orange);
+            }
+
+            try
+            {
+                _directEve.OnFrame += OnFrame;
+            }
+            catch (Exception ex)
+            {
+                Logging.Log("Startup", string.Format("DirectEVE.OnFrame: Exception {0}...", ex), Logging.White);
+            }
+
+            // Sleep until we're done
+            while (!_done)
+            {
+                System.Threading.Thread.Sleep(50); //this runs while we wait to login
+            }
+
+            try
+            {
+                _directEve.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Logging.Log("Startup", string.Format("DirectEVE.Dispose: Exception {0}...", ex), Logging.White);
             }
 
             if (_done) //this is just here for clarity, we are really held up in LoginUsingScheduler() or LoginUsingUserNamePassword(); until done == true
@@ -303,9 +361,14 @@ namespace Questor
                 Logging.Log("Startup", "Starting at " + StartTime + ". " + String.Format("{0:0.##}", _minutesToStart) + " minutes to go.", Logging.Yellow);
                 Timer.Elapsed += new ElapsedEventHandler(TimerEventProcessor);
                 if (_minutesToStart > 0)
+                {
                     Timer.Interval = (int)(_minutesToStart * 60000);
+                }
                 else
+                {
                     Timer.Interval = 1000;
+                }
+
                 Timer.Enabled = true;
                 Timer.Start();
             }
@@ -319,91 +382,6 @@ namespace Questor
             //
             // chantling scheduler (above)
             //
-            try
-            {
-                _directEve = new DirectEve();
-            }
-            catch (Exception ex)
-            {
-                Logging.Log("Startup", "Error on Loading DirectEve, maybe server is down", Logging.Orange);
-                Logging.Log("Startup", string.Format("DirectEVE: Exception {0}...", ex), Logging.White);
-                Cache.Instance.CloseQuestorCMDLogoff = false;
-                Cache.Instance.CloseQuestorCMDExitGame = true;
-                Cache.Instance.CloseQuestorEndProcess = true;
-                Settings.Instance.AutoStart = true;
-                Cache.Instance.ReasonToStopQuestor = "Error on Loading DirectEve, maybe server is down";
-                Cache.Instance.SessionState = "Quitting";
-                Cleanup.CloseQuestor();
-            }
-
-            try
-            {
-                _directEve.OnFrame += OnFrame;
-            }
-            catch (Exception ex)
-            {
-                Logging.Log("Startup", string.Format("DirectEVE.OnFrame: Exception {0}...", ex), Logging.White);
-            }
-
-            while (!_done)
-            {
-                System.Threading.Thread.Sleep(50); //this runs while we wait to login
-            }
-
-            try
-            {
-                _directEve.Dispose();
-            }
-            catch (Exception ex)
-            {
-                Logging.Log("Startup", string.Format("DirectEVE.Dispose: Exception {0}...", ex), Logging.White);
-            }
-        }
-
-        private static void LoginUsingUserNamePassword()
-        {
-            _readyToStart = true;
-
-            try
-            {
-                _directEve = new DirectEve();
-            }
-            catch (Exception ex)
-            {
-                Logging.Log("Startup", "Error on Loading DirectEve, maybe server is down", Logging.Orange);
-                Logging.Log("Startup", string.Format("DirectEVE: Exception {0}...", ex), Logging.White);
-                Cache.Instance.CloseQuestorCMDLogoff = false;
-                Cache.Instance.CloseQuestorCMDExitGame = true;
-                Cache.Instance.CloseQuestorEndProcess = true;
-                Settings.Instance.AutoStart = true;
-                Cache.Instance.ReasonToStopQuestor = "Error on Loading DirectEve, maybe server is down";
-                Cache.Instance.SessionState = "Quitting";
-                Cleanup.CloseQuestor();
-            }
-
-            try
-            {
-                _directEve.OnFrame += OnFrame;
-            }
-            catch (Exception ex)
-            {
-                Logging.Log("Startup", string.Format("DirectEVE.OnFrame: Exception {0}...", ex), Logging.White);
-            }
-
-            // Sleep until we're done
-            while (!_done)
-            {
-                System.Threading.Thread.Sleep(50); //this runs while we wait to login
-            }
-
-            try
-            {
-                _directEve.Dispose();
-            }
-            catch (Exception ex)
-            {
-                Logging.Log("Startup", string.Format("DirectEVE.Dispose: Exception {0}...", ex), Logging.White);
-            }
         }
 
         private static void OnFrame(object sender, EventArgs e)
@@ -672,12 +650,12 @@ namespace Questor
 
             if (_directEve.Login.AtLogin && !_directEve.Login.IsLoading && !_directEve.Login.IsConnecting)
             {
-                //if (!_directEve.HasSupportInstances())
-                //{
-                //    Logging.Log("Startup", "DirectEVE Requires Active Support Instances to use the convenient like Auto-Login, Market Functions (Valuedump and Market involving storylines) among other features.", Logging.White);
-                //    Logging.Log("Startup", "Make sure you have support instances and that you have downloaded your directeve.lic file and placed it in the .net programs folder with your directeve.dll", Logging.White);
-                //    _humanInterventionRequired = true;
-                //}
+                if (!_directEve.HasSupportInstances())
+                {
+                    Logging.Log("Startup", "DirectEVE Requires Active Support Instances to use the convenient like Auto-Login, Market Functions (Valuedump and Market involving storylines) among other features.", Logging.White);
+                    Logging.Log("Startup", "Make sure you have support instances and that you have downloaded your directeve.lic file and placed it in the .net programs folder with your directeve.dll", Logging.White);
+                    _humanInterventionRequired = true;
+                }
 
                 if (DateTime.UtcNow.Subtract(AppStarted).TotalSeconds > 5)
                 {

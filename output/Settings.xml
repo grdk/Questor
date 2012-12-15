@@ -6,32 +6,32 @@
   
   <debugActivateGate>false</debugActivateGate>
   <debugActivateWeapons>false</debugActivateWeapons>
-  <DebugAgentInteractionReplyToAgent>false</DebugAgentInteractionReplyToAgent>
+  <debugAgentInteractionReplyToAgent>false</DebugAgentInteractionReplyToAgent>
   <debugAllMissionsOnBlackList>false</debugAllMissionsOnBlackList>
   <debugAllMissionsOnGreyList>false</debugAllMissionsOnGreyList>
   <debugArm>false</debugArm>
   <debugAttachVSDebugger>false</debugAttachVSDebugger>
   <debugAutoStart>false</debugAutoStart>
-  <DebugBlackList>false</DebugBlackList>
-  <DebugCargoHold>false</DebugCargoHold>
+  <debugBlackList>false</debugBlackList>
+  <debugCargoHold>false</debugCargoHold>
   <debugCleanup>false</debugCleanup>
   <debugDecline>false</debugDecline>
   <debugDefense>false</debugDefense>
   <debugDroneHealth>false</debugDroneHealth>
   <debugExceptions>false</debugExceptions>
-  <DebugFittingMgr>false</DebugFittingMgr>
+  <debugFittingMgr>false</debugFittingMgr>
   <debugGotobase>false</debugGotobase>
-  <DebugGreyList>false</DebugGreyList>
+  <debugGreyList>false</debugGreyList>
   <debugHangars>false</debugHangars>
   <debugIdle>false</debugIdle>
   <debugItemHangar>false</debugItemHangar>
   <debugLoadScripts>false</debugLoadScripts>
   <debugLogging>false</debugLogging>
   <debugLootWrecks>false</debugLootWrecks>
-  <DebugLootValue>false</DebugLootValue>
-  <DebugMaintainConsoleLogs>false</DebugMaintainConsoleLogs>
-  <DebugMissionFittings>false</DebugMissionFittings>
-  <DebugMoveTo>false</DebugMoveTo>
+  <debugLootValue>false</debugLootValue>
+  <debugMaintainConsoleLogs>false</debugMaintainConsoleLogs>
+  <debugMissionFittings>false</debugMissionFittings>
+  <debugMoveTo>false</debugMoveTo>
   <debugNavigateOnGrid>false</debugNavigateOnGrid>
   <debugOnframe>false</debugOnframe>
   <debugPerformance>false</debugPerformance>
@@ -42,9 +42,9 @@
   <debugScheduler>false</debugScheduler>
   <debugStates>false</debugStates>
   <debugStatistics>false</debugStatistics>
-  <DebugStorylineMissions>false</DebugStorylineMissions>
+  <debugStorylineMissions>false</debugStorylineMissions>
   <debugTraveler>false</debugTraveler>
-  <DebugTractorBeams>false</DebugTractorBeams>
+  <debugTractorBeams>false</debugTractorBeams>
   <debugUI>false</debugUI>
   <debugUnloadLoot>false</debugUnloadLoot>
   <debugValuedump>false</debugValuedump>
@@ -438,7 +438,7 @@
   <dronesKillHighValueTargets>false</dronesKillHighValueTargets>
 
   <!--                                                        -->
-  <!-- EMAIL SETTINGS -->
+  <!-- EMAIL SETTINGS                         -->
   <!--                                                        -->
   <emailSupport>false</emailSupport>
   <emailAddress></emailAddress>
@@ -449,8 +449,14 @@
   <emailEnableSSL>false</emailEnableSSL>
   
   <!--                                                        -->
-  <!-- MISSION BLACKLIST SETTINGS -->
+  <!-- SKILL TRAINING SETTINGS       -->
   <!--                                                        -->
+  <!-- If there is another toon on this account training at the moment this should be false -->
+  <thisToonShouldBeTrainingSkills>true</thisToonShouldBeTrainingSkills>
+  
+  <!--                                                          -->
+  <!-- MISSION BLACKLIST SETTINGS  -->
+  <!--                                                          -->
 
     <!-- List of factions which the bot will try to avoid -->
   <factionblacklist>

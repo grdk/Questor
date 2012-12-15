@@ -765,6 +765,27 @@ namespace Questor.Behaviors
                     Cache.Instance.Paused = true;
                     break;
 
+                case DebugHangarsBehaviorState.OpenInventory:
+                    Logging.Log("DebugHangars", "DebugHangarsState.OpenInventory:", Logging.White);
+                    if (!Cache.Instance.OpenInventoryWindow("DebugHangarsState.OpenInventoryWindow")) return;
+                    _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;
+                    Cache.Instance.Paused = true;
+                    break;
+
+                case DebugHangarsBehaviorState.ListInvTree:
+                    Logging.Log("DebugHangars", "DebugHangarsState.ListInvTree:", Logging.White);
+                    if (!Cache.Instance.ListInvTree("DebugHangarsState.ListInvTree")) return;
+                    _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;
+                    Cache.Instance.Paused = true;
+                    break;
+
+                case DebugHangarsBehaviorState.OpenOreHold:
+                    Logging.Log("DebugHangars", "DebugHangarsState.OpenOreHold:", Logging.White);
+                    if (!Cache.Instance.OpenOreHold("DebugHangarsState.OpenOreHold")) return;
+                    _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;
+                    Cache.Instance.Paused = true;
+                    break;
+
                 case DebugHangarsBehaviorState.Default:
                     break;
             }

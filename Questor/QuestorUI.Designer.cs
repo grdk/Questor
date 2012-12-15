@@ -211,6 +211,8 @@
             this.ScheduleWarninglabel1 = new System.Windows.Forms.Label();
             this.ExitWhenIdleCheckBox = new System.Windows.Forms.CheckBox();
             this.tabStates = new System.Windows.Forms.TabPage();
+            this.bttnLogContainersOnGrid = new System.Windows.Forms.Button();
+            this.bttnLogEntitiesOnGrid = new System.Windows.Forms.Button();
             this.bttnResizeEVEWindow = new System.Windows.Forms.Button();
             this.btnSendTestEmail = new System.Windows.Forms.Button();
             this.bttnMaintainConsoleLogs = new System.Windows.Forms.Button();
@@ -554,8 +556,9 @@
             this.label273 = new System.Windows.Forms.Label();
             this.label274 = new System.Windows.Forms.Label();
             this.tabLowSlots = new System.Windows.Forms.TabPage();
-            this.bttnLogEntitiesOnGrid = new System.Windows.Forms.Button();
-            this.bttnLogContainersOnGrid = new System.Windows.Forms.Button();
+            this.bttnOpenInventory = new System.Windows.Forms.Button();
+            this.bttnOpenOreHold = new System.Windows.Forms.Button();
+            this.bttnListInvTree = new System.Windows.Forms.Button();
             this.tabMiscInfo.SuspendLayout();
             this.tabTimeStamps.SuspendLayout();
             this.tabMissions.SuspendLayout();
@@ -2374,6 +2377,26 @@
             this.tabStates.Text = "States";
             this.tabStates.UseVisualStyleBackColor = true;
             // 
+            // bttnLogContainersOnGrid
+            // 
+            this.bttnLogContainersOnGrid.Location = new System.Drawing.Point(544, 218);
+            this.bttnLogContainersOnGrid.Name = "bttnLogContainersOnGrid";
+            this.bttnLogContainersOnGrid.Size = new System.Drawing.Size(131, 23);
+            this.bttnLogContainersOnGrid.TabIndex = 175;
+            this.bttnLogContainersOnGrid.Text = "Log Containers on Grid";
+            this.bttnLogContainersOnGrid.UseVisualStyleBackColor = true;
+            this.bttnLogContainersOnGrid.Click += new System.EventHandler(this.bttnLogContainersOnGrid_Click);
+            // 
+            // bttnLogEntitiesOnGrid
+            // 
+            this.bttnLogEntitiesOnGrid.Location = new System.Drawing.Point(544, 189);
+            this.bttnLogEntitiesOnGrid.Name = "bttnLogEntitiesOnGrid";
+            this.bttnLogEntitiesOnGrid.Size = new System.Drawing.Size(131, 23);
+            this.bttnLogEntitiesOnGrid.TabIndex = 174;
+            this.bttnLogEntitiesOnGrid.Text = "Log Entities on Grid";
+            this.bttnLogEntitiesOnGrid.UseVisualStyleBackColor = true;
+            this.bttnLogEntitiesOnGrid.Click += new System.EventHandler(this.bttnLogEntitiesOnGrid_Click);
+            // 
             // bttnResizeEVEWindow
             // 
             this.bttnResizeEVEWindow.Location = new System.Drawing.Point(544, 135);
@@ -2844,6 +2867,9 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.bttnListInvTree);
+            this.groupBox2.Controls.Add(this.bttnOpenOreHold);
+            this.groupBox2.Controls.Add(this.bttnOpenInventory);
             this.groupBox2.Controls.Add(this.bttnQueryLootHangarID);
             this.groupBox2.Controls.Add(this.bttnQueryAmmoHangarID);
             this.groupBox2.Location = new System.Drawing.Point(552, 11);
@@ -2855,9 +2881,9 @@
             // 
             // bttnQueryLootHangarID
             // 
-            this.bttnQueryLootHangarID.Location = new System.Drawing.Point(9, 59);
+            this.bttnQueryLootHangarID.Location = new System.Drawing.Point(9, 48);
             this.bttnQueryLootHangarID.Name = "bttnQueryLootHangarID";
-            this.bttnQueryLootHangarID.Size = new System.Drawing.Size(114, 34);
+            this.bttnQueryLootHangarID.Size = new System.Drawing.Size(114, 23);
             this.bttnQueryLootHangarID.TabIndex = 150;
             this.bttnQueryLootHangarID.Text = "Get LootHangarID";
             this.bttnQueryLootHangarID.UseVisualStyleBackColor = true;
@@ -2867,7 +2893,7 @@
             // 
             this.bttnQueryAmmoHangarID.Location = new System.Drawing.Point(9, 19);
             this.bttnQueryAmmoHangarID.Name = "bttnQueryAmmoHangarID";
-            this.bttnQueryAmmoHangarID.Size = new System.Drawing.Size(114, 34);
+            this.bttnQueryAmmoHangarID.Size = new System.Drawing.Size(114, 23);
             this.bttnQueryAmmoHangarID.TabIndex = 149;
             this.bttnQueryAmmoHangarID.Text = "Get AmmoHangarID";
             this.bttnQueryAmmoHangarID.UseVisualStyleBackColor = true;
@@ -5860,25 +5886,35 @@
             this.tabLowSlots.Text = "LowSlots";
             this.tabLowSlots.UseVisualStyleBackColor = true;
             // 
-            // bttnLogEntitiesOnGrid
+            // bttnOpenInventory
             // 
-            this.bttnLogEntitiesOnGrid.Location = new System.Drawing.Point(544, 189);
-            this.bttnLogEntitiesOnGrid.Name = "bttnLogEntitiesOnGrid";
-            this.bttnLogEntitiesOnGrid.Size = new System.Drawing.Size(131, 23);
-            this.bttnLogEntitiesOnGrid.TabIndex = 174;
-            this.bttnLogEntitiesOnGrid.Text = "Log Entities on Grid";
-            this.bttnLogEntitiesOnGrid.UseVisualStyleBackColor = true;
-            this.bttnLogEntitiesOnGrid.Click += new System.EventHandler(this.bttnLogEntitiesOnGrid_Click);
+            this.bttnOpenInventory.Location = new System.Drawing.Point(9, 77);
+            this.bttnOpenInventory.Name = "bttnOpenInventory";
+            this.bttnOpenInventory.Size = new System.Drawing.Size(114, 23);
+            this.bttnOpenInventory.TabIndex = 151;
+            this.bttnOpenInventory.Text = "Open Inventory";
+            this.bttnOpenInventory.UseVisualStyleBackColor = true;
+            this.bttnOpenInventory.Click += new System.EventHandler(this.bttnOpenInventory_Click);
             // 
-            // bttnLogContainersOnGrid
+            // bttnOpenOreHold
             // 
-            this.bttnLogContainersOnGrid.Location = new System.Drawing.Point(544, 218);
-            this.bttnLogContainersOnGrid.Name = "bttnLogContainersOnGrid";
-            this.bttnLogContainersOnGrid.Size = new System.Drawing.Size(131, 23);
-            this.bttnLogContainersOnGrid.TabIndex = 175;
-            this.bttnLogContainersOnGrid.Text = "Log Containers on Grid";
-            this.bttnLogContainersOnGrid.UseVisualStyleBackColor = true;
-            this.bttnLogContainersOnGrid.Click += new System.EventHandler(this.bttnLogContainersOnGrid_Click);
+            this.bttnOpenOreHold.Location = new System.Drawing.Point(9, 135);
+            this.bttnOpenOreHold.Name = "bttnOpenOreHold";
+            this.bttnOpenOreHold.Size = new System.Drawing.Size(114, 24);
+            this.bttnOpenOreHold.TabIndex = 152;
+            this.bttnOpenOreHold.Text = "Open OreHold";
+            this.bttnOpenOreHold.UseVisualStyleBackColor = true;
+            this.bttnOpenOreHold.Click += new System.EventHandler(this.bttnOpenOreHold_Click);
+            // 
+            // bttnListInvTree
+            // 
+            this.bttnListInvTree.Location = new System.Drawing.Point(9, 106);
+            this.bttnListInvTree.Name = "bttnListInvTree";
+            this.bttnListInvTree.Size = new System.Drawing.Size(114, 23);
+            this.bttnListInvTree.TabIndex = 153;
+            this.bttnListInvTree.Text = "List InvTree";
+            this.bttnListInvTree.UseVisualStyleBackColor = true;
+            this.bttnListInvTree.Click += new System.EventHandler(this.bttnListInvTree_Click);
             // 
             // QuestorfrmMain
             // 
@@ -6487,6 +6523,9 @@
         private System.Windows.Forms.Button bttnResizeEVEWindow;
         private System.Windows.Forms.Button bttnLogContainersOnGrid;
         private System.Windows.Forms.Button bttnLogEntitiesOnGrid;
+        private System.Windows.Forms.Button bttnOpenOreHold;
+        private System.Windows.Forms.Button bttnOpenInventory;
+        private System.Windows.Forms.Button bttnListInvTree;
     }
 }
 

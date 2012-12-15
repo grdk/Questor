@@ -1680,5 +1680,31 @@ namespace Questor
             Logging.Log("QuestorUI", "Statistics.EntityStatistics(Cache.Instance.Containers); Routine.", Logging.Debug);
             Statistics.EntityStatistics(Cache.Instance.Containers);
         }
+
+        private void bttnOpenOreHold_Click(object sender, EventArgs e)
+        {
+            Logging.Log("QuestorUI", "Open OreHold button was pressed", Logging.Debug);
+            Cache.Instance.OpenOreHold("OpenOreHold");
+        }
+
+        private void bttnOpenInventory_Click(object sender, EventArgs e)
+        {
+            Logging.Log("QuestorUI", "Open Inventory button was pressed", Logging.Debug);
+            //Cache.Instance.OpenInventoryWindow("OpenInventory");
+
+            Cache.Instance.Paused = false;
+            _States.CurrentQuestorState = QuestorState.DebugHangarsBehavior;
+            _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.OpenInventory;
+        }
+
+        private void bttnListInvTree_Click(object sender, EventArgs e)
+        {
+            Logging.Log("QuestorUI", "List InvTree button was pressed", Logging.Debug);
+            //Cache.Instance.ListInvTree("ListInvTree");
+
+            Cache.Instance.Paused = false;
+            _States.CurrentQuestorState = QuestorState.DebugHangarsBehavior;
+            _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.ListInvTree;
+        }
     }
 }

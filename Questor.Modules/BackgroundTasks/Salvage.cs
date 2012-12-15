@@ -717,7 +717,6 @@ namespace Questor.Modules.BackgroundTasks
                         if (duplicates)
                         {
                             _States.CurrentSalvageState = SalvageState.StackItems;
-                            Cache.Instance.NextSalvageAction = DateTime.UtcNow.AddSeconds(Time.Instance.SalvageStackItems_seconds);
                         }
                     }
                     break;
@@ -742,6 +741,7 @@ namespace Questor.Modules.BackgroundTasks
                     {
                         Logging.Log("Salvage", "Done stacking", Logging.White);
                         _States.CurrentSalvageState = SalvageState.TargetWrecks;
+                        Cache.Instance.NextSalvageAction = DateTime.UtcNow.AddSeconds(Time.Instance.SalvageStackItems_seconds);
                         break;
                     }
 
@@ -752,6 +752,7 @@ namespace Questor.Modules.BackgroundTasks
 
                         Logging.Log("Salvage", "Done stacking", Logging.White);
                         _States.CurrentSalvageState = SalvageState.TargetWrecks;
+                        Cache.Instance.NextSalvageAction = DateTime.UtcNow.AddSeconds(Time.Instance.SalvageStackItems_seconds);
                         break;
                     }
                     break;

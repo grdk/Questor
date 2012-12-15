@@ -253,15 +253,15 @@ namespace Questor.Modules.Combat
                     {
                         if (DateTime.UtcNow.Subtract(_launchTimeout).TotalSeconds > 10)
                         {
-                            // Relaunch if tries < 10
-                            if (_launchTries < 10)
+                            // Relaunch if tries < 5
+                            if (_launchTries < 5)
                             {
                                 _launchTries++;
                                 _States.CurrentDroneState = DroneState.Launch;
                                 break;
                             }
-                            else
-                                _States.CurrentDroneState = DroneState.OutOfDrones;
+
+                            _States.CurrentDroneState = DroneState.OutOfDrones;
                         }
                         break;
                     }
@@ -276,10 +276,22 @@ namespace Questor.Modules.Combat
 
                 case DroneState.OutOfDrones:
 
-                    //if (DateTime.UtcNow.Subtract(_launchTimeout).TotalSeconds > 1000)
-                    //{
-                    //    State = DroneState.WaitingForTargets;
-                    //}
+                    if (Settings.Instance.UseDrones && Settings.Instance.CharacterMode == "CombatMissions" && _States.CurrentCombatMissionBehaviorState == CombatMissionsBehaviorState.ExecuteMission)
+                    {
+                        if (Statistics.Instance.OutOfDronesCount >= 3)
+                        {
+                            Logging.Log("Drones", "We are Out of Drones! AGAIN - Headed back to base to stay!", Logging.Red);
+                            _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.GotoBase;
+                            Statistics.Instance.MissionCompletionErrors = 10; //this effectively will stop questor in station so we do not try to do this mission again, this needs human intervention if we have lots this many drones
+                            Statistics.Instance.OutOfDronesCount++;
+                        }
+
+                        Logging.Log("Drones","We are Out of Drones! - Headed back to base to Re-Arm",Logging.Red);
+                        _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.GotoBase;
+                        Statistics.Instance.OutOfDronesCount++;
+                        return;
+                    }
+
                     TargetingCache.CurrentDronesTarget = null;
                     break;
 

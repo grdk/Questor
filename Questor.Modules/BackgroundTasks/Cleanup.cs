@@ -705,10 +705,13 @@
                         _States.CurrentQuestorState == QuestorState.CombatHelperBehavior ||
                         _States.CurrentQuestorState == QuestorState.DedicatedBookmarkSalvagerBehavior ||
                         _States.CurrentQuestorState == QuestorState.Idle ||
-                        _States.CurrentQuestorState == QuestorState.Cleanup) && 
-                        Settings.Instance.CharacterName != Cache.Instance.DirectEve.Me.Name 
+                        _States.CurrentQuestorState == QuestorState.Cleanup) &&
+                        string.Compare(Settings.Instance.CharacterName.ToUpperInvariant(), Cache.Instance.DirectEve.Me.Name.ToUpperInvariant(), StringComparison.OrdinalIgnoreCase) == 0 &&
                        )
                     {
+                        Logging.Log("Cleanup", "DebugInfo:  Settings.Instance.CharacterName [" + Settings.Instance.CharacterName + "]", Logging.White);
+                        Logging.Log("Cleanup", "DebugInfo: Cache.Instance.DirectEve.Me.Name [" + Cache.Instance.DirectEve.Me.Name + "]", Logging.White);
+
                         Logging.Log("Cleanup", "CharacterName not defined! - Are we still logged in? Did we lose connection to eve? Questor should be restarting here.", Logging.White);
                         Settings.Instance.CharacterName = "NoCharactersLoggedInAnymore";
                         Cache.Instance.EnteredCloseQuestor_DateTime = DateTime.UtcNow;
