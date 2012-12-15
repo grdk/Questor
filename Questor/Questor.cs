@@ -229,7 +229,7 @@ namespace Questor
         public static bool SkillQueueCheck()
         {
             if (DateTime.UtcNow < Cache.Instance.NextSkillsCheckAction)
-                return false;
+                return true;
 
             if (Cache.Instance.DirectEve.HasSupportInstances() && Settings.Instance.ThisToonShouldBeTrainingSkills)
             {
