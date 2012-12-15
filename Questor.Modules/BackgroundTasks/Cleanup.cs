@@ -706,7 +706,7 @@
                         _States.CurrentQuestorState == QuestorState.DedicatedBookmarkSalvagerBehavior ||
                         _States.CurrentQuestorState == QuestorState.Idle ||
                         _States.CurrentQuestorState == QuestorState.Cleanup) &&
-                        string.Compare(Settings.Instance.CharacterName.ToUpperInvariant(), Cache.Instance.DirectEve.Me.Name.ToUpperInvariant(), StringComparison.OrdinalIgnoreCase) == 0 &&
+                        string.Compare(Settings.Instance.CharacterName.ToUpperInvariant(), Cache.Instance.DirectEve.Me.Name.ToUpperInvariant(), StringComparison.OrdinalIgnoreCase) == 0
                        )
                     {
                         Logging.Log("Cleanup", "DebugInfo:  Settings.Instance.CharacterName [" + Settings.Instance.CharacterName + "]", Logging.White);
