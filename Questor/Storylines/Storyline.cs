@@ -92,7 +92,7 @@
                                /* COMBAT - AMARR */
                                {"Blood Farm", new GenericCombatStoryline()},
                                {"Dissidents", new GenericCombatStoryline()},
-                               {"Extract the Renegade", new GenericCombatStoryline()},
+                               //{"Extract the Renegade", new GenericCombatStoryline()},
                                {"Gate to Nowhere", new GenericCombatStoryline()},
                                {"Racetrack Ruckus", new GenericCombatStoryline()},
                                {"Jealous Rivals", new GenericCombatStoryline()},
