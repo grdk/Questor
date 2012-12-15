@@ -756,7 +756,7 @@ namespace Questor.Modules.Actions
                 // (any lower and we might lose access to this agent)
                 // and no other agents are NOT available (or are also in cooldown)
                 //
-                if (Settings.Instance.WaitDecline)
+                if (Settings.Instance.WaitDecline || (Settings.Instance.WaitDecline && Settings.Instance.MultiAgentSupport && Cache.Instance.AllAgentsStillInDeclineCoolDown))
                 {
                     //
                     // if true we ALWAYS wait (or switch agents?!?)
@@ -774,8 +774,13 @@ namespace Questor.Modules.Actions
                 if (Cache.Instance.AgentEffectiveStandingtoMe <= Settings.Instance.MinAgentBlackListStandings)
                 {
                     if (Settings.Instance.DebugDecline) Logging.Log("AgentInteraction", "if (Cache.Instance.AgentEffectiveStandingtoMe <= Settings.Instance.MinAgentBlackListStandings)", Logging.Debug);
+                    
+                    //
+                    // If we have multiple agents defined - switch agents
+                    //
                     if (Settings.Instance.MultiAgentSupport)
                     {
+                        //TODO - We should probably check if there are other agents who's effective standing is above the minAgentBlackListStanding.
                         if (Settings.Instance.DebugDecline) Logging.Log("AgentInteraction", "if (Settings.Instance.MultiAgentSupport)", Logging.Debug);
                         if (Cache.Instance.AllAgentsStillInDeclineCoolDown)
                         {
@@ -788,24 +793,29 @@ namespace Questor.Modules.Actions
                             _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
                             return;
                         }
-
-                        //
-                        //Change Agents
-                        //
-                        if (currentAgent != null) currentAgent.DeclineTimer = DateTime.UtcNow.AddSeconds(secondsToWait);
-                        CloseConversation();
-
-                        Cache.Instance.CurrentAgent = Cache.Instance.SwitchAgent;
-                        Cache.Instance.CurrentAgentText = Cache.Instance.CurrentAgent.ToString(CultureInfo.InvariantCulture);
-                        Logging.Log("AgentInteraction", "new agent is " + Cache.Instance.CurrentAgent, Logging.Yellow);
-                        _States.CurrentAgentInteractionState = AgentInteractionState.ChangeAgent;
-                        return;
                     }
 
                     _nextAgentAction = DateTime.UtcNow.AddSeconds(secondsToWait);
                     Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + "] at or below configured minimum of [" + Settings.Instance.MinAgentBlackListStandings + "].  Waiting " + (secondsToWait / 60) + " minutes to try decline again.", Logging.Yellow);
                     CloseConversation();
                     _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
+                    return;
+                }
+
+                if (Settings.Instance.MultiAgentSupport && !Cache.Instance.AllAgentsStillInDeclineCoolDown)
+                {
+                    if (Settings.Instance.DebugDecline) Logging.Log("AgentInteraction", "if (Settings.Instance.MultiAgentSupport)", Logging.Debug);
+
+                    //
+                    //Change Agents
+                    //
+                    if (currentAgent != null) currentAgent.DeclineTimer = DateTime.UtcNow.AddSeconds(secondsToWait);
+                    CloseConversation();
+
+                    Cache.Instance.CurrentAgent = Cache.Instance.SwitchAgent;
+                    Cache.Instance.CurrentAgentText = Cache.Instance.CurrentAgent.ToString(CultureInfo.InvariantCulture);
+                    Logging.Log("AgentInteraction", "new agent is " + Cache.Instance.CurrentAgent, Logging.Yellow);
+                    _States.CurrentAgentInteractionState = AgentInteractionState.ChangeAgent;
                     return;
                 }
 
