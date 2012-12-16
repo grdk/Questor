@@ -86,7 +86,7 @@ namespace Questor.Modules.BackgroundTasks
                 return;
             }
 
-            List<ModuleCache> tractorBeams = Cache.Instance.Modules.Where(m => TractorBeams.Contains(m.TypeId)).ToList();
+            List<ModuleCache> tractorBeams = Cache.Instance.Modules.Where(m => m.TypeId == (int)Group.TractorBeam).ToList();
             if (tractorBeams.Count == 0)
                 return;
 
