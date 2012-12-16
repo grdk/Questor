@@ -579,13 +579,19 @@ namespace Questor.Modules.Actions
                 if (Settings.Instance.DebugDecline) Logging.Log("AgentInteraction", "[" + MissionName + "] is not in lowsec so we will do the mission", Logging.White);
             }
 
-            if (MissionName == "Enemies Abound (2 of 5)" || MissionName == "In the Midst of Deadspace (2 of 5)")
+            switch(MissionName)
             {
-                Cache.Instance.CourierMission = true;
-            }
-            else
-            {
-                Cache.Instance.CourierMission = false;
+                case "Enemies Abound (2 of 5)":
+                    Cache.Instance.CourierMission = true;
+                    break;
+
+                case "In the Midst of Deadspace (2 of 5)":
+                    Cache.Instance.CourierMission = true;
+                    break;
+
+                default:
+                    Cache.Instance.CourierMission = false;
+                    break;
             }
 
             if (!ForceAccept)
