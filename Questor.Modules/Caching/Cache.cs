@@ -694,6 +694,20 @@ namespace Questor.Modules.Caching
             }
         }
 
+        private DateTime _nextTractorBeamAction = DateTime.UtcNow;
+
+        public DateTime NextTractorBeamAction
+        {
+            get
+            {
+                return _nextTractorBeamAction;
+            }
+            set
+            {
+                _nextTractorBeamAction = value;
+                _lastAction = DateTime.UtcNow;
+            }
+        }
         private DateTime _nextLootAction = DateTime.UtcNow;
 
         public DateTime NextLootAction
@@ -1900,6 +1914,7 @@ namespace Questor.Modules.Caching
             path = path.Replace("<", "");
             path = path.Replace(".", "");
             path = path.Replace(",", "");
+            path = path.Replace("'", "");
             while (path.IndexOf("  ", System.StringComparison.Ordinal) >= 0)
                 path = path.Replace("  ", " ");
             return path.Trim();

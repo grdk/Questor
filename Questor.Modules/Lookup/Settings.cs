@@ -109,6 +109,9 @@ namespace Questor.Modules.Lookup
 
         public bool DebugStatistics { get; set; }
         public bool DebugStorylineMissions { get; set; }
+
+        public bool DebugTargetWrecks { get; set; }
+
         public bool DebugTractorBeams { get; set; }
         public bool DebugTraveler { get; set; }
         public bool DebugUI { get; set; }
@@ -150,7 +153,9 @@ namespace Questor.Modules.Lookup
         public float MinAgentGreyListStandings { get; set; }
         public string MissionsPath { get; set; }
         public bool RequireMissionXML { get; set; }
-        public bool LowSecMissionsInShuttles { get; set; }
+
+        public bool AllowNonStorylineCourierMissionsInLowSec { get; set; }
+
         public bool WaitDecline { get; set; }
         public bool MultiAgentSupport { get; private set; }
 
@@ -215,9 +220,6 @@ namespace Questor.Modules.Lookup
         public string LootContainer { get; set; }
 
         public string HighTierLootContainer { get; set; }
-
-        public bool MoveCommonMissionCompletionItemsToAmmoHangar { get; set; }
-        public bool MoveCommonMissionCompletionItemsToItemsHangar { get; set; }
 
         //
         // Salvage and Loot settings
@@ -577,6 +579,7 @@ namespace Questor.Modules.Lookup
                 DebugStates = false;
                 DebugStatistics = false;
                 DebugStorylineMissions = false;
+                DebugTargetWrecks = false;
                 DebugTractorBeams = false;
                 DebugTraveler = false;
                 DebugUI = false;
@@ -616,7 +619,7 @@ namespace Questor.Modules.Lookup
                 MissionsPath = System.IO.Path.Combine(Settings.Instance.Path, relativeMissionsPath);
                 //Logging.Log("Settings","Default MissionXMLPath is: [" + MissionsPath + "]",Logging.White);
                 RequireMissionXML = false;
-                LowSecMissionsInShuttles = false;
+                AllowNonStorylineCourierMissionsInLowSec = false;
                 MaterialsForWarOreID = 20;
                 MaterialsForWarOreQty = 8000;
                 KillSentries = false;
@@ -721,9 +724,7 @@ namespace Questor.Modules.Lookup
                 AmmoHangar = String.Empty;
                 BookmarkHangar = String.Empty;
                 LootContainer = String.Empty;
-                MoveCommonMissionCompletionItemsToAmmoHangar = false;
-                MoveCommonMissionCompletionItemsToItemsHangar = true;
-
+                
                 //
                 // Loot and Salvage Settings
                 //
@@ -955,6 +956,7 @@ namespace Questor.Modules.Lookup
                     DebugStates = (bool?)xml.Element("debugStates") ?? false;                                               //enables more console logging having to do with the time it takes to execute each state
                     DebugStatistics = (bool?)xml.Element("debugStatistics") ?? false;
                     DebugStorylineMissions = (bool?)xml.Element("debugStorylineMissions") ?? false;
+                    DebugTargetWrecks = (bool?)xml.Element("debugTargetWrecks") ?? false;
                     DebugTraveler = (bool?)xml.Element("debugTraveler") ?? false;
                     DebugTractorBeams = (bool?)xml.Element("debugTractorBeams") ?? false;
                     DebugUI = (bool?)xml.Element("debugUI") ?? false;
@@ -999,7 +1001,7 @@ namespace Questor.Modules.Lookup
                     MissionsPath = System.IO.Path.Combine(Settings.Instance.Path, relativeMissionsPath);
                     Logging.Log("Settings", "MissionsPath is: [" + MissionsPath + "]", Logging.White);
                     RequireMissionXML = (bool?)xml.Element("requireMissionXML") ?? false;
-                    LowSecMissionsInShuttles = (bool?)xml.Element("LowSecMissions") ?? false;
+                    AllowNonStorylineCourierMissionsInLowSec = (bool?)xml.Element("LowSecMissions") ?? false;
                     MaterialsForWarOreID = (int?)xml.Element("MaterialsForWarOreID") ?? 20;
                     MaterialsForWarOreQty = (int?)xml.Element("MaterialsForWarOreQty") ?? 8000;
                     KillSentries = (bool?)xml.Element("killSentries") ?? false;
@@ -1131,9 +1133,6 @@ namespace Questor.Modules.Lookup
                         {
                             HighTierLootContainer = HighTierLootContainer.ToLower();
                         }
-
-                        MoveCommonMissionCompletionItemsToAmmoHangar = (bool?)xml.Element("moveCommonMissionCompletionItemsToAmmoHangar") ?? false;
-                        MoveCommonMissionCompletionItemsToItemsHangar = (bool?)xml.Element("moveCommonMissionCompletionItemsToItemsHangar") ?? true;
                     }
                     catch (Exception exception)
                     {

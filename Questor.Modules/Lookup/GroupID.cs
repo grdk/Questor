@@ -105,6 +105,7 @@ namespace Questor.Modules.Lookup
         Wreck = 186,
 
         Livestock = 283, //this includes most CommonMissionCompletionitems like Militants and Marines
+        MiscSpecialMissionItems = 314, //Misc special mission items that should not be on the market and not available from random missions.
 
         ConcordDrone = 301,
         PoliceDrone = 182,
@@ -144,7 +145,8 @@ namespace Questor.Modules.Lookup
         BlackOps = 898,
         Marauder = 900,
 
-        Salvager = 538,
+        Salvager = 1122,
+        DataMiners = 538, //codebreaker, analyzer, data subverter
         TractorBeam = 650,
 
         Drugs = 313,

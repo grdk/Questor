@@ -99,9 +99,9 @@
   <!-- AGENT AND MISSION SETTINGS -->
   <!--                                                         -->
   
-  <!-- Wait for mission decline timer to expire before declining again -->
+  <!-- Wait for you agents mission decline timer to expire before declining again -->
   <waitDecline>false</waitDecline>
-  <!-- MinAgentBlackListStandings is a number between -10 and 10 and is used for WaitDecline if WaitDecline is true, MinAgentBlackListStandings will only kick in if your standings have gone below MinAgentBlackListStandings -->
+  <!-- MinAgentBlackListStandings is a number between -10 and 10, if your standings have gone below MinAgentBlackListStandings you will wait between declines for the agent cooldown timer to expire -->
   <minAgentBlackListStandings>5.5</minAgentBlackListStandings>
   <!-- MinAgentGreyListStandings is a number between -10 and 10 and is used to determine if you can decline more greylist missions, Once you drop below this threshold greylist missions will be accepted in order to keep your standings up -->
   <minAgentGreyListStandings>6.0</minAgentGreyListStandings>
