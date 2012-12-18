@@ -271,12 +271,14 @@ namespace Questor.Modules.Actions
                     }
 
                     //
-                    // Add gatekeys to the list of things to move to the AmmoHangar
+                    // Add gatekeys to the list of things to move to the AmmoHangar, they are not mission completion items but are used during missions so should be avail
+                    // to all pilots (thus the use of the ammo hangar)
                     //
                     try
                     {
                         missionGateKeysToMove = Cache.Instance.CargoHold.Items.Where(i => i.TypeId == (int)TypeID.AngelDiamondTag ||
                                                                                           i.TypeId == (int)TypeID.GuristasDiamondTag ||
+                                                                                          i.TypeId == (int)TypeID.ImperialNavyGatePermit ||
                                                                                           i.GroupId == (int)Group.AccelerationGateKeys).ToList();
                     }
                     catch (Exception exception)
@@ -302,11 +304,13 @@ namespace Questor.Modules.Actions
                     
 
                     //
-                    // Add mission item  to the list of things to move
+                    // Add mission item  to the list of things to move to the itemhangar as they will be needed to complete the mission
                     //
                     try
                     {
-                        commonMissionCompletionItemsToMove = Cache.Instance.CargoHold.Items.Where(i => i.GroupId == (int)Group.Livestock || i.GroupId == (int)Group.MiscSpecialMissionItems).ToList();
+                        commonMissionCompletionItemsToMove = Cache.Instance.CargoHold.Items.Where(i => i.GroupId == (int)Group.Livestock || 
+                                                                                                       i.GroupId == (int)Group.MiscSpecialMissionItems || 
+                                                                                                       i.GroupId == (int)Group.Commodities).ToList();
                     }
                     catch (Exception exception)
                     {

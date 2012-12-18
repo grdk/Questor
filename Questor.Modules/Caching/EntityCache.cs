@@ -751,7 +751,9 @@ namespace Questor.Modules.Caching
 
             // Remove the target info (its been targeted)
             foreach (EntityCache target in Cache.Instance.Entities.Where(e => e.IsTarget).Where(t => Cache.Instance.TargetingIDs.ContainsKey(t.Id)))
+            {
                 Cache.Instance.TargetingIDs.Remove(target.Id);
+            }
 
             if (Cache.Instance.TargetingIDs.ContainsKey(Id))
             {

@@ -257,6 +257,9 @@
             this.bttnStackCargoHold = new System.Windows.Forms.Button();
             this.bttnOpenCargoHold = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.bttnListInvTree = new System.Windows.Forms.Button();
+            this.bttnOpenOreHold = new System.Windows.Forms.Button();
+            this.bttnOpenInventory = new System.Windows.Forms.Button();
             this.bttnQueryLootHangarID = new System.Windows.Forms.Button();
             this.bttnQueryAmmoHangarID = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -556,9 +559,6 @@
             this.label273 = new System.Windows.Forms.Label();
             this.label274 = new System.Windows.Forms.Label();
             this.tabLowSlots = new System.Windows.Forms.TabPage();
-            this.bttnOpenInventory = new System.Windows.Forms.Button();
-            this.bttnOpenOreHold = new System.Windows.Forms.Button();
-            this.bttnListInvTree = new System.Windows.Forms.Button();
             this.tabMiscInfo.SuspendLayout();
             this.tabTimeStamps.SuspendLayout();
             this.tabMissions.SuspendLayout();
@@ -2111,6 +2111,7 @@
             this.btnSetQuestorQuittingFlag.TabIndex = 197;
             this.btnSetQuestorQuittingFlag.Text = "Debug: Set QuestorQuitting Flag";
             this.btnSetQuestorQuittingFlag.UseVisualStyleBackColor = true;
+            this.btnSetQuestorQuittingFlag.Click += new System.EventHandler(this.btnSetQuestorQuittingFlag_Click_1);
             // 
             // brnSetStopTimetoNow
             // 
@@ -2120,6 +2121,7 @@
             this.brnSetStopTimetoNow.TabIndex = 196;
             this.brnSetStopTimetoNow.Text = "Debug: SetStopTime timestamp to NOW";
             this.brnSetStopTimetoNow.UseVisualStyleBackColor = true;
+            this.brnSetStopTimetoNow.Click += new System.EventHandler(this.brnSetStopTimetoNow_Click_1);
             // 
             // dataStopTimeSpecified
             // 
@@ -2878,6 +2880,36 @@
             this.groupBox2.TabIndex = 157;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Tests";
+            // 
+            // bttnListInvTree
+            // 
+            this.bttnListInvTree.Location = new System.Drawing.Point(9, 106);
+            this.bttnListInvTree.Name = "bttnListInvTree";
+            this.bttnListInvTree.Size = new System.Drawing.Size(114, 23);
+            this.bttnListInvTree.TabIndex = 153;
+            this.bttnListInvTree.Text = "List InvTree";
+            this.bttnListInvTree.UseVisualStyleBackColor = true;
+            this.bttnListInvTree.Click += new System.EventHandler(this.bttnListInvTree_Click);
+            // 
+            // bttnOpenOreHold
+            // 
+            this.bttnOpenOreHold.Location = new System.Drawing.Point(9, 135);
+            this.bttnOpenOreHold.Name = "bttnOpenOreHold";
+            this.bttnOpenOreHold.Size = new System.Drawing.Size(114, 24);
+            this.bttnOpenOreHold.TabIndex = 152;
+            this.bttnOpenOreHold.Text = "Open OreHold";
+            this.bttnOpenOreHold.UseVisualStyleBackColor = true;
+            this.bttnOpenOreHold.Click += new System.EventHandler(this.bttnOpenOreHold_Click);
+            // 
+            // bttnOpenInventory
+            // 
+            this.bttnOpenInventory.Location = new System.Drawing.Point(9, 77);
+            this.bttnOpenInventory.Name = "bttnOpenInventory";
+            this.bttnOpenInventory.Size = new System.Drawing.Size(114, 23);
+            this.bttnOpenInventory.TabIndex = 151;
+            this.bttnOpenInventory.Text = "Open Inventory";
+            this.bttnOpenInventory.UseVisualStyleBackColor = true;
+            this.bttnOpenInventory.Click += new System.EventHandler(this.bttnOpenInventory_Click);
             // 
             // bttnQueryLootHangarID
             // 
@@ -5885,36 +5917,6 @@
             this.tabLowSlots.TabIndex = 2;
             this.tabLowSlots.Text = "LowSlots";
             this.tabLowSlots.UseVisualStyleBackColor = true;
-            // 
-            // bttnOpenInventory
-            // 
-            this.bttnOpenInventory.Location = new System.Drawing.Point(9, 77);
-            this.bttnOpenInventory.Name = "bttnOpenInventory";
-            this.bttnOpenInventory.Size = new System.Drawing.Size(114, 23);
-            this.bttnOpenInventory.TabIndex = 151;
-            this.bttnOpenInventory.Text = "Open Inventory";
-            this.bttnOpenInventory.UseVisualStyleBackColor = true;
-            this.bttnOpenInventory.Click += new System.EventHandler(this.bttnOpenInventory_Click);
-            // 
-            // bttnOpenOreHold
-            // 
-            this.bttnOpenOreHold.Location = new System.Drawing.Point(9, 135);
-            this.bttnOpenOreHold.Name = "bttnOpenOreHold";
-            this.bttnOpenOreHold.Size = new System.Drawing.Size(114, 24);
-            this.bttnOpenOreHold.TabIndex = 152;
-            this.bttnOpenOreHold.Text = "Open OreHold";
-            this.bttnOpenOreHold.UseVisualStyleBackColor = true;
-            this.bttnOpenOreHold.Click += new System.EventHandler(this.bttnOpenOreHold_Click);
-            // 
-            // bttnListInvTree
-            // 
-            this.bttnListInvTree.Location = new System.Drawing.Point(9, 106);
-            this.bttnListInvTree.Name = "bttnListInvTree";
-            this.bttnListInvTree.Size = new System.Drawing.Size(114, 23);
-            this.bttnListInvTree.TabIndex = 153;
-            this.bttnListInvTree.Text = "List InvTree";
-            this.bttnListInvTree.UseVisualStyleBackColor = true;
-            this.bttnListInvTree.Click += new System.EventHandler(this.bttnListInvTree_Click);
             // 
             // QuestorfrmMain
             // 

@@ -154,6 +154,7 @@ namespace Questor.Modules.Lookup
         Slaves = 283,
         SmallArms = 280,
         AccelerationGateKeys = 474,
+        Commodities = 526,
 
         Minerals = 18,
 

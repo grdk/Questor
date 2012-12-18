@@ -1634,20 +1634,6 @@ namespace Questor
             _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.CloseCargoHold;
         }
 
-        private void btnSetQuestorQuittingFlag_Click(object sender, EventArgs e)
-        {
-            Logging.Log("QuestorUI", "Setting: Cache.Instance.SessionState to [Quitting] - the next Questor.Idle state should see and process this.", Logging.Debug);
-            Cache.Instance.SessionState = "Quitting";
-        }
-
-        private void brnSetStopTimetoNow_Click(object sender, EventArgs e)
-        {
-            Logging.Log("QuestorUI", "Setting: Cache.Instance.StopTime to [" + DateTime.Now +"] - the next Questor.Idle state should see and process this.", Logging.Debug);
-            Cache.Instance.StopTimeSpecified = true;
-            Cache.Instance.NextTimeCheckAction = DateTime.UtcNow;
-            Cache.Instance.StopTime = DateTime.Now; //(use local time not UTC time because this is Arm schedule related timer)
-        }
-
         private void bttnMaintainConsoleLogs_Click(object sender, EventArgs e)
         {
             Logging.Log("QuestorUI", "Starting Logging.MaintainConsoleLogs() Routine.", Logging.Debug);
@@ -1705,6 +1691,20 @@ namespace Questor
             Cache.Instance.Paused = false;
             _States.CurrentQuestorState = QuestorState.DebugHangarsBehavior;
             _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.ListInvTree;
+        }
+
+        private void brnSetStopTimetoNow_Click_1(object sender, EventArgs e)
+        {
+            Logging.Log("QuestorUI", "Setting: Cache.Instance.StopTime to [" + DateTime.Now + "] - the next Questor.Idle state should see and process this.", Logging.Debug);
+            Cache.Instance.StopTimeSpecified = true;
+            Cache.Instance.NextTimeCheckAction = DateTime.UtcNow;
+            Cache.Instance.StopTime = DateTime.Now; //(use local time not UTC time because this is Arm schedule related timer)
+        }
+
+        private void btnSetQuestorQuittingFlag_Click_1(object sender, EventArgs e)
+        {
+            Logging.Log("QuestorUI", "Setting: Cache.Instance.SessionState to [Quitting] - the next Questor.Idle state should see and process this.", Logging.Debug);
+            Cache.Instance.SessionState = "Quitting";
         }
     }
 }

@@ -28,6 +28,8 @@ namespace Questor.Modules.Lookup
         //GateKey = 2076, //use groupID 474 instead
         //ZbikokisHackerCard = 28260, //use groupID 474 instead
         CustomCircuitry = 2899, //GroupID 314
+        ImperialNavyGatePermit = 24576, //GroupID 526
+
 
         //Minmater Rookie Ship
         //Amarr Rookie Ship

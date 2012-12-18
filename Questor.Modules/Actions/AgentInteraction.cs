@@ -579,13 +579,24 @@ namespace Questor.Modules.Actions
                 if (Settings.Instance.DebugDecline) Logging.Log("AgentInteraction", "[" + MissionName + "] is not in lowsec so we will do the mission", Logging.White);
             }
 
+            //
+            // if Missionname is a Courier Mission set Cache.Instance.CourierMission = true;
+            //
             switch(MissionName)
             {
-                case "Enemies Abound (2 of 5)":
-                    Cache.Instance.CourierMission = true;
-                    break;
-
-                case "In the Midst of Deadspace (2 of 5)":
+                case "Enemies Abound (2 of 5)":                       //lvl4 courier
+                case "In the Midst of Deadspace (2 of 5)":            //lvl4 courier
+                case "Pot and Kettle (3 of 5)":                       //lvl4 courier
+                case "Technological Secrets (2 of 3) ":               //lvl4 courier
+                case "New Frontiers - Toward a Solution (3 of 7)":    //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "New Frontiers - Nanite Express (6 of 7)":       //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Portal to War (3 of 5)":                        //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Guristas Strike - The Interrogation (2 of 10)": //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Guristas Strike - Possible Leads (4 of 10)":    //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Guristas Strike - The Flu Outbreak (6 of 10)":  //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Angel Strike - The Interrogation (2 of 10)":    //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Angel Strike - Possible Leads (4 of 10)":       //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Angel Strike - The Flu Outbreak (6 of 10)":     //lvl3 courier - this likely needs to be corrected to be the correct mission name
                     Cache.Instance.CourierMission = true;
                     break;
 

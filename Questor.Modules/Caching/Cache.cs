@@ -3004,7 +3004,7 @@ namespace Questor.Modules.Caching
             if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
                 return false;
 
-            if (DateTime.UtcNow < Cache.Instance.NextOpenCargoAction)
+            if (DateTime.UtcNow < Cache.Instance.LastStackCargohold.AddSeconds(10))
                 return false;
 
             try
