@@ -31,6 +31,8 @@ namespace Questor.Modules.Lookup
         ImperialNavyGatePermit = 24576, //GroupID 526
 
         MetalScraps = 15331,
+        ReinforcedMetalScraps = 30497,
+
 
 
         //Minmater Rookie Ship

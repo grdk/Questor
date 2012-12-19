@@ -310,7 +310,7 @@ namespace Questor.Modules.Actions
                     {
                         commonMissionCompletionItemsToMove = Cache.Instance.CargoHold.Items.Where(i => i.GroupId == (int)Group.Livestock || 
                                                                                                        i.GroupId == (int)Group.MiscSpecialMissionItems || 
-                                                                                                       (i.GroupId == (int)Group.Commodities && i.TypeId != (int)TypeID.MetalScraps )).ToList();
+                                                                                                       (i.GroupId == (int)Group.Commodities && i.TypeId != (int)TypeID.MetalScraps && i.TypeId != (int)TypeID.ReinforcedMetalScraps)).ToList();
                     }
                     catch (Exception exception)
                     {
