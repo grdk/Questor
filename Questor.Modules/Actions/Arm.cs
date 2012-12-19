@@ -410,7 +410,7 @@ namespace Questor.Modules.Actions
                                 if (!Cache.Instance.CloseFittingManager("Arm")) return;
 
                                 WaitForFittingToLoad = false;
-                                _States.CurrentArmState = ArmState.MoveItems;
+                                _States.CurrentArmState = ArmState.MoveDrones;
                                 Logging.Log("Arm.LoadFitting", "Done Loading Saved Fitting", Logging.White);
                                 return;
                             }
