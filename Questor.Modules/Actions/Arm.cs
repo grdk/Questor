@@ -446,7 +446,7 @@ namespace Questor.Modules.Actions
                             if ((!DefaultFittingFound) || (UseMissionShip && !Cache.Instance.ChangeMissionShipFittings))
                             {
                                 if (Settings.Instance.DebugFittingMgr) Logging.Log("Arm.LoadFitting", "if ((!Settings.Instance.UseFittingManager || !DefaultFittingFound) || (UseMissionShip && !Cache.Instance.ChangeMissionShipFittings))", Logging.Teal);
-                                _States.CurrentArmState = ArmState.MoveItems;
+                                _States.CurrentArmState = ArmState.MoveDrones;
                                 return;
                             }
 
@@ -455,7 +455,7 @@ namespace Questor.Modules.Actions
                             if (Cache.Instance.Fitting.Equals(Cache.Instance.CurrentFit))
                             {
                                 Logging.Log("Arm.LoadFitting", "Current fit is now correct", Logging.White);
-                                _States.CurrentArmState = ArmState.MoveItems;
+                                _States.CurrentArmState = ArmState.MoveDrones;
                                 return;
                             }
 
@@ -501,7 +501,7 @@ namespace Questor.Modules.Actions
                     }
 
                     if (!Cache.Instance.CloseFittingManager("Arm.LoadFitting")) return;
-                    _States.CurrentArmState = ArmState.MoveItems;
+                    _States.CurrentArmState = ArmState.MoveDrones;
                     break;
 
                 case ArmState.RepairShop:
@@ -517,14 +517,14 @@ namespace Questor.Modules.Actions
                         if (!Cache.Instance.RepairDrones("Arm.RepairShop [Drones]")) break; //attempt to use repair facilities if avail in station
                     }
 
-                    _States.CurrentArmState = ArmState.MoveDrones;
+                    _States.CurrentArmState = ArmState.LoadSavedFitting;
                     break;
 
                 case ArmState.MoveDrones:
 
                     if (!Settings.Instance.UseDrones || (Cache.Instance.DirectEve.ActiveShip.GroupId == 31 || Cache.Instance.DirectEve.ActiveShip.GroupId == 28 || Cache.Instance.DirectEve.ActiveShip.GroupId == 380))
                     {
-                        _States.CurrentArmState = ArmState.LoadSavedFitting;
+                        _States.CurrentArmState = ArmState.MoveItems;
                         break;
                     }
 
@@ -563,8 +563,8 @@ namespace Questor.Modules.Actions
 
                     if ((int)neededDrones == 0)
                     {
-                        Logging.Log("Arm.MoveDrones", "Fitting", Logging.White);
-                        _States.CurrentArmState = ArmState.LoadSavedFitting;
+                        Logging.Log("Arm.MoveDrones", "MoveItems", Logging.White);
+                        _States.CurrentArmState = ArmState.MoveItems;
                         break;
                     }
 

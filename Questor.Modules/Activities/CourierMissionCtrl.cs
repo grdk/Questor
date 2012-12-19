@@ -33,7 +33,9 @@
             if (_States.CurrentTravelerState == TravelerState.AtDestination)
             {
                 if (destination != null)
+                {
                     Logging.Log("CourierMissionCtrl", "Arrived at Mission Bookmark Destination [ " + destination.Title + " ]", Logging.White);
+                }
                 else
                 {
                     Logging.Log("CourierMissionCtrl", "destination is null", Logging.White); //how would this occur exactly?
@@ -53,8 +55,43 @@
             if (!Cache.Instance.OpenItemsHangar("CourierMissionCtrl")) return false;
 
             if (!Cache.Instance.OpenCargoHold("CourierMissionCtrl")) return false;
+            string missionItem;
 
-            const string missionItem = "Encoded Data Chip";
+            switch (Cache.Instance.Mission.Name)
+            {
+                case "Enemies Abound (2 of 5)":                       //lvl4 courier
+                    missionItem = "Encoded Data Chip";
+                    break;
+
+                case "In the Midst of Deadspace (2 of 5)":            //lvl4 courier
+                    missionItem = "Amarr Light Marines";
+                    break;
+
+                case "Pot and Kettle (3 of 5)":                       //lvl4 courier
+                    missionItem = "Large EMP Smartbomb I";
+                    break;
+
+                case "Technological Secrets (2 of 3)":               //lvl4 courier
+                    missionItem = "DNA Sample"; //typeid: 13288	 groupID: 314
+                    break;
+
+                case "New Frontiers - Toward a Solution (3 of 7)":    //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "New Frontiers - Nanite Express (6 of 7)":       //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Portal to War (3 of 5)":                        //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Guristas Strike - The Interrogation (2 of 10)": //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Guristas Strike - Possible Leads (4 of 10)":    //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Guristas Strike - The Flu Outbreak (6 of 10)":  //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Angel Strike - The Interrogation (2 of 10)":    //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Angel Strike - Possible Leads (4 of 10)":       //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                case "Angel Strike - The Flu Outbreak (6 of 10)":     //lvl3 courier - this likely needs to be corrected to be the correct mission name
+                    missionItem = "Encoded Data Chip"; //not correct here
+                    break;
+
+                default:
+                    missionItem = "Encoded Data Chip"; //likely not correct - add an entry above for the courier mission in question
+                    break;
+            }
+
             Logging.Log("CourierMissionCtrl", "mission item is: " + missionItem, Logging.White);
             DirectContainer from = pickup ? Cache.Instance.ItemHangar : Cache.Instance.CargoHold;
             DirectContainer to = pickup ? Cache.Instance.CargoHold : Cache.Instance.ItemHangar;
@@ -95,23 +132,31 @@
                 case CourierMissionCtrlState.GotoPickupLocation:
                     //cache.instance.agentid cannot be used for storyline missions! you must pass the correct agentID to this module if you wish to extend it to do storyline missions
                     if (GotoMissionBookmark(Cache.Instance.AgentId, "Objective (Pick Up)"))
+                    {
                         _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.PickupItem;
+                    }
                     break;
 
                 case CourierMissionCtrlState.PickupItem:
                     if (MoveItem(true))
+                    {
                         _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.GotoDropOffLocation;
+                    }
                     break;
 
                 case CourierMissionCtrlState.GotoDropOffLocation:
                     //cache.instance.agentid cannot be used for storyline missions! you must pass the correct agentID to this module if you wish to extend it to do storyline missions
                     if (GotoMissionBookmark(Cache.Instance.AgentId, "Objective (Drop Off)"))
+                    {
                         _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.DropOffItem;
+                    }
                     break;
 
                 case CourierMissionCtrlState.DropOffItem:
                     if (MoveItem(false))
+                    {
                         _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.Done;
+                    }
                     break;
 
                 case CourierMissionCtrlState.Done:

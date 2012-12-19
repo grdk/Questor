@@ -1172,7 +1172,7 @@ namespace Questor.Modules.Caching
                 {
                     try
                     {
-                        _agent = DirectEve.GetAgentByName(CurrentAgent);
+                        if (_agent == null) _agent = DirectEve.GetAgentByName(CurrentAgent);
                         _agentId = _agent.AgentId;
 
                         return (long)_agentId;
@@ -1195,7 +1195,7 @@ namespace Questor.Modules.Caching
                 {
                     try
                     {
-                        _agent = DirectEve.GetAgentByName(CurrentAgent);
+                        if (_agent == null) _agent = DirectEve.GetAgentByName(CurrentAgent);
                         if (_agent != null)
                         {
                             _agentId = _agent.AgentId;

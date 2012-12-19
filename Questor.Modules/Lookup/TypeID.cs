@@ -30,6 +30,8 @@ namespace Questor.Modules.Lookup
         CustomCircuitry = 2899, //GroupID 314
         ImperialNavyGatePermit = 24576, //GroupID 526
 
+        MetalScraps = 15331,
+
 
         //Minmater Rookie Ship
         //Amarr Rookie Ship
