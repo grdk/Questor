@@ -172,6 +172,7 @@ namespace Questor.Modules.Actions
                         AllLootWillFit = true;
                         LootIsBeingMoved = true;
                         Cache.Instance.LootHangar.Add(lootToMove);
+                        _nextUnloadAction = DateTime.UtcNow.AddSeconds(5);
                         return;
                     }
                     if (Settings.Instance.DebugUnloadLoot) Logging.Log("UnloadLoot.MoveLoot", "1) if (lootToMove.Any()) is false", Logging.White);
