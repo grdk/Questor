@@ -8,6 +8,7 @@
         DropOffItem,
         Idle,
         CompleteMission,
-        Done
+        Done,
+        Error
     }
 }
