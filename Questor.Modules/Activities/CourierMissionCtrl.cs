@@ -1,4 +1,7 @@
-﻿namespace Questor.Modules.Activities
+﻿using System;
+using Questor.Modules.Lookup;
+
+namespace Questor.Modules.Activities
 {
     using System.Linq;
     using DirectEve;
@@ -11,6 +14,7 @@
     {
         //private DateTime _nextCourierAction;
         private readonly Traveler _traveler;
+        private readonly AgentInteraction _agentInteraction;
 
         /// <summary>
         ///   Arm does nothing but get into a (assembled) shuttle
@@ -20,6 +24,7 @@
         public CourierMissionCtrl()
         {
             _traveler = new Traveler();
+            _agentInteraction = new AgentInteraction();
         }
 
         private bool GotoMissionBookmark(long agentId, string title)
@@ -155,7 +160,41 @@
                 case CourierMissionCtrlState.DropOffItem:
                     if (MoveItem(false))
                     {
+                        _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.CompleteMission;
+                    }
+                    break;
+
+                case CourierMissionCtrlState.CompleteMission:
+                    //
+                    // this state should never be reached in space. if we are in space and in this state we should switch to gotomission
+                    //
+                    if (Cache.Instance.InSpace)
+                    {
+                        Logging.Log(_States.CurrentCourierMissionCtrlState.ToString(), "We are in space, how did we get set to this state while in space? Changing state to: GotoBase", Logging.White);
+                        _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.GotoDropOffLocation;
+                    }
+
+                    if (_States.CurrentAgentInteractionState == AgentInteractionState.Idle)
+                    {
+                        if (DateTime.UtcNow > Cache.Instance.LastInStation.AddSeconds(5) && Cache.Instance.InStation) //do not proceed until we have ben docked for at least a few seconds
+                            return;
+
+                        Logging.Log("AgentInteraction", "Start Conversation [Complete Mission]", Logging.White);
+
+                        _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
+                        AgentInteraction.Purpose = AgentInteractionPurpose.CompleteMission;
+                    }
+
+                    _agentInteraction.ProcessState();
+
+                    if (Settings.Instance.DebugStates) Logging.Log("AgentInteraction.State is ", _States.CurrentAgentInteractionState.ToString(), Logging.White);
+
+                    if (_States.CurrentAgentInteractionState == AgentInteractionState.Done)
+                    {
+                        _States.CurrentAgentInteractionState = AgentInteractionState.Idle;
                         _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.Done;
+
+                        return;
                     }
                     break;
 
