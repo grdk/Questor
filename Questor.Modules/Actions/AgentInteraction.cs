@@ -586,8 +586,8 @@ namespace Questor.Modules.Actions
             {
                 case "Enemies Abound (2 of 5)":                       //lvl4 courier
                 case "In the Midst of Deadspace (2 of 5)":            //lvl4 courier
-                case "Pot and Kettle - Delivery (3 of 5)":                       //lvl4 courier
-                case "Technological Secrets (2 of 3)":               //lvl4 courier
+                case "Pot and Kettle - Delivery (3 of 5)":            //lvl4 courier
+                case "Technological Secrets (2 of 3)":                //lvl4 courier
                 case "New Frontiers - Toward a Solution (3 of 7)":    //lvl3 courier - this likely needs to be corrected to be the correct mission name
                 case "New Frontiers - Nanite Express (6 of 7)":       //lvl3 courier - this likely needs to be corrected to be the correct mission name
                 case "Portal to War (3 of 5)":                        //lvl3 courier - this likely needs to be corrected to be the correct mission name

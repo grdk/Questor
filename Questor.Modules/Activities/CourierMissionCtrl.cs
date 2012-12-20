@@ -15,6 +15,7 @@ namespace Questor.Modules.Activities
         //private DateTime _nextCourierAction;
         private readonly Traveler _traveler;
         private readonly AgentInteraction _agentInteraction;
+        private int moveItemRetryCounter;
 
         /// <summary>
         ///   Arm does nothing but get into a (assembled) shuttle
@@ -72,7 +73,7 @@ namespace Questor.Modules.Activities
                     missionItem = "Amarr Light Marines";
                     break;
 
-                case "Pot and Kettle - Delivery (3 of 5)":                       //lvl4 courier
+                case "Pot and Kettle - Delivery (3 of 5)":            //lvl4 courier
                     missionItem = "Large EMP Smartbomb I";
                     break;
 
@@ -103,18 +104,26 @@ namespace Questor.Modules.Activities
 
             // We moved the item
             if (to.Items.Any(i => i.TypeName == missionItem))
+            {
+                moveItemRetryCounter = 0;
                 return true;
+            }
 
             if (directEve.GetLockedItems().Count != 0)
+            {
+                moveItemRetryCounter++;
                 return false;
+            }
 
             // Move items
             foreach (DirectItem item in from.Items.Where(i => i.TypeName == missionItem))
             {
                 Logging.Log("CourierMissionCtrl", "Moving [" + item.TypeName + "][" + item.ItemId + "] to " + (pickup ? "cargo" : "hangar"), Logging.White);
                 to.Add(item);
+                continue;
             }
             //_nextCourierAction = DateTime.UtcNow.AddSeconds(8);
+            moveItemRetryCounter++;
             return false;
         }
 
@@ -135,32 +144,51 @@ namespace Questor.Modules.Activities
                     break;
 
                 case CourierMissionCtrlState.GotoPickupLocation:
-                    //cache.instance.agentid cannot be used for storyline missions! you must pass the correct agentID to this module if you wish to extend it to do storyline missions
                     if (GotoMissionBookmark(Cache.Instance.AgentId, "Objective (Pick Up)"))
                     {
                         _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.PickupItem;
+                        return;
                     }
                     break;
 
                 case CourierMissionCtrlState.PickupItem:
+                    if (moveItemRetryCounter > 20)
+                    {
+                        Cache.Instance.Paused = true;
+                        Logging.Log("CourierMissionCtrl","MoveItem has tried 20x to Pickup the missionitem and failed. Pausing: please debug the cause of this error",Logging.Red);
+                        _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.Error;
+                        return;
+                    }
+
                     if (MoveItem(true))
                     {
                         _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.GotoDropOffLocation;
+                        moveItemRetryCounter = 0;
+                        return;
                     }
                     break;
 
                 case CourierMissionCtrlState.GotoDropOffLocation:
-                    //cache.instance.agentid cannot be used for storyline missions! you must pass the correct agentID to this module if you wish to extend it to do storyline missions
                     if (GotoMissionBookmark(Cache.Instance.AgentId, "Objective (Drop Off)"))
                     {
                         _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.DropOffItem;
+                        return;
                     }
                     break;
 
                 case CourierMissionCtrlState.DropOffItem:
+                    if (moveItemRetryCounter > 20)
+                    {
+                        Cache.Instance.Paused = true;
+                        Logging.Log("CourierMissionCtrl", "MoveItem has tried 20x to Dropoff the missionitem and failed. Pausing: please debug the cause of this error", Logging.Red);
+                        _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.Error;
+                    }
+
                     if (MoveItem(false))
                     {
                         _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.CompleteMission;
+                        moveItemRetryCounter = 0;
+                        return;
                     }
                     break;
 
@@ -172,17 +200,21 @@ namespace Questor.Modules.Activities
                     {
                         Logging.Log(_States.CurrentCourierMissionCtrlState.ToString(), "We are in space, how did we get set to this state while in space? Changing state to: GotoBase", Logging.White);
                         _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.GotoDropOffLocation;
+                        return;
                     }
 
                     if (_States.CurrentAgentInteractionState == AgentInteractionState.Idle)
                     {
                         if (DateTime.UtcNow > Cache.Instance.LastInStation.AddSeconds(5) && Cache.Instance.InStation) //do not proceed until we have ben docked for at least a few seconds
+                        {
                             return;
+                        }
 
                         Logging.Log("AgentInteraction", "Start Conversation [Complete Mission]", Logging.White);
 
                         _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
                         AgentInteraction.Purpose = AgentInteractionPurpose.CompleteMission;
+                        return;
                     }
 
                     _agentInteraction.ProcessState();
@@ -193,7 +225,6 @@ namespace Questor.Modules.Activities
                     {
                         _States.CurrentAgentInteractionState = AgentInteractionState.Idle;
                         _States.CurrentCourierMissionCtrlState = CourierMissionCtrlState.Done;
-
                         return;
                     }
                     break;
