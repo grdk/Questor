@@ -67,16 +67,15 @@ namespace Questor.Modules.BackgroundTasks
                     }
                     Logging.Log("Defense", "Reloading [" + module.TypeId + "] with [" + scriptToLoad.TypeName + "][TypeID: " + scriptToLoad.TypeId + "]", Logging.Teal);
                     module.ReloadAmmo(scriptToLoad);
+                    return true;
                 }
-                else
+                
+                if (DateTime.UtcNow.Subtract(Cache.Instance.LastLoggingAction).TotalSeconds > 10)
                 {
-                    if (DateTime.UtcNow.Subtract(Cache.Instance.LastLoggingAction).TotalSeconds > 10)
-                    {
-                        Cache.Instance.LastLoggingAction = DateTime.UtcNow;
-                    }
-                    Logging.Log("Defense", "Changing [" + module.TypeId + "] with [" + scriptToLoad.TypeName + "][TypeID: " + scriptToLoad.TypeId + "]", Logging.Teal);
-                    module.ChangeAmmo(scriptToLoad);
+                    Cache.Instance.LastLoggingAction = DateTime.UtcNow;
                 }
+                Logging.Log("Defense", "Changing [" + module.TypeId + "] with [" + scriptToLoad.TypeName + "][TypeID: " + scriptToLoad.TypeId + "]", Logging.Teal);
+                module.ChangeAmmo(scriptToLoad);
                 return true;
             }
             Logging.Log("LoadthisScript", "script to load was NULL!", Logging.Teal);
@@ -139,6 +138,7 @@ namespace Questor.Modules.BackgroundTasks
                                     ModuleNumber++;
                                     continue;
                                 }
+                                return;
                             }
                             ModuleNumber++;
                             continue;
@@ -171,6 +171,7 @@ namespace Questor.Modules.BackgroundTasks
                                     ModuleNumber++;
                                     continue;
                                 }
+                                return;
                             }
                             ModuleNumber++;
                             continue;
@@ -203,6 +204,7 @@ namespace Questor.Modules.BackgroundTasks
                                     ModuleNumber++;
                                     continue;
                                 }
+                                return;
                             }
                             ModuleNumber++;
                             continue;
@@ -235,6 +237,7 @@ namespace Questor.Modules.BackgroundTasks
                                     ModuleNumber++;
                                     continue;
                                 }
+                                return;
                             }
                             ModuleNumber++;
                             continue;
@@ -267,6 +270,7 @@ namespace Questor.Modules.BackgroundTasks
                                     ModuleNumber++;
                                     continue;
                                 }
+                                return;
                             }
                             ModuleNumber++;
                             continue;
@@ -299,6 +303,7 @@ namespace Questor.Modules.BackgroundTasks
                                     ModuleNumber++;
                                     continue;
                                 }
+                                return;
                             }
                             ModuleNumber++;
                             continue;

@@ -118,7 +118,10 @@ namespace Questor.Modules.Combat
             Ammo ammo = correctAmmoIncargo.FirstOrDefault();
             try
             {
-                ammo = correctAmmoIncargo.Where(a => a.Range > entity.Distance).OrderBy(a => a.Range).FirstOrDefault();
+                if (ammo != null && entity != null)
+                {
+                    ammo = correctAmmoIncargo.Where(a => a.Range > entity.Distance).OrderBy(a => a.Range).FirstOrDefault();    
+                }
             }
             catch (Exception exception)
             {
@@ -393,7 +396,9 @@ namespace Questor.Modules.Combat
                 // Find the target associated with the weapon
                 weaponTarget = Cache.Instance.EntityById(weapon.TargetId);
                 if (weaponTarget != null)
+                {
                     break;
+                }
             }
 
             // Return best possible target
@@ -435,9 +440,12 @@ namespace Questor.Modules.Combat
             // When in warp there's nothing we can do, so ignore everything
             if (Cache.Instance.InWarp)
             {
+                Cache.Instance.RemovePrimaryWeaponPriorityTargets(Cache.Instance.PrimaryWeaponPriorityTargets);
+                Cache.Instance.RemoveDronePriorityTargets(Cache.Instance.DronePriorityTargets);
                 if (Settings.Instance.DebugActivateWeapons) Logging.Log("Combat", "ActivateWeapons: deactivate: we are in warp! doing nothing", Logging.Teal);
                 return;
             }
+
             if (DateTime.UtcNow < Cache.Instance.NextWeaponAction) //if we just did something wait a fraction of a second
             {
                 if (Settings.Instance.DebugActivateWeapons) Logging.Log("Combat", "ActivateWeapons: deactivate: waiting on NextWeaponAction", Logging.Teal);
@@ -469,31 +477,12 @@ namespace Questor.Modules.Combat
                 _weaponNumber++;
                 if (Settings.Instance.DebugActivateWeapons) Logging.Log("Combat", "ActivateWeapons: deactivate: for each weapon [" + _weaponNumber + "] in weapons", Logging.Teal);
 
-                // don't waste ammo on small target if you use autocannon or siege i hope you use drone
-                if (Settings.Instance.DontShootFrigatesWithSiegeorAutoCannons) //this defaults to false and needs to be changed in your characters settings xml file if you want to enable this option
-                {
-                    if (Settings.Instance.WeaponGroupId == 55 || Settings.Instance.WeaponGroupId == 508 || Settings.Instance.WeaponGroupId == 506)
-                    {
-                        if (!target.TargetValue.HasValue && target.IsNPCFrigate)
-                        {
-                            if (weapon.IsActive)
-                            {
-                                //if we are already shooting at it, stop
-                                if (Settings.Instance.DebugActivateWeapons) Logging.Log("Combat", "ActivateWeapons: deactivate: we are already shooting at it, stop", Logging.Teal);
-                                weapon.Click();
-                                continue;
-                            }
-
-                            //if weapon are not yet shooting at it, do not attempt to shoot
-                            continue;
-                        }
-                    }
-                }
                 if (!weapon.IsActive)
                 {
                     if (Settings.Instance.DebugActivateWeapons) Logging.Log("Combat", "ActivateWeapons: deactivate: weapon [" + _weaponNumber + "] is not active: no need to do anything", Logging.Teal);
                     continue;
                 }
+
                 if (weapon.IsReloadingAmmo || weapon.IsDeactivating || weapon.IsChangingAmmo)
                 {
                     if (Settings.Instance.DebugActivateWeapons) Logging.Log("Combat", "ActivateWeapons: deactivate: weapon [" + _weaponNumber + "] is reloading, deactivating or changing ammo: no need to do anything", Logging.Teal);
@@ -592,7 +581,7 @@ namespace Questor.Modules.Combat
 
                     if (Settings.Instance.DebugActivateWeapons) Logging.Log("Combat", "ActivateWeapons: Activate: weapon [" + _weaponNumber + "] has the correct ammo: activate", Logging.Teal);
                     weaponsActivatedThisTick++; //increment the num of weapons we've activated this ProcessState so that we might optionally activate more than one module per tick
-                    Logging.Log("Combat", "Activating weapon  [" + _weaponNumber + "] on [" + target.Name + "][ID: " + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                    Logging.Log("Combat", "Activating weapon  [" + _weaponNumber + "] on [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                     weapon.Activate(target.Id);
                     Cache.Instance.NextWeaponAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.WeaponDelay_milliseconds);
 
@@ -641,7 +630,7 @@ namespace Questor.Modules.Combat
 
                 if (CanActivate(painter, target, false))
                 {
-                    Logging.Log("Combat", "Activating painter [" + _weaponNumber + "] on [" + target.Name + "][ID: " + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                    Logging.Log("Combat", "Activating painter [" + _weaponNumber + "] on [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                     painter.Activate(target.Id);
                     Cache.Instance.NextPainterAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.PainterDelay_milliseconds);
                     return;
@@ -689,13 +678,13 @@ namespace Questor.Modules.Combat
 
                 if (CanActivate(nos, target, false))
                 {
-                    Logging.Log("Combat", "Activating Nos     [" + _weaponNumber + "] on [" + target.Name + "][ID: " + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                    Logging.Log("Combat", "Activating Nos     [" + _weaponNumber + "] on [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                     nos.Activate(target.Id);
                     Cache.Instance.NextNosAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.NosDelay_milliseconds);
                     return;
                 }
 
-                Logging.Log("Combat", "Cannot Activate Nos [" + _weaponNumber + "] on [" + target.Name + "][ID: " + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                Logging.Log("Combat", "Cannot Activate Nos [" + _weaponNumber + "] on [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
             }
         }
 
@@ -737,7 +726,7 @@ namespace Questor.Modules.Combat
 
                 if (CanActivate(web, target, false))
                 {
-                    Logging.Log("Combat", "Activating web     [" + _weaponNumber + "] on [" + target.Name + "][ID: " + target.Id + "]", Logging.Teal);
+                    Logging.Log("Combat", "Activating web     [" + _weaponNumber + "] on [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "]", Logging.Teal);
                     web.Activate(target.Id);
                     Cache.Instance.NextWebAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.WebDelay_milliseconds);
                     return;
@@ -798,11 +787,11 @@ namespace Questor.Modules.Combat
                 EntityCache target = combatTargets[i];
                 if (target.Distance > Cache.Instance.MaxRange * 1.5d)
                 {
-                    Logging.Log("Combat", "Target [" + target.Name + "][ID: " + target.Id + "] out of range [" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                    Logging.Log("Combat", "Target [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "] out of range [" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                 }
                 else if (Cache.Instance.IgnoreTargets.Contains(target.Name.Trim()))
                 {
-                    Logging.Log("Combat", "Target [" + target.Name + "][ID: " + target.Id + "] on ignore list [" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                    Logging.Log("Combat", "Target [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "] on ignore list [" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                 }
                 else continue;
 
@@ -817,8 +806,8 @@ namespace Questor.Modules.Combat
             //
 
             // Get a list of current high and low value targets
-            List<EntityCache> highValueTargets = combatTargets.Where(t => t.TargetValue.HasValue || Cache.Instance.PriorityTargets.Any(pt => pt.Id == t.Id)).ToList();
-            List<EntityCache> lowValueTargets = combatTargets.Where(t => !t.TargetValue.HasValue && Cache.Instance.PriorityTargets.All(pt => pt.Id != t.Id)).ToList();
+            List<EntityCache> highValueTargets = combatTargets.Where(t => t.TargetValue.HasValue || Cache.Instance.PrimaryWeaponPriorityTargets.Any(pt => pt.Id == t.Id)).ToList();
+            List<EntityCache> lowValueTargets = combatTargets.Where(t => !t.TargetValue.HasValue && Cache.Instance.PrimaryWeaponPriorityTargets.All(pt => pt.Id != t.Id)).ToList();
 
             // Build a list of things targeting me
             TargetingMe = Cache.Instance.TargetedBy.Where(t => t.IsNpc && t.CategoryId == (int)CategoryID.Entity && !t.IsContainer && t.Distance < Cache.Instance.MaxRange && targets.All(c => c.Id != t.Id) && !Cache.Instance.IgnoreTargets.Contains(t.Name.Trim())).ToList();
@@ -843,14 +832,16 @@ namespace Questor.Modules.Combat
             int maxLowValueTarget = (highValueTargetingMe.Count + highValueTargets.Count) == 0 ? Settings.Instance.MaximumLowValueTargets + Settings.Instance.MaximumHighValueTargets : Settings.Instance.MaximumLowValueTargets;
 
             // Do we have too many high (non-priority) value targets targeted?
-            while (highValueTargets.Count(t => Cache.Instance.PriorityTargets.All(pt => pt.Id != t.Id)) > Math.Max(maxHighValueTarget - Cache.Instance.PriorityTargets.Count(), 0))
+            while (highValueTargets.Count(t => Cache.Instance.PrimaryWeaponPriorityTargets.All(pt => pt.Id != t.Id)) > Math.Max(maxHighValueTarget - Cache.Instance.PrimaryWeaponPriorityTargets.Count(), 0))
             {
                 // Unlock any target
-                EntityCache target = highValueTargets.OrderByDescending(t => t.Distance).FirstOrDefault(t => Cache.Instance.PriorityTargets.All(pt => pt.Id != t.Id));
+                EntityCache target = highValueTargets.OrderByDescending(t => t.Distance).FirstOrDefault(t => Cache.Instance.PrimaryWeaponPriorityTargets.All(pt => pt.Id != t.Id));
                 if (target == null)
+                {
                     break;
+                }
 
-                Logging.Log("Combat", "unlocking high value target [" + target.Name + "][ID:" + target.Id + "]{" + highValueTargets.Count + "} [" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                Logging.Log("Combat", "unlocking high value target [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "]{" + highValueTargets.Count + "} [" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                 target.UnlockTarget();
                 highValueTargets.Remove(target);
                 Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
@@ -858,11 +849,11 @@ namespace Questor.Modules.Combat
             }
 
             // Do we have too many low value targets targeted?
-            while (lowValueTargets.Count > Math.Max(maxLowValueTarget - Cache.Instance.PriorityTargets.Count(), 0))
+            while (lowValueTargets.Count > Math.Max(maxLowValueTarget - Cache.Instance.PrimaryWeaponPriorityTargets.Count(), 0))
             {
                 // Unlock any target
                 EntityCache target = lowValueTargets.OrderByDescending(t => t.Distance).First();
-                Logging.Log("Combat", "unlocking low  value target [" + target.Name + "][ID:" + target.Id + "]{" + lowValueTargets.Count + "} [" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                Logging.Log("Combat", "unlocking low  value target [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "]{" + lowValueTargets.Count + "} [" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                 target.UnlockTarget();
                 lowValueTargets.Remove(target);
                 Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
@@ -872,15 +863,19 @@ namespace Questor.Modules.Combat
             // Do we have enough targeted?
             if ((highValueTargets.Count >= maxHighValueTarget && lowValueTargets.Count >= maxLowValueTarget) ||
                 ((highValueTargets.Count + lowValueTargets.Count) >= (maxHighValueTarget + maxLowValueTarget)))
+            {
                 return;
+            }
 
             // Do we have any priority targets?
-            IEnumerable<EntityCache> priority = Cache.Instance.PriorityTargets.Where(t => t.Distance < Cache.Instance.MaxRange && targets.All(c => c.Id != t.Id) && !Cache.Instance.IgnoreTargets.Contains(t.Name.Trim()));
+            IEnumerable<EntityCache> priority = Cache.Instance.PrimaryWeaponPriorityTargets.Where(t => t.Distance < Cache.Instance.MaxRange && targets.All(c => c.Id != t.Id) && !Cache.Instance.IgnoreTargets.Contains(t.Name.Trim()));
             foreach (EntityCache entity in priority)
             {
                 // Have we reached the limit of high value targets?
                 if (highValueTargets.Count >= maxHighValueTarget)
+                {
                     break;
+                }
 
                 if (entity.IsTarget || entity.IsTargeting) //This target is already targeted no need to target it again
                 {
@@ -889,11 +884,12 @@ namespace Questor.Modules.Combat
 
                 if (entity.LockTarget())
                 {
-                    Logging.Log("Combat", "Targeting priority target [" + entity.Name + "][ID:" + entity.Id + "][" + Math.Round(entity.Distance / 1000, 0) + "k away] highValueTargets.Count [" + highValueTargets.Count + "]", Logging.Teal);
+                    Logging.Log("Combat", "Targeting priority target [" + entity.Name + "][ID: " + Cache.Instance.MaskedID(entity.Id) + "][" + Math.Round(entity.Distance / 1000, 0) + "k away] highValueTargets.Count [" + highValueTargets.Count + "]", Logging.Teal);
                     highValueTargets.Add(entity);
                     Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                     return;
                 }
+
                 break;
             }
 
@@ -901,20 +897,23 @@ namespace Questor.Modules.Combat
             {
                 // Have we reached the limit of high value targets?
                 if (highValueTargets.Count >= maxHighValueTarget)
+                {
                     break;
+                }
 
                 if (entity.IsTarget || entity.IsTargeting) //This target is already targeted no need to target it again
                 {
-                    return;
+                    continue;
                 }
 
                 if (entity.LockTarget())
                 {
-                    Logging.Log("Combat", "Targeting high value target [" + entity.Name + "][ID:" + entity.Id + "][" + Math.Round(entity.Distance / 1000, 0) + "k away] highValueTargets.Count [" + highValueTargets.Count + "]", Logging.Teal);
+                    Logging.Log("Combat", "Targeting high value target [" + entity.Name + "][ID: " + Cache.Instance.MaskedID(entity.Id) + "][" + Math.Round(entity.Distance / 1000, 0) + "k away] highValueTargets.Count [" + highValueTargets.Count + "]", Logging.Teal);
                     highValueTargets.Add(entity);
                     Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                     return;
                 }
+
                 continue;
             }
 
@@ -922,7 +921,9 @@ namespace Questor.Modules.Combat
             {
                 // Have we reached the limit of low value targets?
                 if (lowValueTargets.Count >= maxLowValueTarget)
+                {
                     break;
+                }
 
                 if (entity.IsTarget || entity.IsTargeting) //This target is already targeted no need to target it again
                 {
@@ -931,11 +932,12 @@ namespace Questor.Modules.Combat
 
                 if (entity.LockTarget())
                 {
-                    Logging.Log("Combat", "Targeting low  value target [" + entity.Name + "][ID:" + entity.Id + "][" + Math.Round(entity.Distance / 1000, 0) + "k away] lowValueTargets.Count [" + lowValueTargets.Count + "]", Logging.Teal);
+                    Logging.Log("Combat", "Targeting low  value target [" + entity.Name + "][ID: " + Cache.Instance.MaskedID(entity.Id) + "][" + Math.Round(entity.Distance / 1000, 0) + "k away] lowValueTargets.Count [" + lowValueTargets.Count + "]", Logging.Teal);
                     lowValueTargets.Add(entity);
                     Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                     return;
                 }
+
                 continue;
             }
         }
@@ -943,7 +945,9 @@ namespace Questor.Modules.Combat
         public void ProcessState()
         {
             if (DateTime.UtcNow < _lastCombatProcessState.AddMilliseconds(500)) //if it has not been 500ms since the last time we ran this ProcessState return. We can't do anything that close together anyway
+            {
                 return;
+            }
 
             _lastCombatProcessState = DateTime.UtcNow;
 

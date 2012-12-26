@@ -78,20 +78,26 @@ namespace Questor.Modules.Actions
         private void StartConversation(string module)
         {
             Cache.Instance.AgentEffectiveStandingtoMe = Cache.Instance.DirectEve.Standings.EffectiveStanding(AgentId, Cache.Instance.DirectEve.Session.CharacterId ?? -1);
-            Cache.Instance.AgentEffectiveStandingtoMeText = Cache.Instance.AgentEffectiveStandingtoMe.ToString("0.00");
+            Cache.Instance.AgentCorpEffectiveStandingtoMe = Cache.Instance.DirectEve.Standings.EffectiveStanding(Agent.CorpId, Cache.Instance.DirectEve.Session.CharacterId ?? -1);
+            Cache.Instance.AgentFactionEffectiveStandingtoMe = Cache.Instance.DirectEve.Standings.EffectiveStanding(Agent.FactionId, Cache.Instance.DirectEve.Session.CharacterId ?? -1);
+
+            Cache.Instance.StandingUsedToAccessAgent = Math.Max(Cache.Instance.AgentEffectiveStandingtoMe,Math.Max(Cache.Instance.AgentCorpEffectiveStandingtoMe,Cache.Instance.AgentFactionEffectiveStandingtoMe));
+            
+            Cache.Instance.AgentEffectiveStandingtoMeText = Cache.Instance.StandingUsedToAccessAgent.ToString("0.00");
+
             //
             // Standings Check: if this is a totally new agent this check will timeout after 20 seconds
             //
             if (DateTime.UtcNow < _agentStandingsCheckTimeOut)
             {
-                if (((int)Cache.Instance.AgentEffectiveStandingtoMe == (int)0.00) && (AgentId == Cache.Instance.AgentId))
+                if (((int)Cache.Instance.StandingUsedToAccessAgent == (int)0.00) && (AgentId == Cache.Instance.AgentId))
                 {
                     if (!_agentStandingsCheckFlag)
                     {
                         _agentStandingsCheckTimeOut = DateTime.UtcNow.AddSeconds(20);
                         _agentStandingsCheckFlag = true;
                     }
-                    Logging.Log("AgentInteraction.StandingsCheck", " Agent [" + Cache.Instance.DirectEve.GetAgentById(AgentId).Name + "] Standings show as [" + Cache.Instance.AgentEffectiveStandingtoMe + " and must not yet be available. retrying for [" + Math.Round((double)_agentStandingsCheckTimeOut.Subtract(DateTime.UtcNow).Seconds, 0) + " sec]", Logging.Yellow);
+                    Logging.Log("AgentInteraction.StandingsCheck", " Agent [" + Cache.Instance.DirectEve.GetAgentById(AgentId).Name + "] Standings show as [" + Cache.Instance.StandingUsedToAccessAgent + " and must not yet be available. retrying for [" + Math.Round((double)_agentStandingsCheckTimeOut.Subtract(DateTime.UtcNow).Seconds, 0) + " sec]", Logging.Yellow);
                     return;
                 }
             }
@@ -523,7 +529,7 @@ namespace Questor.Modules.Actions
 
             if (Settings.Instance.DebugAllMissionsOnGreyList || Settings.Instance.MissionGreylist.Any(m => m.ToLower() == MissionName.ToLower())) //-1.7
             {
-                if (Cache.Instance.AgentEffectiveStandingtoMe > Settings.Instance.MinAgentGreyListStandings)
+                if (Cache.Instance.StandingUsedToAccessAgent > Settings.Instance.MinAgentGreyListStandings)
                 {
                     Cache.Instance.LastGreylistMissionDeclined = MissionName;
                     Cache.Instance.GreyListedMissionsDeclined++;
@@ -533,7 +539,7 @@ namespace Questor.Modules.Actions
                     return;
                 }
 
-                Logging.Log("AgentInteraction", "Unable to decline GreyListed mission: AgentEffectiveStandings [" + Cache.Instance.AgentEffectiveStandingtoMe + "] >  MinGreyListStandings [" + Settings.Instance.MinAgentGreyListStandings + "]", Logging.Orange);
+                Logging.Log("AgentInteraction", "Unable to decline GreyListed mission: AgentEffectiveStandings [" + Cache.Instance.StandingUsedToAccessAgent + "] >  MinGreyListStandings [" + Settings.Instance.MinAgentGreyListStandings + "]", Logging.Orange);
             }
             else
             {
@@ -737,21 +743,21 @@ namespace Questor.Modules.Actions
             if (html.Contains("Declining a mission from this agent within the next"))
             {
                 //this need to divide by 10 was a remnant of the html scrape method we were using before. this can likely be removed now.
-                if (Cache.Instance.AgentEffectiveStandingtoMe != 0)
+                if (Cache.Instance.StandingUsedToAccessAgent != 0)
                 {
-                    if (Cache.Instance.AgentEffectiveStandingtoMe > 10)
+                    if (Cache.Instance.StandingUsedToAccessAgent > 10)
                     {
-                        Logging.Log("AgentInteraction", "if (Cache.Instance.AgentEffectiveStandingtoMe > 10)", Logging.Yellow);
-                        Cache.Instance.AgentEffectiveStandingtoMe = Cache.Instance.AgentEffectiveStandingtoMe / 10;
+                        Logging.Log("AgentInteraction", "if (Cache.Instance.StandingUsedToAccessAgent > 10)", Logging.Yellow);
+                        Cache.Instance.StandingUsedToAccessAgent = Cache.Instance.StandingUsedToAccessAgent / 10;
                     }
 
                     if (Settings.Instance.MinAgentBlackListStandings > 10)
                     {
-                        Logging.Log("AgentInteraction", "if (Cache.Instance.AgentEffectiveStandingtoMe > 10)", Logging.Yellow);
+                        Logging.Log("AgentInteraction", "if (Cache.Instance.StandingUsedToAccessAgent > 10)", Logging.Yellow);
                         Settings.Instance.MinAgentBlackListStandings = Settings.Instance.MinAgentBlackListStandings / 10;
                     }
 
-                    Logging.Log("AgentInteraction", "Agent decline timer detected. Current standings: " + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + ". Minimum standings: " + Math.Round(Settings.Instance.MinAgentBlackListStandings, 2), Logging.Yellow);
+                    Logging.Log("AgentInteraction", "Agent decline timer detected. Current standings: " + Math.Round(Cache.Instance.StandingUsedToAccessAgent, 2) + ". Minimum standings: " + Math.Round(Settings.Instance.MinAgentBlackListStandings, 2), Logging.Yellow);
                 }
 
                 var hourRegex = new Regex("\\s(?<hour>\\d+)\\shour");
@@ -794,9 +800,9 @@ namespace Questor.Modules.Actions
                 //
                 // if WaitDecline is false we only wait if standings are below our configured minimums
                 //
-                if (Cache.Instance.AgentEffectiveStandingtoMe <= Settings.Instance.MinAgentBlackListStandings)
+                if (Cache.Instance.StandingUsedToAccessAgent <= Settings.Instance.MinAgentBlackListStandings)
                 {
-                    if (Settings.Instance.DebugDecline) Logging.Log("AgentInteraction", "if (Cache.Instance.AgentEffectiveStandingtoMe <= Settings.Instance.MinAgentBlackListStandings)", Logging.Debug);
+                    if (Settings.Instance.DebugDecline) Logging.Log("AgentInteraction", "if (Cache.Instance.StandingUsedToAccessAgent <= Settings.Instance.MinAgentBlackListStandings)", Logging.Debug);
                     
                     //
                     // If we have multiple agents defined - switch agents
@@ -811,7 +817,7 @@ namespace Questor.Modules.Actions
                             // wait.
                             //
                             _nextAgentAction = DateTime.UtcNow.AddSeconds(secondsToWait);
-                            Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + "] at or below configured minimum of [" + Settings.Instance.MinAgentBlackListStandings + "].  Waiting " + (secondsToWait / 60) + " minutes to try decline again because no other agents were avail for use.", Logging.Yellow);
+                            Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.StandingUsedToAccessAgent, 2) + "] at or below configured minimum of [" + Settings.Instance.MinAgentBlackListStandings + "].  Waiting " + (secondsToWait / 60) + " minutes to try decline again because no other agents were avail for use.", Logging.Yellow);
                             CloseConversation();
                             _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
                             return;
@@ -819,7 +825,7 @@ namespace Questor.Modules.Actions
                     }
 
                     _nextAgentAction = DateTime.UtcNow.AddSeconds(secondsToWait);
-                    Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + "] at or below configured minimum of [" + Settings.Instance.MinAgentBlackListStandings + "].  Waiting " + (secondsToWait / 60) + " minutes to try decline again.", Logging.Yellow);
+                    Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.StandingUsedToAccessAgent, 2) + "] at or below configured minimum of [" + Settings.Instance.MinAgentBlackListStandings + "].  Waiting " + (secondsToWait / 60) + " minutes to try decline again.", Logging.Yellow);
                     CloseConversation();
                     _States.CurrentAgentInteractionState = AgentInteractionState.StartConversation;
                     return;
@@ -842,7 +848,7 @@ namespace Questor.Modules.Actions
                     return;
                 }
 
-                Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.AgentEffectiveStandingtoMe, 2) + "] is above our configured minimum [" + Settings.Instance.MinAgentBlackListStandings + "].  Declining [" + Cache.Instance.Mission.Name + "] note: WaitDecline is false", Logging.Yellow);
+                Logging.Log("AgentInteraction", "Current standings [" + Math.Round(Cache.Instance.StandingUsedToAccessAgent, 2) + "] is above our configured minimum [" + Settings.Instance.MinAgentBlackListStandings + "].  Declining [" + Cache.Instance.Mission.Name + "] note: WaitDecline is false", Logging.Yellow);
             }
 
             //

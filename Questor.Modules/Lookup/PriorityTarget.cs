@@ -18,7 +18,9 @@ namespace Questor.Modules.Lookup
 
         public long EntityID { get; set; }
 
-        public Priority Priority { get; set; }
+        public PrimaryWeaponPriority PrimaryWeaponPriority { get; set; }
+
+        public DronePriority DronePriority { get; set; }
 
         public EntityCache Entity
         {

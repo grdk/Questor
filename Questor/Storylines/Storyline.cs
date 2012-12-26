@@ -259,7 +259,7 @@
                 _highSecChecked = true;
             }
 
-            if (Cache.Instance.PriorityTargets.Any(pt => pt != null && pt.IsValid))
+            if (Cache.Instance.PrimaryWeaponPriorityTargets.Any(pt => pt != null && pt.IsValid) || Cache.Instance.DronePriorityTargets.Any(pt => pt != null && pt.IsValid))
             {
                 Logging.Log("Storyline", "GotoAgent: Priority targets found, engaging!", Logging.Yellow);
                 _combat.ProcessState();

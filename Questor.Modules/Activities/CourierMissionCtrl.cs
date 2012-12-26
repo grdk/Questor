@@ -99,8 +99,46 @@ namespace Questor.Modules.Activities
             }
 
             Logging.Log("CourierMissionCtrl", "mission item is: " + missionItem, Logging.White);
-            DirectContainer from = pickup ? Cache.Instance.ItemHangar : Cache.Instance.CargoHold;
-            DirectContainer to = pickup ? Cache.Instance.CargoHold : Cache.Instance.ItemHangar;
+
+            DirectContainer from = null; // = pickup ? Cache.Instance.ItemHangar : Cache.Instance.CargoHold;
+            DirectContainer to = null; // = pickup ? Cache.Instance.CargoHold : Cache.Instance.ItemHangar;
+
+            if (_States.CurrentCourierMissionCtrlState == CourierMissionCtrlState.PickupItem || pickup)
+            {
+                //
+                // be flexible on the "from" as we might have the item needed in the ammohangar or loothangar if it is not available in the itemhangar
+                //
+                from = Cache.Instance.ItemHangar;
+                if (Cache.Instance.ItemHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
+                {
+                    from = Cache.Instance.ItemHangar;
+                }
+                else if (Cache.Instance.AmmoHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
+                {
+                    from = Cache.Instance.AmmoHangar;
+                }
+                else if (Cache.Instance.LootHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
+                {
+                    from = Cache.Instance.LootHangar;
+                }
+                else
+                {
+                    from = Cache.Instance.ItemHangar;
+                    //
+                    // we cant do the below because we run this routine multiple times after asking the items to move... maybe we need to track that
+                    //
+                    //Logging.Log("CourierMissionCtrl","Unable to find [" + missionItem + "] in any of the defined hangars - pausing",Logging.Teal);
+                    //Cache.Instance.Paused = true;
+                }
+                to = Cache.Instance.CargoHold;
+            }
+
+            if (_States.CurrentCourierMissionCtrlState == CourierMissionCtrlState.DropOffItem || !pickup)
+            {
+
+                from = Cache.Instance.CargoHold;
+                to = Cache.Instance.ItemHangar;
+            }
 
             // We moved the item
             if (to.Items.Any(i => i.TypeName == missionItem))

@@ -229,6 +229,9 @@ namespace Questor.Modules.Lookup
         public bool SalvageMultipleMissionsinOnePass { get; set; }
         public bool FirstSalvageBookmarksInSystem { get; set; }
         public string BookmarkPrefix { get; set; }
+
+        public string TravelToBookmarkPrefix { get; set; }
+
         public string UndockPrefix { get; set; }
         public int UndockDelay { get; set; }
         public int MinimumWreckCount { get; set; }
@@ -340,6 +343,11 @@ namespace Questor.Modules.Lookup
         public List<Ammo> Ammo { get; private set; }
 
         public int DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage { get; set; }
+
+        public int DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons { get; set; } //also requires SpeedFrigatesShouldBeIgnoredByMainWeapons
+        public int SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons { get; set; } //also requires DistanceFrigatesShouldBeIgnoredByMainWeapons
+        public bool ShootWarpScramblersWithPrimaryWeapons { get; set; }
+
         //
         // Script Settings - TypeIDs for the scripts you would like to use in these modules
         //
@@ -500,7 +508,7 @@ namespace Questor.Modules.Lookup
 
             if (Settings.Instance.SettingsPath == System.IO.Path.Combine(Settings.Instance.Path, ".xml"))
             {
-                if (Cache.Instance.LastInStation.AddMinutes(600) > DateTime.UtcNow)
+                if (DateTime.UtcNow > Cache.Instance.LastSessionChange.AddSeconds(30))
                 {
                     Logging.Log("Settings", "CharacterName not defined! - Are we still logged in? Did we lose connection to eve? Questor should be restarting here.", Logging.White);
                     Settings.Instance.CharacterName = "NoCharactersLoggedInAnymore";
@@ -518,7 +526,9 @@ namespace Questor.Modules.Lookup
 
             bool reloadSettings = true;
             if (File.Exists(Settings.Instance.SettingsPath))
-                reloadSettings = _lastModifiedDate != File.GetLastWriteTime(Settings.Instance.SettingsPath);
+            {
+                reloadSettings = _lastModifiedDate != File.GetLastWriteTime(Settings.Instance.SettingsPath);   
+            }
 
             if (!reloadSettings)
                 return;
@@ -735,6 +745,7 @@ namespace Questor.Modules.Lookup
                 CreateSalvageBookmarksIn = "Player"; //Player or Corp
                 //other setting is "Corp"
                 BookmarkPrefix = "Salvage:";
+                TravelToBookmarkPrefix = "MeetHere:";
                 MinimumWreckCount = 1;
                 AfterMissionSalvaging = false;
                 FirstSalvageBookmarksInSystem = false;
@@ -769,6 +780,10 @@ namespace Questor.Modules.Lookup
                 MaximumHighValueTargets = 2;
                 MaximumLowValueTargets = 2;
                 DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage = 60;
+                DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons = 7000; //also requires SpeedFrigatesShouldBeIgnoredByMainWeapons
+                SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons = 300; //also requires DistanceFrigatesShouldBeIgnoredByMainWeapons
+                ShootWarpScramblersWithPrimaryWeapons = true;
+
                 //
                 // Script Settings - TypeIDs for the scripts you would like to use in these modules
                 //
@@ -1152,6 +1167,7 @@ namespace Questor.Modules.Lookup
                         //Player or Corp
                         //other setting is "Corp"
                         BookmarkPrefix = (string)xml.Element("bookmarkPrefix") ?? "Salvage:";
+                        TravelToBookmarkPrefix = (string)xml.Element("travelToBookmarkPrefix") ?? "MeetHere:";
                         MinimumWreckCount = (int?)xml.Element("minimumWreckCount") ?? 1;
                         AfterMissionSalvaging = (bool?)xml.Element("afterMissionSalvaging") ?? false;
                         FirstSalvageBookmarksInSystem = (bool?)xml.Element("FirstSalvageBookmarksInSystem") ?? false;
@@ -1241,6 +1257,9 @@ namespace Questor.Modules.Lookup
                     MaximumHighValueTargets = (int?)xml.Element("maximumHighValueTargets") ?? 2;
                     MaximumLowValueTargets = (int?)xml.Element("maximumLowValueTargets") ?? 2;
                     DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage = (int?)xml.Element("doNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage") ?? 60;
+                    DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons = (int?)xml.Element("distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons") ?? 7000; //also requires SpeedFrigatesShouldBeIgnoredByMainWeapons
+                    SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons = (int?)xml.Element("speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons") ?? 300; //also requires DistanceFrigatesShouldBeIgnoredByMainWeapons
+                    ShootWarpScramblersWithPrimaryWeapons = (bool?)xml.Element("shootWarpScramblersWithPrimaryWeapons") ?? true;
 
                     //
                     // Script Settings - TypeIDs for the scripts you would like to use in these modules

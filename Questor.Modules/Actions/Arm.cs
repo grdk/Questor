@@ -52,6 +52,7 @@ namespace Questor.Modules.Actions
         private bool UseMissionShip; //false; // Were we successful in activating the mission specific ship?
         private bool CustomFittingFound;
         private bool WaitForFittingToLoad = true;
+        private int retryCount = 0;
 
         public void LoadSpecificAmmo(IEnumerable<DamageType> damageTypes)
         {
@@ -172,6 +173,7 @@ namespace Questor.Modules.Actions
                     bringOptionalItemQuantity = Math.Max(Cache.Instance.BringOptionalMissionItemQuantity, 1);
                     _bringoptionalItemMoved = false;
                     CheckCargoForOptionalBringItem = true;
+                    retryCount = 0;
 
                     //CheckCargoForAmmo = true;
 
@@ -585,6 +587,11 @@ namespace Questor.Modules.Actions
                     if (!Cache.Instance.CloseFittingManager("Arm")) return;
                     if (Settings.Instance.DebugArm) Logging.Log("ArmState.MoveItems", " finish if (!Cache.Instance.CloseFittingManager(Arm)) return;", Logging.Teal);
 
+                    //
+                    // Check for locked items if we are already moving items
+                    //
+                    #region check for item locks
+
                     if (ItemsAreBeingMoved)
                     {
                         if (Settings.Instance.DebugArm) Logging.Log("ArmState.MoveItems", "if (ItemsAreBeingMoved)", Logging.Teal);
@@ -606,10 +613,13 @@ namespace Questor.Modules.Actions
                         ItemsAreBeingMoved = false;
                         return;
                     }
+                    #endregion check for item locks
 
                     //
                     // Bring item
                     //
+                    #region Bring Item
+
                     string bringItem = Cache.Instance.BringMissionItem;
                     if (string.IsNullOrEmpty(bringItem))
                     {
@@ -643,9 +653,12 @@ namespace Questor.Modules.Actions
                                     // if we already have enough bringItems in our cargoHold then we are done
                                     //
                                     _bringItemMoved = true;
+                                    retryCount = 0;
                                     CheckCargoForBringItem = false;
-                                    break;
+                                    return;
                                 }
+
+                                continue;
                             }
                             CheckCargoForBringItem = false;
                         }
@@ -655,34 +668,50 @@ namespace Questor.Modules.Actions
                             if (hangarItem.ItemId <= 0 || hangarItem.Volume == 0.00 || hangarItem.Quantity == 0)
                             {
                                 _bringoptionalItemMoved = true;
+                                retryCount = 0;
                                 return;
                             }
 
                             int moveBringItemQuantity = Math.Min(hangarItem.Quantity, bringItemQuantity);
                             moveBringItemQuantity = Math.Max(moveBringItemQuantity, 1);
-                            Logging.Log("Arm.MoveItems", "Moving MissionItem [" + hangarItem.TypeName + "] to CargoHold", Logging.White);
+                            Logging.Log("Arm.MoveItems", "Moving Bring Item [" + hangarItem.TypeName + "] to CargoHold", Logging.White);
                             Cache.Instance.CargoHold.Add(hangarItem, moveBringItemQuantity);
 
                             bringItemQuantity = bringItemQuantity - moveBringItemQuantity;
                             if (bringItemQuantity <= 0)
                             {
                                 _bringItemMoved = true;
+                                retryCount = 0;
+                                return;
                             }
                             ItemsAreBeingMoved = true;
                             Cache.Instance.NextArmAction = DateTime.UtcNow.AddSeconds(1);
                             return;
                         }
-                        _bringItemMoved = false;
-                        _States.CurrentArmState = ArmState.NotEnoughAmmo;
-                        Cache.Instance.Paused = true;
+
+                        if (retryCount > 30)
+                        {
+                            _bringItemMoved = false;
+                            _States.CurrentArmState = ArmState.NotEnoughAmmo;
+                            Cache.Instance.Paused = true; 
+                        }
+                        retryCount++;
+                        return;
+                        
                     }
 
+                    #endregion Bring Item
+                    
                     //
                     // Try To Optional Bring item
                     //
+                    #region Optional Bring Item
+
                     string bringOptionalItem = Cache.Instance.BringOptionalMissionItem;
                     if (string.IsNullOrEmpty(bringOptionalItem))
+                    {
                         _bringoptionalItemMoved = true;
+                    }
 
                     if (!_bringoptionalItemMoved)
                     {
@@ -705,15 +734,20 @@ namespace Questor.Modules.Actions
                             foreach (DirectItem bringOptionalItemInCargo in cargoItems)
                             {
                                 bringOptionalItemQuantity -= bringOptionalItemInCargo.Quantity;
+                                Logging.Log("Arm.MoveItems", "Bring Optional Item: we found [" + bringOptionalItemInCargo + "][" + bringOptionalItemInCargo.Quantity + "] already in the cargo, we need [" + bringOptionalItemQuantity + "] more.", Logging.Teal);
                                 if (bringOptionalItemQuantity <= 0)
                                 {
                                     //
                                     // if we already have enough bringOptionalItems in our cargoHold then we are done
                                     //
+                                    Logging.Log("Arm.MoveItems", "Bring Optional Item: we have all the bring optional items we need.", Logging.Teal);
                                     _bringoptionalItemMoved = true;
+                                    retryCount = 0;
                                     CheckCargoForOptionalBringItem = false;
-                                    break;
+                                    return;
                                 }
+
+                                continue;
                             }
                             CheckCargoForOptionalBringItem = false;
                         }
@@ -722,26 +756,42 @@ namespace Questor.Modules.Actions
                         {
                             if (hangarItem.ItemId <= 0 || hangarItem.Volume == 0.00 || hangarItem.Quantity == 0)
                             {
-                                _bringoptionalItemMoved = true;
+                                Logging.Log("Arm.MoveItems", "Bring Optional Item: Error: retrying", Logging.Teal);
+                                _bringoptionalItemMoved = false;
                                 return;
                             }
 
                             int moveOptionalMissionItemQuantity = Math.Min(hangarItem.Quantity, bringOptionalItemQuantity);
                             moveOptionalMissionItemQuantity = Math.Max(moveOptionalMissionItemQuantity, 1);
-                            Logging.Log("Arm.MoveItems", "Moving MissionItem [" + hangarItem.TypeName + "] to CargoHold", Logging.White);
+                            Logging.Log("Arm.MoveItems", "Moving Bring Optional Item [" + hangarItem.TypeName + "] to CargoHold", Logging.White);
                             Cache.Instance.CargoHold.Add(hangarItem, moveOptionalMissionItemQuantity);
 
-                            bringOptionalItemQuantity = bringOptionalItemQuantity - moveOptionalMissionItemQuantity;
+                            bringOptionalItemQuantity -= moveOptionalMissionItemQuantity;
                             if (bringOptionalItemQuantity < 1)
                             {
+                                Logging.Log("Arm.MoveItems", "Bring Optional Item: we have all the bring optional items we need. [bringOptionalItemQuantity is now 0]", Logging.Teal);
                                 _bringoptionalItemMoved = true;
+                                retryCount = 0;
+                                return;
                             }
                             ItemsAreBeingMoved = true;
                             Cache.Instance.NextArmAction = DateTime.UtcNow.AddSeconds(1);
                             return;
                         }
-                        _bringoptionalItemMoved = true;
+
+                        if (retryCount > 30)
+                        {
+                            _bringoptionalItemMoved = true;    
+                        }
+                        retryCount++;
+                        return;
                     }
+                    #endregion optional bring item
+
+                    //
+                    // load ammo
+                    //
+                    #region load ammo
 
                     bool ammoMoved = false;
                     if (Cache.Instance.MissionAmmo.Count() != 0)
@@ -749,9 +799,6 @@ namespace Questor.Modules.Actions
                         AmmoToLoad = new List<Ammo>(Cache.Instance.MissionAmmo);
                     }
 
-                    //
-                    // load ammo
-                    //
                     if (!Cache.Instance.OpenCargoHold("Arm.MoveItems")) break;
                     if (!Cache.Instance.ReadyAmmoHangar("Arm.MoveItems")) break;
 
@@ -820,6 +867,8 @@ namespace Questor.Modules.Actions
 
                         _States.CurrentArmState = ArmState.NotEnoughAmmo;
                     }
+                    #endregion move ammo
+
                     break;
 
                 case ArmState.WaitForItems:

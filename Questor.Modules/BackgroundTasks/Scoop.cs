@@ -72,7 +72,7 @@ namespace Questor.Modules.BackgroundTasks
                 if (wreck == null)
                     return;
 
-                Logging.Log("Salvage", "Activating salvager [" + salvager.ItemId + "] on [" + wreck.Name + "][ID: " + wreck.Id + "]", Logging.White);
+                Logging.Log("Salvage", "Activating salvager [" + salvager.ItemId + "] on [" + wreck.Name + "][ID: " + Cache.Instance.MaskedID(wreck.Id) + "]", Logging.White);
                 salvager.Activate(wreck.Id);
             }
         }
@@ -102,7 +102,7 @@ namespace Questor.Modules.BackgroundTasks
             {
                 if (Cache.Instance.IgnoreTargets.Contains(wreck.Name))
                 {
-                    Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][ID: " + wreck.Id + "] on the ignore list, ignoring.", Logging.White);
+                    Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] on the ignore list, ignoring.", Logging.White);
                     wreck.UnlockTarget();
                     continue;
                 }
@@ -157,7 +157,7 @@ namespace Questor.Modules.BackgroundTasks
                         continue;
                 }
 
-                Logging.Log("Salvage", "Locking [" + wreck.Name + "][ID:" + wreck.Id + "][" + Math.Round(wreck.Distance / 1000, 0) + "k away]", Logging.White);
+                Logging.Log("Salvage", "Locking [" + wreck.Name + "][ID: " + Cache.Instance.MaskedID(wreck.Id) + "][" + Math.Round(wreck.Distance / 1000, 0) + "k away]", Logging.White);
 
                 wreck.LockTarget();
                 wreckTargets.Add(wreck);
@@ -330,7 +330,7 @@ namespace Questor.Modules.BackgroundTasks
                     //Logging.Log("Scoop: Looting container [" + containerEntity.Name + "][" + containerEntity.Id + "], [" + lootItems.Count + "] valuable items");
                 }
                 else
-                    Logging.Log("Scoop", "Container [" + containerEntity.Name + "][ID: " + containerEntity.Id + "] contained no valuable items", Logging.White);
+                    Logging.Log("Scoop", "Container [" + containerEntity.Name + "][ID: " + Cache.Instance.MaskedID(containerEntity.Id) + "] contained no valuable items", Logging.White);
             }
 
             // Open a container in range
@@ -354,7 +354,7 @@ namespace Questor.Modules.BackgroundTasks
                     continue;
 
                 // Open the container
-                Logging.Log("Scoop", "Opening container [" + containerEntity.Name + "][ID: " + containerEntity.Id + "]", Logging.White);
+                Logging.Log("Scoop", "Opening container [" + containerEntity.Name + "][ID: " + Cache.Instance.MaskedID(containerEntity.Id) + "]", Logging.White);
                 containerEntity.OpenCargo();
                 _openedContainers[containerEntity.Id] = DateTime.UtcNow;
                 break;

@@ -318,8 +318,13 @@
   <minimumAmmoCharges>6</minimumAmmoCharges>
   <!-- Weapon group (508 = Siege, 506 = Cruise, 771 = HAM, etc of the Launcher / Guns / Lasors, NOT the Ammo, *the weapon*) -->
   <weaponGroupId>508</weaponGroupId>
-  <!-- Use ONLY drones and NOT torps or autocannons on frigates -->
-  <DontShootFrigatesWithSiegeorAutoCannons>false</DontShootFrigatesWithSiegeorAutoCannons>
+  <!-- Use PrimaryWeapons on WarpScramblers, if you do not want to shoot warp dcramblers with your primary weapons, set this to false. -->
+  <shootWarpScramblersWithPrimaryWeapons>true</shootWarpScramblersWithPrimaryWeapons>
+  <!--  BOTH distance and speed have to be met before the NPC Frigate will be removed from the PrimaryWeapons PriorityTarget List... (under the distance, over the speed) -->
+  <!--  If you wish to effectively turn this off you can set the speedTargetsShouldBeIgnoredByMainWeapons to a very high number like: 9999999 -->
+  <speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>300</speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
+  <distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>7000</distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
+  
   <!-- Maximum number of targets per value -->
   <maximumHighValueTargets>4</maximumHighValueTargets><!-- default is 4 -->
   <maximumLowValueTargets>3</maximumLowValueTargets><!-- default is 3 -->

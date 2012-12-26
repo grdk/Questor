@@ -166,7 +166,7 @@ namespace Questor.Modules.BackgroundTasks
                 tractorBeam.Activate(wreck.Id);
                 tractorsProcessedThisTick++;
 
-                Logging.Log("Salvage", "Activating tractorbeam [" + ModuleNumber + "] on [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + wreck.Id + "]", Logging.White);
+                Logging.Log("Salvage", "Activating tractorbeam [" + ModuleNumber + "] on [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "]", Logging.White);
                 Cache.Instance.NextTractorBeamAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.SalvageDelayBetweenActions_milliseconds);
                 if (tractorsProcessedThisTick < Settings.Instance.NumberOfModulesToActivateInCycle)
                 {
@@ -229,7 +229,7 @@ namespace Questor.Modules.BackgroundTasks
                     return;
                 }
 
-                Logging.Log("Salvage", "Activating salvager [" + ModuleNumber + "] on [" + wreck.Name + "][ID: " + wreck.Id + "]", Logging.White);
+                Logging.Log("Salvage", "Activating salvager [" + ModuleNumber + "] on [" + wreck.Name + "][ID: " + Cache.Instance.MaskedID(wreck.Id) + "]", Logging.White);
                 salvager.Activate(wreck.Id);
                 salvagersProcessedThisTick++;
                 Cache.Instance.NextSalvageAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.SalvageDelayBetweenActions_milliseconds);
@@ -275,7 +275,7 @@ namespace Questor.Modules.BackgroundTasks
             {
                 if (Cache.Instance.IgnoreTargets.Contains(wreck.Name))
                 {
-                    Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + wreck.Id + "] on the ignore list, ignoring.", Logging.White);
+                    Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] on the ignore list, ignoring.", Logging.White);
                     wreck.UnlockTarget();
                     Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                     continue;
@@ -285,7 +285,7 @@ namespace Questor.Modules.BackgroundTasks
                 {
                     if (Settings.Instance.WreckBlackList.Any(a => a == wreck.TypeId) && (wreck.Distance < (int)Distance.SafeScoopRange || wreck.IsWreckEmpty))
                     {
-                        Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + wreck.Id + "] within loot range,wreck is empty, or wreck is on our blacklist, unlocking container.", Logging.White);
+                        Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] within loot range,wreck is empty, or wreck is on our blacklist, unlocking container.", Logging.White);
                         wreck.UnlockTarget();
                         Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                         continue;
@@ -301,7 +301,7 @@ namespace Questor.Modules.BackgroundTasks
                 // Unlock if within loot range
                 if (wreck.Distance < (int)Distance.SafeScoopRange)
                 {
-                    Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + wreck.Id + "] within loot range, unlocking container.", Logging.White);
+                    Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] within loot range, unlocking container.", Logging.White);
                     wreck.UnlockTarget();
                     Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                     continue;
@@ -316,7 +316,7 @@ namespace Questor.Modules.BackgroundTasks
                     return;
                 }
             }
-            else if (wreckTargets.Count >= MaximumWreckTargets)
+            else if (wreckTargets.Count >= MaximumWreckTargets || Cache.Instance.Targets.Count() >= Cache.Instance.DirectEve.ActiveShip.MaxLockedTargets)
             {
                 if (Settings.Instance.DebugTargetWrecks) Logging.Log("Salvage.TargetWrecks", "Debug: else if (wreckTargets.Count >= MaximumWreckTargets)", Logging.Teal);
                 return;
@@ -397,7 +397,7 @@ namespace Questor.Modules.BackgroundTasks
                     }
                 }
 
-                Logging.Log("Salvage", "Locking [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID:" + wreck.Id + "][" + Math.Round(wreck.Distance / 1000, 0) + "k away]", Logging.White);
+                Logging.Log("Salvage", "Locking [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "][" + Math.Round(wreck.Distance / 1000, 0) + "k away]", Logging.White);
 
                 wreck.LockTarget();
                 wreckTargets.Add(wreck);
@@ -486,7 +486,7 @@ namespace Questor.Modules.BackgroundTasks
                 //    continue;
 
                 // Open the container
-                Logging.Log("Salvage", "Opening container [" + containerEntity.Name + "][" + Math.Round(containerEntity.Distance / 1000, 0) + "k][ID: " + containerEntity.Id + "]", Logging.White);
+                Logging.Log("Salvage", "Opening container [" + containerEntity.Name + "][" + Math.Round(containerEntity.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(containerEntity.Id) + "]", Logging.White);
                 Cache.Instance.ContainerInSpace = Cache.Instance.DirectEve.GetContainer(containerEntity.Id);
                 if (Cache.Instance.ContainerInSpace == null)
                 {
@@ -687,12 +687,12 @@ namespace Questor.Modules.BackgroundTasks
                     // Loot actual items
                     if (lootItems.Count != 0)
                     {
-                        Logging.Log("Salvage.LootWrecks", "Looting container [" + containerEntity.Name + "][" + Math.Round(containerEntity.Distance / 1000, 0) + "k][ID: " + containerEntity.Id + "], [" + lootItems.Count + "] valuable items", Logging.White);
+                        Logging.Log("Salvage.LootWrecks", "Looting container [" + containerEntity.Name + "][" + Math.Round(containerEntity.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(containerEntity.Id) + "], [" + lootItems.Count + "] valuable items", Logging.White);
                         Cache.Instance.CargoHold.Add(lootItems.Select(i => i.DirectItem));
                     }
                     else
                     {
-                        Logging.Log("Salvage.LootWrecks", "Container [" + containerEntity.Name + "][" + Math.Round(containerEntity.Distance / 1000, 0) + "k][ID: " + containerEntity.Id + "] contained no valuable items", Logging.White);
+                        Logging.Log("Salvage.LootWrecks", "Container [" + containerEntity.Name + "][" + Math.Round(containerEntity.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(containerEntity.Id) + "] contained no valuable items", Logging.White);
                     }
 
                     return;
