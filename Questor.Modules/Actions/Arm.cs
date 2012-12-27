@@ -514,7 +514,7 @@ namespace Questor.Modules.Actions
                     {
                         if (!Cache.Instance.RepairItems("Arm.RepairShop [ALL]")) break; //attempt to use repair facilities if avail in station
                     }
-                    else if (Settings.Instance.UseStationRepair)
+                    else if (Settings.Instance.UseStationRepair && Settings.Instance.UseDrones)
                     {
                         if (!Cache.Instance.RepairDrones("Arm.RepairShop [Drones]")) break; //attempt to use repair facilities if avail in station
                     }
@@ -524,7 +524,7 @@ namespace Questor.Modules.Actions
 
                 case ArmState.MoveDrones:
 
-                    if (!Settings.Instance.UseDrones || (Cache.Instance.DirectEve.ActiveShip.GroupId == 31 || Cache.Instance.DirectEve.ActiveShip.GroupId == 28 || Cache.Instance.DirectEve.ActiveShip.GroupId == 380))
+                    if (!Settings.Instance.UseDrones || (Cache.Instance.DirectEve.ActiveShip.GroupId == (int)Group.Shuttle || Cache.Instance.DirectEve.ActiveShip.GroupId == (int)Group.Industrial || Cache.Instance.DirectEve.ActiveShip.GroupId == (int)Group.TransportShip))
                     {
                         _States.CurrentArmState = ArmState.MoveItems;
                         break;

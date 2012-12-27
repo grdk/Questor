@@ -173,13 +173,21 @@ namespace Questor.Modules.BackgroundTasks
 
                     if (Cache.Instance.InSpace)
                     {
-                        if (!Settings.Instance.ShootWarpScramblersWithPrimaryWeapons)
+                        EntityCache WarpScrambler = Cache.Instance.TargetedBy.FirstOrDefault(t => t.IsWarpScramblingMe);
+                        if (WarpScrambler != null)
                         {
-                            Cache.Instance.AddDronePriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsWarpScramblingMe), DronePriority.WarpScrambler, "Panic");
-                        }
-                        else
-                        {
-                            Cache.Instance.AddPrimaryWeaponPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsWarpScramblingMe), PrimaryWeaponPriority.WarpScrambler,"Panic");
+                            if (!Settings.Instance.ShootWarpScramblersWithPrimaryWeapons && !Cache.Instance.DronePriorityTargets.Contains(WarpScrambler))
+                            {
+                                Logging.Log("Panic", "Adding [" + WarpScrambler.Name + "] as a DronePriorityTarget", Logging.White);
+                                Cache.Instance.AddDronePriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsWarpScramblingMe), DronePriority.WarpScrambler, "Panic");
+                            }
+                            else if (!Cache.Instance.PrimaryWeaponPriorityTargets.Contains(WarpScrambler) || 
+                                (WarpScrambler.Velocity < Settings.Instance.SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons ||
+                                WarpScrambler.Distance > Settings.Instance.DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons))
+                            {
+                                Logging.Log("Panic", "Adding [" + WarpScrambler.Name + "] as a PrimaryWeaponPriorityTarget", Logging.White);
+                                Cache.Instance.AddPrimaryWeaponPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsWarpScramblingMe), PrimaryWeaponPriority.WarpScrambler, "Panic");
+                            }
                         }
 
                         if (Settings.Instance.SpeedTank)
