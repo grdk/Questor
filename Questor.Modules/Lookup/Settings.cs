@@ -1492,7 +1492,7 @@ namespace Questor.Modules.Lookup
                     // Mission Greylist
                     //
                     MissionGreylist.Clear();
-                    XElement xmlElementGreyListSection = xml.Element("graylist");
+                    XElement xmlElementGreyListSection = xml.Element("greylist");
 
                     if (xmlElementGreyListSection != null)
                     {
