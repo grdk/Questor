@@ -520,7 +520,7 @@ namespace Questor.Behaviors
                                 if (_lastModuleActivation < DateTime.UtcNow.AddMilliseconds(-350))
                                 {
                                     _lastModuleActivation = DateTime.UtcNow;
-                                    Logging.Log("Mining", "Activating mining tool [" + _minerNumber + "] on [" + _targetAsteroid.Name + "][ID: " + _targetAsteroid.Id + "][" + Math.Round(_targetAsteroid.Distance / 1000, 0) + "k away]", Logging.Teal);
+                                    Logging.Log("Mining", "Activating mining tool [" + _minerNumber + "] on [" + _targetAsteroid.Name + "][ID: " + Cache.Instance.MaskedID(_targetAsteroid.Id) + "][" + Math.Round(_targetAsteroid.Distance / 1000, 0) + "k away]", Logging.Teal);
 
                                     miningTool.Activate(_targetAsteroid.Id);
                                     miningTool.ActivatedTimeStamp = DateTime.UtcNow;

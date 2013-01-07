@@ -109,6 +109,9 @@ namespace Questor.Modules.Lookup
 
         public bool DebugStatistics { get; set; }
         public bool DebugStorylineMissions { get; set; }
+
+        public bool DebugTargetWrecks { get; set; }
+
         public bool DebugTractorBeams { get; set; }
         public bool DebugTraveler { get; set; }
         public bool DebugUI { get; set; }
@@ -150,7 +153,9 @@ namespace Questor.Modules.Lookup
         public float MinAgentGreyListStandings { get; set; }
         public string MissionsPath { get; set; }
         public bool RequireMissionXML { get; set; }
-        public bool LowSecMissionsInShuttles { get; set; }
+
+        public bool AllowNonStorylineCourierMissionsInLowSec { get; set; }
+
         public bool WaitDecline { get; set; }
         public bool MultiAgentSupport { get; private set; }
 
@@ -205,7 +210,6 @@ namespace Questor.Modules.Lookup
         //
         public bool UseHomebookmark { get; set; }
 
-
         //
         // Storage location for loot, ammo, and bookmarks
         //
@@ -217,9 +221,6 @@ namespace Questor.Modules.Lookup
 
         public string HighTierLootContainer { get; set; }
 
-        public bool MoveCommonMissionCompletionItemsToAmmoHangar { get; set; }
-        public bool MoveCommonMissionCompletionItemsToItemsHangar { get; set; }
-
         //
         // Salvage and Loot settings
         //
@@ -228,6 +229,9 @@ namespace Questor.Modules.Lookup
         public bool SalvageMultipleMissionsinOnePass { get; set; }
         public bool FirstSalvageBookmarksInSystem { get; set; }
         public string BookmarkPrefix { get; set; }
+
+        public string TravelToBookmarkPrefix { get; set; }
+
         public string UndockPrefix { get; set; }
         public int UndockDelay { get; set; }
         public int MinimumWreckCount { get; set; }
@@ -339,6 +343,11 @@ namespace Questor.Modules.Lookup
         public List<Ammo> Ammo { get; private set; }
 
         public int DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage { get; set; }
+
+        public int DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons { get; set; } //also requires SpeedFrigatesShouldBeIgnoredByMainWeapons
+        public int SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons { get; set; } //also requires DistanceFrigatesShouldBeIgnoredByMainWeapons
+        public bool ShootWarpScramblersWithPrimaryWeapons { get; set; }
+
         //
         // Script Settings - TypeIDs for the scripts you would like to use in these modules
         //
@@ -460,6 +469,13 @@ namespace Questor.Modules.Lookup
         public bool? EmailEnableSSL { get; set; }
 
         //
+        // Skill Training Settings
+        //
+        public bool ThisToonShouldBeTrainingSkills { get; set; } //as opposed to another toon on the same account
+
+        public string SkillTrainerScript { get; set; } //This needs to be in your "Innerspace\Scripts\" Directory
+
+        //
         // path information - used to load the XML and used in other modules
         //
         public string Path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -492,7 +508,7 @@ namespace Questor.Modules.Lookup
 
             if (Settings.Instance.SettingsPath == System.IO.Path.Combine(Settings.Instance.Path, ".xml"))
             {
-                if (Cache.Instance.LastInStation.AddMinutes(600) > DateTime.UtcNow)
+                if (DateTime.UtcNow > Cache.Instance.LastSessionChange.AddSeconds(30))
                 {
                     Logging.Log("Settings", "CharacterName not defined! - Are we still logged in? Did we lose connection to eve? Questor should be restarting here.", Logging.White);
                     Settings.Instance.CharacterName = "NoCharactersLoggedInAnymore";
@@ -510,7 +526,9 @@ namespace Questor.Modules.Lookup
 
             bool reloadSettings = true;
             if (File.Exists(Settings.Instance.SettingsPath))
-                reloadSettings = _lastModifiedDate != File.GetLastWriteTime(Settings.Instance.SettingsPath);
+            {
+                reloadSettings = _lastModifiedDate != File.GetLastWriteTime(Settings.Instance.SettingsPath);   
+            }
 
             if (!reloadSettings)
                 return;
@@ -571,6 +589,7 @@ namespace Questor.Modules.Lookup
                 DebugStates = false;
                 DebugStatistics = false;
                 DebugStorylineMissions = false;
+                DebugTargetWrecks = false;
                 DebugTractorBeams = false;
                 DebugTraveler = false;
                 DebugUI = false;
@@ -610,7 +629,7 @@ namespace Questor.Modules.Lookup
                 MissionsPath = System.IO.Path.Combine(Settings.Instance.Path, relativeMissionsPath);
                 //Logging.Log("Settings","Default MissionXMLPath is: [" + MissionsPath + "]",Logging.White);
                 RequireMissionXML = false;
-                LowSecMissionsInShuttles = false;
+                AllowNonStorylineCourierMissionsInLowSec = false;
                 MaterialsForWarOreID = 20;
                 MaterialsForWarOreQty = 8000;
                 KillSentries = false;
@@ -715,9 +734,7 @@ namespace Questor.Modules.Lookup
                 AmmoHangar = String.Empty;
                 BookmarkHangar = String.Empty;
                 LootContainer = String.Empty;
-                MoveCommonMissionCompletionItemsToAmmoHangar = false;
-                MoveCommonMissionCompletionItemsToItemsHangar = true;
-
+                
                 //
                 // Loot and Salvage Settings
                 //
@@ -728,6 +745,7 @@ namespace Questor.Modules.Lookup
                 CreateSalvageBookmarksIn = "Player"; //Player or Corp
                 //other setting is "Corp"
                 BookmarkPrefix = "Salvage:";
+                TravelToBookmarkPrefix = "MeetHere:";
                 MinimumWreckCount = 1;
                 AfterMissionSalvaging = false;
                 FirstSalvageBookmarksInSystem = false;
@@ -762,6 +780,10 @@ namespace Questor.Modules.Lookup
                 MaximumHighValueTargets = 2;
                 MaximumLowValueTargets = 2;
                 DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage = 60;
+                DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons = 7000; //also requires SpeedFrigatesShouldBeIgnoredByMainWeapons
+                SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons = 300; //also requires DistanceFrigatesShouldBeIgnoredByMainWeapons
+                ShootWarpScramblersWithPrimaryWeapons = true;
+
                 //
                 // Script Settings - TypeIDs for the scripts you would like to use in these modules
                 //
@@ -865,6 +887,13 @@ namespace Questor.Modules.Lookup
                 EmailEnableSSL = false;
 
                 //
+                // Skill Training Settings
+                //
+                ThisToonShouldBeTrainingSkills = true;
+                //This needs to be in your "Innerspace\Scripts\" Directory
+                SkillTrainerScript = "";
+                    
+                //
                 // Clear various lists
                 //
                 Ammo.Clear();
@@ -942,6 +971,7 @@ namespace Questor.Modules.Lookup
                     DebugStates = (bool?)xml.Element("debugStates") ?? false;                                               //enables more console logging having to do with the time it takes to execute each state
                     DebugStatistics = (bool?)xml.Element("debugStatistics") ?? false;
                     DebugStorylineMissions = (bool?)xml.Element("debugStorylineMissions") ?? false;
+                    DebugTargetWrecks = (bool?)xml.Element("debugTargetWrecks") ?? false;
                     DebugTraveler = (bool?)xml.Element("debugTraveler") ?? false;
                     DebugTractorBeams = (bool?)xml.Element("debugTractorBeams") ?? false;
                     DebugUI = (bool?)xml.Element("debugUI") ?? false;
@@ -986,7 +1016,7 @@ namespace Questor.Modules.Lookup
                     MissionsPath = System.IO.Path.Combine(Settings.Instance.Path, relativeMissionsPath);
                     Logging.Log("Settings", "MissionsPath is: [" + MissionsPath + "]", Logging.White);
                     RequireMissionXML = (bool?)xml.Element("requireMissionXML") ?? false;
-                    LowSecMissionsInShuttles = (bool?)xml.Element("LowSecMissions") ?? false;
+                    AllowNonStorylineCourierMissionsInLowSec = (bool?)xml.Element("LowSecMissions") ?? false;
                     MaterialsForWarOreID = (int?)xml.Element("MaterialsForWarOreID") ?? 20;
                     MaterialsForWarOreQty = (int?)xml.Element("MaterialsForWarOreQty") ?? 8000;
                     KillSentries = (bool?)xml.Element("killSentries") ?? false;
@@ -1064,7 +1094,7 @@ namespace Questor.Modules.Lookup
                         CombatShipName = (string)xml.Element("combatShipName") ?? "My frigate of doom";
                         SalvageShipName = (string)xml.Element("salvageShipName") ?? "My Destroyer of salvage";
                         TransportShipName = (string)xml.Element("transportShipName") ?? "My Hauler of transportation";
-                        TravelShipName = (string)xml.Element ("travelShipName") ?? "My Shuttle of traveling";
+                        TravelShipName = (string)xml.Element("travelShipName") ?? "My Shuttle of traveling";
                     }
                     catch (Exception exception)
                     {
@@ -1118,9 +1148,6 @@ namespace Questor.Modules.Lookup
                         {
                             HighTierLootContainer = HighTierLootContainer.ToLower();
                         }
-
-                        MoveCommonMissionCompletionItemsToAmmoHangar = (bool?)xml.Element("moveCommonMissionCompletionItemsToAmmoHangar") ?? false;
-                        MoveCommonMissionCompletionItemsToItemsHangar = (bool?)xml.Element("moveCommonMissionCompletionItemsToItemsHangar") ?? true;
                     }
                     catch (Exception exception)
                     {
@@ -1140,6 +1167,7 @@ namespace Questor.Modules.Lookup
                         //Player or Corp
                         //other setting is "Corp"
                         BookmarkPrefix = (string)xml.Element("bookmarkPrefix") ?? "Salvage:";
+                        TravelToBookmarkPrefix = (string)xml.Element("travelToBookmarkPrefix") ?? "MeetHere:";
                         MinimumWreckCount = (int?)xml.Element("minimumWreckCount") ?? 1;
                         AfterMissionSalvaging = (bool?)xml.Element("afterMissionSalvaging") ?? false;
                         FirstSalvageBookmarksInSystem = (bool?)xml.Element("FirstSalvageBookmarksInSystem") ?? false;
@@ -1229,6 +1257,9 @@ namespace Questor.Modules.Lookup
                     MaximumHighValueTargets = (int?)xml.Element("maximumHighValueTargets") ?? 2;
                     MaximumLowValueTargets = (int?)xml.Element("maximumLowValueTargets") ?? 2;
                     DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage = (int?)xml.Element("doNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage") ?? 60;
+                    DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons = (int?)xml.Element("distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons") ?? 7000; //also requires SpeedFrigatesShouldBeIgnoredByMainWeapons
+                    SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons = (int?)xml.Element("speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons") ?? 300; //also requires DistanceFrigatesShouldBeIgnoredByMainWeapons
+                    ShootWarpScramblersWithPrimaryWeapons = (bool?)xml.Element("shootWarpScramblersWithPrimaryWeapons") ?? true;
 
                     //
                     // Script Settings - TypeIDs for the scripts you would like to use in these modules
@@ -1324,6 +1355,12 @@ namespace Questor.Modules.Lookup
                     EmailAddressToSendAlerts = (string)xml.Element("emailAddressToSendAlerts") ?? "";
                     EmailEnableSSL = (bool?)xml.Element("emailEnableSSL") ?? false;
 
+                    //
+                    // Skill Training Settings
+                    //
+                    ThisToonShouldBeTrainingSkills = (bool?)xml.Element("thisToonShouldBeTrainingSkills") ?? true;
+                    //This needs to be in your "Innerspace\Scripts\" Directory
+                    SkillTrainerScript = (string)xml.Element("skillTrainerScript") ?? "skilltrainer.iss";
                     //
                     // number of days of console logs to keep (anything older will be deleted on startup)
                     //
@@ -1455,7 +1492,7 @@ namespace Questor.Modules.Lookup
                     // Mission Greylist
                     //
                     MissionGreylist.Clear();
-                    XElement xmlElementGreyListSection = xml.Element("graylist");
+                    XElement xmlElementGreyListSection = xml.Element("greylist");
 
                     if (xmlElementGreyListSection != null)
                     {

@@ -39,18 +39,16 @@
                                //{"StorylineCombatNameHere", new GenericCombatStoryline()},
                                //{"StorylineCourierNameHere", new GenericCourier()},
 
-                               /* COURIER/DELIVERY - ALL FACTIONS */
+                               /* COURIER/DELIVERY - ALL FACTIONS - LEVEL 4 */
                                {"Materials For War Preparation", new MaterialsForWarPreparation()},
                                {"Transaction Data Delivery", new TransactionDataDelivery()},
                                //{"A Special Delivery", new GenericCourier()}, // Needs 40k m3 cargo capacity (i.e. Iteron Mark V, T2 CHO rigs)
-                               /* COURIER/DELIVERY - AMARR */
                                /* COURIER/DELIVERY - AMARR - LEVEL 4 */
                                {"Opiate of the Masses", new GenericCourier()},
                                {"Send the Marines!", new GenericCourier()},
                                {"The Governors Ball", new GenericCourier()},
                                {"The State of the Empire", new GenericCourier()},
                                {"Unmasking the Traitor", new GenericCourier()},
-                               /* COURIER/DELIVERY - CALDARI */
                                /* COURIER/DELIVERY - CALDARI - LEVEL 1 */
                                //{"A Fathers Love", new GenericCourier()},
                                //{"A Greener World", new GenericCourier()},
@@ -63,7 +61,6 @@
                                {"Fire and Ice", new GenericCourier()},
                                {"Hunting Black Dog", new GenericCourier()},
                                {"Operation Doorstop", new GenericCourier()},
-                               /* COURIER/DELIVERY - GALLENTE */
                                /* COURIER/DELIVERY - GALLENTE - LEVEL 1 */
                                //{"A Little Work On The Side", new GenericCourier()},
                                //{"Ancient Treasures", new GenericCourier()},
@@ -71,50 +68,48 @@
                                //{"The Latest Style", new GenericCourier()},
                                //{"Wartime Advances", new GenericCourier()},
                                /* COURIER/DELIVERY - GALLENTE - LEVEL 4 */
-                               ////{"A Fine Wine", new GenericCourier()},
-                               ////{"The Natural Way", new GenericCourier()},
-                               /* COURIER/DELIVERY - MINMATAR */
+                               {"A Fine Wine", new GenericCourier()},
+                               {"Amphibian Error", new GenericCourier()},
+                               {"Shifting Rocks", new GenericCourier()},
+                               {"The Creeping Cold", new GenericCourier()},
+                               {"The Natural Way", new GenericCourier()},
                                /* COURIER/DELIVERY - MINMATAR - LEVEL 4 */
                                {"A Cargo With Attitude", new GenericCourier()},
                                {"A Load of Scrap", new GenericCourier()},
                                {"Brand New Harvesters", new GenericCourier()},
                                {"Heart of the Rogue Drone", new GenericCourier()},
                                {"Their Secret Defense", new GenericCourier()},
-                               /* COURIER/DELIVERY - MORE THAN ONE RACE */
                                
-                               /* COMBAT - ALL FACTIONS */
+                               /* COMBAT - ALL FACTIONS - LEVEL 4 */
                                {"Covering Your Tracks", new GenericCombatStoryline()},
                                {"Evolution", new GenericCombatStoryline()},
                                {"Patient Zero", new GenericCombatStoryline()},
                                {"Record Cleaning", new GenericCombatStoryline()},
                                {"Shipyard Theft", new GenericCombatStoryline()},
                                {"Soothe the Salvage Beast", new GenericCombatStoryline()},
-                               /* COMBAT - AMARR */
+                               /* COMBAT - AMARR - LEVEL 4 */
                                {"Blood Farm", new GenericCombatStoryline()},
                                {"Dissidents", new GenericCombatStoryline()},
-                               //{"Extract the Renegade", new GenericCombatStoryline()},
+                               {"Extract the Renegade", new GenericCombatStoryline()},
                                {"Gate to Nowhere", new GenericCombatStoryline()},
                                {"Racetrack Ruckus", new GenericCombatStoryline()},
                                {"Jealous Rivals", new GenericCombatStoryline()},
                                {"The Mouthy Merc", new GenericCombatStoryline()},
-                               /* COMBAT - CALDARI */
+                               /* COMBAT - CALDARI - LEVEL 4 */
                                {"Crowd Control", new GenericCombatStoryline()},
                                {"Forgotten Outpost", new GenericCombatStoryline()},
                                //{"Illegal Mining", new GenericCombatStoryline()}, // Extremely high DPS after shooting structures!
                                {"Innocents in the Crossfire", new GenericCombatStoryline()},
                                {"Stem the Flow", new GenericCombatStoryline()},
-                               /* COMBAT - GALLENTE */
-                               ////{"Kidnappers Strike - Ambush In The Dark (1 of 10)", new GenericCombatStoryline()},
-                               ////{"Kidnappers Strike - The Kidnapping (3 of 10)", new GenericCombatStoryline()},
-                               ////{"Kidnappers Strike - Incriminating Evidence (5 of 10)", new GenericCombatStoryline()},
-                               ////{"Kidnappers Strike - The Secret Meeting (7 of 10)", new GenericCombatStoryline()},
-                               ////{"Kidnappers Strike - Defend the Civilian Convoy (8 of 10)", new GenericCombatStoryline()},
-                               ////{"Kidnappers Strike - Retrieve the Prisoners (9 of 10)", new GenericCombatStoryline()},
-                               ////{"Kidnappers Strike - The Final Battle (10 of 10)", new GenericCombatStoryline()},
-                               ////{"Whispers in the Dark - First Contact (1 of 4)", new GenericCombatStoryline()},
-                               ////{"Whispers in the Dark - Lay and Pray (2 of 4)", new GenericCombatStoryline()},
-                               ////{"Whispers in the Dark - The Outpost (4 of 4)", new GenericCombatStoryline()},
-                               /* COMBAT - MINMATAR */
+                               /* COMBAT - GALLENTE - LEVEL 4 */
+                               {"Federal Confidence", new GenericCombatStoryline()},
+                               ////{"Hidden Hope", new GenericCombatStoryline()},
+                               ////{"Missing Persons Report", new GenericCombatStoryline()},
+                               ////{"Prison Transfer", new GenericCombatStoryline()},
+                               {"Serpentis Ship Builders", new GenericCombatStoryline()},
+                               ////{"The Serpent and the Slaves", new GenericCombatStoryline()},
+                               ////{"Tomb of the Unknown Soldiers", new GenericCombatStoryline()},
+                               /* COMBAT - MINMATAR - LEVEL 4 */
                                {"Amarrian Excavators", new GenericCombatStoryline()},
                                {"Diplomatic Incident", new GenericCombatStoryline()},
                                {"Matriarch", new GenericCombatStoryline()},  
@@ -122,7 +117,6 @@
                                {"Postmodern Primitives", new GenericCombatStoryline()},
                                {"Quota Season", new GenericCombatStoryline()},
                                {"The Blood of Angry Men", new GenericCombatStoryline()},
-                               /* COMBAT - MORE THAN ONE RACE */
                             };
         }
 
@@ -259,7 +253,7 @@
                 _highSecChecked = true;
             }
 
-            if (Cache.Instance.PriorityTargets.Any(pt => pt != null && pt.IsValid))
+            if (Cache.Instance.PrimaryWeaponPriorityTargets.Any(pt => pt != null && pt.IsValid) || Cache.Instance.DronePriorityTargets.Any(pt => pt != null && pt.IsValid))
             {
                 Logging.Log("Storyline", "GotoAgent: Priority targets found, engaging!", Logging.Yellow);
                 _combat.ProcessState();

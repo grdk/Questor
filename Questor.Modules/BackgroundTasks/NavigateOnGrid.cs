@@ -113,7 +113,7 @@ namespace Questor.Modules.BackgroundTasks
                         if (Settings.Instance.OrbitStructure && structure != null)
                         {
                             structure.Orbit(Cache.Instance.OrbitDistance);
-                            Logging.Log(module, "Initiating Orbit [" + structure.Name + "][ID: " + structure.Id + "]", Logging.Teal);
+                            Logging.Log(module, "Initiating Orbit [" + structure.Name + "][ID: " + Cache.Instance.MaskedID(structure.Id) + "]", Logging.Teal);
                             return;
                         }
 
@@ -123,7 +123,7 @@ namespace Questor.Modules.BackgroundTasks
                         if (Settings.Instance.SpeedTank)
                         {
                             target.Orbit(Cache.Instance.OrbitDistance);
-                            Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + target.Id + "]", Logging.Teal);
+                            Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "]", Logging.Teal);
                             return;
                         }
 
@@ -139,18 +139,18 @@ namespace Questor.Modules.BackgroundTasks
                                 if (DateTime.UtcNow > Cache.Instance.NextAlign)
                                 {
                                     Cache.Instance.Star.AlignTo();
-                                    Logging.Log(module, "Aligning to the Star so we might possibly hit [" + target.Name + "][ID: " + target.Id + "][ActiveShip.Entity.Mode:[" + Cache.Instance.DirectEve.ActiveShip.Entity.Mode + "]", Logging.Teal);
+                                    Logging.Log(module, "Aligning to the Star so we might possibly hit [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][ActiveShip.Entity.Mode:[" + Cache.Instance.DirectEve.ActiveShip.Entity.Mode + "]", Logging.Teal);
                                     return;
                                 }
                             }
 
                             target.Orbit(Cache.Instance.OrbitDistance);
-                            Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + target.Id + "]", Logging.Teal);
+                            Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "]", Logging.Teal);
                             return;
                         }
 
                         target.Orbit(Cache.Instance.OrbitDistance);
-                        Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + target.Id + "]", Logging.Teal);
+                        Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "]", Logging.Teal);
                         return;
                     }
                 }
@@ -158,7 +158,7 @@ namespace Questor.Modules.BackgroundTasks
                 {
                     Logging.Log(module, "Out of range. ignoring orbit around structure.", Logging.Teal);
                     target.Orbit(Cache.Instance.OrbitDistance);
-                    Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + target.Id + "]", Logging.Teal);
+                    Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "]", Logging.Teal);
                     Cache.Instance.NextOrbit = DateTime.UtcNow.AddSeconds(90);
                     return;
                 }
@@ -215,7 +215,7 @@ namespace Questor.Modules.BackgroundTasks
                             }
 
                             target.Approach(Settings.Instance.OptimalRange);
-                            Logging.Log(module, "Using Optimal Range: Approaching target [" + target.Name + "][ID: " + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                            Logging.Log(module, "Using Optimal Range: Approaching target [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                             return;
                         }
 
@@ -250,7 +250,7 @@ namespace Questor.Modules.BackgroundTasks
                                 return;
                             }
                             target.Approach((int)(Cache.Instance.WeaponRange * 0.8d));
-                            Logging.Log(module, "Using Weapons Range * 0.8d [" + Math.Round(Cache.Instance.WeaponRange * 0.8d / 1000, 0) + " k]: Approaching target [" + target.Name + "][ID: " + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                            Logging.Log(module, "Using Weapons Range * 0.8d [" + Math.Round(Cache.Instance.WeaponRange * 0.8d / 1000, 0) + " k]: Approaching target [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                             return;
                         }
 
@@ -302,12 +302,12 @@ namespace Questor.Modules.BackgroundTasks
                             if (orbitStructure && structure != null)
                             {
                                 structure.Orbit(Cache.Instance.OrbitDistance);
-                                Logging.Log(module, "Initiating Orbit [" + structure.Name + "][ID: " + structure.Id + "]", Logging.Teal);
+                                Logging.Log(module, "Initiating Orbit [" + structure.Name + "][ID: " + Cache.Instance.MaskedID(structure.Id) + "]", Logging.Teal);
                             }
                             else
                             {
                                 target.Orbit(Cache.Instance.OrbitDistance);
-                                Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + target.Id + "]", Logging.Teal);
+                                Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "]", Logging.Teal);
                             }
                             return;
                         }
@@ -316,7 +316,7 @@ namespace Questor.Modules.BackgroundTasks
                     {
                         Logging.Log(module, "Possible out of range. ignoring orbit around structure", Logging.Teal);
                         target.Orbit(Cache.Instance.OrbitDistance);
-                        Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + target.Id + "]", Logging.Teal);
+                        Logging.Log(module, "Initiating Orbit [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "]", Logging.Teal);
                         return;
                     }
                 }
@@ -332,7 +332,7 @@ namespace Questor.Modules.BackgroundTasks
                     if (target.Distance > Cache.Instance.MaxRange && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != target.Id))
                     {
                         target.Approach((int)(Distance.SafeDistancefromStructure));
-                        Logging.Log(module, "Using SafeDistanceFromStructure: Approaching target [" + target.Name + "][ID: " + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                        Logging.Log(module, "Using SafeDistanceFromStructure: Approaching target [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                     }
                     return;
                 }

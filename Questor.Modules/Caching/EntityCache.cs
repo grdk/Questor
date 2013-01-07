@@ -367,6 +367,10 @@ namespace Questor.Modules.Caching
                     {
                         haveLootRights |= _directEntity.CorpId == Cache.Instance.DirectEve.ActiveShip.Entity.CorpId;
                         haveLootRights |= _directEntity.OwnerId == Cache.Instance.DirectEve.ActiveShip.Entity.CharId;
+                        //
+                        // It would be nice if this were eventually extended to detect and include 'abandoned' wrecks (blue ones). 
+                        // I do not yet know what attributed actually change when that happens. We should collect some data. 
+                        //
                     }
 
                     return haveLootRights;
@@ -751,7 +755,9 @@ namespace Questor.Modules.Caching
 
             // Remove the target info (its been targeted)
             foreach (EntityCache target in Cache.Instance.Entities.Where(e => e.IsTarget).Where(t => Cache.Instance.TargetingIDs.ContainsKey(t.Id)))
+            {
                 Cache.Instance.TargetingIDs.Remove(target.Id);
+            }
 
             if (Cache.Instance.TargetingIDs.ContainsKey(Id))
             {

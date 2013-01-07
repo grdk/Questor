@@ -43,5 +43,8 @@
         Paused,
         Panic,
         Traveler,
+        OpenInventory,
+        ListInvTree,
+        OpenOreHold,
     }
 }

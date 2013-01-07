@@ -26,6 +26,15 @@ namespace Questor.Modules.States
             }
         }
 
+        public static void LavishEvent_SkillQueueHasRoom()
+        {
+            if (Settings.Instance.UseInnerspace)
+            {
+                uint SkillQueueHasRoomEvent = LavishScript.Events.RegisterEvent("SkillQueueHasRoom");
+                LavishScript.Events.ExecuteEvent(SkillQueueHasRoomEvent, "");
+            }
+        }
+
         public static void LavishEvent_QuestorCombatMissionsBehaviorState()
         {
             if (Settings.Instance.UseInnerspace)
@@ -196,8 +205,5 @@ namespace Questor.Modules.States
         public static ValueDumpState CurrentValueDumpState { get; set; }
 
         public static StorylineState CurrentStorylineState { get; set; }
-
-        //public static SkillTrainerState CurrentSkillTrainerState { get; set; }
-
     }
 }

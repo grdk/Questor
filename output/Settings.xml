@@ -6,32 +6,32 @@
   
   <debugActivateGate>false</debugActivateGate>
   <debugActivateWeapons>false</debugActivateWeapons>
-  <DebugAgentInteractionReplyToAgent>false</DebugAgentInteractionReplyToAgent>
+  <debugAgentInteractionReplyToAgent>false</debugAgentInteractionReplyToAgent>
   <debugAllMissionsOnBlackList>false</debugAllMissionsOnBlackList>
   <debugAllMissionsOnGreyList>false</debugAllMissionsOnGreyList>
   <debugArm>false</debugArm>
   <debugAttachVSDebugger>false</debugAttachVSDebugger>
   <debugAutoStart>false</debugAutoStart>
-  <DebugBlackList>false</DebugBlackList>
-  <DebugCargoHold>false</DebugCargoHold>
+  <debugBlackList>false</debugBlackList>
+  <debugCargoHold>false</debugCargoHold>
   <debugCleanup>false</debugCleanup>
   <debugDecline>false</debugDecline>
   <debugDefense>false</debugDefense>
   <debugDroneHealth>false</debugDroneHealth>
   <debugExceptions>false</debugExceptions>
-  <DebugFittingMgr>false</DebugFittingMgr>
+  <debugFittingMgr>false</debugFittingMgr>
   <debugGotobase>false</debugGotobase>
-  <DebugGreyList>false</DebugGreyList>
+  <debugGreyList>false</debugGreyList>
   <debugHangars>false</debugHangars>
   <debugIdle>false</debugIdle>
   <debugItemHangar>false</debugItemHangar>
   <debugLoadScripts>false</debugLoadScripts>
   <debugLogging>false</debugLogging>
   <debugLootWrecks>false</debugLootWrecks>
-  <DebugLootValue>false</DebugLootValue>
-  <DebugMaintainConsoleLogs>false</DebugMaintainConsoleLogs>
-  <DebugMissionFittings>false</DebugMissionFittings>
-  <DebugMoveTo>false</DebugMoveTo>
+  <debugLootValue>false</debugLootValue>
+  <debugMaintainConsoleLogs>false</debugMaintainConsoleLogs>
+  <debugMissionFittings>false</debugMissionFittings>
+  <debugMoveTo>false</debugMoveTo>
   <debugNavigateOnGrid>false</debugNavigateOnGrid>
   <debugOnframe>false</debugOnframe>
   <debugPerformance>false</debugPerformance>
@@ -42,9 +42,9 @@
   <debugScheduler>false</debugScheduler>
   <debugStates>false</debugStates>
   <debugStatistics>false</debugStatistics>
-  <DebugStorylineMissions>false</DebugStorylineMissions>
+  <debugStorylineMissions>false</debugStorylineMissions>
   <debugTraveler>false</debugTraveler>
-  <DebugTractorBeams>false</DebugTractorBeams>
+  <debugTractorBeams>false</debugTractorBeams>
   <debugUI>false</debugUI>
   <debugUnloadLoot>false</debugUnloadLoot>
   <debugValuedump>false</debugValuedump>
@@ -99,9 +99,9 @@
   <!-- AGENT AND MISSION SETTINGS -->
   <!--                                                         -->
   
-  <!-- Wait for mission decline timer to expire before declining again -->
+  <!-- Wait for you agents mission decline timer to expire before declining again -->
   <waitDecline>false</waitDecline>
-  <!-- MinAgentBlackListStandings is a number between -10 and 10 and is used for WaitDecline if WaitDecline is true, MinAgentBlackListStandings will only kick in if your standings have gone below MinAgentBlackListStandings -->
+  <!-- MinAgentBlackListStandings is a number between -10 and 10, if your standings have gone below MinAgentBlackListStandings you will wait between declines for the agent cooldown timer to expire -->
   <minAgentBlackListStandings>5.5</minAgentBlackListStandings>
   <!-- MinAgentGreyListStandings is a number between -10 and 10 and is used to determine if you can decline more greylist missions, Once you drop below this threshold greylist missions will be accepted in order to keep your standings up -->
   <minAgentGreyListStandings>6.0</minAgentGreyListStandings>
@@ -318,8 +318,13 @@
   <minimumAmmoCharges>6</minimumAmmoCharges>
   <!-- Weapon group (508 = Siege, 506 = Cruise, 771 = HAM, etc of the Launcher / Guns / Lasors, NOT the Ammo, *the weapon*) -->
   <weaponGroupId>508</weaponGroupId>
-  <!-- Use ONLY drones and NOT torps or autocannons on frigates -->
-  <DontShootFrigatesWithSiegeorAutoCannons>false</DontShootFrigatesWithSiegeorAutoCannons>
+  <!-- Use PrimaryWeapons on WarpScramblers, if you do not want to shoot warp dcramblers with your primary weapons, set this to false. -->
+  <shootWarpScramblersWithPrimaryWeapons>true</shootWarpScramblersWithPrimaryWeapons>
+  <!--  BOTH distance and speed have to be met before the NPC Frigate will be removed from the PrimaryWeapons PriorityTarget List... (under the distance, over the speed) -->
+  <!--  If you wish to effectively turn this off you can set the speedTargetsShouldBeIgnoredByMainWeapons to a very high number like: 9999999 -->
+  <speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>300</speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
+  <distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>7000</distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
+  
   <!-- Maximum number of targets per value -->
   <maximumHighValueTargets>4</maximumHighValueTargets><!-- default is 4 -->
   <maximumLowValueTargets>3</maximumLowValueTargets><!-- default is 3 -->
@@ -438,7 +443,7 @@
   <dronesKillHighValueTargets>false</dronesKillHighValueTargets>
 
   <!--                                                        -->
-  <!-- EMAIL SETTINGS -->
+  <!-- EMAIL SETTINGS                         -->
   <!--                                                        -->
   <emailSupport>false</emailSupport>
   <emailAddress></emailAddress>
@@ -449,8 +454,14 @@
   <emailEnableSSL>false</emailEnableSSL>
   
   <!--                                                        -->
-  <!-- MISSION BLACKLIST SETTINGS -->
+  <!-- SKILL TRAINING SETTINGS       -->
   <!--                                                        -->
+  <!-- If there is another toon on this account training at the moment this should be false -->
+  <thisToonShouldBeTrainingSkills>true</thisToonShouldBeTrainingSkills>
+  
+  <!--                                                          -->
+  <!-- MISSION BLACKLIST SETTINGS  -->
+  <!--                                                          -->
 
     <!-- List of factions which the bot will try to avoid -->
   <factionblacklist>

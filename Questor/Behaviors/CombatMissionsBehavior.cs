@@ -649,7 +649,7 @@ namespace Questor.Behaviors
                         Cache.Instance.MissionSolarSystem = Cache.Instance.DirectEve.Navigation.GetLocation(Traveler.Destination.SolarSystemId);
                     }
 
-                    if (Cache.Instance.PriorityTargets.Any(pt => pt != null && pt.IsValid))
+                    if (Cache.Instance.PrimaryWeaponPriorityTargets.Any(pt => pt != null && pt.IsValid) || Cache.Instance.DronePriorityTargets.Any(pt => pt != null && pt.IsValid))
                     {
                         Logging.Log("CombatMissionsBehavior.GotoMission", "Priority targets found, engaging!", Logging.White);
                         _combat.ProcessState();
@@ -1211,7 +1211,7 @@ namespace Questor.Behaviors
                         // Move to the target
                         if (Cache.Instance.NextApproachAction < DateTime.UtcNow && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closest.Id))
                         {
-                            Logging.Log("CombatMissionsBehavior.Salvage", "Approaching target [" + closest.Name + "][ID: " + closest.Id + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.White);
+                            Logging.Log("CombatMissionsBehavior.Salvage", "Approaching target [" + closest.Name + "][ID: " + Cache.Instance.MaskedID(closest.Id) + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.White);
                             closest.Approach();
                         }
                     }
