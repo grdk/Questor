@@ -374,7 +374,7 @@ namespace Questor.Modules.Caching
         public string MissionXmlPath { get; set; }
 
         public XDocument InvTypes;
-        public XDocument invIgnore;
+        public XDocument InvIgnore;
         public string Path;
 
         public bool LocalSafe(int maxBad, double stand)
