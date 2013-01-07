@@ -68,6 +68,8 @@
                                //{"The Latest Style", new GenericCourier()},
                                //{"Wartime Advances", new GenericCourier()},
                                /* COURIER/DELIVERY - GALLENTE - LEVEL 4 */
+                               {"A Fine Wine", new GenericCourier()},
+                               {"Amphibian Error", new GenericCourier()},
                                {"Shifting Rocks", new GenericCourier()},
                                {"The Creeping Cold", new GenericCourier()},
                                {"The Natural Way", new GenericCourier()},
@@ -88,7 +90,7 @@
                                /* COMBAT - AMARR - LEVEL 4 */
                                {"Blood Farm", new GenericCombatStoryline()},
                                {"Dissidents", new GenericCombatStoryline()},
-                               //{"Extract the Renegade", new GenericCombatStoryline()},
+                               {"Extract the Renegade", new GenericCombatStoryline()},
                                {"Gate to Nowhere", new GenericCombatStoryline()},
                                {"Racetrack Ruckus", new GenericCombatStoryline()},
                                {"Jealous Rivals", new GenericCombatStoryline()},
@@ -100,9 +102,11 @@
                                {"Innocents in the Crossfire", new GenericCombatStoryline()},
                                {"Stem the Flow", new GenericCombatStoryline()},
                                /* COMBAT - GALLENTE - LEVEL 4 */
+                               {"Federal Confidence", new GenericCombatStoryline()},
                                ////{"Hidden Hope", new GenericCombatStoryline()},
                                ////{"Missing Persons Report", new GenericCombatStoryline()},
-                               ////{"Serpentis Ship Builders", new GenericCombatStoryline()},
+                               ////{"Prison Transfer", new GenericCombatStoryline()},
+                               {"Serpentis Ship Builders", new GenericCombatStoryline()},
                                ////{"The Serpent and the Slaves", new GenericCombatStoryline()},
                                ////{"Tomb of the Unknown Soldiers", new GenericCombatStoryline()},
                                /* COMBAT - MINMATAR - LEVEL 4 */
