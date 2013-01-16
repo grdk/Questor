@@ -107,7 +107,7 @@
                                ////{"Missing Persons Report", new GenericCombatStoryline()},
                                ////{"Prison Transfer", new GenericCombatStoryline()},
                                {"Serpentis Ship Builders", new GenericCombatStoryline()},
-                               ////{"The Serpent and the Slaves", new GenericCombatStoryline()},
+                               {"The Serpent and the Slaves", new GenericCombatStoryline()},
                                ////{"Tomb of the Unknown Soldiers", new GenericCombatStoryline()},
                                /* COMBAT - MINMATAR - LEVEL 4 */
                                {"Amarrian Excavators", new GenericCombatStoryline()},
