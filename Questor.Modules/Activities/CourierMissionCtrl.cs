@@ -105,37 +105,44 @@ namespace Questor.Modules.Activities
 
             if (_States.CurrentCourierMissionCtrlState == CourierMissionCtrlState.PickupItem || pickup)
             {
-                //
-                // be flexible on the "from" as we might have the item needed in the ammohangar or loothangar if it is not available in the itemhangar
-                //
-                from = Cache.Instance.ItemHangar;
-                if (Cache.Instance.ItemHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
+                try
                 {
-                    from = Cache.Instance.ItemHangar;
-                }
-                else if (Cache.Instance.AmmoHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
-                {
-                    from = Cache.Instance.AmmoHangar;
-                }
-                else if (Cache.Instance.LootHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
-                {
-                    from = Cache.Instance.LootHangar;
-                }
-                else
-                {
-                    from = Cache.Instance.ItemHangar;
                     //
-                    // we cant do the below because we run this routine multiple times after asking the items to move... maybe we need to track that
+                    // be flexible on the "from" as we might have the item needed in the ammohangar or loothangar if it is not available in the itemhangar
                     //
-                    //Logging.Log("CourierMissionCtrl","Unable to find [" + missionItem + "] in any of the defined hangars - pausing",Logging.Teal);
-                    //Cache.Instance.Paused = true;
+                    from = Cache.Instance.ItemHangar;
+                    if (Cache.Instance.ItemHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
+                    {
+                        from = Cache.Instance.ItemHangar;
+                    }
+                    else if (Settings.Instance.AmmoHangar != null && Cache.Instance.AmmoHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
+                    {
+                        from = Cache.Instance.AmmoHangar;
+                    }
+                    else if (Settings.Instance.LootHangar != null && Cache.Instance.LootHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
+                    {
+                        from = Cache.Instance.LootHangar;
+                    }
+                    else
+                    {
+                        from = Cache.Instance.ItemHangar;
+                        //
+                        // we cant do the below because we run this routine multiple times after asking the items to move... maybe we need to track that
+                        //
+                        //Logging.Log("CourierMissionCtrl","Unable to find [" + missionItem + "] in any of the defined hangars - pausing",Logging.Teal);
+                        //Cache.Instance.Paused = true;
+                    }
+                    to = Cache.Instance.CargoHold;
                 }
-                to = Cache.Instance.CargoHold;
+                catch (Exception exception)
+                {
+                    Logging.Log("CourierMissionCtrl", "MoveItem: exception [" + exception + "]", Logging.Red);
+                    return false;
+                }
             }
 
             if (_States.CurrentCourierMissionCtrlState == CourierMissionCtrlState.DropOffItem || !pickup)
             {
-
                 from = Cache.Instance.CargoHold;
                 to = Cache.Instance.ItemHangar;
             }
@@ -160,6 +167,7 @@ namespace Questor.Modules.Activities
                 to.Add(item);
                 continue;
             }
+
             //_nextCourierAction = DateTime.UtcNow.AddSeconds(8);
             moveItemRetryCounter++;
             return false;
@@ -190,6 +198,8 @@ namespace Questor.Modules.Activities
                     break;
 
                 case CourierMissionCtrlState.PickupItem:
+                    if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20)) return;
+
                     if (moveItemRetryCounter > 20)
                     {
                         Cache.Instance.Paused = true;

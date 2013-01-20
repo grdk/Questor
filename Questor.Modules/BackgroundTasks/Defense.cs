@@ -101,6 +101,7 @@ namespace Questor.Modules.BackgroundTasks
                     module.GroupId == (int)Group.TrackingLink ||
                     module.GroupId == (int)Group.SensorBooster ||
                     module.GroupId == (int)Group.SensorDampener ||
+                    module.GroupId == (int)Group.CapacitorInjector ||
                     module.GroupId == (int)Group.AncillaryShieldBooster)
                 {
                     //if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "---Found mod that could take a script [typeid: " + module.TypeId + "][groupID: " + module.GroupId + "][module.CurrentCharges [" + module.CurrentCharges + "]", Logging.White);
@@ -108,6 +109,7 @@ namespace Questor.Modules.BackgroundTasks
                     {
                         if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "Found Activatable Module with no charge[typeID:" + module.TypeId + "]", Logging.White);
                         DirectItem scriptToLoad;
+
                         if (module.GroupId == (int)Group.TrackingDisruptor && _trackingDisruptorScriptAttempts < 5)
                         {
                             _trackingDisruptorScriptAttempts++;
@@ -148,7 +150,15 @@ namespace Questor.Modules.BackgroundTasks
                         {
                             _trackingComputerScriptAttempts++;
                             if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "TrackingComputer Found", Logging.White);
-                            scriptToLoad = Cache.Instance.CheckCargoForItem(Settings.Instance.TrackingComputerScript, 1);
+                            DirectItem TrackingComputerScript = Cache.Instance.CheckCargoForItem(Settings.Instance.TrackingComputerScript, 1);
+                            
+                            EntityCache EntityTrackingDisruptingMe = Cache.Instance.TargetedBy.FirstOrDefault(t => t.IsTrackingDisruptingMe);
+                            if (EntityTrackingDisruptingMe != null || TrackingComputerScript == null)
+                            {
+                                TrackingComputerScript = Cache.Instance.CheckCargoForItem((int)TypeID.OptimalRangeScript, 1);
+                            }
+
+                            scriptToLoad = TrackingComputerScript;
                             if (scriptToLoad != null)
                             {
                                 if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "Script Found for TrackingComputer", Logging.White);
@@ -413,7 +423,9 @@ namespace Questor.Modules.BackgroundTasks
 
                 double perc;
                 double cap;
-                if (module.GroupId == (int)Group.ShieldBoosters || module.GroupId == (int)Group.AncillaryShieldBooster)
+                if (module.GroupId == (int)Group.ShieldBoosters || 
+                    module.GroupId == (int)Group.AncillaryShieldBooster || 
+                    module.GroupId == (int)Group.CapacitorInjector)
                 {
                     ModuleNumber++;
                     perc = Cache.Instance.DirectEve.ActiveShip.ShieldPercentage;
@@ -429,7 +441,7 @@ namespace Questor.Modules.BackgroundTasks
                     continue;
 
                 bool inCombat = Cache.Instance.TargetedBy.Any();
-                if (!module.IsActive && ((inCombat && perc < Settings.Instance.ActivateRepairModules) || (!inCombat && perc < Settings.Instance.DeactivateRepairModules && Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage > Settings.Instance.SafeCapacitorPct)))
+                if (!module.IsActive && ((inCombat && cap < Settings.Instance.InjectCapPerc) || (inCombat && perc < Settings.Instance.ActivateRepairModules) || (!inCombat && perc < Settings.Instance.DeactivateRepairModules && Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage > Settings.Instance.SafeCapacitorPct)))
                 {
                     if (Cache.Instance.DirectEve.ActiveShip.ShieldPercentage < Cache.Instance.LowestShieldPercentageThisPocket)
                     {
@@ -455,7 +467,7 @@ namespace Questor.Modules.BackgroundTasks
                     if (module.GroupId == (int)Group.ShieldBoosters || module.GroupId == (int)Group.ArmorRepairer)
                         module.Click();
 
-                    if (module.GroupId == (int)Group.AncillaryShieldBooster)
+                    if (module.GroupId == (int)Group.AncillaryShieldBooster || module.GroupId == (int)Group.CapacitorInjector)
                     {
                         if (module.CurrentCharges > 0)
                         {
@@ -465,7 +477,7 @@ namespace Questor.Modules.BackgroundTasks
 
                     Cache.Instance.StartedBoosting = DateTime.UtcNow;
                     Cache.Instance.NextRepModuleAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.DefenceDelay_milliseconds);
-                    if (module.GroupId == (int)Group.ShieldBoosters || module.GroupId == (int)Group.AncillaryShieldBooster)
+                    if (module.GroupId == (int)Group.ShieldBoosters || module.GroupId == (int)Group.AncillaryShieldBooster || module.GroupId == (int)Group.CapacitorInjector)
                     {
                         perc = Cache.Instance.DirectEve.ActiveShip.ShieldPercentage;
                         Logging.Log("Defense", "Shields: [" + Math.Round(perc, 0) + "%] Cap: [" + Math.Round(cap, 0) + "%] Shield Booster: [" + ModuleNumber + "] activated", Logging.White);
@@ -491,14 +503,14 @@ namespace Questor.Modules.BackgroundTasks
                     continue;
                 }
 
-                if (module.IsActive && perc >= Settings.Instance.DeactivateRepairModules)
+                if (module.IsActive && (perc >= Settings.Instance.DeactivateRepairModules || module.GroupId == (int)Group.CapacitorInjector))
                 {
                     module.Click();
                     Cache.Instance.NextRepModuleAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.DefenceDelay_milliseconds);
                     Cache.Instance.RepairCycleTimeThisPocket = Cache.Instance.RepairCycleTimeThisPocket + ((int)DateTime.UtcNow.Subtract(Cache.Instance.StartedBoosting).TotalSeconds);
                     Cache.Instance.RepairCycleTimeThisMission = Cache.Instance.RepairCycleTimeThisMission + ((int)DateTime.UtcNow.Subtract(Cache.Instance.StartedBoosting).TotalSeconds);
                     Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
-                    if (module.GroupId == (int)Group.ShieldBoosters)
+                    if (module.GroupId == (int)Group.ShieldBoosters || module.GroupId == (int)Group.CapacitorInjector)
                     {
                         perc = Cache.Instance.DirectEve.ActiveShip.ShieldPercentage;
                         Logging.Log("Defense", "Shields: [" + Math.Round(perc, 0) + "%] Cap: [" + Math.Round(cap, 0) + "%] Shield Booster: [" + ModuleNumber + "] deactivated [" + Math.Round(Cache.Instance.NextRepModuleAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + "] sec reactivation delay", Logging.White);

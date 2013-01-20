@@ -558,6 +558,12 @@
                                 sayYes |= window.Html.Contains("objectives requiring a total capacity");
                                 sayYes |= window.Html.Contains("your ship only has space for");
                                 sayYes |= window.Html.Contains("Are you sure you want to remove location");
+
+                                //
+                                // Accept fleet invites from this specific character
+                                //
+                                sayYes |= window.Html.Contains(Settings.Instance.CharacterToAcceptInvitesFrom + " wants you to join their fleet");
+
                                 //sayyes |= window.Html.Contains("Repairing these items will cost");
                                 sayYes |= window.Html.Contains("Are you sure you would like to decline this mission");
                                 //sayyes |= window.Html.Contains("You can decline a mission every four hours without penalty");
@@ -568,7 +574,8 @@
                                 //
                                 sayOk |= window.Html.Contains("Are you sure you want to accept this offer?");
                                 sayOk |= window.Html.Contains("Repairing these items will cost");
-                                
+                                sayOk |= window.Html.Contains("You do not have an outstanding invitation to this fleet.");
+
                                 //
                                 // Modal Dialogs the need "no" pressed
                                 //

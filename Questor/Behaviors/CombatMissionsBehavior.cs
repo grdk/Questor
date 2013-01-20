@@ -777,6 +777,7 @@ namespace Questor.Behaviors
                         }
                         else if (_States.CurrentCombatState != CombatState.OutOfAmmo && Cache.Instance.Mission != null && Cache.Instance.Mission.State == (int)MissionState.Accepted)
                         {
+                            ValidateCombatMissionSettings();
                             _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.CompleteMission;
                         }
                         else

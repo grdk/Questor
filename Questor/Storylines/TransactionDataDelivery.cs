@@ -1,4 +1,5 @@
-﻿namespace Questor.Storylines
+﻿
+namespace Questor.Storylines
 {
     using System;
     using System.Linq;
@@ -8,6 +9,7 @@
     using global::Questor.Modules.States;
     using global::Questor.Modules.Caching;
     using global::Questor.Modules.Logging;
+    using global::Questor.Modules.Lookup;
 
     public class TransactionDataDelivery : IStoryline
     {
@@ -25,14 +27,14 @@
 
             // Are we in a shuttle?  Yes, go to the agent
             DirectEve directEve = Cache.Instance.DirectEve;
-            if (directEve.ActiveShip.GroupId == 31)
+            if (directEve.ActiveShip.GroupId == (int)Group.Shuttle)
                 return StorylineState.GotoAgent;
 
             // Open the ship hangar
             if (!Cache.Instance.OpenShipsHangar("TransactionDataDelivery")) return StorylineState.Arm;
 
             //  Look for a shuttle
-            DirectItem item = Cache.Instance.ShipHangar.Items.FirstOrDefault(i => i.Quantity == -1 && i.GroupId == 31);
+            DirectItem item = Cache.Instance.ShipHangar.Items.FirstOrDefault(i => i.Quantity == -1 && i.GroupId == (int)Group.Shuttle);
             if (item != null)
             {
                 Logging.Log("TransactionDataDelivery", "Switching to shuttle", Logging.White);

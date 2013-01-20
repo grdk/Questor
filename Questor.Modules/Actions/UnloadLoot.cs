@@ -345,11 +345,17 @@ namespace Questor.Modules.Actions
                         // items to move has to be cleared here before assigning but is currently not being cleared here
                         //
                         scriptsToMove = Cache.Instance.CargoHold.Items.Where(i =>
-                            i.GroupId == (int)Group.TrackingScript ||
-                            i.GroupId == (int)Group.WarpDisruptionScript ||
-                            i.GroupId == (int)Group.TrackingDisruptionScript ||
-                            i.GroupId == (int)Group.SensorBoosterScript ||
-                            i.GroupId == (int)Group.SensorDampenerScript ||
+                            i.TypeId == (int)TypeID.AncillaryShieldBoosterScript ||
+                            i.TypeId == (int)TypeID.CapacitorInjectorScript ||
+                            i.TypeId == (int)TypeID.FocusedWarpDisruptionScript ||
+                            i.TypeId == (int)TypeID.OptimalRangeDisruptionScript ||
+                            i.TypeId == (int)TypeID.OptimalRangeScript ||
+                            i.TypeId == (int)TypeID.ScanResolutionDampeningScript ||
+                            i.TypeId == (int)TypeID.ScanResolutionScript ||
+                            i.TypeId == (int)TypeID.TargetingRangeDampeningScript ||
+                            i.TypeId == (int)TypeID.TargetingRangeScript ||
+                            i.TypeId == (int)TypeID.TrackingSpeedDisruptionScript ||
+                            i.TypeId == (int)TypeID.TrackingSpeedScript ||
                             i.GroupId == (int)Group.CapacitorGroupCharge).ToList();
                     }
                     catch (Exception exception)

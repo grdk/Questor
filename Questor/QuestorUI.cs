@@ -220,6 +220,26 @@ namespace Questor
                         LastSessionChangeData.Text = Cache.Instance.LastSessionChange.ToLongTimeString();
                         AutostartData.Text = Settings.Instance.AutoStart.ToString(CultureInfo.InvariantCulture);
 
+                        if (Settings.Instance.UserDefinedLavishScriptScript1Description != string.Empty)
+                        {
+                            lblUserDefinedScript1.Text = Settings.Instance.UserDefinedLavishScriptScript1Description;    
+                        }
+
+                        if (Settings.Instance.UserDefinedLavishScriptScript2Description != string.Empty)
+                        {
+                            lblUserDefinedScript2.Text = Settings.Instance.UserDefinedLavishScriptScript2Description;
+                        }
+
+                        if (Settings.Instance.UserDefinedLavishScriptScript3Description != string.Empty)
+                        {
+                            lblUserDefinedScript3.Text = Settings.Instance.UserDefinedLavishScriptScript3Description;
+                        }
+
+                        if (Settings.Instance.UserDefinedLavishScriptScript4Description != string.Empty)
+                        {
+                            lblUserDefinedScript4.Text = Settings.Instance.UserDefinedLavishScriptScript4Description;
+                        }
+
                         DamageTypeData.Text = Cache.Instance.DamageType.ToString();
 
                         //OrbitDistanceData.Text = Cache.Instance.OrbitDistance.ToString(CultureInfo.InvariantCulture);
@@ -391,6 +411,14 @@ namespace Questor
                         BehaviorComboBox.Items.Add(text);
                     }
                 }
+                //if (_States.CurrentQuestorState == QuestorState.BackgroundBehavior)
+                //{
+                //    BehaviorComboBox.Items.Clear();
+                //    foreach (string text in Enum.GetNames(typeof(BackgroundBehaviorState)))
+                //    {
+                //        BehaviorComboBox.Items.Add(text);
+                //    }
+                //}
             }
         }
 
@@ -398,15 +426,16 @@ namespace Questor
         {
             //if (Settings.Instance.UseInnerspace)
             //{
-                LavishScript.Commands.AddCommand("SetAutoStart", SetAutoStart);
-                LavishScript.Commands.AddCommand("SetDisable3D", SetDisable3D);
-                LavishScript.Commands.AddCommand("SetExitWhenIdle", SetExitWhenIdle);
-                LavishScript.Commands.AddCommand("SetQuestorStatetoCloseQuestor", SetQuestorStatetoCloseQuestor);
-                LavishScript.Commands.AddCommand("SetQuestorStatetoIdle", SetQuestorStatetoIdle);
-                LavishScript.Commands.AddCommand("SetCombatMissionsBehaviorStatetoGotoBase", SetCombatMissionsBehaviorStatetoGotoBase);
-                LavishScript.Commands.AddCommand("SetDedicatedBookmarkSalvagerBehaviorStatetoGotoBase", SetDedicatedBookmarkSalvagerBehaviorStatetoGotoBase);
-                LavishScript.Commands.AddCommand("QuestorCommands", ListQuestorCommands);
-                LavishScript.Commands.AddCommand("QuestorEvents", ListQuestorEvents);
+            LavishScript.Commands.AddCommand("SetAutoStart", SetAutoStart);
+            LavishScript.Commands.AddCommand("SetDisable3D", SetDisable3D);
+            LavishScript.Commands.AddCommand("SetExitWhenIdle", SetExitWhenIdle);
+            LavishScript.Commands.AddCommand("SetQuestorStatetoCloseQuestor", SetQuestorStatetoCloseQuestor);
+            LavishScript.Commands.AddCommand("SetQuestorStatetoIdle", SetQuestorStatetoIdle);
+            LavishScript.Commands.AddCommand("SetCombatMissionsBehaviorStatetoGotoBase", SetCombatMissionsBehaviorStatetoGotoBase);
+            LavishScript.Commands.AddCommand("SetDedicatedBookmarkSalvagerBehaviorStatetoGotoBase", SetDedicatedBookmarkSalvagerBehaviorStatetoGotoBase);
+            LavishScript.Commands.AddCommand("QuestorCommands", ListQuestorCommands);
+            LavishScript.Commands.AddCommand("QuestorEvents", ListQuestorEvents);
+            LavishScript.Commands.AddCommand("IfInPodSwitchToNoobShiporShuttle", IfInPodSwitchToNoobShiporShuttle);
             //}
         }
 
@@ -560,6 +589,20 @@ namespace Questor
             return 0;
         }
 
+        private int IfInPodSwitchToNoobShiporShuttle(string[] args)
+        {
+            if (args.Length != 1)
+            {
+                Logging.Log("QuestorUI", "IfInPodSwitchToNoobShiporShuttle - If the toon is in a pod switch to a noobship or shuttle if avail (otherwise do nothing)", Logging.White);
+                return -1;
+            }
+
+            //_States.CurrentBackgroundBehaviorState = BackgroundBehaviorState.SwitchToNoobShip1;
+
+            Logging.Log("QuestorUI", "CurrentBackgroundBehaviorState is now: SwitchToNoobShip1 ", Logging.White);
+            return 0;
+        }
+
         private void UpdateUiTick(object sender, EventArgs e)
         {
             //if (Settings.Instance.DebugUI) Logging.Log("QuestorUI", "UpdateUiTick", Logging.White);
@@ -649,10 +692,19 @@ namespace Questor
                 }
             }
 
+            //if (_States.CurrentQuestorState == QuestorState.BackgroundBehavior)
+            //{
+            //    if ((string)BehaviorComboBox.SelectedItem != _States.CurrentBackgroundBehaviorState.ToString() && !BehaviorComboBox.DroppedDown)
+            //    {
+            //        BehaviorComboBox.SelectedItem = _States.CurrentBackgroundBehaviorState.ToString();
+            //    }
+            //}
+
             if ((string)DamageTypeComboBox.SelectedItem != Cache.Instance.DamageType.ToString() && !DamageTypeComboBox.DroppedDown)
             {
                 DamageTypeComboBox.SelectedItem = Cache.Instance.DamageType.ToString();
             }
+
             //
             // Middle group
             //
@@ -1075,6 +1127,11 @@ namespace Questor
             {
                 _States.CurrentMiningState = (MiningState)Enum.Parse(typeof(MiningState), BehaviorComboBox.Text);
             }
+            //if (_States.CurrentQuestorState == QuestorState.BackgroundBehavior)
+            //{
+            //    _States.CurrentBackgroundBehaviorState = (BackgroundBehaviorState)Enum.Parse(typeof(BackgroundBehaviorState), BehaviorComboBox.Text);
+            //    //_States.LavishEvent_QuestorCombatMissionsBehaviorState();
+            //}
 
             try
             {
@@ -1705,6 +1762,58 @@ namespace Questor
         {
             Logging.Log("QuestorUI", "Setting: Cache.Instance.SessionState to [Quitting] - the next Questor.Idle state should see and process this.", Logging.Debug);
             Cache.Instance.SessionState = "Quitting";
+        }
+
+        private void bttnUserDefinedScript1_Click(object sender, EventArgs e)
+        {
+            if (Settings.Instance.UserDefinedLavishScriptScript1 != string.Empty)
+            {
+                Logging.Log("QuestorUI", "Running User Defined LavishScript Script #1 [" + Settings.Instance.UserDefinedLavishScriptScript1 + "]", Logging.Debug);
+                LavishScript.ExecuteCommand("runscript " + Settings.Instance.UserDefinedLavishScriptScript1);    
+            }
+            else
+            {
+                Logging.Log("QuestorUI", "User Defined LavishScript Script #1 is not defined in your characters settings xml: doing nothing", Logging.Debug);
+            }
+        }
+
+        private void bttnUserDefinedScript2_Click(object sender, EventArgs e)
+        {
+            if (Settings.Instance.UserDefinedLavishScriptScript2 != string.Empty)
+            {
+                Logging.Log("QuestorUI", "Running User Defined LavishScript Script #1 [" + Settings.Instance.UserDefinedLavishScriptScript2 + "]", Logging.Debug);
+                LavishScript.ExecuteCommand("runscript " + Settings.Instance.UserDefinedLavishScriptScript2);
+            }
+            else
+            {
+                Logging.Log("QuestorUI", "User Defined LavishScript Script #2 is not defined in your characters settings xml: doing nothing", Logging.Debug);
+            }
+        }
+
+        private void bttnUserDefinedScript3_Click(object sender, EventArgs e)
+        {
+            if (Settings.Instance.UserDefinedLavishScriptScript3 != string.Empty)
+            {
+                Logging.Log("QuestorUI", "Running User Defined LavishScript Script #1 [" + Settings.Instance.UserDefinedLavishScriptScript3 + "]", Logging.Debug);
+                LavishScript.ExecuteCommand("runscript " + Settings.Instance.UserDefinedLavishScriptScript3);
+            }
+            else
+            {
+                Logging.Log("QuestorUI", "User Defined LavishScript Script #3 is not defined in your characters settings xml: doing nothing", Logging.Debug);
+            }
+        }
+
+        private void bttnUserDefinedScript4_Click(object sender, EventArgs e)
+        {
+            if (Settings.Instance.UserDefinedLavishScriptScript4 != string.Empty)
+            {
+                Logging.Log("QuestorUI", "Running User Defined LavishScript Script #1 [" + Settings.Instance.UserDefinedLavishScriptScript4 + "]", Logging.Debug);
+                LavishScript.ExecuteCommand("runscript " + Settings.Instance.UserDefinedLavishScriptScript4);
+            }
+            else
+            {
+                Logging.Log("QuestorUI", "User Defined LavishScript Script #4 is not defined in your characters settings xml: doing nothing", Logging.Debug);
+            }
         }
     }
 }

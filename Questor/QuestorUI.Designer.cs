@@ -559,6 +559,19 @@
             this.label273 = new System.Windows.Forms.Label();
             this.label274 = new System.Windows.Forms.Label();
             this.tabLowSlots = new System.Windows.Forms.TabPage();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.label277 = new System.Windows.Forms.Label();
+            this.lblUserDefinedScript4 = new System.Windows.Forms.Label();
+            this.label279 = new System.Windows.Forms.Label();
+            this.lblUserDefinedScript3 = new System.Windows.Forms.Label();
+            this.label278 = new System.Windows.Forms.Label();
+            this.lblUserDefinedScript2 = new System.Windows.Forms.Label();
+            this.lblUserDefinedScript1 = new System.Windows.Forms.Label();
+            this.label31 = new System.Windows.Forms.Label();
+            this.bttnUserDefinedScript4 = new System.Windows.Forms.Button();
+            this.bttnUserDefinedScript3 = new System.Windows.Forms.Button();
+            this.bttnUserDefinedScript2 = new System.Windows.Forms.Button();
+            this.bttnUserDefinedScript1 = new System.Windows.Forms.Button();
             this.tabMiscInfo.SuspendLayout();
             this.tabTimeStamps.SuspendLayout();
             this.tabMissions.SuspendLayout();
@@ -586,6 +599,7 @@
             this.tabShipInfo.SuspendLayout();
             this.tabHighSlots1to4.SuspendLayout();
             this.tabHighSlots5to8.SuspendLayout();
+            this.tabPage1.SuspendLayout();
             this.SuspendLayout();
             // 
             // AutoStartCheckBox
@@ -2799,6 +2813,7 @@
             this.Tabs.Controls.Add(this.tabMiscInfo);
             this.Tabs.Controls.Add(this.Inventory);
             this.Tabs.Controls.Add(this.tabModules);
+            this.Tabs.Controls.Add(this.tabPage1);
             this.Tabs.Location = new System.Drawing.Point(4, 115);
             this.Tabs.Name = "Tabs";
             this.Tabs.SelectedIndex = 0;
@@ -5918,6 +5933,148 @@
             this.tabLowSlots.Text = "LowSlots";
             this.tabLowSlots.UseVisualStyleBackColor = true;
             // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.label277);
+            this.tabPage1.Controls.Add(this.lblUserDefinedScript4);
+            this.tabPage1.Controls.Add(this.label279);
+            this.tabPage1.Controls.Add(this.lblUserDefinedScript3);
+            this.tabPage1.Controls.Add(this.label278);
+            this.tabPage1.Controls.Add(this.lblUserDefinedScript2);
+            this.tabPage1.Controls.Add(this.lblUserDefinedScript1);
+            this.tabPage1.Controls.Add(this.label31);
+            this.tabPage1.Controls.Add(this.bttnUserDefinedScript4);
+            this.tabPage1.Controls.Add(this.bttnUserDefinedScript3);
+            this.tabPage1.Controls.Add(this.bttnUserDefinedScript2);
+            this.tabPage1.Controls.Add(this.bttnUserDefinedScript1);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(687, 262);
+            this.tabPage1.TabIndex = 9;
+            this.tabPage1.Text = "Custom";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // label277
+            // 
+            this.label277.AutoSize = true;
+            this.label277.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.label277.Location = new System.Drawing.Point(167, 153);
+            this.label277.Name = "label277";
+            this.label277.Size = new System.Drawing.Size(63, 13);
+            this.label277.TabIndex = 163;
+            this.label277.Text = "Description:";
+            // 
+            // lblUserDefinedScript4
+            // 
+            this.lblUserDefinedScript4.AutoSize = true;
+            this.lblUserDefinedScript4.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblUserDefinedScript4.Location = new System.Drawing.Point(236, 153);
+            this.lblUserDefinedScript4.Name = "lblUserDefinedScript4";
+            this.lblUserDefinedScript4.Size = new System.Drawing.Size(24, 13);
+            this.lblUserDefinedScript4.TabIndex = 162;
+            this.lblUserDefinedScript4.Text = "n/a";
+            // 
+            // label279
+            // 
+            this.label279.AutoSize = true;
+            this.label279.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.label279.Location = new System.Drawing.Point(167, 113);
+            this.label279.Name = "label279";
+            this.label279.Size = new System.Drawing.Size(63, 13);
+            this.label279.TabIndex = 161;
+            this.label279.Text = "Description:";
+            // 
+            // lblUserDefinedScript3
+            // 
+            this.lblUserDefinedScript3.AutoSize = true;
+            this.lblUserDefinedScript3.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblUserDefinedScript3.Location = new System.Drawing.Point(236, 113);
+            this.lblUserDefinedScript3.Name = "lblUserDefinedScript3";
+            this.lblUserDefinedScript3.Size = new System.Drawing.Size(24, 13);
+            this.lblUserDefinedScript3.TabIndex = 160;
+            this.lblUserDefinedScript3.Text = "n/a";
+            // 
+            // label278
+            // 
+            this.label278.AutoSize = true;
+            this.label278.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.label278.Location = new System.Drawing.Point(167, 73);
+            this.label278.Name = "label278";
+            this.label278.Size = new System.Drawing.Size(63, 13);
+            this.label278.TabIndex = 159;
+            this.label278.Text = "Description:";
+            // 
+            // lblUserDefinedScript2
+            // 
+            this.lblUserDefinedScript2.AutoSize = true;
+            this.lblUserDefinedScript2.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblUserDefinedScript2.Location = new System.Drawing.Point(236, 73);
+            this.lblUserDefinedScript2.Name = "lblUserDefinedScript2";
+            this.lblUserDefinedScript2.Size = new System.Drawing.Size(24, 13);
+            this.lblUserDefinedScript2.TabIndex = 157;
+            this.lblUserDefinedScript2.Text = "n/a";
+            // 
+            // lblUserDefinedScript1
+            // 
+            this.lblUserDefinedScript1.AutoSize = true;
+            this.lblUserDefinedScript1.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblUserDefinedScript1.Location = new System.Drawing.Point(236, 32);
+            this.lblUserDefinedScript1.Name = "lblUserDefinedScript1";
+            this.lblUserDefinedScript1.Size = new System.Drawing.Size(24, 13);
+            this.lblUserDefinedScript1.TabIndex = 156;
+            this.lblUserDefinedScript1.Text = "n/a";
+            // 
+            // label31
+            // 
+            this.label31.AutoSize = true;
+            this.label31.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.label31.Location = new System.Drawing.Point(167, 32);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(63, 13);
+            this.label31.TabIndex = 155;
+            this.label31.Text = "Description:";
+            // 
+            // bttnUserDefinedScript4
+            // 
+            this.bttnUserDefinedScript4.Location = new System.Drawing.Point(27, 142);
+            this.bttnUserDefinedScript4.Name = "bttnUserDefinedScript4";
+            this.bttnUserDefinedScript4.Size = new System.Drawing.Size(134, 34);
+            this.bttnUserDefinedScript4.TabIndex = 154;
+            this.bttnUserDefinedScript4.Text = "Run UserDefined LavishScript Script #4";
+            this.bttnUserDefinedScript4.UseVisualStyleBackColor = true;
+            this.bttnUserDefinedScript4.Click += new System.EventHandler(this.bttnUserDefinedScript4_Click);
+            // 
+            // bttnUserDefinedScript3
+            // 
+            this.bttnUserDefinedScript3.Location = new System.Drawing.Point(27, 102);
+            this.bttnUserDefinedScript3.Name = "bttnUserDefinedScript3";
+            this.bttnUserDefinedScript3.Size = new System.Drawing.Size(134, 34);
+            this.bttnUserDefinedScript3.TabIndex = 153;
+            this.bttnUserDefinedScript3.Text = "Run UserDefined LavishScript Script #3";
+            this.bttnUserDefinedScript3.UseVisualStyleBackColor = true;
+            this.bttnUserDefinedScript3.Click += new System.EventHandler(this.bttnUserDefinedScript3_Click);
+            // 
+            // bttnUserDefinedScript2
+            // 
+            this.bttnUserDefinedScript2.Location = new System.Drawing.Point(27, 62);
+            this.bttnUserDefinedScript2.Name = "bttnUserDefinedScript2";
+            this.bttnUserDefinedScript2.Size = new System.Drawing.Size(134, 34);
+            this.bttnUserDefinedScript2.TabIndex = 152;
+            this.bttnUserDefinedScript2.Text = "Run UserDefined LavishScript Script #2";
+            this.bttnUserDefinedScript2.UseVisualStyleBackColor = true;
+            this.bttnUserDefinedScript2.Click += new System.EventHandler(this.bttnUserDefinedScript2_Click);
+            // 
+            // bttnUserDefinedScript1
+            // 
+            this.bttnUserDefinedScript1.Location = new System.Drawing.Point(27, 21);
+            this.bttnUserDefinedScript1.Name = "bttnUserDefinedScript1";
+            this.bttnUserDefinedScript1.Size = new System.Drawing.Size(134, 35);
+            this.bttnUserDefinedScript1.TabIndex = 151;
+            this.bttnUserDefinedScript1.Text = "Run UserDefined LavishScript Script #1";
+            this.bttnUserDefinedScript1.UseVisualStyleBackColor = true;
+            this.bttnUserDefinedScript1.Click += new System.EventHandler(this.bttnUserDefinedScript1_Click);
+            // 
             // QuestorfrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -5994,6 +6151,8 @@
             this.tabHighSlots1to4.PerformLayout();
             this.tabHighSlots5to8.ResumeLayout(false);
             this.tabHighSlots5to8.PerformLayout();
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -6528,6 +6687,19 @@
         private System.Windows.Forms.Button bttnOpenOreHold;
         private System.Windows.Forms.Button bttnOpenInventory;
         private System.Windows.Forms.Button bttnListInvTree;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.Label label277;
+        private System.Windows.Forms.Label lblUserDefinedScript4;
+        private System.Windows.Forms.Label label279;
+        private System.Windows.Forms.Label lblUserDefinedScript3;
+        private System.Windows.Forms.Label label278;
+        private System.Windows.Forms.Label lblUserDefinedScript2;
+        private System.Windows.Forms.Label lblUserDefinedScript1;
+        private System.Windows.Forms.Label label31;
+        private System.Windows.Forms.Button bttnUserDefinedScript4;
+        private System.Windows.Forms.Button bttnUserDefinedScript3;
+        private System.Windows.Forms.Button bttnUserDefinedScript2;
+        private System.Windows.Forms.Button bttnUserDefinedScript1;
     }
 }
 

@@ -201,11 +201,11 @@ namespace Questor.Modules.BackgroundTasks
                 if (DateTime.UtcNow > Cache.Instance.NextApproachAction)
                 {
                     //if optimalrange is set - use it to determine engagement range
-                    if (Settings.Instance.OptimalRange != 0)
+                    if (Cache.Instance.OptimalRange != 0)
                     {
-                        if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange: OptimalRange [ " + Settings.Instance.OptimalRange + "] Current Distance to [" + target.Name + "] is [" + Math.Round(target.Distance / 1000, 0) + "]", Logging.White);
+                        if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange: OptimalRange [ " + Cache.Instance.OptimalRange + "] Current Distance to [" + target.Name + "] is [" + Math.Round(target.Distance / 1000, 0) + "]", Logging.White);
 
-                        if (target.Distance > Settings.Instance.OptimalRange + (int)Distance.OptimalRangeCushion && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != target.Id))
+                        if (target.Distance > Cache.Instance.OptimalRange + (int)Distance.OptimalRangeCushion && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != target.Id))
                         {
                             if (target.IsNPCFrigate)
                             {
@@ -214,12 +214,12 @@ namespace Questor.Modules.BackgroundTasks
                                 return;
                             }
 
-                            target.Approach(Settings.Instance.OptimalRange);
+                            target.Approach(Cache.Instance.OptimalRange);
                             Logging.Log(module, "Using Optimal Range: Approaching target [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                             return;
                         }
 
-                        if (target.Distance <= Settings.Instance.OptimalRange)
+                        if (target.Distance <= Cache.Instance.OptimalRange)
                         {
                             if ((target.IsNPCFrigate) && (Cache.Instance.Approaching == null || Cache.Instance.MyShip.Velocity < 100))
                             {

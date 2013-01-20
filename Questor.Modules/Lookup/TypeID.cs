@@ -11,11 +11,6 @@ namespace Questor.Modules.Lookup
 {
     public enum TypeID
     {
-        TrackingDisruptorScript = 29007,
-        TrackingComputerScript = 29001,
-        TrackingLinkScript = 29001,
-        SensorBoosterScript = 29009,
-        SensorDampenerScript = 29015,
         AncillaryShieldBoosterScript = 11289,
         CapacitorInjectorScript = 11289,
 
@@ -33,6 +28,15 @@ namespace Questor.Modules.Lookup
         MetalScraps = 15331,
         ReinforcedMetalScraps = 30497,
 
+        OptimalRangeScript = 	28999,
+        TrackingSpeedScript = 29001,
+        FocusedWarpDisruptionScript = 29003,
+        OptimalRangeDisruptionScript = 29005,
+        TrackingSpeedDisruptionScript = 29007,
+        TargetingRangeScript = 29009,
+        ScanResolutionScript = 29011,
+        ScanResolutionDampeningScript = 29013,
+        TargetingRangeDampeningScript = 29015,
 
 
         //Minmater Rookie Ship

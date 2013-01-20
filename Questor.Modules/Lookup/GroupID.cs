@@ -129,6 +129,7 @@ namespace Questor.Modules.Lookup
         ElectronicAttackShip = 893,
         PrototypeExplorationShip = 1022,
 
+        RookieShip = 237,
         Cruiser = 26,
         HeavyAssaultShip = 358,
         Logistics = 832,
