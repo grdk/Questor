@@ -105,7 +105,7 @@
                                {"Federal Confidence", new GenericCombatStoryline()},
                                ////{"Hidden Hope", new GenericCombatStoryline()},
                                ////{"Missing Persons Report", new GenericCombatStoryline()},
-                               ////{"Prison Transfer", new GenericCombatStoryline()},
+                               {"Prison Transfer", new GenericCombatStoryline()},
                                {"Serpentis Ship Builders", new GenericCombatStoryline()},
                                {"The Serpent and the Slaves", new GenericCombatStoryline()},
                                {"Tomb of the Unknown Soldiers", new GenericCombatStoryline()},
