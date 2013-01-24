@@ -1990,6 +1990,11 @@ namespace Questor.Modules.Caching
                                     continue;
                                 }
 
+                                if (pocket.Element("orbitentitynamed") != null)
+                                {
+                                    OrbitEntityNamed = (string)pocket.Element("orbitentitynamed");
+                                }
+
                                 if (pocket.Element("damagetype") != null)
                                 {
                                     DamageType = (DamageType)Enum.Parse(typeof(DamageType), (string)pocket.Element("damagetype"), true);
@@ -2348,7 +2353,7 @@ namespace Questor.Modules.Caching
             double curY = DirectEve.ActiveShip.Entity.Y;
             double curZ = DirectEve.ActiveShip.Entity.Z;
 
-            return Math.Sqrt((curX - x) * (curX - x) + (curY - y) * (curY - y) + (curZ - z) * (curZ - z));
+            return Math.Round(Math.Sqrt((curX - x) * (curX - x) + (curY - y) * (curY - y) + (curZ - z) * (curZ - z)),2);
         }
 
         /// <summary>
@@ -5469,7 +5474,10 @@ namespace Questor.Modules.Caching
 
                 //repair items in items hangar and drone bay of active ship also
                 repairAllItems.AddRange(Cache.Instance.ItemHangar.Items);
-                repairAllItems.AddRange(Cache.Instance.DroneBay.Items);
+                if (Settings.Instance.UseDrones)
+                {
+                    repairAllItems.AddRange(Cache.Instance.DroneBay.Items);
+                }
 
                 if (repairAllItems.Any())
                 {
