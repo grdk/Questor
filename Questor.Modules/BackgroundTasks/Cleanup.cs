@@ -32,8 +32,8 @@
 
         public static bool CloseQuestor()
         {
-            // 30 seconds + 10 to 90 seconds + 1 to 9 seconds before restarting
-            int secRestart = (300 * 1) + Cache.Instance.RandomNumber(1, 9) * 100 + Cache.Instance.RandomNumber(1, 9) * 10;
+            // 30 seconds + 1 to 60 seconds + 1 to 60 seconds before restarting (this should make each instance a bit more spread out over 2 min)
+            int secRestart = (300 * 1) + Cache.Instance.RandomNumber(10, 600) + Cache.Instance.RandomNumber(10, 600);
 
             // so that IF we changed the state we would not be caught in a loop of re-entering QuestorState.CloseQuestor
             // keep in mind that CloseQuestor() itself DOES need to run multiple times across multiple iterations 
@@ -669,9 +669,9 @@
                             if (window.Name.Contains("_ShipDroneBay_") && window.Caption == "Drone Bay")
                             {
                                 if (Settings.Instance.UseDrones &&
-                                   (Cache.Instance.DirectEve.ActiveShip.GroupId != 31 &&
-                                    Cache.Instance.DirectEve.ActiveShip.GroupId != 28 &&
-                                    Cache.Instance.DirectEve.ActiveShip.GroupId != 380 &&
+                                   (Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Shuttle &&
+                                    Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Industrial &&
+                                    Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.TransportShip &&
                                     _droneBayClosingAttempts <= 1))
                                 {
                                     _lastCleanupAction = DateTime.UtcNow;

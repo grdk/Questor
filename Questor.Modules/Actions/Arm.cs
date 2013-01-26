@@ -472,7 +472,7 @@ namespace Questor.Modules.Actions
                             return;
                         }
 
-                        if (_States.CurrentQuestorState == QuestorState.CombatMissionsBehavior)
+                        if (_States.CurrentQuestorState == QuestorState.CombatMissionsBehavior) // || _States.CurrentQuestorState == QuestorState.BackgroundBehavior)
                         {
                             if (Settings.Instance.DebugFittingMgr) Logging.Log("Arm.LoadFitting", "if (_States.CurrentQuestorState == QuestorState.CombatMissionsBehavior)", Logging.Teal);
 
@@ -493,15 +493,13 @@ namespace Questor.Modules.Actions
                             }
 
                             //let's check first if we need to change fitting at all
-
-                            //Deactivate this for now, so Fitting specific items will get refiled (Cap Booster for example)
-                            //Logging.Log("Arm.LoadFitting", "Fitting: " + Cache.Instance.Fitting + " - currentFit: " + Cache.Instance.CurrentFit, Logging.White);
-                            //if (Cache.Instance.Fitting.Equals(Cache.Instance.CurrentFit))
-                            //{
-                            //    Logging.Log("Arm.LoadFitting", "Current fit is now correct", Logging.White);
-                            //    _States.CurrentArmState = ArmState.MoveDrones;
-                            //    return;
-                            //}
+                            Logging.Log("Arm.LoadFitting", "Fitting: " + Cache.Instance.Fitting + " - currentFit: " + Cache.Instance.CurrentFit, Logging.White);
+                            if (Cache.Instance.Fitting.Equals(Cache.Instance.CurrentFit))
+                            {
+                                Logging.Log("Arm.LoadFitting", "Current fit is now correct", Logging.White);
+                                _States.CurrentArmState = ArmState.MoveDrones;
+                                return;
+                            }
 
                             if (!Cache.Instance.OpenFittingManagerWindow("Arm.LoadFitting")) return;
 
@@ -738,6 +736,7 @@ namespace Questor.Modules.Actions
                                 retryCount = 0;
                                 return;
                             }
+
                             ItemsAreBeingMoved = true;
                             Cache.Instance.NextArmAction = DateTime.UtcNow.AddSeconds(1);
                             return;
@@ -803,6 +802,7 @@ namespace Questor.Modules.Actions
 
                                 continue;
                             }
+
                             CheckCargoForOptionalBringItem = false;
                         }
 
@@ -828,6 +828,7 @@ namespace Questor.Modules.Actions
                                 retryCount = 0;
                                 return;
                             }
+
                             ItemsAreBeingMoved = true;
                             Cache.Instance.NextArmAction = DateTime.UtcNow.AddSeconds(1);
                             return;
@@ -848,6 +849,7 @@ namespace Questor.Modules.Actions
                     #region load ammo
 
                     bool ammoMoved = false;
+                    bool capMoved = true;
                     if (Cache.Instance.MissionAmmo.Count() != 0)
                     {
                         AmmoToLoad = new List<Ammo>(Cache.Instance.MissionAmmo);
@@ -855,6 +857,47 @@ namespace Questor.Modules.Actions
 
                     if (!Cache.Instance.OpenCargoHold("Arm.MoveItems")) break;
                     if (!Cache.Instance.ReadyAmmoHangar("Arm.MoveItems")) break;
+
+                    // We must create our own Cache, somehow after changing the fitting the cached data is wrong
+                    DirectContainer modules = Cache.Instance.DirectEve.GetShipsModules();
+
+                    foreach (DirectItem module in modules.Items)
+                    {
+                        if (module.GroupId == (int)Group.CapacitorInjector)
+                        {
+                            int capsToLoad = Settings.Instance.CapBoosterToLoad;
+                            capMoved = false;
+   
+                            if (capsToLoad <= 0) break;
+
+                            foreach (DirectItem item in Cache.Instance.AmmoHangar.Items)
+                            {
+                                if (item.ItemId <= 0 || item.Volume == 0.00 || item.Quantity == 0)
+                                    continue;
+
+                                if (item.TypeId != Settings.Instance.CapacitorInjectorScript)
+                                    continue;
+
+                                int moveCapQuantity = Math.Min(item.Quantity, capsToLoad);
+                                Cache.Instance.CargoHold.Add(item, moveCapQuantity);
+
+                                Logging.Log("Arm.MoveItems", "Moving [" + moveCapQuantity + "] units of Cap  [" + item.TypeName + "] from [ AmmoHangar ] to CargoHold", Logging.White);
+
+                                capsToLoad -= moveCapQuantity;
+                                if (capsToLoad <= 0)
+                                {
+                                    capMoved = true;
+                                    break;
+                                }
+                            }
+
+                            if (capMoved) break;
+
+                            Logging.Log("Arm", "Missing [" + capsToLoad + "] units of Cap Booster with TypeId [" + Settings.Instance.CapacitorInjectorScript + "]", Logging.Orange);
+                            _States.CurrentArmState = ArmState.NotEnoughAmmo;
+                            break;
+                        }
+                    }
 
                     //IEnumerable<DirectItem> AmmoInCargo = Cache.Instance.CargoHold.Items.Where(i => (i.TypeName ?? string.Empty).ToLower() == bringItem);
 
@@ -896,7 +939,7 @@ namespace Questor.Modules.Actions
                             Cache.Instance.MissionAmmo.RemoveAll(a => a.TypeId == item.TypeId);
                             AmmoToLoad.RemoveAll(a => a.TypeId == item.TypeId);
                         }
-                        ammoMoved = true;
+                        ammoMoved = capMoved;
                         break;
                     }
 
@@ -935,7 +978,7 @@ namespace Questor.Modules.Actions
 
                     if (Cache.Instance.CargoHold.Items.Count == 0) return;
 
-                    if (Settings.Instance.UseDrones && (Cache.Instance.DirectEve.ActiveShip.GroupId != 31 && Cache.Instance.DirectEve.ActiveShip.GroupId != 28 && Cache.Instance.DirectEve.ActiveShip.GroupId != 380))
+                    if (Settings.Instance.UseDrones && (Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Shuttle && Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Industrial && Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.TransportShip))
                     {
                         // Close the drone bay, its not required in space.
                         //if (Cache.Instance.DroneBay.IsReady) //why is not .isready and .isvalid working at the moment? 4/2012

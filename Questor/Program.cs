@@ -206,8 +206,9 @@ namespace Questor
             {
                 if (!string.IsNullOrEmpty(_scriptAfterLoginFile))
                 {
-                    Logging.Log("Startup", "Running Script After Login: [ timedcommand 150 runscript " + _scriptAfterLoginFile + "]", Logging.Teal);
+                    Logging.Log("Startup", "Running Script After Login: [ timedcommand 150 runscript " + _scriptAfterLoginFile + " ]", Logging.Teal);
                     LavishScript.ExecuteCommand("timedcommand 150 runscript " + _scriptAfterLoginFile);
+                    return;
                 }
 
                 // If the last parameter is false, then we only auto-login
@@ -645,6 +646,13 @@ namespace Questor
                 {
                     _scriptFile = null;
                 }
+                return;
+            }
+
+            if (_directEve.Login.AtLogin && _directEve.Login.ServerStatus != "Status: OK")
+            {
+                Logging.Log("Startup", "Server status[" + _directEve.Login.ServerStatus + "] != [OK] try later", Logging.Orange);
+                _nextPulse = DateTime.UtcNow.AddSeconds(120);
                 return;
             }
 

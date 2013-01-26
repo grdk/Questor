@@ -436,6 +436,7 @@ namespace Questor
             LavishScript.Commands.AddCommand("QuestorCommands", ListQuestorCommands);
             LavishScript.Commands.AddCommand("QuestorEvents", ListQuestorEvents);
             LavishScript.Commands.AddCommand("IfInPodSwitchToNoobShiporShuttle", IfInPodSwitchToNoobShiporShuttle);
+            LavishScript.Commands.AddCommand("SetDestToSystem", SetDestToSystem);
             //}
         }
 
@@ -499,6 +500,7 @@ namespace Questor
                 return -1;
             }
 
+            Settings.Instance.AutoStart = false;
             _States.CurrentQuestorState = QuestorState.CloseQuestor;
 
             Logging.Log("QuestorUI", "QuestorState is now: CloseQuestor ", Logging.White);
@@ -516,6 +518,45 @@ namespace Questor
             _States.CurrentQuestorState = QuestorState.Idle;
 
             Logging.Log("QuestorUI", "QuestorState is now: Idle ", Logging.White);
+            return 0;
+        }
+
+        private int SetDestToSystem(string[] args )
+        {
+            long value;
+            if (args.Length != 2 || !long.TryParse(args[1], out value))
+            {
+                Logging.Log("QuestorUI", "SetDestToSystem - Sets destination to the locationID specified", Logging.White);
+                return -1;
+            }
+            
+            long _locationid = value;
+
+            Cache.Instance.DirectEve.Navigation.SetDestination(_locationid);
+            switch (_States.CurrentQuestorState)
+            {
+                case QuestorState.Idle:
+                    return -1;
+                case QuestorState.CombatMissionsBehavior:
+                    _States.CurrentTravelerState = TravelerState.Idle;
+                    _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Traveler;
+                    return 0;
+            
+                case QuestorState.DedicatedBookmarkSalvagerBehavior:
+                    _States.CurrentTravelerState = TravelerState.Idle;
+                    _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.Traveler;
+                    return 0;
+
+                case QuestorState.CombatHelperBehavior:
+                    _States.CurrentTravelerState = TravelerState.Idle;
+                    _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.Traveler;
+                    return 0;
+
+                //case QuestorState.BackgroundBehavior:
+                //    _States.CurrentTravelerState = TravelerState.Idle;
+                //    _States.CurrentBackgroundBehaviorState = BackgroundBehaviorState.Traveler;
+                //    return 0;
+            }
             return 0;
         }
 

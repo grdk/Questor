@@ -382,6 +382,35 @@ namespace Questor.Modules.Caching
         public XDocument InvIgnore;
         public string Path;
 
+        public bool _isCorpInWar = false;
+        public DateTime nextCheckCorpisAtWar = DateTime.UtcNow;
+
+        public bool IsCorpInWar
+        {
+            get
+            {
+                if (DateTime.UtcNow > nextCheckCorpisAtWar)
+                {
+                    bool war = DirectEve.Me.IsAtWar;
+                    Cache.Instance._isCorpInWar = war;
+
+                    nextCheckCorpisAtWar = DateTime.UtcNow.AddMinutes(15);
+                    if (!_isCorpInWar)
+                    {
+                        if (Settings.Instance.DebugWatchForActiveWars) Logging.Log("IsCorpInWar", "Your corp is not involved in any wars (yet)", Logging.Green);
+                    }
+                    else
+                    {
+                        if (Settings.Instance.DebugWatchForActiveWars) Logging.Log("IsCorpInWar", "Your corp is involved in a war, be carefull", Logging.Orange);
+                    }
+
+                    return _isCorpInWar;
+                }
+                
+                return _isCorpInWar; 
+            }
+        }
+
         public bool LocalSafe(int maxBad, double stand)
         {
             int number = 0;
@@ -2954,6 +2983,11 @@ namespace Questor.Modules.Caching
 
         public bool StackItemsHangarAsLootHangar(String module)
         {
+            if (DateTime.UtcNow.AddMinutes(10) < Cache.Instance.LastStackItemHangar || DateTime.UtcNow.AddMinutes(10) < Cache.Instance.LastStackLootHangar)
+            {
+                return true;
+            }
+
             if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
             {
                 return false;
@@ -3037,6 +3071,11 @@ namespace Questor.Modules.Caching
         public bool StackItemsHangarAsAmmoHangar(String module)
         {
             Logging.Log("StackItemsHangarAsAmmoHangar", "test", Logging.Teal);
+
+            if (DateTime.UtcNow.AddMinutes(10) < Cache.Instance.LastStackItemHangar || DateTime.UtcNow.AddMinutes(10) < Cache.Instance.LastStackAmmoHangar)
+            {
+                return true;
+            }
 
             if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
             {
@@ -3213,8 +3252,8 @@ namespace Questor.Modules.Caching
             if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
                 return false;
 
-            if (DateTime.UtcNow < Cache.Instance.LastStackCargohold.AddSeconds(10))
-                return false;
+            if (DateTime.UtcNow < Cache.Instance.LastStackCargohold.AddSeconds(90))
+                return true;
 
             try
             {
@@ -3232,7 +3271,7 @@ namespace Questor.Modules.Caching
 
                     if (DateTime.UtcNow.Subtract(Cache.Instance.LastStackCargohold).TotalSeconds > 20)
                     {
-                        Logging.Log(module, "Stacking Corp Ammo Hangar timed out, clearing item locks", Logging.Orange);
+                        Logging.Log(module, "Stacking CargoHold timed out, clearing item locks", Logging.Orange);
                         Cache.Instance.DirectEve.UnlockItems();
                         Cache.Instance.LastStackAmmoHangar = DateTime.UtcNow.AddSeconds(-60);
                         return false;
@@ -3821,6 +3860,11 @@ namespace Questor.Modules.Caching
 
         public bool StackCorpLootHangar(String module)
         {
+            if (DateTime.UtcNow.AddMinutes(10) < Cache.Instance.LastStackLootHangar)
+            {
+                return true;
+            }
+
             if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
             {
                 return false;
@@ -4351,6 +4395,11 @@ namespace Questor.Modules.Caching
 
         public bool StackLootContainer(String module)
         {
+            if (DateTime.UtcNow.AddMinutes(10) < Cache.Instance.LastStackLootContainer)
+            {
+                return true;
+            }
+
             if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
             {
                 return false;
@@ -5278,15 +5327,6 @@ namespace Questor.Modules.Caching
         {
             get
             {
-                //Delete bookmarks older than 2 hours.
-                DateTime bmExpirationDate = DateTime.UtcNow.AddMinutes(-Settings.Instance.AgeofSalvageBookmarksToExpire);
-                List<DirectBookmark> listOldBktoDelete = Cache.Instance.BookmarksByLabel(Settings.Instance.BookmarkPrefix + " ").Where(e => e.CreatedOn != null && e.CreatedOn.Value.CompareTo(bmExpirationDate) < 0).ToList();
-                foreach (DirectBookmark oldBktoDelete in listOldBktoDelete)
-                {
-                    Logging.Log("CombatMissionsBehavior.BeginAftermissionSalvaging", "Remove old Bookmark: " + oldBktoDelete.Title + " BookmarExpirationDate: " + bmExpirationDate, Logging.Teal);
-                    oldBktoDelete.Delete();
-                }
-
                 if (Settings.Instance.FirstSalvageBookmarksInSystem)
                 {
                     Logging.Log("CombatMissionsBehavior.BeginAftermissionSalvaging", "Salvaging at first bookmark from system", Logging.White);
@@ -5345,7 +5385,9 @@ namespace Questor.Modules.Caching
             //
             try
             {
-                var uselessSalvageBookmarks = new List<DirectBookmark>(AfterMissionSalvageBookmarks.Where(b => b.CreatedOn < DateTime.UtcNow.AddDays(-2)).OrderByDescending(b => b.CreatedOn));
+                //Delete bookmarks older than 2 hours.
+                DateTime bmExpirationDate = DateTime.UtcNow.AddMinutes(-Settings.Instance.AgeofSalvageBookmarksToExpire);
+                var uselessSalvageBookmarks = new List<DirectBookmark>(AfterMissionSalvageBookmarks.Where(e => e.CreatedOn != null && e.CreatedOn.Value.CompareTo(bmExpirationDate) < 0).ToList());
 
                 DirectBookmark uselessSalvageBookmark = uselessSalvageBookmarks.FirstOrDefault();
                 if (uselessSalvageBookmark != null)
@@ -5353,14 +5395,16 @@ namespace Questor.Modules.Caching
                     _bookmarkDeletionAttempt++;
                     if (_bookmarkDeletionAttempt <= 5)
                     {
-                        Logging.Log(module, "removing salvage bookmark that aged more than 48 hours (is their a dedicated or aftermissions salvager cleaning these up?):" + uselessSalvageBookmark.Title, Logging.White);
+                        Logging.Log(module, "removing salvage bookmark that aged more than [" + Settings.Instance.AgeofSalvageBookmarksToExpire + "]" + uselessSalvageBookmark.Title, Logging.White);
                         uselessSalvageBookmark.Delete();
+                        return false;
                     }
 
                     if (_bookmarkDeletionAttempt > 5)
                     {
                         Logging.Log(module, "error removing bookmark!" + uselessSalvageBookmark.Title, Logging.White);
                         _States.CurrentQuestorState = QuestorState.Error;
+                        return false;
                     }
 
                     return false;
@@ -5381,12 +5425,14 @@ namespace Questor.Modules.Caching
                 {
                     Logging.Log(module, "removing salvage bookmark:" + onGridBookmark.Title, Logging.White);
                     onGridBookmark.Delete();
+                    return false;
                 }
 
                 if (_bookmarkDeletionAttempt > 5)
                 {
                     Logging.Log(module, "error removing bookmark!" + onGridBookmark.Title, Logging.White);
                     _States.CurrentQuestorState = QuestorState.Error;
+                    return false;
                 }
 
                 return false;

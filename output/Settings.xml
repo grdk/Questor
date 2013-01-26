@@ -48,6 +48,7 @@
   <debugUI>false</debugUI>
   <debugUnloadLoot>false</debugUnloadLoot>
   <debugValuedump>false</debugValuedump>
+  <debugWatchForActiveWars>false</debugWatchForActiveWars>
   <detailedCurrentTargetHealthLogging>false</detailedCurrentTargetHealthLogging>
   <defendWhileTraveling>true</defendWhileTraveling>
   <useInnerspace>true</useInnerspace>
@@ -94,6 +95,8 @@
   <UseLocalWatch>true</UseLocalWatch><!-- if false all local watching for bad standings pilots is disabled -->
   <!-- UseFittingManager is either true of false and allows questor to use the IN GAME EVE fitting manager to change your fits per faction/mission -->
   <UseFittingManager>true</UseFittingManager><!-- default is true -->
+  <!-- WatchForActiveWars will detect ACTIVE wars (not wars that havent yet started) and go into panic, and stay in panic (like it does when you are in a pod) - if set to false we will not check for wars -->
+  <WatchForActiveWars>true</WatchForActiveWars><!-- default is true -->
   
   <!--                                                         -->
   <!-- AGENT AND MISSION SETTINGS -->
@@ -316,6 +319,8 @@
   <!-- If the weapon has less then minimumAmmoCharges, the weapon is forced to reload 
        before attacking a new target -->
   <minimumAmmoCharges>6</minimumAmmoCharges>
+  <!-- Amount of cap booster you want to carry with you, when using a cap injector in fitting-->
+  <capBoosterToLoad>15</capBoosterToLoad>
   <!-- Weapon group (508 = Siege, 506 = Cruise, 771 = HAM, etc of the Launcher / Guns / Lasors, NOT the Ammo, *the weapon*) -->
   <weaponGroupId>508</weaponGroupId>
   <!-- Use PrimaryWeapons on WarpScramblers, if you do not want to shoot warp dcramblers with your primary weapons, set this to false. -->
@@ -324,6 +329,7 @@
   <!--  If you wish to effectively turn this off you can set the speedTargetsShouldBeIgnoredByMainWeapons to a very high number like: 9999999 -->
   <speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>300</speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
   <distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>7000</distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
+
   
   <!-- Maximum number of targets per value -->
   <maximumHighValueTargets>4</maximumHighValueTargets><!-- default is 4 -->

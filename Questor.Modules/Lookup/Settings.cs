@@ -119,6 +119,9 @@ namespace Questor.Modules.Lookup
         public bool DebugValuedump { get; set; }
         public bool DetailedCurrentTargetHealthLogging { get; set; }
         public bool DebugStates { get; set; }
+
+        public bool DebugWatchForActiveWars { get; set; }
+
         public bool DefendWhileTraveling { get; set; }
         public bool UseInnerspace { get; set; }
         public bool setEveClientDestinationWhenTraveling { get; set; }
@@ -146,6 +149,8 @@ namespace Questor.Modules.Lookup
         public bool EnableStorylines { get; set; }
         public bool UseLocalWatch { get; set; }
         public bool UseFittingManager { get; set; }
+
+        public bool WatchForActiveWars { get; set; }
 
         //
         // Agent and mission settings
@@ -360,7 +365,7 @@ namespace Questor.Modules.Lookup
         public int SensorDampenerScript { get; private set; }
         public int AncillaryShieldBoosterScript { get; private set; } //they are not scripts, but they work the same, but are consumable for ourpurposes that does not matter
         public int CapacitorInjectorScript { get; private set; }      //they are not scripts, but they work the same, but are consumable for ourpurposes that does not matter
-
+        public int CapBoosterToLoad { get; private set; } 
         //
         // Speed and Movement Settings
         //
@@ -607,6 +612,7 @@ namespace Questor.Modules.Lookup
                 DebugUI = false;
                 DebugUnloadLoot = false;
                 DebugValuedump = false;
+                DebugWatchForActiveWars = true;
                 DetailedCurrentTargetHealthLogging = false;
                 DefendWhileTraveling = true;
                 UseInnerspace = true;
@@ -628,6 +634,7 @@ namespace Questor.Modules.Lookup
                 UseFittingManager = false;
                 EnableStorylines = false;
                 UseLocalWatch = false;
+                WatchForActiveWars = true;
 
                 // Console Log Settings
                 //
@@ -833,6 +840,7 @@ namespace Questor.Modules.Lookup
                 SensorDampenerScript = 29015;
                 AncillaryShieldBoosterScript = 11289;
                 CapacitorInjectorScript = 11289;
+                CapBoosterToLoad = 15;
 
                 //
                 // Speed and Movement Settings
@@ -1001,6 +1009,7 @@ namespace Questor.Modules.Lookup
                     DebugUI = (bool?)xml.Element("debugUI") ?? false;
                     DebugUnloadLoot = (bool?)xml.Element("debugUnloadLoot") ?? false;
                     DebugValuedump = (bool?)xml.Element("debugValuedump") ?? false;
+                    DebugWatchForActiveWars = (bool?)xml.Element("debugWatchForActiveWars") ?? false;
                     DetailedCurrentTargetHealthLogging = (bool?)xml.Element("detailedCurrentTargetHealthLogging") ?? true;
                     DefendWhileTraveling = (bool?)xml.Element("defendWhileTraveling") ?? true;
                     UseInnerspace = (bool?)xml.Element("useInnerspace") ?? true;
@@ -1031,7 +1040,7 @@ namespace Questor.Modules.Lookup
                     UseFittingManager = (bool?)xml.Element("UseFittingManager") ?? true;
                     EnableStorylines = (bool?)xml.Element("enableStorylines") ?? false;
                     UseLocalWatch = (bool?)xml.Element("UseLocalWatch") ?? true;
-
+                    WatchForActiveWars = (bool?)xml.Element("watchForActiveWars") ?? true;
                     //
                     // Agent Standings and Mission Settings
                     //
@@ -1322,6 +1331,7 @@ namespace Questor.Modules.Lookup
                     SensorDampenerScript = (int?)xml.Element("sensorDampenerScript") ?? (int)TypeID.TargetingRangeDampeningScript;
                     AncillaryShieldBoosterScript = (int?)xml.Element("ancillaryShieldBoosterScript") ?? (int)TypeID.AncillaryShieldBoosterScript;
                     CapacitorInjectorScript = (int?)xml.Element("capacitorInjectorScript") ?? (int)TypeID.CapacitorInjectorScript;
+                    CapBoosterToLoad = (int?)xml.Element("capacitorInjectorToLoad") ?? 15;
 
                     //
                     // Speed and Movement Settings

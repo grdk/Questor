@@ -476,26 +476,30 @@ namespace Questor.Behaviors
                         _afterMissionSalvageBookmarks = _afterMissionSalvageBookmarks.OrderBy(b => b.CreatedOn).ToList();
                         if (DateTime.UtcNow < Cache.Instance.LastAccelerationGateDetected.AddSeconds(10)) //long enough that the timer should expire if we have to warp even small distances to the next bm
                         {
-                            Logging.Log("DedicatedBookmarkSalvagerBehavior.Salvager", "There is a gate on grid with us: deferring processing any bookmarks within CloseRangeScan because those are likely behind this gate and might have NPCs still there", Logging.White);
-                            _afterMissionSalvageBookmarks = new List<DirectBookmark>(_afterMissionSalvageBookmarks.Where(b => Cache.Instance.DistanceFromMe(b.X ?? 0, b.Y ?? 0, b.Z ?? 0) > (int)Distance.DirectionalScannerCloseRange)).OrderBy(b => b.CreatedOn).ToList();
+                            _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.GotoBase;
+                            Cache.Instance.NextSalvageTrip = DateTime.UtcNow.AddMinutes(Time.Instance.DelayBetweenSalvagingSessions_minutes);
+                            return;
 
-                            int i = 1;
-                            Logging.Log("DedicatedBookmarkSalvagerBehavior.Salvager", "Listing bookmarks in: _afterMissionSalvageBookmarks, they should be all more than CloseRangeScan [" + Distance.DirectionalScannerCloseRange + "] away.", Logging.Red);
-                            foreach (var bm in _afterMissionSalvageBookmarks)
-                            {
-                                Logging.Log("", "[" + i + "] BM Name: [" + bm.Title + "]" + "] Distance: [" + Cache.Instance.DistanceFromMe(bm.X ?? 0, bm.Y ?? 0, bm.Z ?? 0) + "]", Logging.Red);
-                                i++;
-                            }
+                            //Logging.Log("DedicatedBookmarkSalvagerBehavior.Salvager", "There is a gate on grid with us: deferring processing any bookmarks within CloseRangeScan because those are likely behind this gate and might have NPCs still there", Logging.White);
+                            //_afterMissionSalvageBookmarks = new List<DirectBookmark>(_afterMissionSalvageBookmarks.Where(b => Cache.Instance.DistanceFromMe(b.X ?? 0, b.Y ?? 0, b.Z ?? 0) > (int)Distance.DirectionalScannerCloseRange)).OrderBy(b => b.CreatedOn).ToList();
 
-                            if (_afterMissionSalvageBookmarks.Any())
-                            {
-                                Logging.Log("DedicatedBookmarkSalvagerBehavior.Salvager", "_afterMissionSalvageBookmarks contains [" + _afterMissionSalvageBookmarks.Count() + "] bookmarks", Logging.White);
-                            }
-                            else
-                            {
-                                Logging.Log("DedicatedBookmarkSalvagerBehavior.Salvager", "_afterMissionSalvageBookmarks contains [ Zero ] bookmarks", Logging.White);
-                                Logging.Log("DedicatedBookmarkSalvagerBehavior.Salvager", "AfterMissionSalvageBookmarks (including BMs we cant process yet) contains [" + Cache.Instance.AfterMissionSalvageBookmarks + "]", Logging.White);
-                            }
+                            //int i = 1;
+                            //Logging.Log("DedicatedBookmarkSalvagerBehavior.Salvager", "Listing bookmarks in: _afterMissionSalvageBookmarks, they should be all more than CloseRangeScan [" + Distance.DirectionalScannerCloseRange + "] away.", Logging.Red);
+                            //foreach (var bm in _afterMissionSalvageBookmarks)
+                            //{
+                            //    Logging.Log("", "[" + i + "] BM Name: [" + bm.Title + "]" + "] Distance: [" + Cache.Instance.DistanceFromMe(bm.X ?? 0, bm.Y ?? 0, bm.Z ?? 0) + "]", Logging.Red);
+                            //    i++;
+                            //}
+
+                            //if (_afterMissionSalvageBookmarks.Any())
+                            //{
+                            //    Logging.Log("DedicatedBookmarkSalvagerBehavior.Salvager", "_afterMissionSalvageBookmarks contains [" + _afterMissionSalvageBookmarks.Count() + "] bookmarks", Logging.White);
+                            //}
+                            //else
+                            //{
+                            //    Logging.Log("DedicatedBookmarkSalvagerBehavior.Salvager", "_afterMissionSalvageBookmarks contains [ Zero ] bookmarks", Logging.White);
+                            //    Logging.Log("DedicatedBookmarkSalvagerBehavior.Salvager", "AfterMissionSalvageBookmarks (including BMs we cant process yet) contains [" + Cache.Instance.AfterMissionSalvageBookmarks + "]", Logging.White);
+                            //}
                         }
 
                         DirectBookmark bookmark = _afterMissionSalvageBookmarks.OrderBy(b => b.CreatedOn).FirstOrDefault();

@@ -16,6 +16,7 @@ namespace Questor.Modules.BackgroundTasks
     using global::Questor.Modules.Caching;
     using global::Questor.Modules.Lookup;
     using global::Questor.Modules.Logging;
+    using Questor.Modules.States;
     using DirectEve;
 
     public class Defense
@@ -349,6 +350,12 @@ namespace Questor.Modules.BackgroundTasks
                                     continue;
                                 }
                             }
+                            else if (module.CurrentCharges == 0)
+                            {
+                                Logging.Log("Defense", "ReloadCapBooster: ran out of cap booster with typeid: [ " + Settings.Instance.CapacitorInjectorScript + " ]", Logging.Orange);
+                                _States.CurrentCombatState = CombatState.OutOfAmmo;
+                                continue;
+                            }
                             ModuleNumber++;
                             continue;
                         }
@@ -486,7 +493,6 @@ namespace Questor.Modules.BackgroundTasks
                             module.Click();
                         }
                     }
-                    
 
                     Cache.Instance.StartedBoosting = DateTime.UtcNow;
                     Cache.Instance.NextRepModuleAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.DefenceDelay_milliseconds);

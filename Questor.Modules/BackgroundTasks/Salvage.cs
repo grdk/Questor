@@ -573,7 +573,9 @@ namespace Questor.Modules.BackgroundTasks
                         {
                             // Do we want to loot other items?
                             if (!isMissionItem && !LootEverything)
+                            {
                                 continue;
+                            }
                         }
 
                         // Do not pick up items that cannot enter in a freighter container (unless its the mission item)
@@ -588,6 +590,7 @@ namespace Questor.Modules.BackgroundTasks
                         }
 
                         // We are at our max, either make room or skip the item
+
                         if ((freeCargoCapacity - item.TotalVolume) <= (isMissionItem ? 0 : ReserveCargoCapacity))
                         {
                             // We can't drop items in this container anyway, well get it after its salvaged
@@ -601,11 +604,17 @@ namespace Questor.Modules.BackgroundTasks
                             // Make a list of items which are worth less
                             List<ItemCache> worthLess;
                             if (isMissionItem)
+                            {
                                 worthLess = shipsCargo;
+                            }
                             else if (item.IskPerM3.HasValue)
+                            {
                                 worthLess = shipsCargo.Where(sc => sc.IskPerM3.HasValue && sc.IskPerM3 < item.IskPerM3).ToList();
+                            }
                             else
+                            {
                                 worthLess = shipsCargo.Where(sc => sc.IskPerM3.HasValue).ToList();
+                            }
 
                             if (_States.CurrentQuestorState == QuestorState.CombatMissionsBehavior)
                             {
@@ -618,7 +627,9 @@ namespace Questor.Modules.BackgroundTasks
 
                                 // Consider dropping ammo if it concerns the mission item!
                                 if (!isMissionItem)
+                                {
                                     worthLess.RemoveAll(wl => Ammo.Any(a => a.TypeId == wl.TypeId));
+                                }
                             }
 
                             // Nothing is worth less then the current item
@@ -659,7 +670,10 @@ namespace Questor.Modules.BackgroundTasks
                             {
                                 // jettison loot
                                 if (DateTime.UtcNow.Subtract(Cache.Instance.LastJettison).TotalSeconds < Time.Instance.DelayBetweenJetcans_seconds)
+                                {
                                     return;
+                                }
+
                                 Cache.Instance.LootedContainers.Add(containerEntity.Id); //new add
 
                                 Logging.Log("Salvage", "Jettisoning [" + moveTheseItems.Count + "] items to make room for the more valuable loot", Logging.White);
