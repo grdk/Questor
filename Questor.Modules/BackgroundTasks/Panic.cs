@@ -396,7 +396,9 @@ namespace Questor.Modules.BackgroundTasks
                     if (Cache.Instance.IsCorpInWar && Settings.Instance.WatchForActiveWars)
                     {
                         if (Settings.Instance.DebugWatchForActiveWars) Logging.Log("Panic", "Cache.Instance.IsCorpInWar [" + Cache.Instance.IsCorpInWar + "] and Settings.Instance.WatchForActiveWars [" + Settings.Instance.WatchForActiveWars + "] staying in panic (effectively paused in station)", Logging.Debug);
-                        break;
+                        Cache.Instance.Paused = true;
+                        Settings.Instance.AutoStart = false;
+                        return;
                     }
 
                     // Do not resume until you're no longer in a capsule

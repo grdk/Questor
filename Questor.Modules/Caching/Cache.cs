@@ -374,6 +374,10 @@ namespace Questor.Modules.Caching
         public DateTime LastStackLootContainer = DateTime.UtcNow;
         public DateTime LastAccelerationGateDetected = DateTime.UtcNow;
 
+        public int StackLoothangarAttempts { get; set; }
+        public int StackAmmohangarAttempts { get; set; }
+        public int StackItemhangarAttempts { get; set; }
+        
         public bool MissionXMLIsAvailable { get; set; }
 
         public string MissionXmlPath { get; set; }
@@ -2983,7 +2987,7 @@ namespace Questor.Modules.Caching
 
         public bool StackItemsHangarAsLootHangar(String module)
         {
-            if (DateTime.UtcNow.AddMinutes(10) < Cache.Instance.LastStackItemHangar || DateTime.UtcNow.AddMinutes(10) < Cache.Instance.LastStackLootHangar)
+            if (DateTime.UtcNow.Subtract(Cache.Instance.LastStackItemHangar).TotalMinutes < 10 || DateTime.UtcNow.Subtract(Cache.Instance.LastStackLootHangar).TotalMinutes < 10)
             {
                 return true;
             }
@@ -3036,7 +3040,7 @@ namespace Questor.Modules.Caching
                             {
                                 Cache.Instance.StackLootHangarAttempts++;
                                 Logging.Log(module, "Stacking Item Hangar", Logging.White);
-                                Cache.Instance.NextOpenHangarAction = DateTime.Now.AddSeconds(5);
+                                Cache.Instance.NextOpenHangarAction = DateTime.UtcNow.AddSeconds(5);
                                 Cache.Instance.LootHangar.StackAll();
                                 Cache.Instance.StackLootHangarAttempts = 0; //this resets the counter every time the above stackall completes without an exception
                                 Cache.Instance.LastStackLootHangar = DateTime.UtcNow;
@@ -3072,7 +3076,7 @@ namespace Questor.Modules.Caching
         {
             Logging.Log("StackItemsHangarAsAmmoHangar", "test", Logging.Teal);
 
-            if (DateTime.UtcNow.AddMinutes(10) < Cache.Instance.LastStackItemHangar || DateTime.UtcNow.AddMinutes(10) < Cache.Instance.LastStackAmmoHangar)
+            if (DateTime.UtcNow.Subtract(Cache.Instance.LastStackItemHangar).TotalMinutes < 10 || DateTime.UtcNow.Subtract(Cache.Instance.LastStackAmmoHangar).TotalMinutes < 10)
             {
                 return true;
             }
@@ -3126,7 +3130,7 @@ namespace Questor.Modules.Caching
                             {
                                 Cache.Instance.StackAmmoHangarAttempts++;
                                 Logging.Log(module, "Stacking Item Hangar", Logging.White);
-                                Cache.Instance.NextOpenHangarAction = DateTime.Now.AddSeconds(5);
+                                Cache.Instance.NextOpenHangarAction = DateTime.UtcNow.AddSeconds(5);
                                 Cache.Instance.AmmoHangar.StackAll();
                                 Cache.Instance.StackAmmoHangarAttempts = 0; //this resets the counter every time the above stackall completes without an exception
                                 Cache.Instance.LastStackAmmoHangar = DateTime.UtcNow;
@@ -3359,6 +3363,7 @@ namespace Questor.Modules.Caching
         {
             if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
             {
+                if (Settings.Instance.DebugHangars) Logging.Log("OpenShipsHangar", "if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace)", Logging.Teal);
                 return false;
             }
 
@@ -3682,6 +3687,11 @@ namespace Questor.Modules.Caching
 
         public bool StackCorpAmmoHangar(String module)
         {
+            if (DateTime.UtcNow.AddMinutes(10) < Cache.Instance.LastStackAmmoHangar)
+            {
+                return true;
+            }
+
             if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
                 return false;
 
@@ -3860,7 +3870,7 @@ namespace Questor.Modules.Caching
 
         public bool StackCorpLootHangar(String module)
         {
-            if (DateTime.UtcNow.AddMinutes(10) < Cache.Instance.LastStackLootHangar)
+            if (DateTime.UtcNow.Subtract(Cache.Instance.LastStackLootHangar).TotalMinutes < 10)
             {
                 return true;
             }
@@ -4477,7 +4487,7 @@ namespace Questor.Modules.Caching
             if (Cache.Instance.OreHoldWindow == null)
             {
                 // No, command it to open
-                Cache.Instance.NextOpenHangarAction = DateTime.Now.AddSeconds(2 + Cache.Instance.RandomNumber(1, 3));
+                Cache.Instance.NextOpenHangarAction = DateTime.UtcNow.AddSeconds(2 + Cache.Instance.RandomNumber(1, 3));
                 Logging.Log(module, "Opening Ore Hangar: waiting [" + Math.Round(Cache.Instance.NextOpenHangarAction.Subtract(DateTime.Now).TotalSeconds, 0) + "sec]", Logging.White);
                 long OreHoldID = 1;  //no idea how to get this value atm. this is not yet correct.
                 if (!Cache.Instance.PrimaryInventoryWindow.SelectTreeEntry("Ore Hold", OreHoldID - 1))
@@ -4631,6 +4641,23 @@ namespace Questor.Modules.Caching
 
         public bool StackLootHangar(String module)
         {
+            StackLoothangarAttempts++;
+            if (StackLoothangarAttempts > 10)
+            {
+                Logging.Log("StackLootHangar", "Stacking the lootHangar has failed too many times [" + StackLoothangarAttempts + "]", Logging.Teal);
+                if (StackLoothangarAttempts > 30)
+                {
+                    Logging.Log("StackLootHangar", "Stacking the lootHangar routine has run [" + StackLoothangarAttempts + "] times without success, resetting counter", Logging.Teal);
+                    StackLoothangarAttempts = 0;
+                }
+                return true;
+            }
+
+            if (DateTime.UtcNow.Subtract(Cache.Instance.LastStackLootHangar).TotalMinutes < 10)
+            {
+                return true;
+            }
+
             if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
             {
                 return false;
@@ -4649,6 +4676,7 @@ namespace Questor.Modules.Caching
                     {
                         if (Settings.Instance.DebugHangars) Logging.Log("StackLootHangar", "if (!string.IsNullOrEmpty(Settings.Instance.LootHangar))", Logging.Teal);
                         if (!Cache.Instance.StackCorpLootHangar("Cache.StackLootHangar")) return false;
+                        StackLoothangarAttempts = 0;
                         return true;
                     }
 
@@ -4656,11 +4684,13 @@ namespace Questor.Modules.Caching
                     {
                         if (Settings.Instance.DebugHangars) Logging.Log("StackLootHangar", "if (!string.IsNullOrEmpty(Settings.Instance.LootContainer))", Logging.Teal);
                         if (!Cache.Instance.StackLootContainer("Cache.StackLootHangar")) return false;
+                        StackLoothangarAttempts = 0;
                         return true;
                     }
 
                     if (Settings.Instance.DebugHangars) Logging.Log("StackLootHangar", "!Cache.Instance.StackItemsHangarAsLootHangar(Cache.StackLootHangar))", Logging.Teal);
                     if (!Cache.Instance.StackItemsHangarAsLootHangar("Cache.StackLootHangar")) return false;
+                    StackLoothangarAttempts = 0;
                     return true;
                 }
 
@@ -4753,6 +4783,23 @@ namespace Questor.Modules.Caching
 
         public bool StackAmmoHangar(String module)
         {
+            StackAmmohangarAttempts++;
+            if (StackAmmohangarAttempts > 10)
+            {
+                Logging.Log("StackAmmoHangar", "Stacking the ammoHangar has failed too many times [" + StackAmmohangarAttempts + "]", Logging.Teal);
+                if (StackAmmohangarAttempts > 30)
+                {
+                    Logging.Log("StackAmmoHangar", "Stacking the ammoHangar routine has run [" + StackAmmohangarAttempts + "] times without success, resetting counter", Logging.Teal);
+                    StackAmmohangarAttempts = 0;
+                }
+                return true;
+            }
+
+            if (DateTime.UtcNow.Subtract(Cache.Instance.LastStackAmmoHangar).TotalMinutes < 10)
+            {
+                return true;
+            }
+
             if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace) // we wait 20 seconds after we last thought we were in space before trying to do anything in station
             {
                 if (Settings.Instance.DebugHangars) Logging.Log("StackAmmoHangar", "if (DateTime.UtcNow < Cache.Instance.LastInSpace.AddSeconds(20) && !Cache.Instance.InSpace)", Logging.Teal);
