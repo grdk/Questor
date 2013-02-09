@@ -177,7 +177,7 @@ namespace Questor
 
         private void RefreshInfoDisplayedInUI()
         {
-            if (DateTime.UtcNow > _nextUIDataRefresh && DateTime.UtcNow > Cache.Instance.QuestorStarted_DateTime.AddSeconds(30))
+            if (DateTime.UtcNow > _nextUIDataRefresh && DateTime.UtcNow > Cache.Instance.QuestorStarted_DateTime.AddSeconds(15))
             {
                 _nextUIDataRefresh = DateTime.UtcNow.AddMilliseconds(1000);
                 try
@@ -515,7 +515,19 @@ namespace Questor
                 return -1;
             }
 
+            Cache.Instance.Paused = false;
             _States.CurrentQuestorState = QuestorState.Idle;
+            
+            _States.CurrentPanicState = PanicState.Idle;
+            _States.CurrentArmState = ArmState.Idle;
+            _States.CurrentTravelerState = TravelerState.Idle;
+            _States.CurrentMiningState = MiningState.Idle;
+
+            _States.CurrentDedicatedBookmarkSalvagerBehaviorState = DedicatedBookmarkSalvagerBehaviorState.Idle;
+            _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Idle;
+            //_States.CurrentBackgroundBehaviorState = BackgroundBehaviorState.Idle;
+            _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.Idle;
+
 
             Logging.Log("QuestorUI", "QuestorState is now: Idle ", Logging.White);
             return 0;

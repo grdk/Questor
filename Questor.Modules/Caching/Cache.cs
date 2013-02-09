@@ -1362,7 +1362,7 @@ namespace Questor.Modules.Caching
                     _targets = Entities.Where(e => e.IsTarget).ToList();
                 }
 
-                // Remove the target info (its been targeted)
+                // Remove the target info from the TargetingIDs Queue (its been targeted)
                 foreach (EntityCache target in _targets.Where(t => TargetingIDs.ContainsKey(t.Id)))
                 {
                     TargetingIDs.Remove(target.Id);
@@ -3653,12 +3653,27 @@ namespace Questor.Modules.Caching
                 {
                     if (!string.IsNullOrEmpty(Settings.Instance.AmmoHangar)) //do we have the corp hangar setting setup?
                     {
+                        if (!Cache.Instance.CloseAmmoHangar("OpenCorpAmmoHangar")) return false;
                         if (!Cache.Instance.CloseLootHangar("OpenCorpAmmoHangar")) return false;
                         if (!Cache.Instance.GetCorpAmmoHangarID()) return false;
 
                         if (Cache.Instance.AmmoHangar != null && Cache.Instance.AmmoHangar.IsValid) //do we have a corp hangar tab setup with that name?
                         {
                             if (Settings.Instance.DebugHangars) Logging.Log(module, "AmmoHangar is defined (no window needed)", Logging.DebugHangars);
+                            int AmmoHangarItemCount = -1;
+                            try
+                            {
+                                if (AmmoHangar.Items.Any())
+                                {
+                                    AmmoHangarItemCount = AmmoHangar.Items.Count();
+                                    if (Settings.Instance.DebugHangars) Logging.Log(module, "AmmoHangar [" + Settings.Instance.AmmoHangar.ToString() + "] has [" + AmmoHangarItemCount + "] items", Logging.DebugHangars);
+                                }
+                            }
+                            catch (Exception exception)
+                            {
+                                Logging.Log("ReadyCorpAmmoHangar", "Exception [" + exception + "]", Logging.Debug);
+                            }
+                            
                             return true;
                         }
 

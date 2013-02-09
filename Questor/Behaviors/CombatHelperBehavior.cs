@@ -63,8 +63,9 @@ namespace Questor.Behaviors
             //Settings.Instance.UseFittingManager = false;
 
             // States.CurrentCombatHelperBehaviorState fixed on ExecuteMission
-            _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.Idle;
+            _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.UnloadLoot;
             _States.CurrentArmState = ArmState.Idle;
+
             //_States.CurrentCombatState = CombatState.Idle;
             //_States.CurrentDroneState = DroneState.Idle;
             _States.CurrentUnloadLootState = UnloadLootState.Idle;
@@ -405,7 +406,7 @@ namespace Questor.Behaviors
 
                     Traveler.TravelHome("CombatHelperBehavior.TravelHome");
 
-                    if (_States.CurrentTravelerState == TravelerState.AtDestination) // || DateTime.UtcNow.Subtract(Cache.Instance.EnteredCloseQuestor_DateTime).TotalMinutes > 10)
+                    if (_States.CurrentTravelerState == TravelerState.AtDestination && DateTime.UtcNow > Cache.Instance.LastInSpace.AddSeconds(5)) // || DateTime.UtcNow.Subtract(Cache.Instance.EnteredCloseQuestor_DateTime).TotalMinutes > 10)
                     {
                         if (Settings.Instance.DebugGotobase) Logging.Log("CombatHelperBehavior", "GotoBase: We are at destination", Logging.White);
                         Cache.Instance.GotoBaseNow = false; //we are there - turn off the 'forced' gotobase
@@ -437,14 +438,50 @@ namespace Questor.Behaviors
                         if (_States.CurrentCombatState == CombatState.OutOfAmmo) // on mission
                         {
                             Logging.Log("CombatHelperBehavior.UnloadLoot", "We are out of ammo", Logging.Orange);
-                            _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.Idle;
+                            _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.Arm;
                             return;
                         }
 
-                        _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.Idle;
+                        _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.Arm;
                         Logging.Log("CombatHelperBehavior.Unloadloot", "CharacterMode: [" + Settings.Instance.CharacterMode + "], AfterMissionSalvaging: [" + Settings.Instance.AfterMissionSalvaging + "], CombatHelperBehaviorState: [" + _States.CurrentCombatHelperBehaviorState + "]", Logging.White);
                         Statistics.Instance.FinishedMission = DateTime.UtcNow;
                         return;
+                    }
+                    break;
+
+                case CombatHelperBehaviorState.WarpOutStation:
+                    DirectBookmark warpOutBookmark = Cache.Instance.BookmarksByLabel(Settings.Instance.BookmarkWarpOut ?? "").OrderByDescending(b => b.CreatedOn).FirstOrDefault(b => b.LocationId == Cache.Instance.DirectEve.Session.SolarSystemId);
+
+                    //DirectBookmark _bookmark = Cache.Instance.BookmarksByLabel(Settings.Instance.bookmarkWarpOut + "-" + Cache.Instance.CurrentAgent ?? "").OrderBy(b => b.CreatedOn).FirstOrDefault();
+                    long solarid = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
+
+                    if (warpOutBookmark == null)
+                    {
+                        Logging.Log("BackgroundBehavior.WarpOut", "No Bookmark", Logging.White);
+                        if (_States.CurrentCombatHelperBehaviorState == CombatHelperBehaviorState.WarpOutStation) _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.CombatHelper;
+                    }
+                    else if (warpOutBookmark.LocationId == solarid)
+                    {
+                        if (Traveler.Destination == null)
+                        {
+                            Logging.Log("BackgroundBehavior.WarpOut", "Warp at " + warpOutBookmark.Title, Logging.White);
+                            Traveler.Destination = new BookmarkDestination(warpOutBookmark);
+                            Cache.Instance.DoNotBreakInvul = true;
+                        }
+
+                        Traveler.ProcessState();
+                        if (_States.CurrentTravelerState == TravelerState.AtDestination)
+                        {
+                            Logging.Log("BackgroundBehavior.WarpOut", "Safe!", Logging.White);
+                            Cache.Instance.DoNotBreakInvul = false;
+                            if (_States.CurrentCombatHelperBehaviorState == CombatHelperBehaviorState.WarpOutStation) _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.CombatHelper;
+                            Traveler.Destination = null;
+                        }
+                    }
+                    else
+                    {
+                        Logging.Log("BackgroundBehavior.WarpOut", "No Bookmark in System", Logging.Orange);
+                        if (_States.CurrentCombatHelperBehaviorState == CombatHelperBehaviorState.WarpOutStation) _States.CurrentCombatHelperBehaviorState = CombatHelperBehaviorState.CombatHelper;
                     }
                     break;
 

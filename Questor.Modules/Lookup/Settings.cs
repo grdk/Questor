@@ -80,6 +80,11 @@ namespace Questor.Modules.Lookup
         public bool DebugDroneHealth { get; set; }
         public bool DebugExceptions { get; set; }
         public bool DebugFittingMgr { get; set; }
+
+        public bool DebugFleetSupportSlave { get; set; }
+
+        public bool DebugFleetSupportMaster { get; set; }
+
         public bool DebugGotobase { get; set; }
         public bool DebugGreyList { get; set; }
         public bool DebugHangars { get; set; }
@@ -96,6 +101,9 @@ namespace Questor.Modules.Lookup
         public bool DebugMissionFittings { get; set; }
         public bool DebugMoveTo { get; set; }
         public bool DebugOnframe { get; set; }
+
+        public bool DebugOverLoadWeapons { get; set; }
+
         public bool DebugPerformance { get; set; }
 
         public bool DebugQuestorManager { get; set; }
@@ -151,6 +159,12 @@ namespace Questor.Modules.Lookup
         public bool UseFittingManager { get; set; }
 
         public bool WatchForActiveWars { get; set; }
+
+        public bool FleetSupportSlave { get; set; }
+
+        public bool FleetSupportMaster { get; set; }
+
+        public string FleetName { get; set; }
 
         //
         // Agent and mission settings
@@ -367,6 +381,12 @@ namespace Questor.Modules.Lookup
         public int CapacitorInjectorScript { get; private set; }      //they are not scripts, but they work the same, but are consumable for ourpurposes that does not matter
         public int CapBoosterToLoad { get; private set; } 
         //
+        // OverLoad Settings (this WILL burn out modules, likely very quickly!
+        // If you enable the overloading of a slot it is HIGHLY recommended you actually have something overloadable in that slot =/ 
+        //
+        public bool OverloadWeapons { get; set; }
+        
+        //
         // Speed and Movement Settings
         //
         public bool AvoidBumpingThings { get; set; }
@@ -582,6 +602,8 @@ namespace Questor.Modules.Lookup
                 DebugDroneHealth = false;
                 DebugExceptions = false;
                 DebugFittingMgr = false;
+                DebugFleetSupportSlave = false;
+                DebugFleetSupportMaster = false;
                 DebugGotobase = false;
                 DebugGreyList = false;
                 DebugHangars = false;
@@ -596,6 +618,7 @@ namespace Questor.Modules.Lookup
                 DebugMoveTo = false;
                 DebugNavigateOnGrid = false;
                 DebugOnframe = false;
+                DebugOverLoadWeapons = false;
                 DebugPerformance = false;
                 DebugQuestorManager = false;
                 DebugReloadAll = false;
@@ -635,6 +658,10 @@ namespace Questor.Modules.Lookup
                 EnableStorylines = false;
                 UseLocalWatch = false;
                 WatchForActiveWars = true;
+
+                FleetSupportSlave = false;
+                FleetSupportMaster = false;
+                FleetName = "Fleet1";
 
                 // Console Log Settings
                 //
@@ -843,6 +870,12 @@ namespace Questor.Modules.Lookup
                 CapBoosterToLoad = 15;
 
                 //
+                // OverLoad Settings (this WILL burn out modules, likely very quickly!
+                // If you enable the overloading of a slot it is HIGHLY recommended you actually have something overloadable in that slot =/ 
+                //
+                OverloadWeapons = false;
+                
+                //
                 // Speed and Movement Settings
                 //
                 AvoidBumpingThings = true;
@@ -979,6 +1012,8 @@ namespace Questor.Modules.Lookup
                     DebugDroneHealth = (bool?)xml.Element("debugDroneHealth") ?? false;
                     DebugExceptions = (bool?)xml.Element("debugExceptions") ?? false;
                     DebugFittingMgr = (bool?)xml.Element("debugFittingMgr") ?? false;
+                    DebugFleetSupportSlave = (bool?)xml.Element("debugFleetSupportSlave") ?? false;
+                    DebugFleetSupportMaster = (bool?)xml.Element("debugFleetSupportMaster") ?? false;
                     DebugGotobase = (bool?)xml.Element("debugGotobase") ?? false;
                     DebugGreyList = (bool?)xml.Element("debugGreyList") ?? false;
                     DebugHangars = (bool?)xml.Element("debugHangars") ?? false;
@@ -993,6 +1028,7 @@ namespace Questor.Modules.Lookup
                     DebugMoveTo = (bool?)xml.Element("debugMoveTo") ?? false;
                     DebugNavigateOnGrid = (bool?)xml.Element("debugNavigateOnGrid") ?? false;
                     DebugOnframe = (bool?)xml.Element("debugOnframe") ?? false;
+                    DebugOverLoadWeapons = (bool?)xml.Element("debugOverLoadWeapons") ?? false;
                     DebugPerformance = (bool?)xml.Element("debugPerformance") ?? false;                                     //enables more console logging having to do with the sub-states within each state
                     DebugQuestorManager = (bool?)xml.Element("debugQuestorManager") ?? false;
                     DebugReloadAll = (bool?)xml.Element("debugReloadAll") ?? false;
@@ -1041,6 +1077,11 @@ namespace Questor.Modules.Lookup
                     EnableStorylines = (bool?)xml.Element("enableStorylines") ?? false;
                     UseLocalWatch = (bool?)xml.Element("UseLocalWatch") ?? true;
                     WatchForActiveWars = (bool?)xml.Element("watchForActiveWars") ?? true;
+
+                    FleetSupportSlave = (bool?)xml.Element("fleetSupportSlave") ?? true;
+                    FleetSupportMaster = (bool?)xml.Element("fleetSupportMaster") ?? true;
+                    FleetName = (string)xml.Element("fleetName") ?? "Fleet1";
+
                     //
                     // Agent Standings and Mission Settings
                     //
@@ -1166,7 +1207,7 @@ namespace Questor.Modules.Lookup
                         AmmoHangar = (string)xml.Element("ammoHangar");
                         if (string.IsNullOrEmpty(Settings.Instance.AmmoHangar))
                         {
-                            Logging.Log("Settings", "AmmoHangar [" + "AmmoHangar" + "]", Logging.White);
+                            Logging.Log("Settings", "AmmoHangar [" + "ItemHangar" + "]", Logging.White);
                         }
                         else
                         {
@@ -1333,6 +1374,12 @@ namespace Questor.Modules.Lookup
                     CapacitorInjectorScript = (int?)xml.Element("capacitorInjectorScript") ?? (int)TypeID.CapacitorInjectorScript;
                     CapBoosterToLoad = (int?)xml.Element("capacitorInjectorToLoad") ?? 15;
 
+                    //
+                    // OverLoad Settings (this WILL burn out modules, likely very quickly!
+                    // If you enable the overloading of a slot it is HIGHLY recommended you actually have something overloadable in that slot =/ 
+                    //
+                    OverloadWeapons = (bool?)xml.Element("overloadWeapons") ?? false;
+                    
                     //
                     // Speed and Movement Settings
                     //

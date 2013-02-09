@@ -17,8 +17,8 @@ namespace Questor.Behaviors
 {
     public class MiningBehavior
     {
-        private static List<int> MiningToolGroupIDs = new List<int>();
-        private List<long> EmptyBelts = new List<long>();
+        private static readonly List<int> MiningToolGroupIDs = new List<int>();
+        private readonly List<long> EmptyBelts = new List<long>();
         private readonly Arm _arm;
         private readonly Panic _panic;
         private readonly Combat _combat;
@@ -211,7 +211,7 @@ namespace Questor.Behaviors
                         _arm.AmmoToLoad.Clear();
                         _arm.AmmoToLoad.Add(Settings.Instance.Ammo.FirstOrDefault());
 
-                        //FIXME: bad hack - this shoul dbe fixed differently / elsewhere
+                        //FIXME: bad hack - this should be fixed differently / elsewhere
                         if (_arm.AmmoToLoad.FirstOrDefault().Quantity == 0) { _arm.AmmoToLoad.FirstOrDefault().Quantity = 333; }
                     }
 
@@ -559,7 +559,7 @@ namespace Questor.Behaviors
                     } //check 10K distance
                     else
                     {
-                        double veloicty = _lastAsteroidPosition - _targetAsteroid.Distance;
+                        double velocity = _lastAsteroidPosition - _targetAsteroid.Distance;
                         _lastAsteroidPosition = _targetAsteroid.Distance;
 
                         if (Settings.Instance.DebugStates)
@@ -571,7 +571,7 @@ namespace Questor.Behaviors
                         //this isn't working because Cache.Instance.Approaching.TargetValue always seems to return null. This will negatively impact combat since it won't orbit. Might want to check combatstate instead.
                         if (//Cache.Instance.Approaching.TargetValue == null
                             //|| (Cache.Instance.Approaching.TargetValue != _targetAsteroid.Id && _combat.TargetingMe.Count == 0)
-                            veloicty <= 0 && Cache.Instance.TargetedBy.Count() == 0
+                            velocity <= 0 && !Cache.Instance.TargetedBy.Any()
                             )
                         {
                             if (_lastApproachCommand.AddSeconds(2) < DateTime.UtcNow)
@@ -584,9 +584,6 @@ namespace Questor.Behaviors
 
                     break;
             } //ends MiningState switch
-
         }//ends ProcessState method
-
-
     }
 }

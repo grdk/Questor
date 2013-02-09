@@ -646,9 +646,9 @@ namespace Questor.Modules.BackgroundTasks
             if (Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage < 10 && !Cache.Instance.TargetedBy.Any())
                 return;
 
-            ActivateOnce();
             ActivateRepairModules();
-
+            ActivateOnce();
+            
             // this effectively disables control of speed modules when paused, which is expected behavior
             if (Cache.Instance.Paused)
             {

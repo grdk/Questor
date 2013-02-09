@@ -115,11 +115,11 @@ namespace Questor.Modules.Activities
                     {
                         from = Cache.Instance.ItemHangar;
                     }
-                    else if (Settings.Instance.AmmoHangar != null && Cache.Instance.AmmoHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
+                    else if (!string.IsNullOrEmpty(Settings.Instance.AmmoHangar) && Cache.Instance.AmmoHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
                     {
                         from = Cache.Instance.AmmoHangar;
                     }
-                    else if (Settings.Instance.LootHangar != null && Cache.Instance.LootHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
+                    else if (!string.IsNullOrEmpty(Settings.Instance.LootHangar) && Cache.Instance.LootHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
                     {
                         from = Cache.Instance.LootHangar;
                     }

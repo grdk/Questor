@@ -68,6 +68,7 @@ namespace Questor
 
             ScheduleCharacterName = Program._character;
             Cache.Instance.ScheduleCharacterName = ScheduleCharacterName;
+            Cache.Instance.NextStartupAction = DateTime.UtcNow;
             // State fixed on ExecuteMission
             _States.CurrentQuestorState = QuestorState.Idle;
 
@@ -124,7 +125,7 @@ namespace Questor
             }
 
             Cache.Instance.StartTime = Program.StartTime;
-            Cache.Instance.QuestorStarted_DateTime = DateTime.Now;
+            Cache.Instance.QuestorStarted_DateTime = DateTime.UtcNow;
 
             // get the current process
             Process currentProcess = System.Diagnostics.Process.GetCurrentProcess();
@@ -159,12 +160,18 @@ namespace Questor
                 Logging.Log("CombatMissionsBehavior.State is", _States.CurrentQuestorState.ToString(), Logging.White);
         }
 
-        public void RunOnce30SecAfterStartup()
+        public void RunOnceAfterStartup()
         {
-            if (!_runOnce30SecAfterStartupalreadyProcessed && DateTime.Now > Cache.Instance.QuestorStarted_DateTime.AddSeconds(30) && DateTime.UtcNow > Cache.Instance.LastInStation.AddSeconds(15))
+            if (!_runOnce30SecAfterStartupalreadyProcessed && DateTime.UtcNow > Cache.Instance.QuestorStarted_DateTime.AddSeconds(30) && Cache.Instance.InStation && DateTime.UtcNow > Cache.Instance.LastInStation.AddSeconds(10))
             {
                 if (Settings.Instance.CharacterXMLExists && DateTime.UtcNow > Cache.Instance.NextStartupAction)
                 {
+                    if (!string.IsNullOrEmpty(Settings.Instance.AmmoHangar) || !string.IsNullOrEmpty(Settings.Instance.LootHangar))
+                    {
+                        Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenCorpHangar);
+                    }
+
+                    Cache.Instance.DirectEve.Skills.RefreshMySkills();
                     _runOnce30SecAfterStartupalreadyProcessed = true;
                     if (Settings.Instance.UseInnerspace)
                     {
@@ -211,7 +218,7 @@ namespace Questor
                 else
                 {
                     Logging.Log("Questor.RunOnce30SecAfterStartup", "RunOnce30SecAfterStartup: Settings.Instance.CharacterName is still null", Logging.Orange);
-                    Cache.Instance.NextStartupAction = DateTime.UtcNow.AddSeconds(30);
+                    Cache.Instance.NextStartupAction = DateTime.UtcNow.AddSeconds(10);
                     _runOnce30SecAfterStartupalreadyProcessed = false;
                     return;
                 }
@@ -521,7 +528,7 @@ namespace Questor
             if (!OnframeProcessEveryPulse()) return;
             if (Settings.Instance.DebugOnframe) Logging.Log("Questor", "Onframe: this is Questor.cs [" + DateTime.UtcNow + "] by default the next pulse will be in [" + Time.Instance.QuestorPulse_milliseconds + "]milliseconds", Logging.Teal);
 
-            RunOnce30SecAfterStartup();
+            RunOnceAfterStartup();
 
             if (!Cache.Instance.Paused)
             {
