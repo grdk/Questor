@@ -52,6 +52,8 @@ namespace Questor.Modules.Actions
         private bool UseMissionShip; //false; // Were we successful in activating the mission specific ship?
         private bool CustomFittingFound;
         private bool WaitForFittingToLoad = true;
+        private bool capsMoved = false;
+        private bool ammoMoved = false;
         private int retryCount = 0;
 
         public void LoadSpecificAmmo(IEnumerable<DamageType> damageTypes)
@@ -179,6 +181,8 @@ namespace Questor.Modules.Actions
                     bringOptionalItemQuantity = Math.Max(Cache.Instance.BringOptionalMissionItemQuantity, 1);
                     _bringoptionalItemMoved = false;
                     CheckCargoForOptionalBringItem = true;
+                    capsMoved = false;
+                    ammoMoved = false;
                     retryCount = 0;
 
                     //CheckCargoForAmmo = true;
@@ -948,76 +952,72 @@ namespace Questor.Modules.Actions
                     //
                     #region load ammo
 
-                    bool ammoMoved = false;
-                    bool capMoved = true;
-                    if (Cache.Instance.MissionAmmo.Count() != 0)
+                    if (Settings.Instance.WeaponGroupId == 53) //civilian guns of all types
+                    {
+                        Logging.Log("Arm.MoveItems","No ammo needed for civilian guns: done",Logging.White);
+                        _States.CurrentArmState = ArmState.Cleanup;
+                        return;    
+                    }
+                    
+                    if (Cache.Instance.MissionAmmo.Any())
                     {
                         AmmoToLoad = new List<Ammo>(Cache.Instance.MissionAmmo);
                     }
 
-                    if (!Cache.Instance.OpenCargoHold("Arm.MoveItems")) break;
-                    if (!Cache.Instance.ReadyAmmoHangar("Arm.MoveItems")) break;
-
                     // We must create our own Cache, somehow after changing the fitting the cached data is wrong
-                    DirectContainer modules = Cache.Instance.DirectEve.GetShipsModules();
-
-                    foreach (DirectItem module in modules.Items)
+                    if (!capsMoved)
                     {
-                        if (module.GroupId == (int)Group.CapacitorInjector)
+                        DirectContainer modules = Cache.Instance.DirectEve.GetShipsModules();
+                        if (modules.Items.Any(m => m.GroupId == (int)Group.CapacitorInjector))
                         {
-                            int capsToLoad = Settings.Instance.CapBoosterToLoad;
-                            capMoved = false;
-   
-                            if (capsToLoad <= 0) break;
+                            if (!Cache.Instance.OpenCargoHold("Arm.MoveItems")) break;
 
-                            foreach (DirectItem item in Cache.Instance.AmmoHangar.Items)
+                            int capsIncargo = 0;
+                            foreach (DirectItem cargoItem in Cache.Instance.CargoHold.Items)
                             {
-                                if (item.ItemId <= 0 || item.Volume == 0.00 || item.Quantity == 0)
+                                if (cargoItem.TypeId != Settings.Instance.CapacitorInjectorScript)
                                     continue;
 
-                                if (item.TypeId != Settings.Instance.CapacitorInjectorScript)
-                                    continue;
-
-                                int moveCapQuantity = Math.Min(item.Stacksize, capsToLoad);
-                                Cache.Instance.CargoHold.Add(item, moveCapQuantity);
-
-                                Logging.Log("Arm.MoveItems", "Moving [" + moveCapQuantity + "] units of Cap  [" + item.TypeName + "] from [ AmmoHangar ] to CargoHold", Logging.White);
-
-                                capsToLoad -= moveCapQuantity;
-                                if (capsToLoad <= 0)
-                                {
-                                    capMoved = true;
-                                    break;
-                                }
+                                capsIncargo += cargoItem.Quantity;
+                                continue;
+                            }
+                            int capsToLoad = Settings.Instance.CapBoosterToLoad - capsIncargo;
+                            if (capsToLoad <= 0)
+                            {
+                                capsMoved = true;
+                                return;
                             }
 
-                            if (capMoved) break;
+                            if (capsToLoad > 0)
+                            {
+                                if (!Cache.Instance.ReadyAmmoHangar("Arm.MoveItems")) break;
 
-                            Logging.Log("Arm", "Missing [" + capsToLoad + "] units of Cap Booster with TypeId [" + Settings.Instance.CapacitorInjectorScript + "]", Logging.Orange);
-                            _States.CurrentArmState = ArmState.NotEnoughAmmo;
-                            break;
+                                foreach (DirectItem item in Cache.Instance.AmmoHangar.Items)
+                                {
+                                    if (item.ItemId <= 0 || item.Volume == 0.00 || item.Quantity == 0)
+                                        continue;
+
+                                    if (item.TypeId != Settings.Instance.CapacitorInjectorScript)
+                                        continue;
+
+                                    int moveCapQuantity = Math.Min(item.Stacksize, capsToLoad);
+                                    Cache.Instance.CargoHold.Add(item, moveCapQuantity);
+                                    Logging.Log("Arm.MoveItems", "Moving [" + moveCapQuantity + "] units of Cap  [" + item.TypeName + "] from [ AmmoHangar ] to CargoHold", Logging.White);
+                                    return; // you can only move one set of items per frame
+                                }
+
+                                Logging.Log("Arm", "Missing [" + capsToLoad + "] units of Cap Booster with TypeId [" + Settings.Instance.CapacitorInjectorScript + "]", Logging.Orange);
+                                _States.CurrentArmState = ArmState.NotEnoughAmmo;
+                                return;
+                            }
+
+                            return;
                         }
                     }
 
-                    //IEnumerable<DirectItem> AmmoInCargo = Cache.Instance.CargoHold.Items.Where(i => (i.TypeName ?? string.Empty).ToLower() == bringItem);
-
-                    //
-                    // check the local cargo for items and subtract the items in the cargo from the quantity we still need to move to our cargohold
-                    //
-                    //foreach (DirectItem bringItemInCargo in AmmoInCargo)
-                    //{
-                    //    AmmoFlavorFound -= bringItemInCargo.Quantity;
-                    //    if (AmmoFlavorFound <= 0)
-                    //    {
-                    //        //
-                    //        // if we already have enough bringItems in our cargoHold then we are done
-                    //        //
-                    //        Cache.Instance.MissionAmmo.RemoveAll(a => a.TypeId == item.TypeId);
-                    //        AmmoToLoad.RemoveAll(a => a.TypeId == item.TypeId);
-                    //        break;
-                    //    }
-                    //}
-
+                    if (!Cache.Instance.ReadyAmmoHangar("Arm.MoveItems")) break;
+                    if (!Cache.Instance.OpenCargoHold("Arm.MoveItems")) break;
+                    
                     foreach (DirectItem item in Cache.Instance.AmmoHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity))
                     {
                         if (item.ItemId <= 0 || item.Volume == 0.00 || item.Quantity == 0)
@@ -1029,9 +1029,8 @@ namespace Questor.Modules.Actions
 
                         int moveAmmoQuantity = Math.Min(item.Stacksize, ammo.Quantity);
                         moveAmmoQuantity = Math.Max(moveAmmoQuantity, 1);
-                        Cache.Instance.CargoHold.Add(item, moveAmmoQuantity);
-
                         Logging.Log("Arm.MoveItems", "Moving [" + moveAmmoQuantity + "] units of Ammo  [" + item.TypeName + "] from [ AmmoHangar ] to CargoHold", Logging.White);
+                        Cache.Instance.CargoHold.Add(item, moveAmmoQuantity);
 
                         ammo.Quantity -= moveAmmoQuantity;
                         if (ammo.Quantity <= 0)
@@ -1039,35 +1038,29 @@ namespace Questor.Modules.Actions
                             Cache.Instance.MissionAmmo.RemoveAll(a => a.TypeId == item.TypeId);
                             AmmoToLoad.RemoveAll(a => a.TypeId == item.TypeId);
                         }
-                        ammoMoved = capMoved;
-                        break;
+
+                        return; //you can only move one set of items per frame.
                     }
 
-                    if (AmmoToLoad.Count == 0)
+                    if (AmmoToLoad.Any())
                     {
-                        Cache.Instance.NextArmAction = DateTime.UtcNow.AddSeconds(Time.Instance.WaitforItemstoMove_seconds);
-
-                        Logging.Log("Arm.MoveItems", "Waiting for items", Logging.White);
-                        _States.CurrentArmState = ArmState.WaitForItems;
-                    }
-                    else if (!ammoMoved)
-                    {
-                        if (Settings.Instance.DebugArm) Logging.Log("ArmState.MoveItems", "else if (!ammoMoved)", Logging.Teal);
-
-                        if (AmmoToLoad.Count > 0)
+                        foreach (Ammo ammo in AmmoToLoad)
                         {
-                            foreach (Ammo ammo in AmmoToLoad)
-                            {
-                                Logging.Log("Arm", "Missing [" + ammo.Quantity + "] units of ammo: [ " + ammo.Description + " ] with TypeId [" + ammo.TypeId + "]", Logging.Orange);
-                            }
+                            Logging.Log("Arm", "Missing [" + ammo.Quantity + "] units of ammo: [ " + ammo.Description + " ] with TypeId [" + ammo.TypeId + "]", Logging.Orange);
                         }
 
                         _States.CurrentArmState = ArmState.NotEnoughAmmo;
+                        return;
                     }
+
+                    Cache.Instance.NextArmAction = DateTime.UtcNow.AddSeconds(Time.Instance.WaitforItemstoMove_seconds);
+                    Logging.Log("Arm.MoveItems", "Waiting for items", Logging.White);
+                    _States.CurrentArmState = ArmState.WaitForItems;
+                    return;
+                    
                     #endregion move ammo
 
-                    break;
-
+                #region WaitForItems
                 case ArmState.WaitForItems:
 
                     // Wait 5 seconds after moving
@@ -1126,6 +1119,8 @@ namespace Questor.Modules.Actions
 
                     // Note, there's no unlock here as we *always* want our ammo!
                     break;
+
+                #endregion WaitForItems
             }
         }
     }
