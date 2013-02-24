@@ -957,7 +957,12 @@ namespace Questor.Modules.Actions
                     //
                     #region load ammo
 
-                    if (Settings.Instance.WeaponGroupId == 53) //civilian guns of all types
+                    //Civilian Gatling Pulse Laser	3634
+                    //Civilian Gatling Autocannon	3636
+                    //Civilian Gatling Railgun	3638
+                    //Civilian Light Electron Blaster	3640
+
+                    if (Cache.Instance.Modules.Count(i => i.IsTurret && i.MaxCharges == 0) > 0) //civilian guns of all types
                     {
                         Logging.Log("Arm.MoveItems","No ammo needed for civilian guns: done",Logging.White);
                         _States.CurrentArmState = ArmState.Cleanup;
