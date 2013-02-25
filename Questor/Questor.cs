@@ -175,47 +175,47 @@ namespace Questor
                     Cache.Instance.DirectEve.Skills.RefreshMySkills();
                     _runOnce30SecAfterStartupalreadyProcessed = true;
 
-                    Cache.Instance.IterateShipTargetValues();  // populates ship target values from an XML
-                    Cache.Instance.IterateInvTypes();          // populates the prices of items (cant we use prices from the game now?!)
-                    Cache.Instance.IterateUnloadLootTheseItemsAreLootItems();       // populates the list of items we never want in our local cargo (used mainly in unloadloot)
+                    Cache.Instance.IterateShipTargetValues("RunOnceAfterStartup");  // populates ship target values from an XML
+                    Cache.Instance.IterateInvTypes("RunOnceAfterStartup");          // populates the prices of items (cant we use prices from the game now?!)
+                    Cache.Instance.IterateUnloadLootTheseItemsAreLootItems("RunOnceAfterStartup");       // populates the list of items we never want in our local cargo (used mainly in unloadloot)
 
                     if (Settings.Instance.UseInnerspace)
                     {
-                        Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: WindowText EVE - " + Settings.Instance.CharacterName, Logging.White);
+                        Logging.Log("RunOnceAfterStartup", "Running Innerspace command: WindowText EVE - " + Settings.Instance.CharacterName, Logging.White);
                         LavishScript.ExecuteCommand("WindowText EVE - " + Settings.Instance.CharacterName);
 
                         //enable windowtaskbar = on, so that minimized windows do not make us die in a fire.
-                        Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: timedcommand 100 windowtaskbar on " + Settings.Instance.CharacterName, Logging.White);
+                        Logging.Log("RunOnceAfterStartup", "Running Innerspace command: timedcommand 100 windowtaskbar on " + Settings.Instance.CharacterName, Logging.White);
                         LavishScript.ExecuteCommand("timedcommand 100 windowtaskbar on " + Settings.Instance.CharacterName);
 
                         if (Settings.Instance.EVEWindowXSize >= 100 && Settings.Instance.EVEWindowYSize >= 100)
                         {
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: timedcommand 150 WindowCharacteristics -size " + Settings.Instance.EVEWindowXSize + "x" + Settings.Instance.EVEWindowYSize, Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "Running Innerspace command: timedcommand 150 WindowCharacteristics -size " + Settings.Instance.EVEWindowXSize + "x" + Settings.Instance.EVEWindowYSize, Logging.White);
                             LavishScript.ExecuteCommand("timedcommand 150 WindowCharacteristics -size " + Settings.Instance.EVEWindowXSize + "x" + Settings.Instance.EVEWindowYSize);
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: timedcommand 200 WindowCharacteristics -pos " + Settings.Instance.EVEWindowXPosition + "," + Settings.Instance.EVEWindowYPosition, Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "Running Innerspace command: timedcommand 200 WindowCharacteristics -pos " + Settings.Instance.EVEWindowXPosition + "," + Settings.Instance.EVEWindowYPosition, Logging.White);
                             LavishScript.ExecuteCommand("timedcommand 200 WindowCharacteristics -pos " + Settings.Instance.EVEWindowXPosition + "," + Settings.Instance.EVEWindowYPosition);
                         }
 
                         if (Settings.Instance.MinimizeEveAfterStartingUp)
                         {
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "MinimizeEveAfterStartingUp is true: Minimizing EVE with: WindowCharacteristics -visibility minimize", Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "MinimizeEveAfterStartingUp is true: Minimizing EVE with: WindowCharacteristics -visibility minimize", Logging.White);
                             LavishScript.ExecuteCommand("WindowCharacteristics -visibility minimize");
                         }
 
                         if (Settings.Instance.LoginQuestorArbitraryOSCmd)
                         {
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "After Questor Login: executing LoginQuestorArbitraryOSCmd", Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "After Questor Login: executing LoginQuestorArbitraryOSCmd", Logging.White);
                             LavishScript.ExecuteCommand("Echo [${Time}] OSExecute " + Settings.Instance.LoginQuestorOSCmdContents.ToString(CultureInfo.InvariantCulture));
                             LavishScript.ExecuteCommand("OSExecute " + Settings.Instance.LoginQuestorOSCmdContents.ToString(CultureInfo.InvariantCulture));
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "Done: executing LoginQuestorArbitraryOSCmd", Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "Done: executing LoginQuestorArbitraryOSCmd", Logging.White);
                         }
 
                         if (Settings.Instance.LoginQuestorLavishScriptCmd)
                         {
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "After Questor Login: executing LoginQuestorLavishScriptCmd", Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "After Questor Login: executing LoginQuestorLavishScriptCmd", Logging.White);
                             LavishScript.ExecuteCommand("Echo [${Time}] runscript " + Settings.Instance.LoginQuestorLavishScriptContents.ToString(CultureInfo.InvariantCulture));
                             LavishScript.ExecuteCommand("runscript " + Settings.Instance.LoginQuestorLavishScriptContents.ToString(CultureInfo.InvariantCulture));
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "Done: executing LoginQuestorLavishScriptCmd", Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "Done: executing LoginQuestorLavishScriptCmd", Logging.White);
                         }
 
                         Logging.MaintainConsoleLogs();
@@ -223,7 +223,7 @@ namespace Questor
                 }
                 else
                 {
-                    Logging.Log("Questor.RunOnce30SecAfterStartup", "RunOnce30SecAfterStartup: Settings.Instance.CharacterName is still null", Logging.Orange);
+                    Logging.Log("RunOnceAfterStartup", "Settings.Instance.CharacterName is still null", Logging.Orange);
                     Cache.Instance.NextStartupAction = DateTime.UtcNow.AddSeconds(10);
                     _runOnce30SecAfterStartupalreadyProcessed = false;
                     return;

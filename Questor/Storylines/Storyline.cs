@@ -443,43 +443,54 @@ namespace Questor.Storylines
                 Logging.Log("Traveler.State is", _States.CurrentTravelerState.ToString(), Logging.White);
         }
 
-        private void BringSpoilsOfWar()
+        private bool BringSpoilsOfWar()
         {
-            if (_nextAction > DateTime.UtcNow)
-                return;
+            if (_nextAction > DateTime.UtcNow) return false;
 
             // Open the item hangar (should still be open)
-            if (!Cache.Instance.OpenItemsHangar("Storyline")) return;
+            if (!Cache.Instance.OpenItemsHangar("Storyline")) return false;
 
-            // Do we have any implants?
-            if (!Cache.Instance.ItemHangar.Items.Any(i => i.GroupId >= 738 && i.GroupId <= 750))
+            // Do we have anything here we want to bring home, like implants or ?
+            //if (to.Items.Any(i => i.GroupId == (int)Group.MiscSpecialMissionItems || i.GroupId == (int)Group.Livestock))
+
+            if (!Cache.Instance.ItemHangar.Items.Any(i => (i.GroupId >= 738 
+                                                       && i.GroupId <= 750) 
+                                                       || i.GroupId == (int)Group.MiscSpecialMissionItems
+                                                       || i.GroupId == (int)Group.Livestock))
             {
                 _States.CurrentStorylineState = StorylineState.Done;
-                return;
+                return true;
             }
 
             // Yes, open the ships cargo
-            if (!Cache.Instance.OpenCargoHold("Storyline")) return;
+            if (!Cache.Instance.OpenCargoHold("Storyline")) return false;
 
             // If we are not moving items
             if (Cache.Instance.DirectEve.GetLockedItems().Count == 0)
             {
                 // Move all the implants to the cargo bay
-                foreach (DirectItem item in Cache.Instance.ItemHangar.Items.Where(i => i.GroupId >= 738 && i.GroupId <= 750))
+                foreach (DirectItem item in Cache.Instance.ItemHangar.Items.Where(i => (i.GroupId >= 738
+                                                                                     && i.GroupId <= 750)
+                                                                                     || i.GroupId == (int)Group.MiscSpecialMissionItems
+                                                                                     || i.GroupId == (int)Group.Livestock))
                 {
                     if (Cache.Instance.CargoHold.Capacity - Cache.Instance.CargoHold.UsedCapacity - (item.Volume * item.Quantity) < 0)
                     {
                         Logging.Log("Storyline", "We are full, not moving anything else", Logging.Yellow);
                         _States.CurrentStorylineState = StorylineState.Done;
-                        return;
+                        return true;
                     }
 
                     Logging.Log("Storyline", "Moving [" + item.TypeName + "][" + item.ItemId + "] to cargo", Logging.Yellow);
                     Cache.Instance.CargoHold.Add(item, item.Quantity);
+                    return false;
                 }
                 _nextAction = DateTime.UtcNow.AddSeconds(10);
+                return false;
             }
-            return;
+
+            if (Settings.Instance.DebugStorylineMissions) Logging.Log("BringSpoilsOfWar", "There are more items to move: waiting for locks to clear.", Logging.White);
+            return false;
         }
 
         public void ProcessState()
@@ -589,7 +600,7 @@ namespace Questor.Storylines
                     break;
 
                 case StorylineState.BringSpoilsOfWar:
-                    BringSpoilsOfWar();
+                    if (!BringSpoilsOfWar()) return;
                     break;
 
                 case StorylineState.BlacklistAgent:

@@ -190,7 +190,7 @@ namespace Questor.Modules.Caching
             Environment.Exit(0);
         }
 
-        public void IterateInvTypes()
+        public void IterateInvTypes(string module)
         {
             string path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -201,13 +201,13 @@ namespace Questor.Modules.Caching
 
                 if (!File.Exists(invtypesXmlFile))
                 {
-                    Logging.Log("LoadInvTypesXML", "unable to find [" + invtypesXmlFile + "]", Logging.White);
+                    Logging.Log(module, "IterateInvTypes - unable to find [" + invtypesXmlFile + "]", Logging.White);
                     return;
                 }
 
                 try
                 {
-                    Logging.Log("IterateInvTypes", "Loading [" + invtypesXmlFile + "]", Logging.White);
+                    Logging.Log(module, "IterateInvTypes - Loading [" + invtypesXmlFile + "]", Logging.White);
                     InvTypes = XDocument.Load(invtypesXmlFile);
                     if (InvTypes.Root != null)
                     {
@@ -219,17 +219,17 @@ namespace Questor.Modules.Caching
                 }
                 catch (Exception exception)
                 {
-                    Logging.Log("IterateInvTypes", "Exception: [" + exception + "]", Logging.Red);
+                    Logging.Log(module, "IterateInvTypes - Exception: [" + exception + "]", Logging.Red);
                 }
                 
             }
             else
             {
-                Logging.Log("LoadInvTypesXML", "unable to find [" + System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "]", Logging.White);
+                Logging.Log(module, "IterateInvTypes - unable to find [" + System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "]", Logging.White);
             }
         }
         
-        public void IterateShipTargetValues()
+        public void IterateShipTargetValues(string module)
         {
             string path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -240,13 +240,13 @@ namespace Questor.Modules.Caching
 
                 if (!File.Exists(ShipTargetValuesXmlFile))
                 {
-                    Logging.Log("LoadInvTypesXML", "unable to find [" + ShipTargetValuesXmlFile + "]", Logging.White);
+                    Logging.Log(module, "IterateShipTargetValues - unable to find [" + ShipTargetValuesXmlFile + "]", Logging.White);
                     return;
                 }
 
                 try
                 {
-                    Logging.Log("IterateShipTargetValues", "Loading [" + ShipTargetValuesXmlFile + "]", Logging.White);
+                    Logging.Log(module, "IterateShipTargetValues - Loading [" + ShipTargetValuesXmlFile + "]", Logging.White);
                     XDocument values = XDocument.Load(ShipTargetValuesXmlFile);
                     if (values.Root != null)
                     {
@@ -258,12 +258,12 @@ namespace Questor.Modules.Caching
                 }
                 catch (Exception exception)
                 {
-                    Logging.Log("IterateShipTargetValues", "Exception: [" + exception + "]", Logging.Red);
+                    Logging.Log(module, "IterateShipTargetValues - Exception: [" + exception + "]", Logging.Red);
                 }
             }
         }
 
-        public void IterateUnloadLootTheseItemsAreLootItems()
+        public void IterateUnloadLootTheseItemsAreLootItems(string module)
         {
             string path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -274,13 +274,13 @@ namespace Questor.Modules.Caching
 
                 if (!File.Exists(UnloadLootTheseItemsAreLootItemsXmlFile))
                 {
-                    Logging.Log("LoadInvTypesXML", "unable to find [" + UnloadLootTheseItemsAreLootItemsXmlFile + "]", Logging.White);
+                    Logging.Log(module, "IterateUnloadLootTheseItemsAreLootItems - unable to find [" + UnloadLootTheseItemsAreLootItemsXmlFile + "]", Logging.White);
                     return;
                 }
 
                 try
                 {
-                    Logging.Log("IterateUnloadLootTheseItemsAreLootItems", "Loading [" + UnloadLootTheseItemsAreLootItemsXmlFile + "]", Logging.White);
+                    Logging.Log(module, "IterateUnloadLootTheseItemsAreLootItems - Loading [" + UnloadLootTheseItemsAreLootItemsXmlFile + "]", Logging.White);
                     Cache.Instance.UnloadLootTheseItemsAreLootItems = XDocument.Load(UnloadLootTheseItemsAreLootItemsXmlFile);
                     if (UnloadLootTheseItemsAreLootItems.Root != null)
                     {
@@ -292,12 +292,12 @@ namespace Questor.Modules.Caching
                 }
                 catch (Exception exception)
                 {
-                    Logging.Log("IterateUnloadLootTheseItemsAreLootItems", "Exception: [" + exception + "]", Logging.Red);
+                    Logging.Log(module, "IterateUnloadLootTheseItemsAreLootItems - Exception: [" + exception + "]", Logging.Red);
                 }
             }
             else
             {
-                Logging.Log("IterateItemsIgnore", "unable to find [" + System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "]", Logging.White);
+                Logging.Log(module, "IterateUnloadLootTheseItemsAreLootItems - unable to find [" + System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "]", Logging.White);
             }
         }
 

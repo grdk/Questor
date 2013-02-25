@@ -138,22 +138,19 @@ namespace Questor.Storylines
 
             if (!Cache.Instance.OpenCargoHold("GenericCourierStoryline: MoveItem")) return false;
 
-            // 314 == Giant Sealed Cargo Containers
-            const int containersGroupId = 314;
-            const int marinesGroupId = 283;
             DirectContainer from = pickup ? Cache.Instance.ItemHangar : Cache.Instance.CargoHold;
             DirectContainer to = pickup ? Cache.Instance.CargoHold : Cache.Instance.ItemHangar;
 
             // We moved the item
 
-            if (to.Items.Any(i => i.GroupId == containersGroupId || i.GroupId == marinesGroupId))
+            if (to.Items.Any(i => i.GroupId == (int)Group.MiscSpecialMissionItems || i.GroupId == (int)Group.Livestock))
                 return true;
 
             if (directEve.GetLockedItems().Count != 0)
                 return false;
 
             // Move items
-            foreach (var item in from.Items.Where(i => i.GroupId == containersGroupId || i.GroupId == marinesGroupId))
+            foreach (var item in from.Items.Where(i => i.GroupId == (int)Group.MiscSpecialMissionItems || i.GroupId == (int)Group.Livestock))
             {
                 Logging.Log("GenericCourier", "Moving [" + item.TypeName + "][" + item.ItemId + "] to " + (pickup ? "cargo" : "hangar"), Logging.White);
                 to.Add(item, item.Stacksize);
@@ -195,7 +192,9 @@ namespace Questor.Storylines
 
                 case GenericCourierStorylineState.DropOffItem:
                     if (MoveItem(false))
+                    {
                         return StorylineState.CompleteMission;
+                    }
                     break;
             }
 
