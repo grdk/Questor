@@ -216,7 +216,7 @@ namespace Questor.Modules.Activities
                     }
 
                     if (Settings.Instance.DebugActivateGate) Logging.Log("CombatMissionCtrl", "Activate: Reload before moving to next pocket", Logging.Teal);
-                    if (!Combat.ReloadAll(Cache.Instance.MyShip)) return;
+                    if (!Combat.ReloadAll(Cache.Instance.MyShipEntity)) return;
                     if (Settings.Instance.DebugActivateGate) Logging.Log("CombatMissionCtrl", "Activate: Done reloading", Logging.Teal);
 
                     if (DateTime.UtcNow > Cache.Instance.NextActivateAction)
@@ -241,14 +241,14 @@ namespace Questor.Modules.Activities
                 // Move to the target
                 if (DateTime.UtcNow > Cache.Instance.NextApproachAction)
                 {
-                    if (Cache.Instance.IsOrbiting || Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closest.Id || Cache.Instance.MyShip.Velocity < 100)
+                    if (Cache.Instance.IsOrbiting || Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closest.Id || Cache.Instance.MyShipEntity.Velocity < 100)
                     {
                         Logging.Log("CombatMissionCtrl.Activate", "Approaching target [" + closest.Name + "][ID: " + Cache.Instance.MaskedID(closest.Id) + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.Teal);
                         closest.Approach();
                         return;
                     }
 
-                    if (Settings.Instance.DebugActivateGate) Logging.Log("CombatMissionCtrl", "Cache.Instance.IsOrbiting [" + Cache.Instance.IsOrbiting + "] Cache.Instance.MyShip.Velocity [" + Cache.Instance.MyShip.Velocity + "]", Logging.Green);
+                    if (Settings.Instance.DebugActivateGate) Logging.Log("CombatMissionCtrl", "Cache.Instance.IsOrbiting [" + Cache.Instance.IsOrbiting + "] Cache.Instance.MyShip.Velocity [" + Cache.Instance.MyShipEntity.Velocity + "]", Logging.Green);
                     if (Settings.Instance.DebugActivateGate) if (Cache.Instance.Approaching != null) Logging.Log("CombatMissionCtrl", "Cache.Instance.Approaching.Id [" + Cache.Instance.Approaching.Id + "][closest.Id: " + closest.Id + "]", Logging.Green);
                     if (Settings.Instance.DebugActivateGate) Logging.Log("CombatMissionCtrl", "------------------", Logging.Green);
                     return;
@@ -713,7 +713,7 @@ namespace Questor.Modules.Activities
                 {
                     if (Cache.Instance.Approaching != null)
                     {
-                        Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
+                        if (Cache.Instance.MyShipEntity.Velocity != 0) Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
                         Cache.Instance.Approaching = null;
                         Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Stop ship, we have been targeted and are [" + DistanceToApproach + "] from [ID: " +
                                     closest.Name + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.Teal);
@@ -727,7 +727,7 @@ namespace Questor.Modules.Activities
                 {
                     if (Cache.Instance.Approaching != null)
                     {
-                        Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
+                        if (Cache.Instance.MyShipEntity.Velocity != 0) Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
                         Cache.Instance.Approaching = null;
                         Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Stop ship, we have been targeted and are [" + DistanceToApproach + "] from [ID: " +
                                     closest.Name + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.Teal);
@@ -742,7 +742,7 @@ namespace Questor.Modules.Activities
 
                 if (Cache.Instance.Approaching != null)
                 {
-                    Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
+                    if (Cache.Instance.MyShipEntity.Velocity != 0) Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
                     Cache.Instance.Approaching = null;
                     Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Stop ship, we are [" + DistanceToApproach + "] from [ID: " + closest.Name + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.Teal);
                 }
@@ -764,7 +764,7 @@ namespace Questor.Modules.Activities
 
                 if (Settings.Instance.DebugMoveTo) if (Cache.Instance.Approaching == null) Logging.Log("CombatMissionCtrl.MoveTo", "if (Cache.Instance.Approaching == null)", Logging.Teal);
                 if (Settings.Instance.DebugMoveTo) if (Cache.Instance.Approaching != null) Logging.Log("CombatMissionCtrl.MoveTo", "Cache.Instance.Approaching.Id [" + Cache.Instance.Approaching.Id + "]", Logging.Teal);
-                if (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closest.Id || Cache.Instance.MyShip.Velocity < 100)
+                if (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closest.Id || Cache.Instance.MyShipEntity.Velocity < 100)
                 {
                     Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Approaching target [" + closest.Name + "][ID: " + Cache.Instance.MaskedID(closest.Id) + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.Teal);
                     closest.Approach();
@@ -781,6 +781,7 @@ namespace Questor.Modules.Activities
                 closest.AlignTo();
                 return;
             }
+
             if (Settings.Instance.DebugMoveTo) Logging.Log("CombatMissionCtrl.MoveTo", "Nothing to do. Next Approach [" + Cache.Instance.NextApproachAction + " ] NextAlign [" + Cache.Instance.NextAlign + "]", Logging.Teal);
             return;
         }

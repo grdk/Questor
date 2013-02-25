@@ -75,6 +75,7 @@ namespace Questor.Modules.Lookup
         public bool DebugBlackList { get; set; }
         public bool DebugCargoHold { get; set; }
         public bool DebugCleanup { get; set; }
+        public bool DebugCourierMissions { get; set; }
         public bool DebugDecline { get; set; }
         public bool DebugDefense { get; set; }
         public bool DebugDroneHealth { get; set; }
@@ -342,6 +343,7 @@ namespace Questor.Modules.Lookup
         public bool PocketObjectStatistics { get; set; }
         public string PocketObjectStatisticsPath { get; set; }
         public string PocketObjectStatisticsFile { get; set; }
+        public string MissionDetailsHtmlPath { get; set; }
         public bool PocketStatsUseIndividualFilesPerPocket = true;
         public bool PocketObjectStatisticsLog { get; set; }
 
@@ -597,6 +599,7 @@ namespace Questor.Modules.Lookup
                 DebugBlackList = false;
                 DebugCargoHold = false;
                 DebugCleanup = false;
+                DebugCourierMissions = false;
                 DebugDecline = false;
                 DebugDefense = false;
                 DebugDroneHealth = false;
@@ -1007,6 +1010,7 @@ namespace Questor.Modules.Lookup
                     DebugBlackList = (bool?)xml.Element("debugBlackList") ?? false;
                     DebugCargoHold = (bool?)xml.Element("debugCargoHold") ?? false;
                     DebugCleanup = (bool?)xml.Element("debugCleanup") ?? false;
+                    DebugCourierMissions = (bool?)xml.Element("debugCourierMissions") ?? false;
                     DebugDecline = (bool?)xml.Element("debugDecline") ?? false;
                     DebugDefense = (bool?)xml.Element("debugDefense") ?? false;
                     DebugDroneHealth = (bool?)xml.Element("debugDroneHealth") ?? false;
@@ -1696,6 +1700,8 @@ namespace Questor.Modules.Lookup
             PocketStatisticsFile = System.IO.Path.Combine(PocketStatisticsPath, characterNameForLogs + "pocketstats-combined.csv");
             PocketObjectStatisticsPath = System.IO.Path.Combine(Logpath, "pocketobjectstats\\");
             PocketObjectStatisticsFile = System.IO.Path.Combine(PocketObjectStatisticsPath, characterNameForLogs + "pocketobjectstats-combined.csv");
+            MissionDetailsHtmlPath = System.IO.Path.Combine(Logpath, "MissionDetailsHTML\\");
+
             //create all the logging directories even if they aren't configured to be used - we can adjust this later if it really bugs people to have some potentially empty directories.
             Directory.CreateDirectory(Logpath);
 

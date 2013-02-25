@@ -21,12 +21,11 @@ namespace Questor.Modules.Actions
 
     public class UnloadLoot
     {
-        public const int StationContainer = 17366;
-
         private static DateTime _nextUnloadAction = DateTime.UtcNow;
         private static DateTime _lastUnloadAction = DateTime.MinValue;
-        //private static int _lootToMoveWillStillNotFitCount;
+
         private static DateTime _lastPulse;
+
         private static bool AmmoIsBeingMoved;
         private static bool LootIsBeingMoved;
         private static bool AllLootWillFit;
@@ -185,7 +184,7 @@ namespace Questor.Modules.Actions
                 // Stack LootHangar
                 //
                 if (Settings.Instance.DebugUnloadLoot) Logging.Log("UnloadLoot.MoveLoot", "if (!Cache.Instance.StackLootHangar(UnloadLoot.MoveLoot)) return;", Logging.White);
-                _nextUnloadAction = DateTime.UtcNow.AddSeconds(Cache.Instance.RandomNumber(2, 4));
+                _nextUnloadAction = DateTime.UtcNow.AddSeconds(Cache.Instance.RandomNumber(4, 6));
                 if (!Cache.Instance.StackLootHangar("UnloadLoot.MoveLoot")) return false;
                 return true;
             }
@@ -280,10 +279,10 @@ namespace Questor.Modules.Actions
                     //
                     try
                     {
-                        missionGateKeysToMove = Cache.Instance.CargoHold.Items.Where(i => i.TypeId == (int)TypeID.AngelDiamondTag ||
-                                                                                          i.TypeId == (int)TypeID.GuristasDiamondTag ||
-                                                                                          i.TypeId == (int)TypeID.ImperialNavyGatePermit ||
-                                                                                          i.GroupId == (int)Group.AccelerationGateKeys).ToList();
+                        missionGateKeysToMove = Cache.Instance.CargoHold.Items.Where(i => i.TypeId == (int)TypeID.AngelDiamondTag 
+                                                                                       || i.TypeId == (int)TypeID.GuristasDiamondTag
+                                                                                       || i.TypeId == (int)TypeID.ImperialNavyGatePermit
+                                                                                       || i.GroupId == (int)Group.AccelerationGateKeys).ToList();
                     }
                     catch (Exception exception)
                     {
@@ -303,6 +302,7 @@ namespace Questor.Modules.Actions
                             _nextUnloadAction = DateTime.UtcNow.AddSeconds(Cache.Instance.RandomNumber(2, 4));
                             return false;
                         }
+
                         if (Settings.Instance.DebugUnloadLoot) Logging.Log("UnloadLoot.MoveAmmo", "No Mission GateKeys Found in CargoHold: moving on.", Logging.White);
                     }
                     
@@ -312,9 +312,12 @@ namespace Questor.Modules.Actions
                     //
                     try
                     {
-                        commonMissionCompletionItemsToMove = Cache.Instance.CargoHold.Items.Where(i => i.GroupId == (int)Group.Livestock || 
-                                                                                                       i.GroupId == (int)Group.MiscSpecialMissionItems || 
-                                                                                                       (i.GroupId == (int)Group.Commodities && i.TypeId != (int)TypeID.MetalScraps && i.TypeId != (int)TypeID.ReinforcedMetalScraps)).ToList();
+
+                        //Cache.Instance.InvTypesById.ContainsKey(i.TypeId)
+                        commonMissionCompletionItemsToMove = Cache.Instance.CargoHold.Items.Where(i => i.GroupId == (int)Group.Livestock 
+                                                                                                    || i.GroupId == (int)Group.MiscSpecialMissionItems
+                                                                                                    || !Cache.Instance.UnloadLootTheseItemsAreLootById.ContainsKey(i.TypeId)
+                                                                                                    || (i.GroupId == (int)Group.Commodities && i.TypeId != (int)TypeID.MetalScraps && i.TypeId != (int)TypeID.ReinforcedMetalScraps)).ToList();
                     }
                     catch (Exception exception)
                     {

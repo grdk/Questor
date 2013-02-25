@@ -1,4 +1,4 @@
-﻿namespace Questor.Storylines
+namespace Questor.Storylines
 {
     using System;
     using System.Collections.Generic;
@@ -40,7 +40,6 @@
                                //
                                //{"StorylineCombatNameHere".ToLower(), new GenericCombatStoryline()},
                                //{"StorylineCourierNameHere".ToLower(), new GenericCourier()},
-
                                //
                                // COURIER/DELIVERY - ALL FACTIONS - ALL LEVELS
                                //
@@ -113,7 +112,6 @@
                                {"Fire and Ice".ToLower(), new GenericCourier()}, //lvl4
                                {"Hunting Black Dog".ToLower(), new GenericCourier()}, //lvl4
                                {"Operation Doorstop".ToLower(), new GenericCourier()}, //lvl4
-
                                //
                                // COURIER/DELIVERY - GALLENTE - LEVEL 1
                                //
@@ -134,8 +132,13 @@
                                //
                                // COURIER/DELIVERY - GALLENTE - LEVEL 4
                                //
+                               //{"A Fathers Love".ToLower(), new GenericCourier()}, //lvl4
                                {"A Fine Wine".ToLower(), new GenericCourier()}, //lvl4
+                               //{"A Greener World".ToLower(), new GenericCourier()}, //lvl4
                                {"Amphibian Error".ToLower(), new GenericCourier()}, //lvl4
+                               //{"Eradication".ToLower(), new GenericCourier()}, //lvl4
+                               //{"Evacuation".ToLower(), new GenericCourier()}, //lvl4
+                               //{"On the Run".ToLower(), new GenericCourier()}, //lvl4
                                {"Shifting Rocks".ToLower(), new GenericCourier()}, //lvl4
                                {"The Creeping Cold".ToLower(), new GenericCourier()}, //lvl4
                                {"The Natural Way".ToLower(), new GenericCourier()}, //lvl4
@@ -160,7 +163,7 @@
                                {"Brand New Harvesters".ToLower(), new GenericCourier()}, //lvl4
                                {"Heart of the Rogue Drone".ToLower(), new GenericCourier()}, //lvl4
                                {"Their Secret Defense".ToLower(), new GenericCourier()}, //lvl4
-                               
+                               //{"Very Important Pirates".ToLower(), new GenericCourier()}, //lvl4
 
                                //
                                // COMBAT - ALL FACTIONS - ALL LEVELS
@@ -198,14 +201,12 @@
                                //
                                // COMBAT - AMARR - LEVEL 1
                                //
-
                                //
                                // COMBAT - AMARR - LEVEL 2
                                //
-                               {"Whispers in the Dark - First Contact (1 of 4)".ToLower(), new GenericCombatStoryline()}, // lvl2
-                               {"Whispers in the Dark - Lay and Pray (2 of 4)".ToLower(), new GenericCombatStoryline()}, // lvl2
-                               {"Whispers in the Dark - The Outpost (4 of 4)".ToLower(), new GenericCombatStoryline()}, // lvl2
-                               
+                               {"Whispers in the Dark - First Contact (1 of 4)".ToLower(), new GenericCombatStoryline()}, //vs sansha lvl2
+                               {"Whispers in the Dark - Lay and Pray (2 of 4)".ToLower(), new GenericCombatStoryline()}, //vs sansha lvl2
+                               {"Whispers in the Dark - The Outpost (4 of 4)".ToLower(), new GenericCombatStoryline()}, //vs sansha lvl2
                                //
                                // COMBAT - AMARR - LEVEL 3
                                //
@@ -213,13 +214,13 @@
                                //
                                // COMBAT - AMARR - LEVEL 4
                                //
-                               {"Blood Farm".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               {"Dissidents".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               {"Extract the Renegade".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               {"Gate to Nowhere".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               {"Jealous Rivals".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               {"Racetrack Ruckus".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               {"The Mouthy Merc".ToLower(), new GenericCombatStoryline()}, // lvl4
+                               {"Blood Farm".ToLower(), new GenericCombatStoryline()}, //amarr lvl4
+                               {"Dissidents".ToLower(), new GenericCombatStoryline()}, //amarr lvl4
+                               {"Extract the Renegade".ToLower(), new GenericCombatStoryline()}, //amarr lvl4
+                               {"Gate to Nowhere".ToLower(), new GenericCombatStoryline()}, //amarr lvl4
+                               {"Jealous Rivals".ToLower(), new GenericCombatStoryline()}, //amarr lvl4
+                               {"Racetrack Ruckus".ToLower(), new GenericCombatStoryline()}, //amarr lvl4
+                               {"The Mouthy Merc".ToLower(), new GenericCombatStoryline()}, //amarr lvl4
                                
                                //
                                // COMBAT - CALDARI - LEVEL 1
@@ -236,11 +237,11 @@
                                //
                                // COMBAT - CALDARI - LEVEL 4
                                //
-                               {"Crowd Control".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               {"Forgotten Outpost".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               //{"Illegal Mining".ToLower(), new GenericCombatStoryline()}, // lvl4 Extremely high DPS after shooting structures!
-                               {"Innocents in the Crossfire".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               {"Stem the Flow".ToLower(), new GenericCombatStoryline()}, // lvl4
+                               {"Crowd Control".ToLower(), new GenericCombatStoryline()}, //caldari lvl4
+                               {"Forgotten Outpost".ToLower(), new GenericCombatStoryline()},//caldari lvl4
+                               //{"Illegal Mining".ToLower(), new GenericCombatStoryline()}, //caldari lvl4 note: Extremely high DPS after shooting structures!
+                               {"Innocents in the Crossfire".ToLower(), new GenericCombatStoryline()}, //caldari lvl4
+                               {"Stem the Flow".ToLower(), new GenericCombatStoryline()}, //caldari lvl4
                                
                                //
                                // COMBAT - GALLENTE - LEVEL 1
@@ -253,18 +254,19 @@
                                //
                                // COMBAT - GALLENTE - LEVEL 3
                                //
-                               {"A Force to Be Reckoned With".ToLower(), new GenericCombatStoryline()}, // lvl3
+                               {"A Force to Be Reckoned With".ToLower(), new GenericCombatStoryline()}, //gallente lvl4
                                
                                //
                                // COMBAT - GALLENTE - LEVEL 4
                                //
-                               {"Federal Confidence".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               {"Hidden Hope".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               //{"Missing Persons Report", new GenericCombatStoryline()}, // lvl4
-                               {"Prison Transfer".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               {"Serpentis Ship Builders".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               {"The Serpent and the Slaves".ToLower(), new GenericCombatStoryline()}, // lvl4
-                               {"Tomb of the Unknown Soldiers".ToLower(), new GenericCombatStoryline()}, // lvl4
+                               {"Federal Confidence".ToLower(), new GenericCombatStoryline()}, //gallente lvl4
+                               {"Hidden Hope".ToLower(), new GenericCombatStoryline()}, //gallente lvl4
+                               //{"Missing Persons Report", new GenericCombatStoryline()},
+                               //{"Inspired".ToLower(), new GenericCombatStoryline()}, //gallente lvl4
+                               {"Prison Transfer".ToLower(), new GenericCombatStoryline()}, //gallente lvl4
+                               {"Serpentis Ship Builders".ToLower(), new GenericCombatStoryline()}, //gallente lvl4
+                               {"The Serpent and the Slaves".ToLower(), new GenericCombatStoryline()}, //gallente lvl4
+                               {"Tomb of the Unknown Soldiers".ToLower(), new GenericCombatStoryline()}, //gallente lvl4
                                
                                //
                                // COMBAT - MINMATAR - LEVEL 1
@@ -277,7 +279,6 @@
                                //
                                // COMBAT - MINMATAR - LEVEL 3
                                //
-
                                //
                                // COMBAT - MINMATAR - LEVEL 4
                                //

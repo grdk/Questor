@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 //   <copyright from='2010' to='2015' company='THEHACKERWITHIN.COM'>
 //     Copyright (c) TheHackerWithin.COM. All Rights Reserved.
 //
@@ -212,41 +212,9 @@ namespace Questor.Modules.Caching
                 Logging.Log("LoadInvTypesXML", "unable to find [" + System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "]", Logging.White);
             }
         }
-
-        public void LoadInvTypesXML()
+        
+        public void IterateShipTargetValues()
         {
-            string path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-            if (path != null)
-            {
-                string invtypesXmlFile = System.IO.Path.Combine(path, "InvTypes.xml");
-                InvTypesById = new Dictionary<int, InvType>();
-                InvTypes = XDocument.Load(invtypesXmlFile);
-                if (InvTypes.Root != null)
-                {
-                    foreach (XElement element in InvTypes.Root.Elements("invtype"))
-                    {
-                        InvTypesById.Add((int)element.Attribute("id"), new InvType(element));
-
-                        //_item = new ListItems();
-                        //_item.Id = (int)element.Attribute("id");
-                        //_item.Name = (string)element.Attribute("name");
-                        //List.Add(_item);
-                    }
-                }
-            }
-            else
-            {
-                Logging.Log("LoadInvTypesXML", "unable to find [" + System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "]", Logging.White);
-            }
-        }
-
-        public Cache()
-        {
-            //string line = "Cache: new cache instance being instantiated";
-            //InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.UtcNow, line));
-            //line = string.Empty;
-
             string path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             if (path != null)
@@ -260,17 +228,48 @@ namespace Questor.Modules.Caching
                         ShipTargetValues.Add(new ShipTargetValue(value));
                     }
                 }
+            }
+        }
 
-                InvTypesById = new Dictionary<int, InvType>();
-                XDocument invTypes = XDocument.Load(System.IO.Path.Combine(path, "InvTypes.xml"));
-                if (invTypes.Root != null)
+        public void IterateUnloadLootTheseItemsAreLootItems()
+        {
+            string path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            if (path != null)
+            {
+                string UnloadLootTheseItemsAreLootItemsXmlFile = System.IO.Path.Combine(path, "UnloadLootTheseItemsAreLootItems.xml");
+                UnloadLootTheseItemsAreLootById = new Dictionary<int, InvType>();
+                try
                 {
-                    foreach (XElement element in invTypes.Root.Elements("invtype"))
+                    Cache.Instance.UnloadLootTheseItemsAreLootItems = XDocument.Load(UnloadLootTheseItemsAreLootItemsXmlFile);
+                    if (UnloadLootTheseItemsAreLootItems.Root != null)
                     {
-                        InvTypesById.Add((int)element.Attribute("id"), new InvType(element));
+                        foreach (XElement element in UnloadLootTheseItemsAreLootItems.Root.Elements("invtype"))
+                        {
+                            UnloadLootTheseItemsAreLootById.Add((int)element.Attribute("id"), new InvType(element));
+                        }
                     }
                 }
+                catch (Exception exception)
+                {
+                    Logging.Log("IterateUnloadLootTheseItemsAreLootItems", "Exception: [" + exception + "]", Logging.Red);
+                }
             }
+            else
+            {
+                Logging.Log("IterateItemsIgnore", "unable to find [" + System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "]", Logging.White);
+            }
+        }
+
+        public Cache()
+        {
+            //string line = "Cache: new cache instance being instantiated";
+            //InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.UtcNow, line));
+            //line = string.Empty;
+
+            IterateShipTargetValues();  // populates ship target values from an XML
+            IterateInvTypes();          // populates the prices of items (cant we use prices from the game now?!)
+            IterateUnloadLootTheseItemsAreLootItems();       // populates the list of items we never want in our local cargo (used mainly in unloadloot)
 
             _primaryWeaponPriorityTargets = new List<PriorityTarget>();
             _dronePriorityTargets = new List<PriorityTarget>();
@@ -383,6 +382,7 @@ namespace Questor.Modules.Caching
         public string MissionXmlPath { get; set; }
 
         public XDocument InvTypes;
+        public XDocument UnloadLootTheseItemsAreLootItems;
         public XDocument InvIgnore;
         public string Path;
 
@@ -444,6 +444,8 @@ namespace Questor.Modules.Caching
         public DirectEve DirectEve { get; set; }
 
         public Dictionary<int, InvType> InvTypesById { get; private set; }
+
+        public Dictionary<int, InvType> UnloadLootTheseItemsAreLootById { get; private set; }
 
         /// <summary>
         ///   List of ship target values, higher target value = higher kill priority
@@ -1420,7 +1422,7 @@ namespace Questor.Modules.Caching
             }
         }
 
-        public EntityCache MyShip
+        public EntityCache MyShipEntity 
         {
             get
             {

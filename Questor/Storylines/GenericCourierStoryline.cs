@@ -28,8 +28,9 @@ namespace Questor.Storylines
             //if (directEve.ActiveShip.TypeId == 648 || directEve.ActiveShip.TypeId == 649 || directEve.ActiveShip.TypeId == 650 || directEve.ActiveShip.TypeId == 651 || directEve.ActiveShip.TypeId == 652 || directEve.ActiveShip.TypeId == 653 || directEve.ActiveShip.TypeId == 654 || directEve.ActiveShip.TypeId == 655 || directEve.ActiveShip.TypeId == 656 || directEve.ActiveShip.TypeId == 657 || directEve.ActiveShip.TypeId == 1944 || directEve.ActiveShip.TypeId == 19744)
             //    return StorylineState.GotoAgent;
 
-            //// Open the ship hangar
-            //if (!Cache.Instance.ReadyItemsHangar("GenericCourierStoryline: Arm")) return StorylineState.Arm;
+            // Open the ship hangar
+            if (!Cache.Instance.OpenShipsHangar("GenericCourierStoryline: Arm")) return StorylineState.Arm;
+            if (!Cache.Instance.ShipHangar.IsReady) return StorylineState.Arm;
 
             ////  Look for an industrial
             //var item = Cache.Instance.ShipHangar.Items.FirstOrDefault(i => i.Quantity == -1 && (i.TypeId == 648 || i.TypeId == 649 || i.TypeId == 650 || i.TypeId == 651 || i.TypeId == 652 || i.TypeId == 653 || i.TypeId == 654 || i.TypeId == 655 || i.TypeId == 656 || i.TypeId == 657 || i.TypeId == 1944 || i.TypeId == 19744));

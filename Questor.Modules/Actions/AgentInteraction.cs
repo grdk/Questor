@@ -94,9 +94,10 @@ namespace Questor.Modules.Actions
                 {
                     if (!_agentStandingsCheckFlag)
                     {
-                        _agentStandingsCheckTimeOut = DateTime.UtcNow.AddSeconds(20);
+                        _agentStandingsCheckTimeOut = DateTime.UtcNow.AddSeconds(15);
                         _agentStandingsCheckFlag = true;
                     }
+                    _nextAgentAction = DateTime.UtcNow.AddSeconds(5);
                     Logging.Log("AgentInteraction.StandingsCheck", " Agent [" + Cache.Instance.DirectEve.GetAgentById(AgentId).Name + "] Standings show as [" + Cache.Instance.StandingUsedToAccessAgent + " and must not yet be available. retrying for [" + Math.Round((double)_agentStandingsCheckTimeOut.Subtract(DateTime.UtcNow).Seconds, 0) + " sec]", Logging.Yellow);
                     return;
                 }

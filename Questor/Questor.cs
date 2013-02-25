@@ -168,6 +168,7 @@ namespace Questor
                 {
                     if (!string.IsNullOrEmpty(Settings.Instance.AmmoHangar) || !string.IsNullOrEmpty(Settings.Instance.LootHangar) && Cache.Instance.InStation)
                     {
+                        Logging.Log("RunOnceAfterStartup", "Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenCorpHangar);", Logging.Debug);
                         Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenCorpHangar);
                     }
 
@@ -782,7 +783,7 @@ namespace Questor
                     // QuestorState will stay here until changed externally by the behavior we just kicked into starting
                     //
                     //_backgroundbehavior.ProcessState();
-                    break;
+                    //break;
             }
         }
     }

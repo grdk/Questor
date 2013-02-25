@@ -53,7 +53,7 @@ namespace Questor.Modules.Actions
         private bool CustomFittingFound;
         private bool WaitForFittingToLoad = true;
         private bool capsMoved = false;
-        private bool ammoMoved = false;
+        //private bool ammoMoved = false;
         private int retryCount = 0;
 
         public void LoadSpecificAmmo(IEnumerable<DamageType> damageTypes)
@@ -182,7 +182,7 @@ namespace Questor.Modules.Actions
                     _bringoptionalItemMoved = false;
                     CheckCargoForOptionalBringItem = true;
                     capsMoved = false;
-                    ammoMoved = false;
+                    //ammoMoved = false;
                     retryCount = 0;
 
                     if (Cache.Instance.MissionAmmo.Any())
@@ -1041,7 +1041,6 @@ namespace Questor.Modules.Actions
                         return;
                     }
 
-                    int icount = 0;
                     foreach (DirectItem itemfound in Cache.Instance.AmmoHangar.Items)
                     {
                         if (itemfound.GroupName == "Advanced Autocannon Ammo")
