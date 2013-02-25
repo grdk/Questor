@@ -228,13 +228,20 @@ namespace Questor.Modules.Caching
             if (path != null)
             {
                 ShipTargetValues = new List<ShipTargetValue>();
-                XDocument values = XDocument.Load(System.IO.Path.Combine(path, "ShipTargetValues.xml"));
-                if (values.Root != null)
+                try
                 {
-                    foreach (XElement value in values.Root.Elements("ship"))
+                    XDocument values = XDocument.Load(System.IO.Path.Combine(path, "ShipTargetValues.xml"));
+                    if (values.Root != null)
                     {
-                        ShipTargetValues.Add(new ShipTargetValue(value));
+                        foreach (XElement value in values.Root.Elements("ship"))
+                        {
+                            ShipTargetValues.Add(new ShipTargetValue(value));
+                        }
                     }
+                }
+                catch (Exception exception)
+                {
+                    Logging.Log("IterateShipTargetValues", "Exception: [" + exception + "]", Logging.Red);
                 }
             }
         }
