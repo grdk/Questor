@@ -198,14 +198,22 @@ namespace Questor.Modules.Caching
             {
                 string invtypesXmlFile = System.IO.Path.Combine(path, "InvTypes.xml");
                 InvTypesById = new Dictionary<int, InvType>();
-                Cache.Instance.InvTypes = XDocument.Load(invtypesXmlFile);
-                if (InvTypes.Root != null)
+                try
                 {
-                    foreach (XElement element in InvTypes.Root.Elements("invtype"))
+                    Cache.Instance.InvTypes = XDocument.Load(invtypesXmlFile);
+                    if (InvTypes.Root != null)
                     {
-                        InvTypesById.Add((int)element.Attribute("id"), new InvType(element));
+                        foreach (XElement element in InvTypes.Root.Elements("invtype"))
+                        {
+                            InvTypesById.Add((int)element.Attribute("id"), new InvType(element));
+                        }
                     }
                 }
+                catch (Exception exception)
+                {
+                    Logging.Log("IterateInvTypes", "Exception: [" + exception + "]", Logging.Red);
+                }
+                
             }
             else
             {
