@@ -841,6 +841,12 @@ namespace Questor.Modules.Combat
             // Get the number of maximum targets, if there are no low or high value targets left, use the combined total of targets
             int maxHighValueTarget = (lowValueTargetingMe.Count + lowValueTargets.Count) == 0 ? Settings.Instance.MaximumLowValueTargets + Settings.Instance.MaximumHighValueTargets : Settings.Instance.MaximumHighValueTargets;
             int maxLowValueTarget = (highValueTargetingMe.Count + highValueTargets.Count) == 0 ? Settings.Instance.MaximumLowValueTargets + Settings.Instance.MaximumHighValueTargets : Settings.Instance.MaximumLowValueTargets;
+            //TODO
+            //List<EntityCache> PWPTtargeted = Cache.Instance.Targets.Where(t => t.GroupId == (int)Group.Wreck && t.Distance < salvagerRange).ToList();
+            int PrimaryWeaponsPTtargeted = Cache.Instance.Targets.Count(t => Cache.Instance.PrimaryWeaponPriorityTargets.Contains(t));
+            int DronesPTtargeted = Cache.Instance.Targets.Count(t => Cache.Instance.DronePriorityTargets.Contains(t) && !Cache.Instance.PrimaryWeaponPriorityTargets.Contains(t));
+            //TODO 
+            //Cache.Instance.PrimaryWeaponPriorityTargets.OrderBy(t => !(Cache.Instance.IgnoreTargets.Contains(t.Name.Trim()) && !Cache.Instance.Targets.Contains(t.Id))).Count();
 
             // Do we have too many high (non-priority) value targets targeted?
             while (highValueTargets.Count(t => Cache.Instance.PrimaryWeaponPriorityTargets.All(pt => pt.Id != t.Id)) > Math.Max(maxHighValueTarget - PrimaryWeaponsPTtargeted + DronesPTtargeted, 0))
