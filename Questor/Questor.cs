@@ -174,6 +174,11 @@ namespace Questor
 
                     Cache.Instance.DirectEve.Skills.RefreshMySkills();
                     _runOnce30SecAfterStartupalreadyProcessed = true;
+
+                    Cache.Instance.IterateShipTargetValues();  // populates ship target values from an XML
+                    Cache.Instance.IterateInvTypes();          // populates the prices of items (cant we use prices from the game now?!)
+                    Cache.Instance.IterateUnloadLootTheseItemsAreLootItems();       // populates the list of items we never want in our local cargo (used mainly in unloadloot)
+
                     if (Settings.Instance.UseInnerspace)
                     {
                         Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: WindowText EVE - " + Settings.Instance.CharacterName, Logging.White);

@@ -207,7 +207,8 @@ namespace Questor.Modules.Caching
 
                 try
                 {
-                    Cache.Instance.InvTypes = XDocument.Load(invtypesXmlFile);
+                    Logging.Log("IterateInvTypes", "Loading [" + invtypesXmlFile + "]", Logging.White);
+                    InvTypes = XDocument.Load(invtypesXmlFile);
                     if (InvTypes.Root != null)
                     {
                         foreach (XElement element in InvTypes.Root.Elements("invtype"))
@@ -245,6 +246,7 @@ namespace Questor.Modules.Caching
 
                 try
                 {
+                    Logging.Log("IterateShipTargetValues", "Loading [" + ShipTargetValuesXmlFile + "]", Logging.White);
                     XDocument values = XDocument.Load(ShipTargetValuesXmlFile);
                     if (values.Root != null)
                     {
@@ -278,6 +280,7 @@ namespace Questor.Modules.Caching
 
                 try
                 {
+                    Logging.Log("IterateUnloadLootTheseItemsAreLootItems", "Loading [" + UnloadLootTheseItemsAreLootItemsXmlFile + "]", Logging.White);
                     Cache.Instance.UnloadLootTheseItemsAreLootItems = XDocument.Load(UnloadLootTheseItemsAreLootItemsXmlFile);
                     if (UnloadLootTheseItemsAreLootItems.Root != null)
                     {
@@ -304,16 +307,16 @@ namespace Questor.Modules.Caching
             //InnerSpace.Echo(string.Format("{0:HH:mm:ss} {1}", DateTime.UtcNow, line));
             //line = string.Empty;
 
-            IterateShipTargetValues();  // populates ship target values from an XML
-            IterateInvTypes();          // populates the prices of items (cant we use prices from the game now?!)
-            IterateUnloadLootTheseItemsAreLootItems();       // populates the list of items we never want in our local cargo (used mainly in unloadloot)
-
             _primaryWeaponPriorityTargets = new List<PriorityTarget>();
             _dronePriorityTargets = new List<PriorityTarget>();
             LastModuleTargetIDs = new Dictionary<long, long>();
             TargetingIDs = new Dictionary<long, DateTime>();
             _entitiesById = new Dictionary<long, EntityCache>();
 
+            //InvTypesById = new Dictionary<int, InvType>();
+            //ShipTargetValues = new List<ShipTargetValue>();
+            //UnloadLootTheseItemsAreLootById = new Dictionary<int, InvType>();
+            
             LootedContainers = new HashSet<long>();
             IgnoreTargets = new HashSet<string>();
             MissionItems = new List<string>();
