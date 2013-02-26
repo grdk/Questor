@@ -316,8 +316,9 @@ namespace Questor.Modules.Actions
                         //Cache.Instance.InvTypesById.ContainsKey(i.TypeId)
                         commonMissionCompletionItemsToMove = Cache.Instance.CargoHold.Items.Where(i => i.GroupId == (int)Group.Livestock 
                                                                                                     || i.GroupId == (int)Group.MiscSpecialMissionItems
-                                                                                                    || !Cache.Instance.UnloadLootTheseItemsAreLootById.ContainsKey(i.TypeId)
-                                                                                                    || (i.GroupId == (int)Group.Commodities && i.TypeId != (int)TypeID.MetalScraps && i.TypeId != (int)TypeID.ReinforcedMetalScraps)).ToList();
+                                                                                                    || (i.GroupId == (int)Group.Commodities && i.TypeId != (int)TypeID.MetalScraps && i.TypeId != (int)TypeID.ReinforcedMetalScraps)
+                                                                                                    && !Cache.Instance.UnloadLootTheseItemsAreLootById.ContainsKey(i.TypeId)
+                                                                                                    ).ToList();
                     }
                     catch (Exception exception)
                     {
