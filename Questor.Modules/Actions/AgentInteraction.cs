@@ -436,6 +436,7 @@ namespace Questor.Modules.Actions
             Logging.Log("AgentInteraction", "Unable to find the faction for [" + MissionName + "] when searching through the html (listed below)", Logging.Orange);
 
             Logging.Log("AgentInteraction", html, Logging.White);
+            Statistics.SaveMissionHTMLDetails(html, MissionName);
             return;
         }
 

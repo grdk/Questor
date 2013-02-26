@@ -2898,7 +2898,7 @@ namespace Questor.Modules.Caching
                 {
                     if (Settings.Instance.DebugHangars) Logging.Log("ReadyItemsHangar", "We are in Station", Logging.Teal);
                     Cache.Instance.ItemHangar = Cache.Instance.DirectEve.GetItemHangar();
-                    Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenInventory);
+                    //Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenInventory);
                     return true;
                 }
                 return false;
@@ -3043,6 +3043,7 @@ namespace Questor.Modules.Caching
             {
                 return false;
             }
+
             try
             {
                 if (Settings.Instance.DebugItemHangar) Logging.Log("StackItemsHangarAsLootHangar", "public bool StackItemsHangarAsLootHangar(String module)", Logging.Teal);
@@ -3116,7 +3117,7 @@ namespace Questor.Modules.Caching
 
         public bool StackItemsHangarAsAmmoHangar(String module)
         {
-            Logging.Log("StackItemsHangarAsAmmoHangar", "test", Logging.Teal);
+            //Logging.Log("StackItemsHangarAsAmmoHangar", "test", Logging.Teal);
 
             if (DateTime.UtcNow.Subtract(Cache.Instance.LastStackItemHangar).TotalMinutes < 10 || DateTime.UtcNow.Subtract(Cache.Instance.LastStackAmmoHangar).TotalMinutes < 10)
             {

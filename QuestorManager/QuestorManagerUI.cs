@@ -314,6 +314,9 @@ namespace QuestorManager
                     if ("QuestorManager" == LstTask.Items[0].Text)
                     {
                         _destination = LstTask.Items[0].Tag;
+                        if (_destination == null || _destination.Equals(""))
+                            _destination = Cache.Instance.BookmarksByLabel(LstTask.Items[0].SubItems[1].Text)[0];
+                        Logging.Log("manager", "Destination: " + _destination, Logging.White);
                         State = QuestormanagerState.Traveler;
                         break;
                     }
@@ -449,10 +452,21 @@ namespace QuestorManager
 
                     if (!Cache.Instance.OpenShipsHangar("QuestorManager")) break;
 
+                    //Logging.Log("QuestorManager", "MakeShip: ShipName: [" + Cache.Instance.DirectEve.ActiveShip.GivenName + "]", Logging.White);
+                    //Logging.Log("QuestorManager", "MakeShip: ShipFind: [" + LstTask.Items[0].SubItems[1].Text + "]", Logging.White);
+
+                    if (Cache.Instance.DirectEve.ActiveShip.GivenName == LstTask.Items[0].SubItems[1].Text)
+                    {
+                        Logging.Log("QuestorManager", "MakeShip: Ship: [" + LstTask.Items[0].SubItems[1].Text + "] already active", Logging.White);
+                        LstTask.Items.Remove(LstTask.Items[0]);
+                        State = QuestormanagerState.NextAction;
+                        break;
+                    }
+
                     if (DateTime.UtcNow > _lastAction)
                     {
                         List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
-                        foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName == txtNameShip.Text))
+                        foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName == LstTask.Items[0].SubItems[1].Text))
                         {
                             Logging.Log("QuestorManager", "MakeShip: Making [" + ship.GivenName + "] active", Logging.White);
 
