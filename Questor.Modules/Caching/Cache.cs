@@ -2179,7 +2179,7 @@ namespace Questor.Modules.Caching
                 if (!File.Exists(Cache.Instance.MissionXmlPath))
                 {   
                     //
-                    // This will always fail for courier missions, can we detect those and supress these log messages?
+                    // This will always fail for courier missions, can we detect those and suppress these log messages?
                     //
                     Logging.Log("Cache.SetmissionXmlPath","[" + Cache.Instance.MissionXmlPath +"] not found.", Logging.White);
                     Cache.Instance.MissionXmlPath = System.IO.Path.Combine(Settings.Instance.MissionsPath, FilterPath(missionName) + ".xml");
@@ -2531,6 +2531,32 @@ namespace Questor.Modules.Caching
             return maskedID;
         }
 
+        public bool DoWeCurrentlyHaveTurretsMounted()
+        {
+            //int ModuleNumber = 0;
+            foreach (ModuleCache m in Cache.Instance.Modules)
+            {   
+                if (m.GroupId == (int)Group.ProjectileWeapon
+                 || m.GroupId == (int)Group.EnergyWeapon
+                 || m.GroupId == (int)Group.HybridWeapon
+                 //|| m.GroupId == (int)Group.CruiseMissileLaunchers
+                 //|| m.GroupId == (int)Group.RocketLaunchers
+                 //|| m.GroupId == (int)Group.StandardMissileLaunchers
+                 //|| m.GroupId == (int)Group.TorpedoLaunchers
+                 //|| m.GroupId == (int)Group.AssaultMissilelaunchers
+                 //|| m.GroupId == (int)Group.HeavyMissilelaunchers
+                 //|| m.GroupId == (int)Group.DefenderMissilelaunchers
+                   )
+                {
+                    return true;
+                }
+
+                continue;
+            }
+
+            return false;
+        }
+
         /// <summary>
         ///   Return the best possible target (based on current target, distance and low value first)
         /// </summary>
@@ -2561,11 +2587,12 @@ namespace Questor.Modules.Caching
                 }
 
                 //Logging.Log("ListPriorityTargets", "[" + target.Name + "][ID: " + target.Id + "][" + Math.Round(target.Distance / 1000, 0) + "k away] WARP[" + target.IsWarpScramblingMe + "] ECM[" + target.IsJammingMe + "] Damp[" + target.IsSensorDampeningMe + "] TP[" + target.IsTargetPaintingMe + "] NEUT[" + target.IsNeutralizingMe + "]", Logging.Teal);
-                if (PrimaryWeaponPriorityTarget.Entity.Distance < Settings.Instance.DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons && 
-                    PrimaryWeaponPriorityTarget.Entity.Velocity > Settings.Instance.SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons && 
-                    PrimaryWeaponPriorityTarget.Entity.IsNPCFrigate && 
-                    Cache.Instance.UseDrones &&
-                    Statistics.Instance.OutOfDronesCount == 0)
+                if (PrimaryWeaponPriorityTarget.Entity.Distance < Settings.Instance.DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons
+                    && PrimaryWeaponPriorityTarget.Entity.Velocity > Settings.Instance.SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons 
+                    && PrimaryWeaponPriorityTarget.Entity.IsNPCFrigate
+                    && Cache.Instance.DoWeCurrentlyHaveTurretsMounted()
+                    && Cache.Instance.UseDrones
+                    && Statistics.Instance.OutOfDronesCount == 0)
                 {
                     Logging.Log("Cache.GetBesttarget", "[" + PrimaryWeaponPriorityTarget.Entity.Name + "] was removed from the PrimaryWeaponsPriorityTarget list because it was inside [" + Math.Round(PrimaryWeaponPriorityTarget.Entity.Distance, 0) + "] meters and going [" + Math.Round(PrimaryWeaponPriorityTarget.Entity.Velocity, 0 ) + "] meters per second", Logging.Red);
                     Cache.Instance.RemovePrimaryWeaponPriorityTarget(PrimaryWeaponPriorityTarget);
