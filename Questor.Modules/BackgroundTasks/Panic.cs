@@ -208,13 +208,68 @@ namespace Questor.Modules.BackgroundTasks
 
                         if (Settings.Instance.SpeedTank)
                         {
-                            Cache.Instance.AddPrimaryWeaponPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsWebbingMe), PrimaryWeaponPriority.Webbing, "Panic");
-                            Cache.Instance.AddPrimaryWeaponPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsTargetPaintingMe), PrimaryWeaponPriority.TargetPainting, "Panic");
+                            EntityCache EntityIsWebbingMe = Cache.Instance.TargetedBy.FirstOrDefault(t => t.IsWebbingMe);
+                            if (EntityIsWebbingMe != null && !Cache.Instance.IgnoreTargets.Contains(EntityIsWebbingMe.Name))
+                            {
+                                if (!Cache.Instance.PrimaryWeaponPriorityTargets.Contains(EntityIsWebbingMe) ||
+                                (EntityIsWebbingMe.Velocity < Settings.Instance.SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons ||
+                                EntityIsWebbingMe.Distance > Settings.Instance.DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons))
+                                {
+                                    Logging.Log("Panic", "Adding [" + EntityIsWebbingMe.Name + "] as a PrimaryWeaponPriorityTarget", Logging.White);
+                                    Cache.Instance.AddPrimaryWeaponPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsWebbingMe), PrimaryWeaponPriority.Webbing, "Panic");
+                                }
+                            }
+
+                            EntityCache EntityIsTargetPaintingMe = Cache.Instance.TargetedBy.FirstOrDefault(t => t.IsWebbingMe);
+                            if (EntityIsTargetPaintingMe != null && !Cache.Instance.IgnoreTargets.Contains(EntityIsTargetPaintingMe.Name))
+                            {
+                                if (!Cache.Instance.PrimaryWeaponPriorityTargets.Contains(EntityIsTargetPaintingMe) ||
+                                (EntityIsTargetPaintingMe.Velocity < Settings.Instance.SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons ||
+                                EntityIsTargetPaintingMe.Distance > Settings.Instance.DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons))
+                                {
+                                    Logging.Log("Panic", "Adding [" + EntityIsTargetPaintingMe.Name + "] as a PrimaryWeaponPriorityTarget", Logging.White);
+                                    Cache.Instance.AddPrimaryWeaponPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsTargetPaintingMe), PrimaryWeaponPriority.TargetPainting, "Panic");
+                                }
+                            }    
                         }
 
-                        Cache.Instance.AddPrimaryWeaponPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsNeutralizingMe), PrimaryWeaponPriority.Neutralizing, "Panic");
-                        Cache.Instance.AddPrimaryWeaponPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsJammingMe), PrimaryWeaponPriority.Jamming, "Panic");
-                        Cache.Instance.AddPrimaryWeaponPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsSensorDampeningMe), PrimaryWeaponPriority.Dampening, "Panic");
+                        //TODO:  extend this section to: foreach target in Cache.Instance.TargetedBy.Where(t => t.IsWarpScramblingMe Add target to prioritytarget list
+
+                        EntityCache EntityIsNeutralizingMe = Cache.Instance.TargetedBy.FirstOrDefault(t => t.IsNeutralizingMe);
+                        if (EntityIsNeutralizingMe != null && !Cache.Instance.IgnoreTargets.Contains(EntityIsNeutralizingMe.Name))
+                        {
+                            if (!Cache.Instance.PrimaryWeaponPriorityTargets.Contains(EntityIsNeutralizingMe) ||
+                            (EntityIsNeutralizingMe.Velocity < Settings.Instance.SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons ||
+                            EntityIsNeutralizingMe.Distance > Settings.Instance.DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons))
+                            {
+                                Logging.Log("Panic", "Adding [" + EntityIsNeutralizingMe.Name + "] as a PrimaryWeaponPriorityTarget", Logging.White);
+                                Cache.Instance.AddPrimaryWeaponPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsNeutralizingMe), PrimaryWeaponPriority.Neutralizing, "Panic");
+                            }
+                        }
+
+                        EntityCache EntityIsJammingMe = Cache.Instance.TargetedBy.FirstOrDefault(t => t.IsJammingMe);
+                        if (EntityIsJammingMe != null && !Cache.Instance.IgnoreTargets.Contains(EntityIsJammingMe.Name))
+                        {
+                            if (!Cache.Instance.PrimaryWeaponPriorityTargets.Contains(EntityIsJammingMe) ||
+                            (EntityIsJammingMe.Velocity < Settings.Instance.SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons ||
+                            EntityIsJammingMe.Distance > Settings.Instance.DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons))
+                            {
+                                Logging.Log("Panic", "Adding [" + EntityIsJammingMe.Name + "] as a PrimaryWeaponPriorityTarget", Logging.White);
+                                Cache.Instance.AddPrimaryWeaponPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsJammingMe), PrimaryWeaponPriority.Jamming, "Panic");
+                            }
+                        }
+
+                        EntityCache EntityIsSensorDampeningMe = Cache.Instance.TargetedBy.FirstOrDefault(t => t.IsSensorDampeningMe);
+                        if (EntityIsSensorDampeningMe != null && !Cache.Instance.IgnoreTargets.Contains(EntityIsSensorDampeningMe.Name))
+                        {
+                            if (!Cache.Instance.PrimaryWeaponPriorityTargets.Contains(EntityIsSensorDampeningMe) ||
+                            (EntityIsSensorDampeningMe.Velocity < Settings.Instance.SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons ||
+                            EntityIsSensorDampeningMe.Distance > Settings.Instance.DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons))
+                            {
+                                Logging.Log("Panic", "Adding [" + EntityIsSensorDampeningMe.Name + "] as a PrimaryWeaponPriorityTarget", Logging.White);
+                                Cache.Instance.AddPrimaryWeaponPriorityTargets(Cache.Instance.TargetedBy.Where(t => t.IsSensorDampeningMe), PrimaryWeaponPriority.Dampening, "Panic");
+                            }
+                        }
                         
                         if (Cache.Instance.Modules.Any(m => m.IsTurret))
                         {
