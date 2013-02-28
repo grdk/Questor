@@ -932,7 +932,7 @@ namespace Questor
                 buttonOpenCharacterXML.Enabled = false;
                 buttonOpenSchedulesXML.Enabled = false;
                 buttonQuestormanager.Enabled = false;
-                buttonQuestorSettings.Enabled = false;
+                buttonOpenCommonSettingsXML.Enabled = false;
                 buttonQuestorStatistics.Enabled = false;
             }
             else
@@ -981,12 +981,12 @@ namespace Questor
                 //
                 if (Settings.Instance.QuestorSettingsExists)
                 {
-                    buttonQuestorSettings.Enabled = true;
+                    buttonOpenCommonSettingsXML.Enabled = true;
                     Settings.Instance.QuestorSettingsExists = true;
                 }
                 else
                 {
-                    buttonQuestorSettings.Enabled = false;
+                    buttonOpenCommonSettingsXML.Enabled = false;
                     Settings.Instance.QuestorSettingsExists = false;
                 }
 
@@ -1287,14 +1287,14 @@ namespace Questor
 
         private void ButtonOpenCharacterXMLClick(object sender, EventArgs e)
         {
-            if (File.Exists(Settings.Instance.SettingsPath))
+            if (File.Exists(Settings.Instance.CharacterSettingsPath))
             {
-                Logging.Log("QuestorUI", "Launching [" + Settings.Instance.SettingsPath + "]", Logging.White);
-                System.Diagnostics.Process.Start(Settings.Instance.SettingsPath);
+                Logging.Log("QuestorUI", "Launching [" + Settings.Instance.CharacterSettingsPath + "]", Logging.White);
+                System.Diagnostics.Process.Start(Settings.Instance.CharacterSettingsPath);
             }
             else
             {
-                Logging.Log("QuestorUI", "Unable to open [" + Settings.Instance.SettingsPath + "] file not found", Logging.Orange);
+                Logging.Log("QuestorUI", "Unable to open [" + Settings.Instance.CharacterSettingsPath + "] file not found", Logging.Orange);
             }
         }
 
@@ -1334,18 +1334,16 @@ namespace Questor
             }
         }
 
-        private void ButtonQuestorSettingsXMLClick(object sender, EventArgs e)
+        private void ButtonOpenCommonSettingsXMLClick(object sender, EventArgs e)
         {
-            string questorSettingsPath = Path.Combine(Settings.Instance.Path, "QuestorSettings.exe");
-            if (File.Exists(questorSettingsPath))
+            if (File.Exists(Settings.Instance.CommonSettingsPath))
             {
-                Logging.Log("QuestorUI", "Launching [" + Settings.Instance.Path + "\\QuestorSettings.exe" + "]",
-                            Logging.White);
-                System.Diagnostics.Process.Start(Settings.Instance.Path + "\\QuestorSettings.exe");
+                Logging.Log("QuestorUI", "Launching [" + Settings.Instance.CommonSettingsPath + "]", Logging.White);
+                System.Diagnostics.Process.Start(Settings.Instance.CommonSettingsPath);
             }
             else
             {
-                Logging.Log("QuestorUI", "Unable to launch QuestorSettings from [" + questorSettingsPath + "] file not found", Logging.Orange);
+                Logging.Log("QuestorUI", "Unable to open [" + Settings.Instance.CommonSettingsPath + "] file not found", Logging.Orange);
             }
         }
 
@@ -1762,7 +1760,6 @@ namespace Questor
             LavishScript.ExecuteCommand("timedcommand 150 WindowCharacteristics -size " + 1280 + "x" + 960);
             Logging.Log("QuestorUI", "Running Innerspace command: timedcommand 200 WindowCharacteristics -pos " + 0 + "," + 0, Logging.White);
             LavishScript.ExecuteCommand("timedcommand 200 WindowCharacteristics -pos " + 0 + "," + 0);
-                        
         }
 
         private void bttnLogEntitiesOnGrid_Click(object sender, EventArgs e)

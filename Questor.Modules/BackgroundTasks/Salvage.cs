@@ -90,6 +90,12 @@ namespace Questor.Modules.BackgroundTasks
             if (tractorBeams.Count == 0)
                 return;
 
+            if (Cache.Instance.InMission && Cache.Instance.InSpace && Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage < Settings.Instance.TractorBeamMinimumCapacitor)
+            {
+                if (Settings.Instance.DebugTractorBeams) Logging.Log("ActivateTractorBeams", "Capacitor [" + Math.Round(Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage, 0) + "%] below [" + Settings.Instance.TractorBeamMinimumCapacitor + "%] TractorBeamMinimumCapacitor", Logging.Red);
+                return;
+            }
+
             double tractorBeamRange = tractorBeams.Min(t => t.OptimalRange);
             List<EntityCache> wrecks = Cache.Instance.Targets.Where(t => (t.GroupId == (int)Group.Wreck || t.GroupId == (int)Group.CargoContainer) && t.Distance < tractorBeamRange).ToList();
 
@@ -193,6 +199,12 @@ namespace Questor.Modules.BackgroundTasks
             if (salvagers.Count == 0)
             {
                 if (Settings.Instance.DebugSalvage) Logging.Log("Salvage.ActivateSalvagers", "Debug: if (salvagers.Count == 0)", Logging.Teal);
+                return;
+            }
+
+            if (Cache.Instance.InMission && Cache.Instance.InSpace && Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage < Settings.Instance.TractorBeamMinimumCapacitor)
+            {
+                if (Settings.Instance.DebugSalvage) Logging.Log("ActivateSalvagers", "Capacitor [" + Math.Round(Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage, 0) + "%] below [" + Settings.Instance.SalvagerMinimumCapacitor + "%] SalvagerMinimumCapacitor", Logging.Red);
                 return;
             }
 
@@ -763,6 +775,9 @@ namespace Questor.Modules.BackgroundTasks
                 _States.CurrentSalvageState = SalvageState.Idle;
                 return;
             }
+
+            if (Settings.Instance.DoNotDoANYSalvagingOutsideMissionActions && !Cache.Instance.CurrentlyShouldBeSalvaging)
+                return;
 
             if (!Cache.Instance.OpenCargoHold("Salvage")) return;
 

@@ -116,6 +116,7 @@ namespace Questor.Modules.Activities
             if (Settings.Instance.CreateSalvageBookmarks)
                 BookmarkPocketForSalvaging();
 
+            Cache.Instance.CurrentlyShouldBeSalvaging = false;
             _States.CurrentCombatMissionCtrlState = CombatMissionCtrlState.Done;
         }
 
@@ -1310,6 +1311,7 @@ namespace Questor.Modules.Activities
         {
             try
             {
+                Cache.Instance.CurrentlyShouldBeSalvaging = true;
                 Cache.Instance.MissionLoot = true;
                 List<string> items = action.GetParameterValues("item");
                 List<string> targetNames = action.GetParameterValues("target");
@@ -1344,6 +1346,7 @@ namespace Questor.Modules.Activities
                     // now that we have completed this action revert OpenWrecks to false
                     Cache.Instance.OpenWrecks = false;
                     Cache.Instance.MissionLoot = false;
+                    Cache.Instance.CurrentlyShouldBeSalvaging = false;
                     _currentAction++;
                     return;
                 }
@@ -1355,7 +1358,9 @@ namespace Questor.Modules.Activities
                 if (!containers.Any())
                 {
                     Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "We are done looting - no containers left to loot", Logging.Teal);
-
+                    Cache.Instance.OpenWrecks = false;
+                    Cache.Instance.MissionLoot = false; 
+                    Cache.Instance.CurrentlyShouldBeSalvaging = false;
                     _currentAction++;
                     return;
                 }
@@ -1442,6 +1447,8 @@ namespace Questor.Modules.Activities
             // if we are not generally looting we need to re-enable the opening of wrecks to
             // find this LootItems we are looking for
             Cache.Instance.OpenWrecks = true;
+            Cache.Instance.CurrentlyShouldBeSalvaging = true;
+
             if (!Settings.Instance.LootEverything)
             {
                 bool done = items.Count == 0;
@@ -1459,6 +1466,8 @@ namespace Questor.Modules.Activities
 
                     // now that we are done with this action revert OpenWrecks to false
                     Cache.Instance.OpenWrecks = false;
+                    Cache.Instance.MissionLoot = false;
+                    Cache.Instance.CurrentlyShouldBeSalvaging = false;
 
                     _currentAction++;
                     return;
@@ -1472,11 +1481,12 @@ namespace Questor.Modules.Activities
             if (!containers.Any())
             {
                 // lock targets count
-                Cache.Instance.MissionLoot = false;
                 Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "We are done looting", Logging.Teal);
 
                 // now that we are done with this action revert OpenWrecks to false
                 Cache.Instance.OpenWrecks = false;
+                Cache.Instance.MissionLoot = false;
+                Cache.Instance.CurrentlyShouldBeSalvaging = false;
 
                 _currentAction++;
                 return;

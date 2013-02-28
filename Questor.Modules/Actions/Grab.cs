@@ -33,11 +33,11 @@
 
             DirectContainer hangar = null;
 
-            if (!Cache.Instance.OpenItemsHangar("Grab")) return;
-            if (!Cache.Instance.OpenShipsHangar("Grab")) return;
-
             if (_States.CurrentGrabState != States.GrabState.WaitForItems)
             {
+                if (!Cache.Instance.OpenItemsHangar("Grab")) return;
+                if (!Cache.Instance.OpenShipsHangar("Grab")) return;
+
                 if ("Local Hangar" == Hangar)
                     hangar = Cache.Instance.ItemHangar;
                 else if ("Ship Hangar" == Hangar)

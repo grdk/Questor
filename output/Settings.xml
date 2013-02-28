@@ -15,6 +15,7 @@
   <debugBlackList>false</debugBlackList>
   <debugCargoHold>false</debugCargoHold>
   <debugCleanup>false</debugCleanup>
+  <debugCourierMissions>false</debugCourierMissions>
   <debugDecline>false</debugDecline>
   <debugDefense>false</debugDefense>
   <debugDroneHealth>false</debugDroneHealth>
@@ -43,6 +44,7 @@
   <debugStates>false</debugStates>
   <debugStatistics>false</debugStatistics>
   <debugStorylineMissions>false</debugStorylineMissions>
+  <debugTargetWrecks>false</debugTargetWrecks>
   <debugTraveler>false</debugTraveler>
   <debugTractorBeams>false</debugTractorBeams>
   <debugUI>false</debugUI>
@@ -58,6 +60,10 @@
   <!--          MISC SETTINGS          -->
   <!--                                                -->
   
+  <!-- If you like you can create a "common" XML. remove the values you want to be common between toons from the  -->
+  <!-- individual characters XML and if settings.cs cannot find the character level setting it will pull from the common setting file  -->
+  <!-- if you have a setting set in both places, the character level setting always "wins" -->
+  <commonSettingsFileName>common.xml</commonSettingsFileName>
   <!-- Character Mode is either Combat Missions or salvage for combat mode or dedicated salvager mode -->
   <characterMode>Combat Missions</characterMode><!-- default is "Combat Missions" -->
   <!-- Autostart is either true or false and is for automatically running questor when ran -->
@@ -65,9 +71,9 @@
   <!-- Disable 3d is either true or false and is for automatically disabling the 3D visuals in game -->
   <disable3D>false</disable3D><!-- default is false -->
   <!-- MinimumDelay is a number and is the minimum amount of seconds it will wait between getting missions in station with randomdelay or by itself -->
-  <minimumDelay>20</minimumDelay><!-- default is 20 -->
+  <minimumDelay>0</minimumDelay><!-- default is 0 -->
   <!-- RandomDelay is a number and is a random amount of seconds it will wait between getting missions in station added with minimumdelay or by itself -->
-  <randomDelay>45</randomDelay><!-- default is 45 -->
+  <randomDelay>10</randomDelay><!-- default is 10 -->
   <!-- Use Station repair Service if it exists-->
   <useStationRepair>true</useStationRepair>
   
@@ -215,8 +221,13 @@
   <ageofSalvageBookmarksToExpire>120</ageofSalvageBookmarksToExpire>
   <moveCommonMissionCompletionItemsToAmmoHangar>false</moveCommonMissionCompletionItemsToAmmoHangar>
   <moveCommonMissionCompletionItemsToItemsHangar>true</moveCommonMissionCompletionItemsToItemsHangar>
-  
-  
+  <!-- tractorBeamMinimumCapacitor - below this capacitor level the background salvaging behavior will not attempt to use a tractor beam: default 0% -->
+  <tractorBeamMinimumCapacitor>0</tractorBeamMinimumCapacitor>
+  <!-- salvagerMinimumCapacitor - below this capacitor level the background salvaging behavior will not attempt to use a salvager: default 0% -->
+  <salvagerMinimumCapacitor>0</salvagerMinimumCapacitor>
+  <!-- doNotDoANYSalvagingOutsideMissionActions: disabled ALL salvage related actions, tractor/salvager/wreck targeting, everything when not processing a loot or lootitem action in a mission -->
+  <doNotDoANYSalvagingOutsideMissionActions>false</doNotDoANYSalvagingOutsideMissionActions>
+
   <!--                                                -->
   <!--    UNDOCKING SETTINGS     -->
   <!--                                                -->
@@ -329,7 +340,8 @@
   <!--  If you wish to effectively turn this off you can set the speedTargetsShouldBeIgnoredByMainWeapons to a very high number like: 9999999 -->
   <speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>300</speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
   <distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>7000</distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
-
+  <!-- MaxRange we should use NOS / Neuts -->
+  <NosDistance>38000</NosDistance>
   
   <!-- Maximum number of targets per value -->
   <maximumHighValueTargets>4</maximumHighValueTargets><!-- default is 4 -->

@@ -46,7 +46,7 @@
             this.lblPocketAction = new System.Windows.Forms.Label();
             this.lblCurrentPocketAction = new System.Windows.Forms.Label();
             this.buttonQuestorStatistics = new System.Windows.Forms.Button();
-            this.buttonQuestorSettings = new System.Windows.Forms.Button();
+            this.buttonOpenCommonSettingsXML = new System.Windows.Forms.Button();
             this.buttonOpenMissionXML = new System.Windows.Forms.Button();
             this.buttonOpenLogDirectory = new System.Windows.Forms.Button();
             this.BehaviorComboBox = new System.Windows.Forms.ComboBox();
@@ -723,15 +723,15 @@
             this.buttonQuestorStatistics.UseVisualStyleBackColor = true;
             this.buttonQuestorStatistics.Click += new System.EventHandler(this.ButtonQuestorStatisticsClick);
             // 
-            // buttonQuestorSettings
+            // buttonOpenCommonSettingsXML
             // 
-            this.buttonQuestorSettings.Location = new System.Drawing.Point(527, 28);
-            this.buttonQuestorSettings.Name = "buttonQuestorSettings";
-            this.buttonQuestorSettings.Size = new System.Drawing.Size(156, 23);
-            this.buttonQuestorSettings.TabIndex = 110;
-            this.buttonQuestorSettings.Text = "QuestorSettings";
-            this.buttonQuestorSettings.UseVisualStyleBackColor = true;
-            this.buttonQuestorSettings.Click += new System.EventHandler(this.ButtonQuestorSettingsXMLClick);
+            this.buttonOpenCommonSettingsXML.Location = new System.Drawing.Point(527, 28);
+            this.buttonOpenCommonSettingsXML.Name = "buttonOpenCommonSettingsXML";
+            this.buttonOpenCommonSettingsXML.Size = new System.Drawing.Size(156, 23);
+            this.buttonOpenCommonSettingsXML.TabIndex = 110;
+            this.buttonOpenCommonSettingsXML.Text = "Open Common Settings XML";
+            this.buttonOpenCommonSettingsXML.UseVisualStyleBackColor = true;
+            this.buttonOpenCommonSettingsXML.Click += new System.EventHandler(this.ButtonOpenCommonSettingsXMLClick);
             // 
             // buttonOpenMissionXML
             // 
@@ -6088,7 +6088,7 @@
             this.Controls.Add(this.buttonOpenCharacterXML);
             this.Controls.Add(this.buttonOpenMissionXML);
             this.Controls.Add(this.Tabs);
-            this.Controls.Add(this.buttonQuestorSettings);
+            this.Controls.Add(this.buttonOpenCommonSettingsXML);
             this.Controls.Add(this.buttonOpenLogDirectory);
             this.Controls.Add(this.buttonQuestorStatistics);
             this.Controls.Add(this.BehaviorComboBox);
@@ -6174,7 +6174,7 @@
         private System.Windows.Forms.Label lblPocketAction;
         private System.Windows.Forms.Label lblCurrentPocketAction;
         private System.Windows.Forms.Button buttonQuestorStatistics;
-        private System.Windows.Forms.Button buttonQuestorSettings;
+        private System.Windows.Forms.Button buttonOpenCommonSettingsXML;
         private System.Windows.Forms.Button buttonOpenMissionXML;
         private System.Windows.Forms.Button buttonOpenLogDirectory;
         private System.Windows.Forms.ComboBox BehaviorComboBox;
