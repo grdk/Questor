@@ -392,7 +392,7 @@ namespace Questor.Modules.Actions
                     if (Settings.Instance.DebugUnloadLoot) Logging.Log("UnloadLoot.MoveAmmo", "if (!Cache.Instance.StackAmmoHangar(UnloadLoot.MoveAmmo)) return;", Logging.White);
                     _nextUnloadAction = DateTime.UtcNow.AddSeconds(Cache.Instance.RandomNumber(2, 4)); 
                     if (!Cache.Instance.StackAmmoHangar("UnloadLoot.MoveAmmo")) return false;
-                    return true;
+                    return false;
 
                 }
                 
