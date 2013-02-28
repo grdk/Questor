@@ -9,5 +9,6 @@
         LoadItem,
         BuyItem,
         WaitForItems,
+        CreateOrder
     }
 }
