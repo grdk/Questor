@@ -171,7 +171,7 @@ namespace Questor.Modules.Activities
             //if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "Destination is set: processing...", Logging.Teal);
 
             // Find the first waypoint
-            long waypoint = _destinationRoute.First();
+            long waypoint = _destinationRoute.FirstOrDefault();
 
             //if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "NavigateToBookmarkSystem: getting next waypoints locationname", Logging.Teal);
             _locationName = Cache.Instance.DirectEve.Navigation.GetLocationName(waypoint);
@@ -424,7 +424,7 @@ namespace Questor.Modules.Activities
                 }
                 else if (EVENavdestination != null || EVENavdestination.Count != 0)
                 {
-                    if (EVENavdestination.Count == 1 && EVENavdestination.First() == 0)
+                    if (EVENavdestination.Count == 1 && EVENavdestination.FirstOrDefault() == 0)
                         EVENavdestination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
                 }
             }
@@ -548,7 +548,7 @@ namespace Questor.Modules.Activities
                 }
                 else if (EVENavdestination != null || EVENavdestination.Count != 0)
                 {
-                    if (EVENavdestination.Count == 1 && EVENavdestination.First() == 0)
+                    if (EVENavdestination.Count == 1 && EVENavdestination.FirstOrDefault() == 0)
                         EVENavdestination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
                 }
             }

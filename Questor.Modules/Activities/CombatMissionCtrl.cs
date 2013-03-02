@@ -174,7 +174,7 @@ namespace Questor.Modules.Activities
             }
 
             //if (closest.Distance <= (int)Distance.CloseToGateActivationRange) // if your distance is less than the 'close enough' range, default is 7000 meters
-            EntityCache closest = targets.OrderBy(t => t.Distance).First();
+            EntityCache closest = targets.OrderBy(t => t.Distance).FirstOrDefault();
             if (closest.Distance <= (int)Distance.GateActivationRange)
             {
                 if (Settings.Instance.DebugActivateGate) Logging.Log("CombatMissionCtrl", "if (closest.Distance [" + closest.Distance + "] <= (int)Distance.GateActivationRange [" + (int)Distance.GateActivationRange + "])", Logging.Green);
@@ -615,11 +615,11 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            EntityCache closest = targets.OrderBy(t => t.Distance).First();
+            EntityCache closest = targets.OrderBy(t => t.Distance).FirstOrDefault();
 
             if (notTheClosest)
             {
-                closest = targets.OrderByDescending(t => t.Distance).First();
+                closest = targets.OrderByDescending(t => t.Distance).FirstOrDefault();
             }
 
             // Move to the target
@@ -657,7 +657,7 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            EntityCache closest = targets.OrderBy(t => t.Distance).First();
+            EntityCache closest = targets.OrderBy(t => t.Distance).FirstOrDefault();
 
             // Move to the target
             Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Approaching target [" + closest.Name + "][ID: " + Cache.Instance.MaskedID(closest.Id) + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.Teal);
@@ -706,7 +706,7 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            EntityCache closest = targets.OrderBy(t => t.Distance).First();
+            EntityCache closest = targets.OrderBy(t => t.Distance).FirstOrDefault();
 
             if (stopWhenTargeted)
             {
@@ -915,7 +915,7 @@ namespace Questor.Modules.Activities
                 foreach (EntityCache target in Cache.Instance.Targets.Where(e => targets.Any(t => t.Id == e.Id)))
                 {
                     Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Unlocking [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away] due to aggro being obtained", Logging.Teal);
-                    target.UnlockTarget();
+                    target.UnlockTarget("CombatMissionCtrl");
                     return;
                 }
                 Nextaction();
@@ -932,9 +932,9 @@ namespace Questor.Modules.Activities
                 }
             }
 
-            EntityCache closest = targets.OrderBy(t => t.Distance).First();
+            EntityCache closest = targets.OrderBy(t => t.Distance).FirstOrDefault();
 
-            if (notTheClosest) closest = targets.OrderByDescending(t => t.Distance).First();
+            if (notTheClosest) closest = targets.OrderByDescending(t => t.Distance).FirstOrDefault();
 
             //panic handles adding any priority targets and combat will prefer to kill any priority targets
             if (Cache.Instance.PrimaryWeaponPriorityTargets.All(pt => pt.Id != closest.Id))
@@ -1002,7 +1002,7 @@ namespace Questor.Modules.Activities
                 foreach (EntityCache entity in Cache.Instance.Targets.Where(e => targets.Any(t => t.Id == e.Id)))
                 {
                     Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Unlocking [" + entity.Name + "][ID: " + Cache.Instance.MaskedID(entity.Id) + "][" + Math.Round(entity.Distance / 1000, 0) + "k away] due to kill order being put on hold", Logging.Teal);
-                    entity.UnlockTarget();
+                    entity.UnlockTarget("CombatMissionCtrl");
                 }
             }
 
@@ -1016,7 +1016,7 @@ namespace Questor.Modules.Activities
                 }
             }
 
-            EntityCache target = targets.OrderBy(t => t.Distance).First();
+            EntityCache target = targets.OrderBy(t => t.Distance).FirstOrDefault();
             int targetedby = Cache.Instance.TargetedBy.Count(t => !t.IsSentry && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeCollidableStructure && !Cache.Instance.IgnoreTargets.Contains(t.Name.Trim()));
             if (target != null)
             {
@@ -1028,7 +1028,7 @@ namespace Questor.Modules.Activities
 
                 // Lock priority target if within weapons range
 
-                if (notTheClosest) target = targets.OrderByDescending(t => t.Distance).First();
+                if (notTheClosest) target = targets.OrderByDescending(t => t.Distance).FirstOrDefault();
 
                 if (target.Distance < Cache.Instance.MaxRange)
                 {
@@ -1093,7 +1093,7 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            EntityCache target = targets.OrderBy(t => t.Distance).First();
+            EntityCache target = targets.OrderBy(t => t.Distance).FirstOrDefault();
 
             if (target != null)
             {
@@ -1105,7 +1105,7 @@ namespace Questor.Modules.Activities
 
                 // Lock priority target if within weapons range
 
-                if (notTheClosest) target = targets.OrderByDescending(t => t.Distance).First();
+                if (notTheClosest) target = targets.OrderByDescending(t => t.Distance).FirstOrDefault();
 
                 if (target.Distance < Cache.Instance.MaxRange)
                 {
@@ -1115,6 +1115,7 @@ namespace Questor.Modules.Activities
                         Cache.Instance.AddPrimaryWeaponPriorityTargets(new[] { target }, PrimaryWeaponPriority.PriorityKillTarget, "CombatMissionCtrl." + _pocketActions[_currentAction]);
                     }
                 }
+
                 NavigateOnGrid.NavigateIntoRange(target, "CombatMissionCtrl." + _pocketActions[_currentAction]);
                 return;
             }
@@ -1163,8 +1164,8 @@ namespace Questor.Modules.Activities
             }
 
             //IEnumerable<EntityCache> targets = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name));
-            EntityCache target = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name)).OrderBy(t => t.Distance).First();
-            if (notTheClosest) target = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name)).OrderByDescending(t => t.Distance).First();
+            EntityCache target = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name)).OrderBy(t => t.Distance).FirstOrDefault();
+            if (notTheClosest) target = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name)).OrderByDescending(t => t.Distance).FirstOrDefault();
 
             if (target != null)
             {
@@ -1199,8 +1200,8 @@ namespace Questor.Modules.Activities
             }
 
             //IEnumerable<EntityCache> targets = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name));
-            EntityCache target = Cache.Instance.Entities.OrderBy(t => t.Distance).First();
-            if (notTheClosest) target = Cache.Instance.Entities.OrderByDescending(t => t.Distance).First();
+            EntityCache target = Cache.Instance.Entities.OrderBy(t => t.Distance).FirstOrDefault();
+            if (notTheClosest) target = Cache.Instance.Entities.OrderByDescending(t => t.Distance).FirstOrDefault();
 
             if (!target.IsValid)
             {
@@ -1246,7 +1247,7 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            var closest = targets.OrderBy(t => t.Distance).First();
+            var closest = targets.OrderBy(t => t.Distance).FirstOrDefault();
             if (closest.Distance > (int)Distance.SafeScoopRange)
             {
                 if (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closest.Id)
@@ -1522,7 +1523,7 @@ namespace Questor.Modules.Activities
             //    distancetoapp = 1000;
 
             //IEnumerable<EntityCache> targets = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name));
-            // EntityCache target = targets.OrderBy(t => t.Distance).First();
+            // EntityCache target = targets.OrderBy(t => t.Distance).FirstOrDefault();
 
             //IEnumerable<EntityCache> targetsinrange = Cache.Instance.Entities.Where(b => Cache.Instance.DistanceFromEntity(b.X ?? 0, b.Y ?? 0, b.Z ?? 0,target) < distancetoapp);
             //IEnumerable<EntityCache> targetsoutofrange = Cache.Instance.Entities.Where(b => Cache.Instance.DistanceFromEntity(b.X ?? 0, b.Y ?? 0, b.Z ?? 0, target) < distancetoapp);

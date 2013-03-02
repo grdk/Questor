@@ -159,6 +159,8 @@ namespace Questor.Modules.Lookup
 
         Minerals = 18,
 
+        SkillBooks = 270,
+
         Plagioclase = 458,
         Spodumain = 461,
         Kernite = 457,

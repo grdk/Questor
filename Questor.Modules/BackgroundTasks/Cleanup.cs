@@ -482,6 +482,7 @@
                             bool sayYes = false;
                             bool sayOk = false;
                             bool pause = false;
+                            bool stackHangars = false;
 
                             //bool sayno = false;
                             if (!string.IsNullOrEmpty(window.Html))
@@ -492,7 +493,19 @@
                                 gotoBaseNow |= window.Html.Contains("for a short unscheduled reboot");
 
                                 //fitting window errors - DO NOT undock if this happens! people should fix the fits they load to not move more modules than necessary as that causes problems and requires extra modules
-                                pause |= window.Html.Contains("Not all the items could be fitted");
+
+                                //if (_States.CurrentQuestorState == QuestorState.BackgroundBehavior)
+                                //{
+                                    //
+                                    // we do not care about fitting errors when using the BackgroundBehavior
+                                    //
+                                //    sayOk |= window.Html.Contains("Not all the items could be fitted");
+                                //}
+                                //else
+                                //{
+                                    pause |= window.Html.Contains("Not all the items could be fitted");   
+                                //}
+
                                 pause |= window.Html.Contains("Cannot move");
 
                                 if (window.Type == "form.MessageBox" && window.IsDialog && window.IsModal && window.IsKillable)
@@ -577,6 +590,12 @@
                                 sayOk |= window.Html.Contains("You do not have an outstanding invitation to this fleet.");
 
                                 //
+                                // Not Enough Shelf Space
+                                // "You can't add the Militants as there are simply too many items here already."
+                                //
+                                stackHangars |= window.Html.Contains("as there are simply too many items here already");
+
+                                //
                                 // Modal Dialogs the need "no" pressed
                                 //
                                 //sayno |= window.Html.Contains("Do you wish to proceed with this dangerous action
@@ -629,6 +648,14 @@
                                     Cache.Instance.doneUsingRepairWindow = true;
                                 }
                                 window.AnswerModal("OK");
+                                continue;
+                            }
+
+                            if (stackHangars)
+                            {
+                                if (!Cache.Instance.StackAmmoHangar("Cleanup")) return;
+                                if (!Cache.Instance.StackLootHangar("Cleanup")) return;
+                                //if (!Cache.Instance.StackItemhangar("Cleanup")) return;
                                 continue;
                             }
 

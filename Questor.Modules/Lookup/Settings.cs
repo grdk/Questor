@@ -32,6 +32,7 @@ namespace Questor.Modules.Lookup
         public static Settings Instance = new Settings();
         public string CharacterName;
         private DateTime _lastModifiedDate;
+        private int SettingsLoadedICount = 0;
 
         public Settings()
         {
@@ -115,12 +116,13 @@ namespace Questor.Modules.Lookup
         public bool DebugReloadorChangeAmmo { get; set; }
         public bool DebugSalvage { get; set; }
         public bool DebugScheduler { get; set; }
-
+        public bool DebugSettings { get; set; }
+        public bool DebugShipTargetValues { get; set; }
         public bool DebugSkillTraining { get; set; }
 
         public bool DebugStatistics { get; set; }
         public bool DebugStorylineMissions { get; set; }
-
+        public bool DebugTargetCombatants { get; set; }
         public bool DebugTargetWrecks { get; set; }
 
         public bool DebugTractorBeams { get; set; }
@@ -646,10 +648,13 @@ namespace Questor.Modules.Lookup
                 DebugReloadorChangeAmmo = false;
                 DebugSalvage = false;
                 DebugScheduler = false;
+                DebugSettings = false;
+                DebugShipTargetValues = false;
                 DebugSkillTraining = true;
                 DebugStates = false;
                 DebugStatistics = false;
                 DebugStorylineMissions = false;
+                DebugTargetCombatants = false;
                 DebugTargetWrecks = false;
                 DebugTractorBeams = false;
                 DebugTraveler = false;
@@ -1035,7 +1040,7 @@ namespace Questor.Modules.Lookup
                         CommonSettingsXml = XDocument.Load(Settings.Instance.CharacterSettingsPath).Root;
                     }
 
-                    if (CommonSettingsXml == null) return; // this should never happen as we load the characters xml here if the common xml is mising. addiong this does quiet some warnings though
+                    if (CommonSettingsXml == null) return; // this should never happen as we load the characters xml here if the common xml is mising. adding this does quiet some warnings though
 
                     if (Settings.Instance.CommonXMLExists) Logging.Log("Settings", "Loading Settings from [" + Settings.Instance.CommonSettingsPath + "] and", Logging.Green);
                     Logging.Log("Settings", "Loading Settings from [" + Settings.Instance.CharacterSettingsPath + "]", Logging.Green);
@@ -1087,10 +1092,13 @@ namespace Questor.Modules.Lookup
                     DebugReloadorChangeAmmo = (bool?)CharacterSettingsXml.Element("debugReloadOrChangeAmmo") ?? (bool?)CommonSettingsXml.Element("debugReloadOrChangeAmmo") ?? false;
                     DebugSalvage = (bool?)CharacterSettingsXml.Element("debugSalvage") ?? (bool?)CommonSettingsXml.Element("debugSalvage") ?? false;
                     DebugScheduler = (bool?)CharacterSettingsXml.Element("debugScheduler") ?? (bool?)CommonSettingsXml.Element("debugScheduler") ?? false;
+                    DebugSettings = (bool?)CharacterSettingsXml.Element("debugSettings") ?? (bool?)CommonSettingsXml.Element("debugSettings") ?? false;
+                    DebugShipTargetValues = (bool?)CharacterSettingsXml.Element("debugShipTargetValues") ?? (bool?)CommonSettingsXml.Element("debugShipTargetValues") ?? false;
                     DebugSkillTraining = (bool?)CharacterSettingsXml.Element("debugSkillTraining") ?? (bool?)CommonSettingsXml.Element("debugSkillTraining") ?? false;
                     DebugStates = (bool?)CharacterSettingsXml.Element("debugStates") ?? (bool?)CommonSettingsXml.Element("debugStates") ?? false;                                               //enables more console logging having to do with the time it takes to execute each state
                     DebugStatistics = (bool?)CharacterSettingsXml.Element("debugStatistics") ?? (bool?)CommonSettingsXml.Element("debugStatistics") ?? false;
                     DebugStorylineMissions = (bool?)CharacterSettingsXml.Element("debugStorylineMissions") ?? (bool?)CommonSettingsXml.Element("debugStorylineMissions") ?? false;
+                    DebugTargetCombatants = (bool?)CharacterSettingsXml.Element("debugTargetCombatants") ?? (bool?)CommonSettingsXml.Element("debugTargetCombatants") ?? false;
                     DebugTargetWrecks = (bool?)CharacterSettingsXml.Element("debugTargetWrecks") ?? (bool?)CommonSettingsXml.Element("debugTargetWrecks") ?? false;
                     DebugTraveler = (bool?)CharacterSettingsXml.Element("debugTraveler") ?? (bool?)CommonSettingsXml.Element("debugTraveler") ?? false;
                     DebugTractorBeams = (bool?)CharacterSettingsXml.Element("debugTractorBeams") ?? (bool?)CommonSettingsXml.Element("debugTractorBeams") ?? false;
@@ -1806,11 +1814,11 @@ namespace Questor.Modules.Lookup
             MissionDungeonIdLogFile = System.IO.Path.Combine(MissionDungeonIdLogPath, characterNameForLogs + "Mission-DungeonId-list.csv");
             PocketStatisticsPath = System.IO.Path.Combine(Logpath, "pocketstats\\");
             PocketStatisticsFile = System.IO.Path.Combine(PocketStatisticsPath, characterNameForLogs + "pocketstats-combined.csv");
-            PocketObjectStatisticsPath = System.IO.Path.Combine(Logpath, "pocketobjectstats\\");
-            PocketObjectStatisticsFile = System.IO.Path.Combine(PocketObjectStatisticsPath, characterNameForLogs + "pocketobjectstats-combined.csv");
+            PocketObjectStatisticsPath = System.IO.Path.Combine(Logpath, "PocketObjectStats\\");
+            PocketObjectStatisticsFile = System.IO.Path.Combine(PocketObjectStatisticsPath, characterNameForLogs + "PocketObjectStats-combined.csv");
             MissionDetailsHtmlPath = System.IO.Path.Combine(Logpath, "MissionDetailsHTML\\");
 
-            //create all the logging directories even if they aren't configured to be used - we can adjust this later if it really bugs people to have some potentially empty directories.
+            //create all the logging directories even if they are not configured to be used - we can adjust this later if it really bugs people to have some potentially empty directories.
             Directory.CreateDirectory(Logpath);
 
             Directory.CreateDirectory(ConsoleLogPath);
@@ -1826,7 +1834,13 @@ namespace Questor.Modules.Lookup
             if (!DefaultSettingsLoaded)
             {
                 if (SettingsLoaded != null)
+                {
+                    SettingsLoadedICount++;
+                    if (Settings.Instance.CommonXMLExists) Logging.Log("Settings", "[" + SettingsLoadedICount + "] Done Loading Settings from [" + Settings.Instance.CommonSettingsPath + "] and", Logging.Green);
+                    Logging.Log("Settings", "[" + SettingsLoadedICount + "] Done Loading Settings from [" + Settings.Instance.CharacterSettingsPath + "]", Logging.Green);
+                    
                     SettingsLoaded(this, new EventArgs());
+                }
             }
         }
 

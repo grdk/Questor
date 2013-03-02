@@ -45,7 +45,7 @@ namespace Questor.Modules.BackgroundTasks
 
         public static void MoveIntoRangeOfWrecks() // DO NOT USE THIS ANYWHERE EXCEPT A PURPOSEFUL SALVAGE BEHAVIOR! - if you use this while in combat it will make you go poof quickly.
         {
-            EntityCache closestWreck = Cache.Instance.UnlootedContainers.OrderBy(o => o.Distance).First();
+            EntityCache closestWreck = Cache.Instance.UnlootedContainers.OrderBy(o => o.Distance).FirstOrDefault();
             if (Math.Round(closestWreck.Distance, 0) > (int)Distance.SafeScoopRange && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closestWreck.Id))
             {
                 if (closestWreck.Distance > (int)Distance.WarptoDistance)
@@ -234,7 +234,7 @@ namespace Questor.Modules.BackgroundTasks
                 ModuleNumber++;
 
                 // Spread the salvagers around
-                EntityCache wreck = wrecks.OrderBy(w => salvagers.Count(s => s.LastTargetId == w.Id)).First();
+                EntityCache wreck = wrecks.OrderBy(w => salvagers.Count(s => s.LastTargetId == w.Id)).FirstOrDefault();
                 if (wreck == null)
                 {
                     if (Settings.Instance.DebugSalvage) Logging.Log("Salvage.ActivateSalvagers", "Debug: if (wreck == null)", Logging.Teal); 
@@ -288,7 +288,7 @@ namespace Questor.Modules.BackgroundTasks
                 if (Cache.Instance.IgnoreTargets.Contains(wreck.Name))
                 {
                     Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] on the ignore list, ignoring.", Logging.White);
-                    wreck.UnlockTarget();
+                    wreck.UnlockTarget("Salvage");
                     Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                     continue;
                 }
@@ -298,7 +298,7 @@ namespace Questor.Modules.BackgroundTasks
                     if (Settings.Instance.WreckBlackList.Any(a => a == wreck.TypeId) && (wreck.Distance < (int)Distance.SafeScoopRange || wreck.IsWreckEmpty))
                     {
                         Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] within loot range,wreck is empty, or wreck is on our blacklist, unlocking container.", Logging.White);
-                        wreck.UnlockTarget();
+                        wreck.UnlockTarget("Salvage");
                         Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                         continue;
                     }
@@ -314,7 +314,7 @@ namespace Questor.Modules.BackgroundTasks
                 if (wreck.Distance < (int)Distance.SafeScoopRange)
                 {
                     Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] within loot range, unlocking container.", Logging.White);
-                    wreck.UnlockTarget();
+                    wreck.UnlockTarget("Salvage");
                     Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                     continue;
                 }
@@ -686,7 +686,10 @@ namespace Questor.Modules.BackgroundTasks
                                     return;
                                 }
 
-                                Cache.Instance.LootedContainers.Add(containerEntity.Id); //new add
+                                // why is this here? 
+                                // why would we EVER want to add the container with loot we want to the lootedcontainers 
+                                // list BEFORE we are done looting it? (we were out of space so we cant loot it atm)
+                                //Cache.Instance.LootedContainers.Add(containerEntity.Id); //new add
 
                                 Logging.Log("Salvage", "Jettisoning [" + moveTheseItems.Count + "] items to make room for the more valuable loot", Logging.White);
 

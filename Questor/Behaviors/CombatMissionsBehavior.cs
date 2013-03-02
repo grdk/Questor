@@ -1191,7 +1191,7 @@ namespace Questor.Behaviors
                     _lastY = Cache.Instance.DirectEve.ActiveShip.Entity.Y;
                     _lastZ = Cache.Instance.DirectEve.ActiveShip.Entity.Z;
 
-                    EntityCache closest = Cache.Instance.AccelerationGates.OrderBy(t => t.Distance).First();
+                    EntityCache closest = Cache.Instance.AccelerationGates.OrderBy(t => t.Distance).FirstOrDefault();
                     if (closest.Distance < (int)Distance.DecloakRange)
                     {
                         Logging.Log("CombatMissionsBehavior.Salvage", "Acceleration gate found - GroupID=" + closest.GroupId, Logging.White);

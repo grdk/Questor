@@ -237,6 +237,11 @@ namespace Questor.Modules.BackgroundTasks
                             }
                         }
                     }
+                    else if (!Cache.Instance.InMission && Cache.Instance.OptimalRange != Settings.Instance.OptimalRange)
+                    {
+                        Cache.Instance.OptimalRange = Settings.Instance.OptimalRange;
+                        return;
+                    }
                     else //if optimalrange is not set use MaxRange (shorter of weapons range and targeting range)
                     {
                         if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange: using MaxRange [" + Cache.Instance.MaxRange + "] target is [" + target.Name + "][" + target.Distance + "]", Logging.White);
