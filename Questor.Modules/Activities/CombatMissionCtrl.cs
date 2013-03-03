@@ -116,6 +116,7 @@ namespace Questor.Modules.Activities
             if (Settings.Instance.CreateSalvageBookmarks)
                 BookmarkPocketForSalvaging();
 
+            Cache.Instance.CurrentlyShouldBeSalvaging = false;
             _States.CurrentCombatMissionCtrlState = CombatMissionCtrlState.Done;
         }
 
@@ -173,7 +174,7 @@ namespace Questor.Modules.Activities
             }
 
             //if (closest.Distance <= (int)Distance.CloseToGateActivationRange) // if your distance is less than the 'close enough' range, default is 7000 meters
-            EntityCache closest = targets.OrderBy(t => t.Distance).First();
+            EntityCache closest = targets.OrderBy(t => t.Distance).FirstOrDefault();
             if (closest.Distance <= (int)Distance.GateActivationRange)
             {
                 if (Settings.Instance.DebugActivateGate) Logging.Log("CombatMissionCtrl", "if (closest.Distance [" + closest.Distance + "] <= (int)Distance.GateActivationRange [" + (int)Distance.GateActivationRange + "])", Logging.Green);
@@ -216,7 +217,7 @@ namespace Questor.Modules.Activities
                     }
 
                     if (Settings.Instance.DebugActivateGate) Logging.Log("CombatMissionCtrl", "Activate: Reload before moving to next pocket", Logging.Teal);
-                    if (!Combat.ReloadAll(Cache.Instance.MyShip)) return;
+                    if (!Combat.ReloadAll(Cache.Instance.MyShipEntity)) return;
                     if (Settings.Instance.DebugActivateGate) Logging.Log("CombatMissionCtrl", "Activate: Done reloading", Logging.Teal);
 
                     if (DateTime.UtcNow > Cache.Instance.NextActivateAction)
@@ -241,14 +242,14 @@ namespace Questor.Modules.Activities
                 // Move to the target
                 if (DateTime.UtcNow > Cache.Instance.NextApproachAction)
                 {
-                    if (Cache.Instance.IsOrbiting || Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closest.Id || Cache.Instance.MyShip.Velocity < 100)
+                    if (Cache.Instance.IsOrbiting || Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closest.Id || Cache.Instance.MyShipEntity.Velocity < 100)
                     {
                         Logging.Log("CombatMissionCtrl.Activate", "Approaching target [" + closest.Name + "][ID: " + Cache.Instance.MaskedID(closest.Id) + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.Teal);
                         closest.Approach();
                         return;
                     }
 
-                    if (Settings.Instance.DebugActivateGate) Logging.Log("CombatMissionCtrl", "Cache.Instance.IsOrbiting [" + Cache.Instance.IsOrbiting + "] Cache.Instance.MyShip.Velocity [" + Cache.Instance.MyShip.Velocity + "]", Logging.Green);
+                    if (Settings.Instance.DebugActivateGate) Logging.Log("CombatMissionCtrl", "Cache.Instance.IsOrbiting [" + Cache.Instance.IsOrbiting + "] Cache.Instance.MyShip.Velocity [" + Cache.Instance.MyShipEntity.Velocity + "]", Logging.Green);
                     if (Settings.Instance.DebugActivateGate) if (Cache.Instance.Approaching != null) Logging.Log("CombatMissionCtrl", "Cache.Instance.Approaching.Id [" + Cache.Instance.Approaching.Id + "][closest.Id: " + closest.Id + "]", Logging.Green);
                     if (Settings.Instance.DebugActivateGate) Logging.Log("CombatMissionCtrl", "------------------", Logging.Green);
                     return;
@@ -614,11 +615,11 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            EntityCache closest = targets.OrderBy(t => t.Distance).First();
+            EntityCache closest = targets.OrderBy(t => t.Distance).FirstOrDefault();
 
             if (notTheClosest)
             {
-                closest = targets.OrderByDescending(t => t.Distance).First();
+                closest = targets.OrderByDescending(t => t.Distance).FirstOrDefault();
             }
 
             // Move to the target
@@ -656,7 +657,7 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            EntityCache closest = targets.OrderBy(t => t.Distance).First();
+            EntityCache closest = targets.OrderBy(t => t.Distance).FirstOrDefault();
 
             // Move to the target
             Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Approaching target [" + closest.Name + "][ID: " + Cache.Instance.MaskedID(closest.Id) + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.Teal);
@@ -705,7 +706,7 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            EntityCache closest = targets.OrderBy(t => t.Distance).First();
+            EntityCache closest = targets.OrderBy(t => t.Distance).FirstOrDefault();
 
             if (stopWhenTargeted)
             {
@@ -713,7 +714,7 @@ namespace Questor.Modules.Activities
                 {
                     if (Cache.Instance.Approaching != null)
                     {
-                        Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
+                        if (Cache.Instance.MyShipEntity.Velocity != 0) Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
                         Cache.Instance.Approaching = null;
                         Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Stop ship, we have been targeted and are [" + DistanceToApproach + "] from [ID: " +
                                     closest.Name + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.Teal);
@@ -727,7 +728,7 @@ namespace Questor.Modules.Activities
                 {
                     if (Cache.Instance.Approaching != null)
                     {
-                        Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
+                        if (Cache.Instance.MyShipEntity.Velocity != 0) Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
                         Cache.Instance.Approaching = null;
                         Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Stop ship, we have been targeted and are [" + DistanceToApproach + "] from [ID: " +
                                     closest.Name + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.Teal);
@@ -742,7 +743,7 @@ namespace Questor.Modules.Activities
 
                 if (Cache.Instance.Approaching != null)
                 {
-                    Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
+                    if (Cache.Instance.MyShipEntity.Velocity != 0) Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
                     Cache.Instance.Approaching = null;
                     Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Stop ship, we are [" + DistanceToApproach + "] from [ID: " + closest.Name + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.Teal);
                 }
@@ -764,7 +765,7 @@ namespace Questor.Modules.Activities
 
                 if (Settings.Instance.DebugMoveTo) if (Cache.Instance.Approaching == null) Logging.Log("CombatMissionCtrl.MoveTo", "if (Cache.Instance.Approaching == null)", Logging.Teal);
                 if (Settings.Instance.DebugMoveTo) if (Cache.Instance.Approaching != null) Logging.Log("CombatMissionCtrl.MoveTo", "Cache.Instance.Approaching.Id [" + Cache.Instance.Approaching.Id + "]", Logging.Teal);
-                if (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closest.Id || Cache.Instance.MyShip.Velocity < 100)
+                if (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closest.Id || Cache.Instance.MyShipEntity.Velocity < 100)
                 {
                     Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Approaching target [" + closest.Name + "][ID: " + Cache.Instance.MaskedID(closest.Id) + "][" + Math.Round(closest.Distance / 1000, 0) + "k away]", Logging.Teal);
                     closest.Approach();
@@ -781,6 +782,7 @@ namespace Questor.Modules.Activities
                 closest.AlignTo();
                 return;
             }
+
             if (Settings.Instance.DebugMoveTo) Logging.Log("CombatMissionCtrl.MoveTo", "Nothing to do. Next Approach [" + Cache.Instance.NextApproachAction + " ] NextAlign [" + Cache.Instance.NextAlign + "]", Logging.Teal);
             return;
         }
@@ -913,7 +915,7 @@ namespace Questor.Modules.Activities
                 foreach (EntityCache target in Cache.Instance.Targets.Where(e => targets.Any(t => t.Id == e.Id)))
                 {
                     Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Unlocking [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away] due to aggro being obtained", Logging.Teal);
-                    target.UnlockTarget();
+                    target.UnlockTarget("CombatMissionCtrl");
                     return;
                 }
                 Nextaction();
@@ -930,9 +932,9 @@ namespace Questor.Modules.Activities
                 }
             }
 
-            EntityCache closest = targets.OrderBy(t => t.Distance).First();
+            EntityCache closest = targets.OrderBy(t => t.Distance).FirstOrDefault();
 
-            if (notTheClosest) closest = targets.OrderByDescending(t => t.Distance).First();
+            if (notTheClosest) closest = targets.OrderByDescending(t => t.Distance).FirstOrDefault();
 
             //panic handles adding any priority targets and combat will prefer to kill any priority targets
             if (Cache.Instance.PrimaryWeaponPriorityTargets.All(pt => pt.Id != closest.Id))
@@ -1000,7 +1002,7 @@ namespace Questor.Modules.Activities
                 foreach (EntityCache entity in Cache.Instance.Targets.Where(e => targets.Any(t => t.Id == e.Id)))
                 {
                     Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Unlocking [" + entity.Name + "][ID: " + Cache.Instance.MaskedID(entity.Id) + "][" + Math.Round(entity.Distance / 1000, 0) + "k away] due to kill order being put on hold", Logging.Teal);
-                    entity.UnlockTarget();
+                    entity.UnlockTarget("CombatMissionCtrl");
                 }
             }
 
@@ -1014,7 +1016,7 @@ namespace Questor.Modules.Activities
                 }
             }
 
-            EntityCache target = targets.OrderBy(t => t.Distance).First();
+            EntityCache target = targets.OrderBy(t => t.Distance).FirstOrDefault();
             int targetedby = Cache.Instance.TargetedBy.Count(t => !t.IsSentry && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeCollidableStructure && !Cache.Instance.IgnoreTargets.Contains(t.Name.Trim()));
             if (target != null)
             {
@@ -1026,7 +1028,7 @@ namespace Questor.Modules.Activities
 
                 // Lock priority target if within weapons range
 
-                if (notTheClosest) target = targets.OrderByDescending(t => t.Distance).First();
+                if (notTheClosest) target = targets.OrderByDescending(t => t.Distance).FirstOrDefault();
 
                 if (target.Distance < Cache.Instance.MaxRange)
                 {
@@ -1091,7 +1093,7 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            EntityCache target = targets.OrderBy(t => t.Distance).First();
+            EntityCache target = targets.OrderBy(t => t.Distance).FirstOrDefault();
 
             if (target != null)
             {
@@ -1103,7 +1105,7 @@ namespace Questor.Modules.Activities
 
                 // Lock priority target if within weapons range
 
-                if (notTheClosest) target = targets.OrderByDescending(t => t.Distance).First();
+                if (notTheClosest) target = targets.OrderByDescending(t => t.Distance).FirstOrDefault();
 
                 if (target.Distance < Cache.Instance.MaxRange)
                 {
@@ -1113,6 +1115,7 @@ namespace Questor.Modules.Activities
                         Cache.Instance.AddPrimaryWeaponPriorityTargets(new[] { target }, PrimaryWeaponPriority.PriorityKillTarget, "CombatMissionCtrl." + _pocketActions[_currentAction]);
                     }
                 }
+
                 NavigateOnGrid.NavigateIntoRange(target, "CombatMissionCtrl." + _pocketActions[_currentAction]);
                 return;
             }
@@ -1161,8 +1164,8 @@ namespace Questor.Modules.Activities
             }
 
             //IEnumerable<EntityCache> targets = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name));
-            EntityCache target = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name)).OrderBy(t => t.Distance).First();
-            if (notTheClosest) target = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name)).OrderByDescending(t => t.Distance).First();
+            EntityCache target = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name)).OrderBy(t => t.Distance).FirstOrDefault();
+            if (notTheClosest) target = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name)).OrderByDescending(t => t.Distance).FirstOrDefault();
 
             if (target != null)
             {
@@ -1197,8 +1200,8 @@ namespace Questor.Modules.Activities
             }
 
             //IEnumerable<EntityCache> targets = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name));
-            EntityCache target = Cache.Instance.Entities.OrderBy(t => t.Distance).First();
-            if (notTheClosest) target = Cache.Instance.Entities.OrderByDescending(t => t.Distance).First();
+            EntityCache target = Cache.Instance.Entities.OrderBy(t => t.Distance).FirstOrDefault();
+            if (notTheClosest) target = Cache.Instance.Entities.OrderByDescending(t => t.Distance).FirstOrDefault();
 
             if (!target.IsValid)
             {
@@ -1244,7 +1247,7 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            var closest = targets.OrderBy(t => t.Distance).First();
+            var closest = targets.OrderBy(t => t.Distance).FirstOrDefault();
             if (closest.Distance > (int)Distance.SafeScoopRange)
             {
                 if (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closest.Id)
@@ -1309,6 +1312,7 @@ namespace Questor.Modules.Activities
         {
             try
             {
+                Cache.Instance.CurrentlyShouldBeSalvaging = true;
                 Cache.Instance.MissionLoot = true;
                 List<string> items = action.GetParameterValues("item");
                 List<string> targetNames = action.GetParameterValues("target");
@@ -1343,6 +1347,7 @@ namespace Questor.Modules.Activities
                     // now that we have completed this action revert OpenWrecks to false
                     Cache.Instance.OpenWrecks = false;
                     Cache.Instance.MissionLoot = false;
+                    Cache.Instance.CurrentlyShouldBeSalvaging = false;
                     _currentAction++;
                     return;
                 }
@@ -1354,7 +1359,9 @@ namespace Questor.Modules.Activities
                 if (!containers.Any())
                 {
                     Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "We are done looting - no containers left to loot", Logging.Teal);
-
+                    Cache.Instance.OpenWrecks = false;
+                    Cache.Instance.MissionLoot = false; 
+                    Cache.Instance.CurrentlyShouldBeSalvaging = false;
                     _currentAction++;
                     return;
                 }
@@ -1441,6 +1448,8 @@ namespace Questor.Modules.Activities
             // if we are not generally looting we need to re-enable the opening of wrecks to
             // find this LootItems we are looking for
             Cache.Instance.OpenWrecks = true;
+            Cache.Instance.CurrentlyShouldBeSalvaging = true;
+
             if (!Settings.Instance.LootEverything)
             {
                 bool done = items.Count == 0;
@@ -1458,6 +1467,8 @@ namespace Questor.Modules.Activities
 
                     // now that we are done with this action revert OpenWrecks to false
                     Cache.Instance.OpenWrecks = false;
+                    Cache.Instance.MissionLoot = false;
+                    Cache.Instance.CurrentlyShouldBeSalvaging = false;
 
                     _currentAction++;
                     return;
@@ -1471,11 +1482,12 @@ namespace Questor.Modules.Activities
             if (!containers.Any())
             {
                 // lock targets count
-                Cache.Instance.MissionLoot = false;
                 Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "We are done looting", Logging.Teal);
 
                 // now that we are done with this action revert OpenWrecks to false
                 Cache.Instance.OpenWrecks = false;
+                Cache.Instance.MissionLoot = false;
+                Cache.Instance.CurrentlyShouldBeSalvaging = false;
 
                 _currentAction++;
                 return;
@@ -1511,7 +1523,7 @@ namespace Questor.Modules.Activities
             //    distancetoapp = 1000;
 
             //IEnumerable<EntityCache> targets = Cache.Instance.Entities.Where(e => targetNames.Contains(e.Name));
-            // EntityCache target = targets.OrderBy(t => t.Distance).First();
+            // EntityCache target = targets.OrderBy(t => t.Distance).FirstOrDefault();
 
             //IEnumerable<EntityCache> targetsinrange = Cache.Instance.Entities.Where(b => Cache.Instance.DistanceFromEntity(b.X ?? 0, b.Y ?? 0, b.Z ?? 0,target) < distancetoapp);
             //IEnumerable<EntityCache> targetsoutofrange = Cache.Instance.Entities.Where(b => Cache.Instance.DistanceFromEntity(b.X ?? 0, b.Y ?? 0, b.Z ?? 0, target) < distancetoapp);

@@ -447,7 +447,7 @@ namespace Questor.Behaviors
                     if (_States.CurrentAgentInteractionState == AgentInteractionState.Done)
                     {
                         Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID, true);
-                        if (Cache.Instance.Mission != null)
+                        if (Cache.Instance.Mission != null && Cache.Instance.Agent != null)
                         {
                             // Update loyalty points again (the first time might return -1)
                             Statistics.Instance.LoyaltyPoints = Cache.Instance.Agent.LoyaltyPoints;
@@ -749,7 +749,7 @@ namespace Questor.Behaviors
 
                     Traveler.TravelHome("CombatMissionsBehavior.TravelHome");
 
-                    if (_States.CurrentTravelerState == TravelerState.AtDestination) // || DateTime.UtcNow.Subtract(Cache.Instance.EnteredCloseQuestor_DateTime).TotalMinutes > 10)
+                    if (_States.CurrentTravelerState == TravelerState.AtDestination && DateTime.UtcNow > Cache.Instance.LastInSpace.AddSeconds(5)) // || DateTime.UtcNow.Subtract(Cache.Instance.EnteredCloseQuestor_DateTime).TotalMinutes > 10)
                     {
                         if (Settings.Instance.DebugGotobase) Logging.Log("CombatMissionsBehavior", "GotoBase: We are at destination", Logging.White);
                         Cache.Instance.GotoBaseNow = false; //we are there - turn off the 'forced' gotobase
@@ -777,6 +777,7 @@ namespace Questor.Behaviors
                         }
                         else if (_States.CurrentCombatState != CombatState.OutOfAmmo && Cache.Instance.Mission != null && Cache.Instance.Mission.State == (int)MissionState.Accepted)
                         {
+                            ValidateCombatMissionSettings();
                             _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.CompleteMission;
                         }
                         else
@@ -1190,7 +1191,7 @@ namespace Questor.Behaviors
                     _lastY = Cache.Instance.DirectEve.ActiveShip.Entity.Y;
                     _lastZ = Cache.Instance.DirectEve.ActiveShip.Entity.Z;
 
-                    EntityCache closest = Cache.Instance.AccelerationGates.OrderBy(t => t.Distance).First();
+                    EntityCache closest = Cache.Instance.AccelerationGates.OrderBy(t => t.Distance).FirstOrDefault();
                     if (closest.Distance < (int)Distance.DecloakRange)
                     {
                         Logging.Log("CombatMissionsBehavior.Salvage", "Acceleration gate found - GroupID=" + closest.GroupId, Logging.White);

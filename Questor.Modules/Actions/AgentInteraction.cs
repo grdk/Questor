@@ -90,13 +90,14 @@ namespace Questor.Modules.Actions
             //
             if (DateTime.UtcNow < _agentStandingsCheckTimeOut)
             {
-                if (((int)Cache.Instance.StandingUsedToAccessAgent == (int)0.00) && (AgentId == Cache.Instance.AgentId))
+                if (((int)Cache.Instance.StandingUsedToAccessAgent == (float)0.00) && (AgentId == Cache.Instance.AgentId))
                 {
                     if (!_agentStandingsCheckFlag)
                     {
-                        _agentStandingsCheckTimeOut = DateTime.UtcNow.AddSeconds(20);
+                        _agentStandingsCheckTimeOut = DateTime.UtcNow.AddSeconds(15);
                         _agentStandingsCheckFlag = true;
                     }
+                    _nextAgentAction = DateTime.UtcNow.AddSeconds(5);
                     Logging.Log("AgentInteraction.StandingsCheck", " Agent [" + Cache.Instance.DirectEve.GetAgentById(AgentId).Name + "] Standings show as [" + Cache.Instance.StandingUsedToAccessAgent + " and must not yet be available. retrying for [" + Math.Round((double)_agentStandingsCheckTimeOut.Subtract(DateTime.UtcNow).Seconds, 0) + " sec]", Logging.Yellow);
                     return;
                 }
@@ -435,6 +436,7 @@ namespace Questor.Modules.Actions
             Logging.Log("AgentInteraction", "Unable to find the faction for [" + MissionName + "] when searching through the html (listed below)", Logging.Orange);
 
             Logging.Log("AgentInteraction", html, Logging.White);
+            Statistics.SaveMissionHTMLDetails(html, MissionName);
             return;
         }
 

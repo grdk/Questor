@@ -42,7 +42,7 @@ namespace Questor.Modules.Actions
                 return false;
             }
 
-            // The task was to get to the solar system, we're threre :)
+            // The task was to get to the solar system, we are there :)
             Logging.Log("QuestorManager.SolarSystemDestination", "Arrived in system", Logging.White);
             return true;
         }

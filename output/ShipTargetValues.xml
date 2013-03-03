@@ -92,7 +92,6 @@
   <ship name="Strategic Cruiser Blueprints" groupid="996" targetvalue="2" />
   <ship name="Mission Faction Cruiser" groupid="1006" targetvalue="2" />
   <ship name="Sentry" groupid="383" targetvalue="1" />
-  <!--
   <ship name="Asteroid Angel Cartel Destroyer" groupid="575" targetvalue="1" />
   <ship name="Asteroid Blood Raiders Destroyer" groupid="577" targetvalue="1" />
   <ship name="Asteroid Guristas Destroyer" groupid="579" targetvalue="1" />
@@ -147,5 +146,4 @@
   <ship name="mission generic frigates" groupid="818" targevalue="0" />
   <ship name="mission thukker frigate" groupid="826" targevalue="0" />
   <ship name="asteroid rouge drone commander frigate" groupid="847" targevalue="0" />
-  -->
 </ships>

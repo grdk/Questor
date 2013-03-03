@@ -15,6 +15,7 @@
   <debugBlackList>false</debugBlackList>
   <debugCargoHold>false</debugCargoHold>
   <debugCleanup>false</debugCleanup>
+  <debugCourierMissions>false</debugCourierMissions>
   <debugDecline>false</debugDecline>
   <debugDefense>false</debugDefense>
   <debugDroneHealth>false</debugDroneHealth>
@@ -43,11 +44,13 @@
   <debugStates>false</debugStates>
   <debugStatistics>false</debugStatistics>
   <debugStorylineMissions>false</debugStorylineMissions>
+  <debugTargetWrecks>false</debugTargetWrecks>
   <debugTraveler>false</debugTraveler>
   <debugTractorBeams>false</debugTractorBeams>
   <debugUI>false</debugUI>
   <debugUnloadLoot>false</debugUnloadLoot>
   <debugValuedump>false</debugValuedump>
+  <debugWatchForActiveWars>false</debugWatchForActiveWars>
   <detailedCurrentTargetHealthLogging>false</detailedCurrentTargetHealthLogging>
   <defendWhileTraveling>true</defendWhileTraveling>
   <useInnerspace>true</useInnerspace>
@@ -57,6 +60,10 @@
   <!--          MISC SETTINGS          -->
   <!--                                                -->
   
+  <!-- If you like you can create a "common" XML. remove the values you want to be common between toons from the  -->
+  <!-- individual characters XML and if settings.cs cannot find the character level setting it will pull from the common setting file  -->
+  <!-- if you have a setting set in both places, the character level setting always "wins" -->
+  <commonSettingsFileName>common.xml</commonSettingsFileName>
   <!-- Character Mode is either Combat Missions or salvage for combat mode or dedicated salvager mode -->
   <characterMode>Combat Missions</characterMode><!-- default is "Combat Missions" -->
   <!-- Autostart is either true or false and is for automatically running questor when ran -->
@@ -64,9 +71,9 @@
   <!-- Disable 3d is either true or false and is for automatically disabling the 3D visuals in game -->
   <disable3D>false</disable3D><!-- default is false -->
   <!-- MinimumDelay is a number and is the minimum amount of seconds it will wait between getting missions in station with randomdelay or by itself -->
-  <minimumDelay>20</minimumDelay><!-- default is 20 -->
+  <minimumDelay>0</minimumDelay><!-- default is 0 -->
   <!-- RandomDelay is a number and is a random amount of seconds it will wait between getting missions in station added with minimumdelay or by itself -->
-  <randomDelay>45</randomDelay><!-- default is 45 -->
+  <randomDelay>10</randomDelay><!-- default is 10 -->
   <!-- Use Station repair Service if it exists-->
   <useStationRepair>true</useStationRepair>
   
@@ -94,6 +101,8 @@
   <UseLocalWatch>true</UseLocalWatch><!-- if false all local watching for bad standings pilots is disabled -->
   <!-- UseFittingManager is either true of false and allows questor to use the IN GAME EVE fitting manager to change your fits per faction/mission -->
   <UseFittingManager>true</UseFittingManager><!-- default is true -->
+  <!-- WatchForActiveWars will detect ACTIVE wars (not wars that havent yet started) and go into panic, and stay in panic (like it does when you are in a pod) - if set to false we will not check for wars -->
+  <WatchForActiveWars>true</WatchForActiveWars><!-- default is true -->
   
   <!--                                                         -->
   <!-- AGENT AND MISSION SETTINGS -->
@@ -212,8 +221,13 @@
   <ageofSalvageBookmarksToExpire>120</ageofSalvageBookmarksToExpire>
   <moveCommonMissionCompletionItemsToAmmoHangar>false</moveCommonMissionCompletionItemsToAmmoHangar>
   <moveCommonMissionCompletionItemsToItemsHangar>true</moveCommonMissionCompletionItemsToItemsHangar>
-  
-  
+  <!-- tractorBeamMinimumCapacitor - below this capacitor level the background salvaging behavior will not attempt to use a tractor beam: default 0% -->
+  <tractorBeamMinimumCapacitor>0</tractorBeamMinimumCapacitor>
+  <!-- salvagerMinimumCapacitor - below this capacitor level the background salvaging behavior will not attempt to use a salvager: default 0% -->
+  <salvagerMinimumCapacitor>0</salvagerMinimumCapacitor>
+  <!-- doNotDoANYSalvagingOutsideMissionActions: disabled ALL salvage related actions, tractor/salvager/wreck targeting, everything when not processing a loot or lootitem action in a mission -->
+  <doNotDoANYSalvagingOutsideMissionActions>false</doNotDoANYSalvagingOutsideMissionActions>
+
   <!--                                                -->
   <!--    UNDOCKING SETTINGS     -->
   <!--                                                -->
@@ -316,6 +330,8 @@
   <!-- If the weapon has less then minimumAmmoCharges, the weapon is forced to reload 
        before attacking a new target -->
   <minimumAmmoCharges>6</minimumAmmoCharges>
+  <!-- Amount of cap booster you want to carry with you, when using a cap injector in fitting-->
+  <capBoosterToLoad>15</capBoosterToLoad>
   <!-- Weapon group (508 = Siege, 506 = Cruise, 771 = HAM, etc of the Launcher / Guns / Lasors, NOT the Ammo, *the weapon*) -->
   <weaponGroupId>508</weaponGroupId>
   <!-- Use PrimaryWeapons on WarpScramblers, if you do not want to shoot warp dcramblers with your primary weapons, set this to false. -->
@@ -324,6 +340,8 @@
   <!--  If you wish to effectively turn this off you can set the speedTargetsShouldBeIgnoredByMainWeapons to a very high number like: 9999999 -->
   <speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>300</speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
   <distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>7000</distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
+  <!-- MaxRange we should use NOS / Neuts -->
+  <NosDistance>38000</NosDistance>
   
   <!-- Maximum number of targets per value -->
   <maximumHighValueTargets>4</maximumHighValueTargets><!-- default is 4 -->
@@ -393,6 +411,8 @@
   <activateRepairModules>65</activateRepairModules>
   <!-- Deactivate shield booster or armor rep when shields/armor are above this percentage -->
   <deactivateRepairModules>95</deactivateRepairModules>
+  <!-- Use cap injector when below this percentage -->
+  <injectcapperc>60</injectcapperc>
   
   <!--                                                -->
   <!--          PANIC SETTINGS         -->

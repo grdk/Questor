@@ -23,6 +23,7 @@ namespace Questor.Modules.States
         MoveItems,
         WaitForItems,
         Done,
+        ActivateNoobShip, 
         SwitchToSalvageShip,
         ActivateSalvageShip,
         SwitchToTransportShip,
@@ -30,6 +31,6 @@ namespace Questor.Modules.States
         NotEnoughAmmo,
         NotEnoughDrones,
         LoadSavedFitting,
-        Cleanup
+        Cleanup,
     }
 }

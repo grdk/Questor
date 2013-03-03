@@ -457,6 +457,23 @@ namespace Questor.Modules.Logging
             Cache.Instance.OrbitEntityNamed = null;
         }
 
+        public static void SaveMissionHTMLDetails(string MissionDetailsHtml, string missionName)
+        {
+            DateTimeForLogs = DateTime.Now;
+
+            string missionDetailsHtmlFile = Path.Combine(Settings.Instance.MissionDetailsHtmlPath, missionName + " - " + "mission-description-html.txt");
+            
+            if (!Directory.Exists(Settings.Instance.MissionDetailsHtmlPath))
+                Directory.CreateDirectory(Settings.Instance.MissionDetailsHtmlPath);
+
+            // Write the file
+            if (!File.Exists(missionDetailsHtmlFile))
+            {
+                Logging.Log("Statistics: SaveMissionHTMLDetails", "Writing mission details HTML [ " + missionDetailsHtmlFile + " ]", Logging.White);
+                File.AppendAllText(missionDetailsHtmlFile, MissionDetailsHtml);    
+            }
+        }
+
         public static void WriteMissionStatistics(long statisticsForThisAgent)
         {
             //if (Settings.Instance.DateTimeForLogs = EVETIme)

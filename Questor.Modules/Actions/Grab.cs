@@ -33,15 +33,18 @@
 
             DirectContainer hangar = null;
 
-            if (!Cache.Instance.OpenItemsHangar("Grab")) return;
-            if (!Cache.Instance.OpenShipsHangar("Grab")) return;
+            if (_States.CurrentGrabState != States.GrabState.WaitForItems)
+            {
+                if (!Cache.Instance.OpenItemsHangar("Grab")) return;
+                if (!Cache.Instance.OpenShipsHangar("Grab")) return;
 
-            if ("Local Hangar" == Hangar)
-                hangar = Cache.Instance.ItemHangar;
-            else if ("Ship Hangar" == Hangar)
-                hangar = Cache.Instance.ShipHangar;
-            //else
-                //_hangar = Cache.Instance.DirectEve.GetCorporationHangar(Hangar); //this needs to be fixed
+                if ("Local Hangar" == Hangar)
+                    hangar = Cache.Instance.ItemHangar;
+                else if ("Ship Hangar" == Hangar)
+                    hangar = Cache.Instance.ShipHangar;
+                else
+                    hangar = Cache.Instance.DirectEve.GetCorporationHangar(Hangar);
+            }
 
             switch (_States.CurrentGrabState)
             {
@@ -70,15 +73,12 @@
                     }
                     else if (Hangar != null)
                     {
-                        if (hangar != null && hangar.Window == null)
+                        if (hangar == null || !hangar.IsValid)
                         {
-                            // No, command it to open
-                            //Cache.Instance.DirectEve.OpenCorporationHangar();
-                            break;
+                            Logging.Log("Grab", "No Valid Corp Hangar found. Hangar: " + Hangar, Logging.White);
+                            _States.CurrentGrabState = States.GrabState.Idle;
+                            return;
                         }
-
-                        if (hangar != null && !hangar.Window.IsReady)
-                            break;
                     }
 
                     Logging.Log("Grab", "Opening Hangar", Logging.White);

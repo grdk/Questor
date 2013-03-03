@@ -129,6 +129,7 @@ namespace Questor.Modules.Lookup
         ElectronicAttackShip = 893,
         PrototypeExplorationShip = 1022,
 
+        RookieShip = 237,
         Cruiser = 26,
         HeavyAssaultShip = 358,
         Logistics = 832,
@@ -157,6 +158,8 @@ namespace Questor.Modules.Lookup
         Commodities = 526,
 
         Minerals = 18,
+
+        SkillBooks = 270,
 
         Plagioclase = 458,
         Spodumain = 461,

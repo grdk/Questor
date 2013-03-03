@@ -314,6 +314,9 @@ namespace QuestorManager
                     if ("QuestorManager" == LstTask.Items[0].Text)
                     {
                         _destination = LstTask.Items[0].Tag;
+                        if (_destination == null || _destination.Equals(""))
+                            _destination = Cache.Instance.BookmarksByLabel(LstTask.Items[0].SubItems[1].Text)[0];
+                        Logging.Log("manager", "Destination: " + _destination, Logging.White);
                         State = QuestormanagerState.Traveler;
                         break;
                     }
@@ -360,14 +363,14 @@ namespace QuestorManager
                         break;
                     }
 
-                    if ("Buy" == LstTask.Items[0].Text)
+                    if ("Buy" == LstTask.Items[0].Text || "BuyOrder" == LstTask.Items[0].Text)
                     {
                         LblStatus.Text = LstTask.Items[0].Text + ":-:" + LstTask.Items[0].SubItems[1].Text;
                         State = QuestormanagerState.Buy;
                         break;
                     }
 
-                    if ("Sell" == LstTask.Items[0].Text)
+                    if ("Sell" == LstTask.Items[0].Text || "SellOrder" == LstTask.Items[0].Text)
                     {
                         LblStatus.Text = LstTask.Items[0].Text + ":-:" + LstTask.Items[0].SubItems[1].Text;
                         State = QuestormanagerState.Sell;
@@ -388,6 +391,7 @@ namespace QuestorManager
                         Logging.Log("QuestorManager", "CmdLine: " + LstTask.Items[0].SubItems[1].Text, Logging.White);
                         Logging.Log("QuestorManager", "CmdLine: Error: command skipped: UseInnerspace is false", Logging.White);
                     }
+
                     LstTask.Items.Remove(LstTask.Items[0]);
                     _lastAction = DateTime.UtcNow;
                     State = QuestormanagerState.NextAction;
@@ -449,10 +453,21 @@ namespace QuestorManager
 
                     if (!Cache.Instance.OpenShipsHangar("QuestorManager")) break;
 
+                    //Logging.Log("QuestorManager", "MakeShip: ShipName: [" + Cache.Instance.DirectEve.ActiveShip.GivenName + "]", Logging.White);
+                    //Logging.Log("QuestorManager", "MakeShip: ShipFind: [" + LstTask.Items[0].SubItems[1].Text + "]", Logging.White);
+
+                    if (Cache.Instance.DirectEve.ActiveShip.GivenName == LstTask.Items[0].SubItems[1].Text)
+                    {
+                        Logging.Log("QuestorManager", "MakeShip: Ship: [" + LstTask.Items[0].SubItems[1].Text + "] already active", Logging.White);
+                        LstTask.Items.Remove(LstTask.Items[0]);
+                        State = QuestormanagerState.NextAction;
+                        break;
+                    }
+
                     if (DateTime.UtcNow > _lastAction)
                     {
                         List<DirectItem> ships = Cache.Instance.ShipHangar.Items;
-                        foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName == txtNameShip.Text))
+                        foreach (DirectItem ship in ships.Where(ship => ship.GivenName != null && ship.GivenName == LstTask.Items[0].SubItems[1].Text))
                         {
                             Logging.Log("QuestorManager", "MakeShip: Making [" + ship.GivenName + "] active", Logging.White);
 
@@ -470,6 +485,8 @@ namespace QuestorManager
 
                     if (_States.CurrentBuyState == BuyState.Idle)
                     {
+                        if (LstTask.Items[0].Text == "BuyOrder")
+                            _buy.useOrders = true;
                         _buy.Item = Convert.ToInt32(LstTask.Items[0].Tag);
                         _buy.Unit = Convert.ToInt32(LstTask.Items[0].SubItems[2].Text);
                         Logging.Log("QuestorManager", "Buy: Begin", Logging.White);
@@ -1381,6 +1398,91 @@ namespace QuestorManager
 
         private void SearchResults_SelectedIndexChanged(object sender, EventArgs e)
         {
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            String content = Clipboard.GetText();
+            int count = 0;
+
+            foreach (string line in content.Split('\n'))
+            {
+                string[] info = line.Split(',');
+                if (info.Count() == 4)
+                {
+                    int surplus;
+                    if (Int32.TryParse(info[3].Replace(".", ""), out surplus))
+                    {
+                        if (surplus < 0)
+                        {
+                            surplus *= -1;
+
+                            foreach (ListItems item in List)
+                            {
+                                string name = item.Name;
+                                if (string.IsNullOrEmpty(name))
+                                {
+                                    continue;
+                                }
+
+                                if (name.ToLower().Equals(info[0].ToLower()))
+                                {
+                                    ListViewItem listItem = new ListViewItem(item.Name);
+                                    listItem.SubItems.Add(surplus.ToString());
+                                    listItem.SubItems.Add(item.Id.ToString());
+                                    OrdersListView.Items.Add(listItem);
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            System.Windows.Forms.MessageBox.Show("Added " + count + " Tasks to your list.");
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem item in OrdersSearchList.CheckedItems)
+            {
+                ListViewItem listItem = new ListViewItem(item.Text);
+                listItem.SubItems.Add(OrdersUnits.Text);
+                listItem.SubItems.Add(item.SubItems[1].Text);
+                OrdersListView.Items.Add(listItem);
+            }
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+            LstItems.Items.Clear();
+
+            if (OrdersSearch.Text.Length > 4)
+            {
+                string[] search = OrdersSearch.Text.Split(' ');
+                foreach (ListItems item in List)
+                {
+                    string name = item.Name;
+                    if (string.IsNullOrEmpty(name))
+                    {
+                        continue;
+                    }
+
+                    bool found = search.All(t => name.IndexOf(t, StringComparison.OrdinalIgnoreCase) > -1);
+                    if (!found)
+                    {
+                        continue;
+                    }
+
+                    ListViewItem listItem1 = new ListViewItem(item.Name);
+                    listItem1.SubItems.Add(Convert.ToString(item.Id));
+                    OrdersSearchList.Items.Add(listItem1);
+                }
+            }
         }
     }
 }

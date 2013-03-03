@@ -40,6 +40,7 @@ namespace Questor
         private readonly DirectionalScannerBehavior _directionalScannerBehavior;
         private readonly DebugHangarsBehavior _debugHangarsBehavior;
         private readonly MiningBehavior _miningBehavior;
+        //private readonly BackgroundBehavior _backgroundbehavior;
         private readonly Cleanup _cleanup;
 
         public DateTime LastAction;
@@ -61,11 +62,13 @@ namespace Questor
             _directionalScannerBehavior = new DirectionalScannerBehavior();
             _debugHangarsBehavior = new DebugHangarsBehavior();
             _miningBehavior = new MiningBehavior();
+            //_backgroundbehavior = new BackgroundBehavior();
             _cleanup = new Cleanup();
             _watch = new Stopwatch();
 
             ScheduleCharacterName = Program._character;
             Cache.Instance.ScheduleCharacterName = ScheduleCharacterName;
+            Cache.Instance.NextStartupAction = DateTime.UtcNow;
             // State fixed on ExecuteMission
             _States.CurrentQuestorState = QuestorState.Idle;
 
@@ -75,14 +78,14 @@ namespace Questor
             }
             catch (Exception ex)
             {
-                Logging.Log("Startup", "Error on Loading DirectEve, maybe server is down", Logging.Orange);
-                Logging.Log("Startup", string.Format("DirectEVE: Exception {0}...", ex), Logging.White);
-                Cache.Instance.CloseQuestorCMDLogoff = false;
-                Cache.Instance.CloseQuestorCMDExitGame = true;
-                Cache.Instance.CloseQuestorEndProcess = true;
-                Settings.Instance.AutoStart = true;
-                Cache.Instance.ReasonToStopQuestor = "Error on Loading DirectEve, maybe license server is down";
-                Cache.Instance.SessionState = "Quitting";
+                Logging.Log("Questor", "Error on Loading DirectEve, maybe server is down", Logging.Orange);
+                Logging.Log("Questor", string.Format("DirectEVE: Exception {0}...", ex), Logging.White);
+                //Cache.Instance.CloseQuestorCMDLogoff = false;
+                //Cache.Instance.CloseQuestorCMDExitGame = true;
+                //Cache.Instance.CloseQuestorEndProcess = true;
+                //Settings.Instance.AutoStart = true;
+                //Cache.Instance.ReasonToStopQuestor = "Error on Loading DirectEve, maybe license server is down";
+                //Cache.Instance.SessionState = "Quitting";
                 Cleanup.CloseQuestor();
             }
             Cache.Instance.DirectEve = _directEve;
@@ -120,11 +123,13 @@ namespace Questor
                 Logging.Log("Questor", "make sure each toon has its own innerspace profile and specify the following startup program line:", Logging.Orange);
                 Logging.Log("Questor", "dotnet questor questor -x -c \"MyEVECharacterName\"", Logging.Orange);
             }
+
             Cache.Instance.StartTime = Program.StartTime;
-            Cache.Instance.QuestorStarted_DateTime = DateTime.Now;
+            Cache.Instance.QuestorStarted_DateTime = DateTime.UtcNow;
 
             // get the current process
             Process currentProcess = System.Diagnostics.Process.GetCurrentProcess();
+
             // get the physical mem usage
             Cache.Instance.TotalMegaBytesOfMemoryUsed = ((currentProcess.WorkingSet64 / 1024) / 1024);
             Logging.Log("Questor", "EVE instance: totalMegaBytesOfMemoryUsed - " + Cache.Instance.TotalMegaBytesOfMemoryUsed + " MB", Logging.White);
@@ -155,49 +160,62 @@ namespace Questor
                 Logging.Log("CombatMissionsBehavior.State is", _States.CurrentQuestorState.ToString(), Logging.White);
         }
 
-        public void RunOnce30SecAfterStartup()
+        public void RunOnceAfterStartup()
         {
-            if (!_runOnce30SecAfterStartupalreadyProcessed && DateTime.Now > Cache.Instance.QuestorStarted_DateTime.AddSeconds(30))
+            if (!_runOnce30SecAfterStartupalreadyProcessed && DateTime.UtcNow > Cache.Instance.QuestorStarted_DateTime.AddSeconds(15))
             {
                 if (Settings.Instance.CharacterXMLExists && DateTime.UtcNow > Cache.Instance.NextStartupAction)
                 {
+                    if (!string.IsNullOrEmpty(Settings.Instance.AmmoHangar) || !string.IsNullOrEmpty(Settings.Instance.LootHangar) && Cache.Instance.InStation)
+                    {
+                        Logging.Log("RunOnceAfterStartup", "Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenCorpHangar);", Logging.Debug);
+                        Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenCorpHangar);
+                    }
+
+                    Cache.Instance.DirectEve.Skills.RefreshMySkills();
                     _runOnce30SecAfterStartupalreadyProcessed = true;
+
+                    Cache.Instance.IterateShipTargetValues("RunOnceAfterStartup");  // populates ship target values from an XML
+                    Cache.Instance.IterateInvTypes("RunOnceAfterStartup");          // populates the prices of items (cant we use prices from the game now?!)
+                    Cache.Instance.IterateUnloadLootTheseItemsAreLootItems("RunOnceAfterStartup");       // populates the list of items we never want in our local cargo (used mainly in unloadloot)
+
                     if (Settings.Instance.UseInnerspace)
                     {
-                        Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: WindowText EVE - " + Settings.Instance.CharacterName, Logging.White);
+                        Logging.Log("RunOnceAfterStartup", "Running Innerspace command: WindowText EVE - " + Settings.Instance.CharacterName, Logging.White);
                         LavishScript.ExecuteCommand("WindowText EVE - " + Settings.Instance.CharacterName);
+
                         //enable windowtaskbar = on, so that minimized windows do not make us die in a fire.
-                        Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: timedcommand 100 windowtaskbar on " + Settings.Instance.CharacterName, Logging.White);
+                        Logging.Log("RunOnceAfterStartup", "Running Innerspace command: timedcommand 100 windowtaskbar on " + Settings.Instance.CharacterName, Logging.White);
                         LavishScript.ExecuteCommand("timedcommand 100 windowtaskbar on " + Settings.Instance.CharacterName);
 
                         if (Settings.Instance.EVEWindowXSize >= 100 && Settings.Instance.EVEWindowYSize >= 100)
                         {
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: timedcommand 150 WindowCharacteristics -size " + Settings.Instance.EVEWindowXSize + "x" + Settings.Instance.EVEWindowYSize, Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "Running Innerspace command: timedcommand 150 WindowCharacteristics -size " + Settings.Instance.EVEWindowXSize + "x" + Settings.Instance.EVEWindowYSize, Logging.White);
                             LavishScript.ExecuteCommand("timedcommand 150 WindowCharacteristics -size " + Settings.Instance.EVEWindowXSize + "x" + Settings.Instance.EVEWindowYSize);
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "Running Innerspace command: timedcommand 200 WindowCharacteristics -pos " + Settings.Instance.EVEWindowXPosition + "," + Settings.Instance.EVEWindowYPosition, Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "Running Innerspace command: timedcommand 200 WindowCharacteristics -pos " + Settings.Instance.EVEWindowXPosition + "," + Settings.Instance.EVEWindowYPosition, Logging.White);
                             LavishScript.ExecuteCommand("timedcommand 200 WindowCharacteristics -pos " + Settings.Instance.EVEWindowXPosition + "," + Settings.Instance.EVEWindowYPosition);
                         }
 
                         if (Settings.Instance.MinimizeEveAfterStartingUp)
                         {
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "MinimizeEveAfterStartingUp is true: Minimizing EVE with: WindowCharacteristics -visibility minimize", Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "MinimizeEveAfterStartingUp is true: Minimizing EVE with: WindowCharacteristics -visibility minimize", Logging.White);
                             LavishScript.ExecuteCommand("WindowCharacteristics -visibility minimize");
                         }
 
                         if (Settings.Instance.LoginQuestorArbitraryOSCmd)
                         {
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "After Questor Login: executing LoginQuestorArbitraryOSCmd", Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "After Questor Login: executing LoginQuestorArbitraryOSCmd", Logging.White);
                             LavishScript.ExecuteCommand("Echo [${Time}] OSExecute " + Settings.Instance.LoginQuestorOSCmdContents.ToString(CultureInfo.InvariantCulture));
                             LavishScript.ExecuteCommand("OSExecute " + Settings.Instance.LoginQuestorOSCmdContents.ToString(CultureInfo.InvariantCulture));
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "Done: executing LoginQuestorArbitraryOSCmd", Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "Done: executing LoginQuestorArbitraryOSCmd", Logging.White);
                         }
 
                         if (Settings.Instance.LoginQuestorLavishScriptCmd)
                         {
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "After Questor Login: executing LoginQuestorLavishScriptCmd", Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "After Questor Login: executing LoginQuestorLavishScriptCmd", Logging.White);
                             LavishScript.ExecuteCommand("Echo [${Time}] runscript " + Settings.Instance.LoginQuestorLavishScriptContents.ToString(CultureInfo.InvariantCulture));
                             LavishScript.ExecuteCommand("runscript " + Settings.Instance.LoginQuestorLavishScriptContents.ToString(CultureInfo.InvariantCulture));
-                            Logging.Log("Questor.RunOnce30SecAfterStartup", "Done: executing LoginQuestorLavishScriptCmd", Logging.White);
+                            Logging.Log("RunOnceAfterStartup", "Done: executing LoginQuestorLavishScriptCmd", Logging.White);
                         }
 
                         Logging.MaintainConsoleLogs();
@@ -205,8 +223,8 @@ namespace Questor
                 }
                 else
                 {
-                    Logging.Log("Questor.RunOnce30SecAfterStartup", "RunOnce30SecAfterStartup: Settings.Instance.CharacterName is still null", Logging.Orange);
-                    Cache.Instance.NextStartupAction = DateTime.UtcNow.AddSeconds(30);
+                    Logging.Log("RunOnceAfterStartup", "Settings.Instance.CharacterName is still null", Logging.Orange);
+                    Cache.Instance.NextStartupAction = DateTime.UtcNow.AddSeconds(10);
                     _runOnce30SecAfterStartupalreadyProcessed = false;
                     return;
                 }
@@ -360,7 +378,13 @@ namespace Questor
 
         public static void WalletCheck()
         {
-            if (_States.CurrentQuestorState == QuestorState.Mining) { return; }
+            if (_States.CurrentQuestorState == QuestorState.Mining ||
+                _States.CurrentQuestorState == QuestorState.CombatHelperBehavior ||
+                _States.CurrentQuestorState == QuestorState.DedicatedBookmarkSalvagerBehavior)
+                //_States.CurrentQuestorState == QuestorState.BackgroundBehavior)
+            {
+                return;
+            }
 
             Cache.Instance.LastWalletCheck = DateTime.UtcNow;
 
@@ -510,7 +534,7 @@ namespace Questor
             if (!OnframeProcessEveryPulse()) return;
             if (Settings.Instance.DebugOnframe) Logging.Log("Questor", "Onframe: this is Questor.cs [" + DateTime.UtcNow + "] by default the next pulse will be in [" + Time.Instance.QuestorPulse_milliseconds + "]milliseconds", Logging.Teal);
 
-            RunOnce30SecAfterStartup();
+            RunOnceAfterStartup();
 
             if (!Cache.Instance.Paused)
             {
@@ -655,6 +679,11 @@ namespace Questor
                             _States.CurrentQuestorState = QuestorState.CombatHelperBehavior;
                             break;
 
+                        case "custom":
+                            Logging.Log("Questor", "Start Custom Behavior", Logging.White);
+                            //_States.CurrentQuestorState = QuestorState.BackgroundBehavior;
+                            break;
+
                         case "directionalscanner":
                             Logging.Log("Questor", "Start DirectionalScanner Behavior", Logging.White);
                             _States.CurrentQuestorState = QuestorState.DirectionalScannerBehavior;
@@ -752,6 +781,14 @@ namespace Questor
                         }
                     }
                     break;
+
+                //case QuestorState.BackgroundBehavior:
+
+                    //
+                    // QuestorState will stay here until changed externally by the behavior we just kicked into starting
+                    //
+                    //_backgroundbehavior.ProcessState();
+                    //break;
             }
         }
     }

@@ -68,7 +68,7 @@ namespace Questor.Modules.BackgroundTasks
                     continue;
 
                 // Spread the salvagers around
-                EntityCache wreck = wrecks.OrderBy(w => salvagers.Count(s => s.LastTargetId == w.Id)).First();
+                EntityCache wreck = wrecks.OrderBy(w => salvagers.Count(s => s.LastTargetId == w.Id)).FirstOrDefault();
                 if (wreck == null)
                     return;
 
@@ -103,7 +103,7 @@ namespace Questor.Modules.BackgroundTasks
                 if (Cache.Instance.IgnoreTargets.Contains(wreck.Name))
                 {
                     Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] on the ignore list, ignoring.", Logging.White);
-                    wreck.UnlockTarget();
+                    //wreck.UnlockTarget();
                     continue;
                 }
 

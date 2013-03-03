@@ -154,7 +154,7 @@ namespace Questor.Modules.Combat
                 !Cache.Instance.InSpace ||                              // if we are not in space yet, wait...
                 Cache.Instance.DirectEve.ActiveShip.Entity == null ||   // What? No ship entity?
                 Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked || // There is no combat when cloaked
-                !Cache.Instance.UseDrones                            //if UseDrones is false
+                !Cache.Instance.UseDrones                               // if UseDrones is false
                 )
             {
                 _States.CurrentDroneState = DroneState.Idle;

@@ -27,8 +27,8 @@ namespace Questor.Behaviors
     public class DebugBehavior
     {
         private readonly Arm _arm;
-        private readonly Combat _combat;
-        private readonly Drones _drones;
+        //private readonly Combat _combat;
+        //private readonly Drones _drones;
 
         private readonly Panic _panic;
         private readonly Salvage _salvage;
@@ -50,8 +50,8 @@ namespace Questor.Behaviors
         public DebugBehavior()
         {
             _salvage = new Salvage();
-            _combat = new Combat();
-            _drones = new Drones();
+            //_combat = new Combat();
+            //_drones = new Drones();
             _unloadLoot = new UnloadLoot();
             _arm = new Arm();
             _panic = new Panic();

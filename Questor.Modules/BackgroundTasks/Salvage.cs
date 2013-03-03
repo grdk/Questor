@@ -45,7 +45,7 @@ namespace Questor.Modules.BackgroundTasks
 
         public static void MoveIntoRangeOfWrecks() // DO NOT USE THIS ANYWHERE EXCEPT A PURPOSEFUL SALVAGE BEHAVIOR! - if you use this while in combat it will make you go poof quickly.
         {
-            EntityCache closestWreck = Cache.Instance.UnlootedContainers.OrderBy(o => o.Distance).First();
+            EntityCache closestWreck = Cache.Instance.UnlootedContainers.OrderBy(o => o.Distance).FirstOrDefault();
             if (Math.Round(closestWreck.Distance, 0) > (int)Distance.SafeScoopRange && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closestWreck.Id))
             {
                 if (closestWreck.Distance > (int)Distance.WarptoDistance)
@@ -69,7 +69,7 @@ namespace Questor.Modules.BackgroundTasks
             {
                 if (Cache.Instance.NextApproachAction < DateTime.UtcNow)
                 {
-                    Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
+                    if (Cache.Instance.MyShipEntity.Velocity != 0) Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
                     Logging.Log("Salvage.NavigateIntorangeOfWrecks", "Stop ship, ClosestWreck [" + Math.Round(closestWreck.Distance, 0) + "] is in scooprange + [" + (int)Distance.SafeScoopRange + "] and we were approaching", Logging.White);
                 }
             }
@@ -90,6 +90,12 @@ namespace Questor.Modules.BackgroundTasks
             if (tractorBeams.Count == 0)
                 return;
 
+            if (Cache.Instance.InMission && Cache.Instance.InSpace && Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage < Settings.Instance.TractorBeamMinimumCapacitor)
+            {
+                if (Settings.Instance.DebugTractorBeams) Logging.Log("ActivateTractorBeams", "Capacitor [" + Math.Round(Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage, 0) + "%] below [" + Settings.Instance.TractorBeamMinimumCapacitor + "%] TractorBeamMinimumCapacitor", Logging.Red);
+                return;
+            }
+
             double tractorBeamRange = tractorBeams.Min(t => t.OptimalRange);
             List<EntityCache> wrecks = Cache.Instance.Targets.Where(t => (t.GroupId == (int)Group.Wreck || t.GroupId == (int)Group.CargoContainer) && t.Distance < tractorBeamRange).ToList();
 
@@ -107,8 +113,8 @@ namespace Questor.Modules.BackgroundTasks
                 //for  Cache.Instance.UnlootedContainers.Contains()
                 bool currentWreckUnlooted = false;
 
-                if (Settings.Instance.DebugTractorBeams) Logging.Log("Salvage.ActivateTractorBeams", "MyShip.Velocity [" + Cache.Instance.MyShip.Velocity + "]", Logging.Teal);
-                if (Cache.Instance.MyShip.Velocity > 300)
+                if (Settings.Instance.DebugTractorBeams) Logging.Log("Salvage.ActivateTractorBeams", "MyShip.Velocity [" + Cache.Instance.MyShipEntity.Velocity + "]", Logging.Teal);
+                if (Cache.Instance.MyShipEntity.Velocity > 300)
                 {
                     if (Settings.Instance.DebugTractorBeams) Logging.Log("Salvage.ActivateTractorBeams", "if (Cache.Instance.MyShip.Velocity > 300)", Logging.Teal);
                     foreach (EntityCache unlootedcontainer in Cache.Instance.UnlootedContainers)
@@ -196,6 +202,12 @@ namespace Questor.Modules.BackgroundTasks
                 return;
             }
 
+            if (Cache.Instance.InMission && Cache.Instance.InSpace && Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage < Settings.Instance.TractorBeamMinimumCapacitor)
+            {
+                if (Settings.Instance.DebugSalvage) Logging.Log("ActivateSalvagers", "Capacitor [" + Math.Round(Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage, 0) + "%] below [" + Settings.Instance.SalvagerMinimumCapacitor + "%] SalvagerMinimumCapacitor", Logging.Red);
+                return;
+            }
+
             double salvagerRange = salvagers.Min(s => s.OptimalRange);
             List<EntityCache> wrecks = Cache.Instance.Targets.Where(t => t.GroupId == (int)Group.Wreck && t.Distance < salvagerRange && Settings.Instance.WreckBlackList.All(a => a != t.TypeId)).ToList();
             if (Cache.Instance.SalvageAll)
@@ -222,7 +234,7 @@ namespace Questor.Modules.BackgroundTasks
                 ModuleNumber++;
 
                 // Spread the salvagers around
-                EntityCache wreck = wrecks.OrderBy(w => salvagers.Count(s => s.LastTargetId == w.Id)).First();
+                EntityCache wreck = wrecks.OrderBy(w => salvagers.Count(s => s.LastTargetId == w.Id)).FirstOrDefault();
                 if (wreck == null)
                 {
                     if (Settings.Instance.DebugSalvage) Logging.Log("Salvage.ActivateSalvagers", "Debug: if (wreck == null)", Logging.Teal); 
@@ -276,7 +288,7 @@ namespace Questor.Modules.BackgroundTasks
                 if (Cache.Instance.IgnoreTargets.Contains(wreck.Name))
                 {
                     Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] on the ignore list, ignoring.", Logging.White);
-                    wreck.UnlockTarget();
+                    wreck.UnlockTarget("Salvage");
                     Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                     continue;
                 }
@@ -286,7 +298,7 @@ namespace Questor.Modules.BackgroundTasks
                     if (Settings.Instance.WreckBlackList.Any(a => a == wreck.TypeId) && (wreck.Distance < (int)Distance.SafeScoopRange || wreck.IsWreckEmpty))
                     {
                         Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] within loot range,wreck is empty, or wreck is on our blacklist, unlocking container.", Logging.White);
-                        wreck.UnlockTarget();
+                        wreck.UnlockTarget("Salvage");
                         Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                         continue;
                     }
@@ -302,7 +314,7 @@ namespace Questor.Modules.BackgroundTasks
                 if (wreck.Distance < (int)Distance.SafeScoopRange)
                 {
                     Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] within loot range, unlocking container.", Logging.White);
-                    wreck.UnlockTarget();
+                    wreck.UnlockTarget("Salvage");
                     Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                     continue;
                 }
@@ -573,7 +585,9 @@ namespace Questor.Modules.BackgroundTasks
                         {
                             // Do we want to loot other items?
                             if (!isMissionItem && !LootEverything)
+                            {
                                 continue;
+                            }
                         }
 
                         // Do not pick up items that cannot enter in a freighter container (unless its the mission item)
@@ -588,6 +602,7 @@ namespace Questor.Modules.BackgroundTasks
                         }
 
                         // We are at our max, either make room or skip the item
+
                         if ((freeCargoCapacity - item.TotalVolume) <= (isMissionItem ? 0 : ReserveCargoCapacity))
                         {
                             // We can't drop items in this container anyway, well get it after its salvaged
@@ -601,11 +616,17 @@ namespace Questor.Modules.BackgroundTasks
                             // Make a list of items which are worth less
                             List<ItemCache> worthLess;
                             if (isMissionItem)
+                            {
                                 worthLess = shipsCargo;
+                            }
                             else if (item.IskPerM3.HasValue)
+                            {
                                 worthLess = shipsCargo.Where(sc => sc.IskPerM3.HasValue && sc.IskPerM3 < item.IskPerM3).ToList();
+                            }
                             else
+                            {
                                 worthLess = shipsCargo.Where(sc => sc.IskPerM3.HasValue).ToList();
+                            }
 
                             if (_States.CurrentQuestorState == QuestorState.CombatMissionsBehavior)
                             {
@@ -618,7 +639,9 @@ namespace Questor.Modules.BackgroundTasks
 
                                 // Consider dropping ammo if it concerns the mission item!
                                 if (!isMissionItem)
+                                {
                                     worthLess.RemoveAll(wl => Ammo.Any(a => a.TypeId == wl.TypeId));
+                                }
                             }
 
                             // Nothing is worth less then the current item
@@ -659,8 +682,14 @@ namespace Questor.Modules.BackgroundTasks
                             {
                                 // jettison loot
                                 if (DateTime.UtcNow.Subtract(Cache.Instance.LastJettison).TotalSeconds < Time.Instance.DelayBetweenJetcans_seconds)
+                                {
                                     return;
-                                Cache.Instance.LootedContainers.Add(containerEntity.Id); //new add
+                                }
+
+                                // why is this here? 
+                                // why would we EVER want to add the container with loot we want to the lootedcontainers 
+                                // list BEFORE we are done looting it? (we were out of space so we cant loot it atm)
+                                //Cache.Instance.LootedContainers.Add(containerEntity.Id); //new add
 
                                 Logging.Log("Salvage", "Jettisoning [" + moveTheseItems.Count + "] items to make room for the more valuable loot", Logging.White);
 
@@ -749,6 +778,9 @@ namespace Questor.Modules.BackgroundTasks
                 _States.CurrentSalvageState = SalvageState.Idle;
                 return;
             }
+
+            if (Settings.Instance.DoNotDoANYSalvagingOutsideMissionActions && !Cache.Instance.CurrentlyShouldBeSalvaging)
+                return;
 
             if (!Cache.Instance.OpenCargoHold("Salvage")) return;
 

@@ -31,7 +31,7 @@ namespace Questor.Modules.Activities
         private static DateTime _nextGetDestinationPath = DateTime.MinValue;
 
         private static List<long> _destinationRoute;
-        private static DirectLocation _location;
+        public static DirectLocation _location;
         private static IEnumerable<DirectBookmark> myHomeBookmarks;
         private static string _locationName;
         private static int _locationErrors;
@@ -71,7 +71,14 @@ namespace Questor.Modules.Activities
             {
                 _locationErrors = 0;
                 if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "Setting destination to [" + Logging.Yellow + _location.Name + Logging.Green + "]", Logging.Teal);
-                _location.SetDestination();
+                try
+                {
+                    _location.SetDestination();
+                }
+                catch (Exception)
+                {
+                    Logging.Log("Traveler", "NavigateToBookmarkSystem: set destination to [" + _location.ToString() + "] failed ", Logging.Debug);
+                }
                 return true;
             }
 
@@ -121,7 +128,14 @@ namespace Questor.Modules.Activities
                     _locationErrors = 0;
                     Logging.Log("Traveler", "Setting destination to [" + Logging.Yellow + _location.Name + Logging.Green + "]", Logging.Green);
                     if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "Setting destination to [" + Logging.Yellow + _location.Name + Logging.Green + "]", Logging.Teal);
-                    _location.SetDestination();
+                    try
+                    {
+                        _location.SetDestination();
+                    }
+                    catch (Exception)
+                    {
+                        Logging.Log("Traveler", "NavigateToBookmarkSystem: set destination to [" + _location.ToString() + "] failed ", Logging.Debug);
+                    }
                     Cache.Instance.NextTravelerAction = DateTime.UtcNow.AddSeconds(3);
                     return;
                 }
@@ -157,7 +171,7 @@ namespace Questor.Modules.Activities
             //if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "Destination is set: processing...", Logging.Teal);
 
             // Find the first waypoint
-            long waypoint = _destinationRoute.First();
+            long waypoint = _destinationRoute.FirstOrDefault();
 
             //if (Settings.Instance.DebugTraveler) Logging.Log("Traveler", "NavigateToBookmarkSystem: getting next waypoints locationname", Logging.Teal);
             _locationName = Cache.Instance.DirectEve.Navigation.GetLocationName(waypoint);
@@ -212,13 +226,12 @@ namespace Questor.Modules.Activities
                 }
                 return;
             }
-            if (!Combat.ReloadAll(Cache.Instance.MyShip)) return;
+            if (!Combat.ReloadAll(Cache.Instance.MyShipEntity)) return;
             return;
         }
 
         public static void TravelToMiningHomeBookmark(DirectBookmark myHomeBookmark, string module)
         {
-
             //
             // defending yourself is more important that the traveling part... so it comes first.
             //
@@ -411,7 +424,7 @@ namespace Questor.Modules.Activities
                 }
                 else if (EVENavdestination != null || EVENavdestination.Count != 0)
                 {
-                    if (EVENavdestination.Count == 1 && EVENavdestination.First() == 0)
+                    if (EVENavdestination.Count == 1 && EVENavdestination.FirstOrDefault() == 0)
                         EVENavdestination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
                 }
             }
@@ -535,7 +548,7 @@ namespace Questor.Modules.Activities
                 }
                 else if (EVENavdestination != null || EVENavdestination.Count != 0)
                 {
-                    if (EVENavdestination.Count == 1 && EVENavdestination.First() == 0)
+                    if (EVENavdestination.Count == 1 && EVENavdestination.FirstOrDefault() == 0)
                         EVENavdestination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
                 }
             }
@@ -603,7 +616,7 @@ namespace Questor.Modules.Activities
         public static void ProcessState()
         {
             // Only pulse state changes every 1.5s
-            if (DateTime.UtcNow.Subtract(_lastPulse).TotalMilliseconds < Time.Instance.QuestorPulse_milliseconds) //default: 1500ms
+            if (DateTime.UtcNow.Subtract(_lastPulse).TotalMilliseconds < 1200) //default: 1500ms
                 return;
 
             _lastPulse = DateTime.UtcNow;

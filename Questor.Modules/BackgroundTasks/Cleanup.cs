@@ -32,8 +32,8 @@
 
         public static bool CloseQuestor()
         {
-            // 30 seconds + 10 to 90 seconds + 1 to 9 seconds before restarting
-            int secRestart = (300 * 1) + Cache.Instance.RandomNumber(1, 9) * 100 + Cache.Instance.RandomNumber(1, 9) * 10;
+            // 30 seconds + 1 to 60 seconds + 1 to 60 seconds before restarting (this should make each instance a bit more spread out over 2 min)
+            int secRestart = (300 * 1) + Cache.Instance.RandomNumber(10, 600) + Cache.Instance.RandomNumber(10, 600);
 
             // so that IF we changed the state we would not be caught in a loop of re-entering QuestorState.CloseQuestor
             // keep in mind that CloseQuestor() itself DOES need to run multiple times across multiple iterations 
@@ -482,6 +482,7 @@
                             bool sayYes = false;
                             bool sayOk = false;
                             bool pause = false;
+                            bool stackHangars = false;
 
                             //bool sayno = false;
                             if (!string.IsNullOrEmpty(window.Html))
@@ -492,7 +493,19 @@
                                 gotoBaseNow |= window.Html.Contains("for a short unscheduled reboot");
 
                                 //fitting window errors - DO NOT undock if this happens! people should fix the fits they load to not move more modules than necessary as that causes problems and requires extra modules
-                                pause |= window.Html.Contains("Not all the items could be fitted");
+
+                                //if (_States.CurrentQuestorState == QuestorState.BackgroundBehavior)
+                                //{
+                                    //
+                                    // we do not care about fitting errors when using the BackgroundBehavior
+                                    //
+                                //    sayOk |= window.Html.Contains("Not all the items could be fitted");
+                                //}
+                                //else
+                                //{
+                                    pause |= window.Html.Contains("Not all the items could be fitted");   
+                                //}
+
                                 pause |= window.Html.Contains("Cannot move");
 
                                 if (window.Type == "form.MessageBox" && window.IsDialog && window.IsModal && window.IsKillable)
@@ -558,6 +571,12 @@
                                 sayYes |= window.Html.Contains("objectives requiring a total capacity");
                                 sayYes |= window.Html.Contains("your ship only has space for");
                                 sayYes |= window.Html.Contains("Are you sure you want to remove location");
+
+                                //
+                                // Accept fleet invites from this specific character
+                                //
+                                sayYes |= window.Html.Contains(Settings.Instance.CharacterToAcceptInvitesFrom + " wants you to join their fleet");
+
                                 //sayyes |= window.Html.Contains("Repairing these items will cost");
                                 sayYes |= window.Html.Contains("Are you sure you would like to decline this mission");
                                 //sayyes |= window.Html.Contains("You can decline a mission every four hours without penalty");
@@ -568,7 +587,14 @@
                                 //
                                 sayOk |= window.Html.Contains("Are you sure you want to accept this offer?");
                                 sayOk |= window.Html.Contains("Repairing these items will cost");
-                                
+                                sayOk |= window.Html.Contains("You do not have an outstanding invitation to this fleet.");
+
+                                //
+                                // Not Enough Shelf Space
+                                // "You can't add the Militants as there are simply too many items here already."
+                                //
+                                stackHangars |= window.Html.Contains("as there are simply too many items here already");
+
                                 //
                                 // Modal Dialogs the need "no" pressed
                                 //
@@ -625,6 +651,14 @@
                                 continue;
                             }
 
+                            if (stackHangars)
+                            {
+                                if (!Cache.Instance.StackAmmoHangar("Cleanup")) return;
+                                if (!Cache.Instance.StackLootHangar("Cleanup")) return;
+                                //if (!Cache.Instance.StackItemhangar("Cleanup")) return;
+                                continue;
+                            }
+
                             if (gotoBaseNow)
                             {
                                 Logging.Log("Cleanup", "Evidently the cluster is dieing... and CCP is restarting the server", Logging.White);
@@ -662,9 +696,9 @@
                             if (window.Name.Contains("_ShipDroneBay_") && window.Caption == "Drone Bay")
                             {
                                 if (Settings.Instance.UseDrones &&
-                                   (Cache.Instance.DirectEve.ActiveShip.GroupId != 31 &&
-                                    Cache.Instance.DirectEve.ActiveShip.GroupId != 28 &&
-                                    Cache.Instance.DirectEve.ActiveShip.GroupId != 380 &&
+                                   (Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Shuttle &&
+                                    Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Industrial &&
+                                    Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.TransportShip &&
                                     _droneBayClosingAttempts <= 1))
                                 {
                                     _lastCleanupAction = DateTime.UtcNow;

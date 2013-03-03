@@ -12,6 +12,7 @@ namespace Questor.Modules.States
         DelayedGotoBase,
         GotoBase,
         UnloadLoot,
+        WarpOutStation,
         GotoNearestStation,
         Error,
         Paused,
