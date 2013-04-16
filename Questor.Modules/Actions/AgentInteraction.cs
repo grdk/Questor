@@ -278,9 +278,10 @@ namespace Questor.Modules.Actions
             //
             // this loads the settings global to the mission, NOT individual pockets
             //
+            XDocument missionXml = null;
             try
             {
-                XDocument missionXml = XDocument.Load(Cache.Instance.MissionXmlPath);
+                missionXml = XDocument.Load(Cache.Instance.MissionXmlPath);
 
                 //load mission specific ammo and WeaponGroupID if specified in the mission xml
                 if (missionXml.Root != null)
@@ -310,17 +311,24 @@ namespace Questor.Modules.Actions
                     LoadSpecificAmmo(damageTypes.Distinct());
                     loadedAmmo = true;
                 }
-                missionXml = null;
-                System.GC.Collect();
             }
             catch (Exception ex)
             {
                 Logging.Log("AgentInteraction", "Error in mission (not pocket) specific XML tags [" + MissionName + "], " + ex.Message, Logging.Orange);
             }
+            finally
+            {
+                missionXml = null;
+                System.GC.Collect();
+            }
+
         }
 
         private void GetDungeonId(string html)
         {
+            return;
+            /*
+             * 
             HtmlAgilityPack.HtmlDocument missionHtml = new HtmlAgilityPack.HtmlDocument();
             missionHtml.LoadHtml(html);
             try
@@ -342,10 +350,13 @@ namespace Questor.Modules.Actions
             {
                 Logging.Log("GetDungeonId", "if (nd.Attributes[href].Value.Contains(dungeonID=)) - Exception: [" + exception + "]", Logging.White);
             }
+            *
+            */
         }
 
         private void GetFactionName(string html)
         {
+            Statistics.SaveMissionHTMLDetails(html, MissionName);
             // We are going to check damage types
             var logoRegex = new Regex("img src=\"factionlogo:(?<factionlogo>\\d+)");
 
@@ -436,7 +447,6 @@ namespace Questor.Modules.Actions
             Logging.Log("AgentInteraction", "Unable to find the faction for [" + MissionName + "] when searching through the html (listed below)", Logging.Orange);
 
             Logging.Log("AgentInteraction", html, Logging.White);
-            Statistics.SaveMissionHTMLDetails(html, MissionName);
             return;
         }
 
@@ -843,7 +853,7 @@ namespace Questor.Modules.Actions
                     if (currentAgent != null) currentAgent.DeclineTimer = DateTime.UtcNow.AddSeconds(secondsToWait);
                     CloseConversation();
 
-                    Cache.Instance.CurrentAgent = Cache.Instance.SwitchAgent;
+                    Cache.Instance.CurrentAgent = Cache.Instance.SwitchAgent();
                     Cache.Instance.CurrentAgentText = Cache.Instance.CurrentAgent.ToString(CultureInfo.InvariantCulture);
                     Logging.Log("AgentInteraction", "new agent is " + Cache.Instance.CurrentAgent, Logging.Yellow);
                     _States.CurrentAgentInteractionState = AgentInteractionState.ChangeAgent;
@@ -954,7 +964,7 @@ namespace Questor.Modules.Actions
         {
             if (DateTime.UtcNow < _nextAgentAction)
             {
-                Logging.Log("AgentInteraction.CloseConversation", "will continue in [" + Math.Round(_nextAgentAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + "]sec", Logging.Yellow);
+                //Logging.Log("AgentInteraction.CloseConversation", "will continue in [" + Math.Round(_nextAgentAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + "]sec", Logging.Yellow);
                 return;
             }
 

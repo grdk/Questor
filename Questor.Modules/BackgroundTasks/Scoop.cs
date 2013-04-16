@@ -336,7 +336,7 @@ namespace Questor.Modules.BackgroundTasks
             // Open a container in range
             foreach (EntityCache containerEntity in Cache.Instance.UnlootedWrecksAndSecureCans.Where(e => e.Distance <= (int)Distance.SafeScoopRange))
             {
-                // Emptry wreck, ignore
+                // Empty wreck, ignore
                 if (containerEntity.GroupId == (int)Group.Wreck && containerEntity.IsWreckEmpty)
                     continue;
 
@@ -433,7 +433,8 @@ namespace Questor.Modules.BackgroundTasks
                     break;
 
                 case ScoopState.Error:
-                    // Wait indefinately...
+
+                    // Wait indefinitely
                     break;
 
                 default:

@@ -27,8 +27,8 @@ namespace Questor.Modules.Activities
         private static DateTime _nextTravelerAction;
         private static DateTime _lastPulse;
         private static DateTime _nextGetLocation;
-        private static DateTime _nextSetEVENavDestination = DateTime.MinValue;
-        private static DateTime _nextGetDestinationPath = DateTime.MinValue;
+        //private static DateTime _nextSetEVENavDestination = DateTime.MinValue;
+        //private static DateTime _nextGetDestinationPath = DateTime.MinValue;
 
         private static List<long> _destinationRoute;
         public static DirectLocation _location;
@@ -39,7 +39,7 @@ namespace Questor.Modules.Activities
         private static Combat _combat;
         private static Drones _drones;
 
-        private static List<long> EVENavdestination { get; set; }
+        //private static List<long> EVENavdestination { get; set; }
 
         public DirectBookmark UndockBookmark { get; set; }
 
@@ -375,7 +375,15 @@ namespace Questor.Modules.Activities
                 if (!Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked || (Cache.Instance.LastSessionChange.AddSeconds(60) > DateTime.UtcNow))
                 {
                     if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToAgentsStation: _combat.ProcessState()", Logging.White);
-                    _combat.ProcessState();
+                    try
+                    {
+                        _combat.ProcessState();
+                    }
+                    catch (Exception exception)
+                    {
+                        Logging.Log("Travel.TravelToAgentsStation", "Exception [" + exception + "]", Logging.Debug);
+                    }
+
                     if (!Cache.Instance.TargetedBy.Any(t => t.IsWarpScramblingMe))
                     {
                         if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToAgentsStation: we are not scrambled - pulling drones.", Logging.White);

@@ -7,6 +7,9 @@
 //     http://www.thehackerwithin.com/license.htm)
 //   </copyright>
 // -------------------------------------------------------------------------------
+
+using System;
+
 namespace Questor.Modules.Lookup
 {
     using System.Xml.Linq;
@@ -15,9 +18,16 @@ namespace Questor.Modules.Lookup
     {
         public ShipTargetValue(XElement element)
         {
-            Name = (string)element.Attribute("name");
-            GroupId = (int)element.Attribute("groupid");
-            TargetValue = (int)element.Attribute("targetvalue");
+            try
+            {
+                Name = (string)element.Attribute("name");
+                GroupId = (int)element.Attribute("groupid");
+                TargetValue = (int)element.Attribute("targetvalue");
+            }
+            catch (Exception exception)
+            {
+                //add logging here
+            }
         }
 
         public string Name { get; private set; }

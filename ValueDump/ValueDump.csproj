@@ -11,8 +11,7 @@
     <RootNamespace>ValueDump</RootNamespace>
     <AssemblyName>ValueDump</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <OutputPath>$(ProjectDir)..\bin\$(Configuration)\</OutputPath>
     <CodeAnalysisLogFile>$(SolutionDir)bin\$(Configuration)\$(TargetName).$(TargetExt).CodeAnalysisLog.xml</CodeAnalysisLogFile>

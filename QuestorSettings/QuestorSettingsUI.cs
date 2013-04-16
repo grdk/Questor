@@ -15,7 +15,7 @@ namespace QuestorSettings
 {
     public partial class QuestorSettingsUI : Form
     {
-        string Localpath = Application.StartupPath;
+        private readonly string Localpath = Application.StartupPath;
 
         public string file { get; set; }
 

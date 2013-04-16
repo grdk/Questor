@@ -11,7 +11,7 @@
 namespace Questor.Modules.Caching
 {
     using System;
-    using System.Collections.Generic;
+    //using System.Collections.Generic;
     using DirectEve;
     using Questor.Modules.Lookup;
 

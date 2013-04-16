@@ -26,5 +26,6 @@ namespace Questor.Modules.Lookup
         WarpScrambler = 0,
         Webbing = 1,
         PriorityKillTarget = 2,
+        LowPriorityTarget = 3
     }
 }

@@ -100,13 +100,13 @@ namespace Questor.Modules.Actions
 
         public override bool PerformFinalDestinationTask()
         {
-            DirectBookmark localundockBookmark = UndockBookmark;
-            bool arrived = PerformFinalDestinationTask(StationId, StationName, ref _nextStationAction, ref localundockBookmark);
-            UndockBookmark = localundockBookmark;
+            DirectBookmark localUndockBookmark = UndockBookmark;
+            bool arrived = PerformFinalDestinationTask(StationId, StationName, ref _nextStationAction, ref localUndockBookmark);
+            UndockBookmark = localUndockBookmark;
             return arrived;
         }
 
-        internal static bool PerformFinalDestinationTask(long stationId, string stationName, ref DateTime nextAction, ref DirectBookmark localundockBookmark)
+        internal static bool PerformFinalDestinationTask(long stationId, string stationName, ref DateTime nextAction, ref DirectBookmark localUndockBookmark)
         {
             if (Cache.Instance.InStation && Cache.Instance.DirectEve.Session.StationId == stationId)
             {
@@ -135,13 +135,13 @@ namespace Questor.Modules.Actions
                     //    //var bookmarks = Cache.Instance.DirectEve.Bookmarks.Where(b => b.Title.Contains(Cache.Instance.DirectEve.GetLocationName(Cache.Instance.DirectEve.Session.StationId ?? 0)) && b.Title.Contains(Settings.Instance.UndockPrefix));
                     //    if (bookmarks != null && bookmarks.Count() > 0)
                     //    {
-                    //        localundockBookmark = bookmarks.FirstOrDefault();
-                    //        if (localundockBookmark.X == null || localundockBookmark.Y == null || localundockBookmark.Z == null)
+                    //        localUndockBookmark = bookmarks.FirstOrDefault();
+                    //        if (localUndockBookmark.X == null || localUndockBookmark.Y == null || localUndockBookmark.Z == null)
                     //        {
-                    //            Logging.Log("TravelerDestination.StationDestination: undock bookmark [" + localundockBookmark.Title + "] is unusable: it has no coords");
-                    //            localundockBookmark = null;
+                    //            Logging.Log("TravelerDestination.StationDestination: undock bookmark [" + localUndockBookmark.Title + "] is unusable: it has no coords");
+                    //            localUndockBookmark = null;
                     //        }
-                    //        else Logging.Log("TravelerDestination.StationDestination: undock bookmark [" + localundockBookmark.Title + "] is usable: it has coords");
+                    //        else Logging.Log("TravelerDestination.StationDestination: undock bookmark [" + localUndockBookmark.Title + "] is usable: it has coords");
                     //   }
                     //    else Logging.Log("TravelerDestination.StationDestination: you do not have an undock bookmark that has the prefix: " + Settings.Instance.UndockPrefix + " in local"); //+ Cache.Instance.DirectEve.GetLocationName((long)Cache.Instance.DirectEve.Session.StationId) + " and " + Settings.Instance.UndockPrefix + " did not both exist in a bookmark");
                     //}
@@ -167,20 +167,20 @@ namespace Questor.Modules.Actions
 
             _undockAttempts = 0;
 
-            if (localundockBookmark != null)
+            if (localUndockBookmark != null)
             {
-                double distance = Cache.Instance.DistanceFromMe(localundockBookmark.X ?? 0, localundockBookmark.Y ?? 0, localundockBookmark.Z ?? 0);
+                double distance = Cache.Instance.DistanceFromMe(localUndockBookmark.X ?? 0, localUndockBookmark.Y ?? 0, localUndockBookmark.Z ?? 0);
                 if (distance < (int)Distance.WarptoDistance)
                 {
-                    Logging.Log("TravelerDestination.BookmarkDestination", "Arrived at undock bookmark [" + Logging.Yellow + localundockBookmark.Title + Logging.Green + "]", Logging.White);
-                    localundockBookmark = null;
+                    Logging.Log("TravelerDestination.BookmarkDestination", "Arrived at undock bookmark [" + Logging.Yellow + localUndockBookmark.Title + Logging.Green + "]", Logging.White);
+                    localUndockBookmark = null;
                 }
                 else
                 {
-                    Logging.Log("TravelerDestination.BookmarkDestination", "Warping to undock bookmark [" + Logging.Yellow + localundockBookmark.Title + Logging.Green + "][" + Math.Round((distance / 1000) / 149598000, 2) + " AU away]", Logging.White);
+                    Logging.Log("TravelerDestination.BookmarkDestination", "Warping to undock bookmark [" + Logging.Yellow + localUndockBookmark.Title + Logging.Green + "][" + Math.Round((distance / 1000) / 149598000, 2) + " AU away]", Logging.White);
 
                     //if (!Combat.ReloadAll(Cache.Instance.EntitiesNotSelf.OrderBy(t => t.Distance).FirstOrDefault(t => t.Distance < (double)Distance.OnGridWithMe))) return false;
-                    localundockBookmark.WarpTo();
+                    localUndockBookmark.WarpTo();
                     nextAction = DateTime.UtcNow.AddSeconds(10);
                     return false;
                 }
@@ -209,7 +209,7 @@ namespace Questor.Modules.Actions
             {
                 if (DateTime.UtcNow > Cache.Instance.NextApproachAction)
                 {
-                    Logging.Log("TravelerDestintion.StationDestination", "Approaching[" + Logging.Yellow + entity.Name + Logging.Green + "] which is [" + Math.Round(entity.Distance / 1000, 0) + "k away]", Logging.Green);
+                    Logging.Log("TravelerDestination.StationDestination", "Approaching[" + Logging.Yellow + entity.Name + Logging.Green + "] which is [" + Math.Round(entity.Distance / 1000, 0) + "k away]", Logging.Green);
                     entity.Approach();
                     return false;
                 }
@@ -267,7 +267,7 @@ namespace Questor.Modules.Actions
 
         internal static bool PerformFinalDestinationTask(DirectBookmark bookmark, int warpDistance, ref DateTime nextAction, ref DirectBookmark undockBookmark)
         {
-            // The bookmark no longer exists, assume we aren't there
+            // The bookmark no longer exists, assume we are not there
             if (bookmark == null)
                 return false;
 
@@ -336,15 +336,15 @@ namespace Questor.Modules.Actions
 
             if (undockBookmark != null)
             {
-                double distancetoundockbookmark = Cache.Instance.DistanceFromMe(bookmark.X ?? 0, bookmark.Y ?? 0, bookmark.Z ?? 0);
-                if (distancetoundockbookmark < (int)Distance.WarptoDistance)
+                double distanceToUndockBookmark = Cache.Instance.DistanceFromMe(bookmark.X ?? 0, bookmark.Y ?? 0, bookmark.Z ?? 0);
+                if (distanceToUndockBookmark < (int)Distance.WarptoDistance)
                 {
                     Logging.Log("TravelerDestination.BookmarkDestination", "Arrived at undock bookmark [" + Logging.Yellow + undockBookmark.Title + Logging.Green + "]", Logging.Green);
                     undockBookmark = null;
                 }
                 else
                 {
-                    Logging.Log("TravelerDestination.BookmarkDestination", "Warping to undock bookmark [" + Logging.Yellow + undockBookmark.Title + Logging.Green + "][" + Logging.Yellow + Math.Round((distancetoundockbookmark / 1000) / 149598000, 2) + Logging.Green + " AU away]", Logging.Green);
+                    Logging.Log("TravelerDestination.BookmarkDestination", "Warping to undock bookmark [" + Logging.Yellow + undockBookmark.Title + Logging.Green + "][" + Logging.Yellow + Math.Round((distanceToUndockBookmark / 1000) / 149598000, 2) + Logging.Green + " AU away]", Logging.Green);
 
                     //if (!Combat.ReloadAll(Cache.Instance.EntitiesNotSelf.OrderBy(t => t.Distance).FirstOrDefault(t => t.Distance < (double)Distance.OnGridWithMe))) return false;
                     undockBookmark.WarpTo();

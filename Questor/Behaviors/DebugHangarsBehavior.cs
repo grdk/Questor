@@ -460,14 +460,14 @@ namespace Questor.Behaviors
                         if (_States.CurrentDebugHangarBehaviorState == DebugHangarsBehaviorState.Traveler) _States.CurrentDebugHangarBehaviorState = DebugHangarsBehaviorState.Error;
                         return;
                     }
-                    else if (destination.Count == 1 && destination.First() == 0)
+                    else if (destination.Count == 1 && destination.FirstOrDefault() == 0)
                         destination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
 
                     if (Traveler.Destination == null || Traveler.Destination.SolarSystemId != destination.Last())
                     {
                         IEnumerable<DirectBookmark> bookmarks = Cache.Instance.DirectEve.Bookmarks.Where(b => b.LocationId == destination.Last()).ToList();
                         if (bookmarks != null && bookmarks.Any())
-                            Traveler.Destination = new BookmarkDestination(bookmarks.OrderBy(b => b.CreatedOn).First());
+                            Traveler.Destination = new BookmarkDestination(bookmarks.OrderBy(b => b.CreatedOn).FirstOrDefault());
                         else
                         {
                             Logging.Log("DebugHangarsBehavior.Traveler", "Destination: [" + Cache.Instance.DirectEve.Navigation.GetLocation(destination.Last()).Name + "]", Logging.White);

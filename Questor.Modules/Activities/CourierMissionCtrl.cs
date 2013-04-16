@@ -13,7 +13,7 @@ namespace Questor.Modules.Activities
     public class CourierMissionCtrl
     {
         //private DateTime _nextCourierAction;
-        private readonly Traveler _traveler;
+        //private readonly Traveler _traveler;
         private readonly AgentInteraction _agentInteraction;
         private int moveItemRetryCounter;
         private DateTime _nextCourierMissionCtrlPulse = DateTime.UtcNow.AddDays(-30);
@@ -24,7 +24,7 @@ namespace Questor.Modules.Activities
         ///
         public CourierMissionCtrl()
         {
-            _traveler = new Traveler();
+            //_traveler = new Traveler();
             _agentInteraction = new AgentInteraction();
         }
 
@@ -118,7 +118,7 @@ namespace Questor.Modules.Activities
                     //
                     // be flexible on the "from" as we might have the item needed in the ammohangar or loothangar if it is not available in the itemhangar
                     //
-                    from = Cache.Instance.ItemHangar;
+                    //from = Cache.Instance.ItemHangar;
                     if (Cache.Instance.ItemHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
                     {
                         from = Cache.Instance.ItemHangar;

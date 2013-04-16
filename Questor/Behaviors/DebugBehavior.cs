@@ -464,7 +464,7 @@ namespace Questor.Behaviors
                         return;
                     }
 
-                    if (destination.Count == 1 && destination.First() == 0)
+                    if (destination.Count == 1 && destination.FirstOrDefault() == 0)
                     {
                         destination[0] = Cache.Instance.DirectEve.Session.SolarSystemId ?? -1;
                     }
@@ -472,7 +472,7 @@ namespace Questor.Behaviors
                     {
                         IEnumerable<DirectBookmark> bookmarks = Cache.Instance.DirectEve.Bookmarks.Where(b => b.LocationId == destination.Last()).ToList();
                         if (bookmarks != null && bookmarks.Any())
-                            Traveler.Destination = new BookmarkDestination(bookmarks.OrderBy(b => b.CreatedOn).First());
+                            Traveler.Destination = new BookmarkDestination(bookmarks.OrderBy(b => b.CreatedOn).FirstOrDefault());
                         else
                         {
                             Logging.Log("DebugBehavior.Traveler", "Destination: [" + Cache.Instance.DirectEve.Navigation.GetLocation(destination.Last()).Name + "]", Logging.White);
@@ -554,6 +554,7 @@ namespace Questor.Behaviors
                         if (_States.CurrentDebugBehaviorState == DebugBehaviorState.GotoNearestStation) _States.CurrentDebugBehaviorState = DebugBehaviorState.Error; //should we goto idle here?
                     }
                     break;
+
                 case DebugBehaviorState.LogCombatTargets:
                     //combat targets
                     //List<EntityCache> combatentitiesInList =  Cache.Instance.Entities.Where(t => t.IsNpc && !t.IsBadIdea && t.CategoryId == (int)CategoryID.Entity && !t.IsContainer && t.Distance < Cache.Instance.MaxRange && !Cache.Instance.IgnoreTargets.Contains(t.Name.Trim())).ToList();
@@ -564,7 +565,7 @@ namespace Questor.Behaviors
 
                 case DebugBehaviorState.LogDroneTargets:
                     //drone targets
-                    List<EntityCache> droneentitiesInList = Cache.Instance.Entities.Where(e => e.IsNpc && !e.IsBadIdea && e.CategoryId == (int)CategoryID.Entity && !e.IsContainer && !e.IsSentry && e.GroupId != (int)Group.LargeCollidableStructure).ToList();
+                    List<EntityCache> droneentitiesInList = Cache.Instance.Entities.Where(e => e.IsNpc && !e.IsBadIdea && e.CategoryId == (int)CategoryID.Entity && !e.IsContainer && !e.IsSentry && e.GroupId != (int)Group.LargeColidableStructure).ToList();
                     Statistics.EntityStatistics(droneentitiesInList);
                     Cache.Instance.Paused = true;
                     break;

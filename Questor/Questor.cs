@@ -46,7 +46,9 @@ namespace Questor
         public DateTime LastAction;
         public string ScheduleCharacterName = Program._character;
         public bool PanicStateReset = false;
-        private bool _runOnce30SecAfterStartupalreadyProcessed;
+        private bool _runOnceAfterStartupalreadyProcessed;
+        private bool _runOnceInStationAfterStartupalreadyProcessed;
+
 
         private readonly Stopwatch _watch;
 
@@ -162,18 +164,12 @@ namespace Questor
 
         public void RunOnceAfterStartup()
         {
-            if (!_runOnce30SecAfterStartupalreadyProcessed && DateTime.UtcNow > Cache.Instance.QuestorStarted_DateTime.AddSeconds(15))
+            if (!_runOnceAfterStartupalreadyProcessed && DateTime.UtcNow > Cache.Instance.QuestorStarted_DateTime.AddSeconds(15))
             {
                 if (Settings.Instance.CharacterXMLExists && DateTime.UtcNow > Cache.Instance.NextStartupAction)
                 {
-                    if (!string.IsNullOrEmpty(Settings.Instance.AmmoHangar) || !string.IsNullOrEmpty(Settings.Instance.LootHangar) && Cache.Instance.InStation)
-                    {
-                        Logging.Log("RunOnceAfterStartup", "Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenCorpHangar);", Logging.Debug);
-                        Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenCorpHangar);
-                    }
-
                     Cache.Instance.DirectEve.Skills.RefreshMySkills();
-                    _runOnce30SecAfterStartupalreadyProcessed = true;
+                    _runOnceAfterStartupalreadyProcessed = true;
 
                     Cache.Instance.IterateShipTargetValues("RunOnceAfterStartup");  // populates ship target values from an XML
                     Cache.Instance.IterateInvTypes("RunOnceAfterStartup");          // populates the prices of items (cant we use prices from the game now?!)
@@ -225,7 +221,31 @@ namespace Questor
                 {
                     Logging.Log("RunOnceAfterStartup", "Settings.Instance.CharacterName is still null", Logging.Orange);
                     Cache.Instance.NextStartupAction = DateTime.UtcNow.AddSeconds(10);
-                    _runOnce30SecAfterStartupalreadyProcessed = false;
+                    _runOnceAfterStartupalreadyProcessed = false;
+                    return;
+                }
+            }
+        }
+
+        public void RunOnceInStationAfterStartup()
+        {
+            if (!_runOnceInStationAfterStartupalreadyProcessed && DateTime.UtcNow > Cache.Instance.QuestorStarted_DateTime.AddSeconds(15) && Cache.Instance.InStation && DateTime.Now > Cache.Instance.LastInSpace.AddSeconds(10))
+            {
+                if (Settings.Instance.CharacterXMLExists && DateTime.UtcNow > Cache.Instance.NextStartupAction)
+                {
+                    if (!string.IsNullOrEmpty(Settings.Instance.AmmoHangar) || !string.IsNullOrEmpty(Settings.Instance.LootHangar) && Cache.Instance.InStation)
+                    {
+                        Logging.Log("RunOnceAfterStartup", "Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenCorpHangar);", Logging.Debug);
+                        Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.OpenCorpHangar);
+                    }
+
+                    _runOnceInStationAfterStartupalreadyProcessed = true;
+                }
+                else
+                {
+                    Logging.Log("RunOnceAfterStartup", "Settings.Instance.CharacterName is still null", Logging.Orange);
+                    Cache.Instance.NextStartupAction = DateTime.UtcNow.AddSeconds(10);
+                    _runOnceInStationAfterStartupalreadyProcessed = false;
                     return;
                 }
             }
@@ -535,6 +555,7 @@ namespace Questor
             if (Settings.Instance.DebugOnframe) Logging.Log("Questor", "Onframe: this is Questor.cs [" + DateTime.UtcNow + "] by default the next pulse will be in [" + Time.Instance.QuestorPulse_milliseconds + "]milliseconds", Logging.Teal);
 
             RunOnceAfterStartup();
+            RunOnceInStationAfterStartup();
 
             if (!Cache.Instance.Paused)
             {

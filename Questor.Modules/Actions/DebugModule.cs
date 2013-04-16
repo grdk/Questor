@@ -75,11 +75,13 @@ namespace Questor.Modules.Actions
                 //
 
                 case DebugModuleState.Done:
-                    // Wait indefinately...
+
+                    // Wait indefinitely...
                     break;
 
                 case DebugModuleState.Error:
-                    // Wait indefinately...
+
+                    // Wait indefinitely...
                     break;
 
                 default:
