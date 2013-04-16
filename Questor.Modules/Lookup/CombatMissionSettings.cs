@@ -49,17 +49,23 @@ namespace Questor.Modules.Lookup
                 try
                 {
                     XDocument missionXml = XDocument.Load(Cache.Instance.MissionXmlPath);
-                    //load mission specific ammo and weapongroupid if specified in the mission xml
+
+                    //load mission specific ammo and weaponGroupId if specified in the mission xml
                     if (missionXml.Root != null)
                     {
                         XElement ammoTypes = missionXml.Root.Element("missionammo");
                         if (ammoTypes != null)
+                        {
                             foreach (XElement ammo in ammoTypes.Elements("ammo"))
+                            {
                                 Cache.Instance.MissionAmmo.Add(new Ammo(ammo));
+                            }
+                        }
 
                         Cache.Instance.MissionWeaponGroupId = (int?)missionXml.Root.Element("weaponGroupId") ?? 0;
                         Cache.Instance.MissionUseDrones = (bool?)missionXml.Root.Element("useDrones");
                     }
+
                     //should this default to true?
                     //Cache.Instance.MissionDroneTypeID = (int?)missionXml.Root.Element("DroneTypeId") ?? Settings.Instance.DroneTypeId;
                     IEnumerable<DamageType> damageTypes = missionXml.XPathSelectElements("//damagetype").Select(

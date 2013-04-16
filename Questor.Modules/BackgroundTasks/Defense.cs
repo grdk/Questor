@@ -29,8 +29,8 @@ namespace Questor.Modules.BackgroundTasks
         private int _sensorDampenerScriptAttempts;
         private int _trackingComputerScriptAttempts;
         private int _trackingDisruptorScriptAttempts;
-        private int _ancillaryShieldBoosterAttempts;
-        private int _capacitorInjectorAttempts;
+        //private int _ancillaryShieldBoosterAttempts;
+        //private int _capacitorInjectorAttempts;
 
         private int ModuleNumber { get; set; }
 
@@ -289,7 +289,7 @@ namespace Questor.Modules.BackgroundTasks
 
                         if (module.GroupId == (int)Group.AncillaryShieldBooster)
                         {
-                            _ancillaryShieldBoosterAttempts++;
+                            //_ancillaryShieldBoosterAttempts++;
                             if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "ancillaryShieldBooster Found", Logging.White);
                             scriptToLoad = Cache.Instance.CheckCargoForItem(Settings.Instance.AncillaryShieldBoosterScript, 1);
                             if (scriptToLoad != null)
@@ -323,7 +323,7 @@ namespace Questor.Modules.BackgroundTasks
 
                         if (module.GroupId == (int)Group.CapacitorInjector)
                         {
-                            _capacitorInjectorAttempts++;
+                            //_capacitorInjectorAttempts++;
                             if (Settings.Instance.DebugLoadScripts) Logging.Log("Defense", "capacitorInjector Found", Logging.White);
                             scriptToLoad = Cache.Instance.CheckCargoForItem(Settings.Instance.CapacitorInjectorScript, 1);
                             if (scriptToLoad != null)
@@ -449,7 +449,7 @@ namespace Questor.Modules.BackgroundTasks
                 else
                     continue;
 
-                // Module is either for Cap or Tank recharging, so we look at these seperated (or random things will happen, like cap recharging when we need to repair but cap is near max) 
+                // Module is either for Cap or Tank recharging, so we look at these separated (or random things will happen, like cap recharging when we need to repair but cap is near max) 
                 // Cap recharging
                 bool inCombat = Cache.Instance.TargetedBy.Any();
                 if (!module.IsActive && inCombat && cap < Settings.Instance.InjectCapPerc && module.GroupId == (int)Group.CapacitorInjector && module.CurrentCharges > 0)
@@ -576,10 +576,13 @@ namespace Questor.Modules.BackgroundTasks
                 if (!Settings.Instance.SpeedTank && Cache.Instance.IsApproachingOrOrbiting)
                 {
                     // Activate if target is far enough
-                    activate &= Cache.Instance.Approaching.Distance > Settings.Instance.MinimumPropulsionModuleDistance;
+                    if (Cache.Instance.Approaching != null)
+                    {
+                        activate &= Cache.Instance.Approaching.Distance > Settings.Instance.MinimumPropulsionModuleDistance;
 
-                    // Deactivate if target is too close
-                    deactivate |= Cache.Instance.Approaching.Distance < Settings.Instance.MinimumPropulsionModuleDistance;
+                        // Deactivate if target is too close
+                        deactivate |= Cache.Instance.Approaching.Distance < Settings.Instance.MinimumPropulsionModuleDistance;    
+                    }
                 }
 
                 // If we have less then x% cap, do not activate the module

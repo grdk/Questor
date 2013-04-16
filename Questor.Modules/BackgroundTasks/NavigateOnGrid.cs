@@ -301,8 +301,8 @@ namespace Questor.Modules.BackgroundTasks
                         if (!Cache.Instance.IsApproachingOrOrbiting)
                         {
                             Logging.Log("CombatMissionCtrl.NavigateToObject", "We are not approaching nor orbiting", Logging.Teal);
-                            const bool orbitStructure = true;
-                            var structure = Cache.Instance.Entities.Where(i => i.GroupId == (int)Group.LargeCollidableStructure || i.Name.Contains("Gate") || i.Name.Contains("Beacon")).OrderBy(t => t.Distance).ThenBy(t => t.Distance).FirstOrDefault();
+                            bool orbitStructure = Settings.Instance.OrbitStructure;
+                            var structure = Cache.Instance.Entities.Where(i => i.GroupId == (int)Group.LargeColidableStructure || i.Name.Contains("Gate") || i.Name.Contains("Beacon")).OrderBy(t => t.Distance).ThenBy(t => t.Distance).FirstOrDefault();
 
                             if (orbitStructure && structure != null)
                             {
@@ -326,7 +326,7 @@ namespace Questor.Modules.BackgroundTasks
                     }
                 }
             }
-            else //if we are not speed tanking then check optimalrange setting, if that isn't set use the less of targeting range and weapons range to dictate engagement range
+            else //if we are not speed tanking then check optimalrange setting, if that is not set use the less of targeting range and weapons range to dictate engagement range
             {
                 if (DateTime.UtcNow > Cache.Instance.NextApproachAction)
                 {

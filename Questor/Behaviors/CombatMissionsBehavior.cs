@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using DirectEve;
 using Questor.Modules.Caching;
@@ -37,6 +38,7 @@ namespace Questor.Behaviors
         private DateTime _lastPulse;
         private DateTime _lastSalvageTrip = DateTime.MinValue;
         private readonly CombatMissionCtrl _combatMissionCtrl;
+        private readonly Traveler _traveler;
         private readonly Panic _panic;
         private readonly Storyline _storyline;
         private readonly Statistics _statistics;
@@ -68,6 +70,7 @@ namespace Questor.Behaviors
         {
             _lastPulse = DateTime.MinValue;
 
+            _traveler = new Traveler();
             _random = new Random();
             _salvage = new Salvage();
             _combat = new Combat();
@@ -411,7 +414,7 @@ namespace Questor.Behaviors
                         {
                             Logging.Log("CombatMissionsBehavior", "Storyline detected, doing storyline.", Logging.White);
                             _storyline.Reset();
-                            _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Storyline;
+                            _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.PrepareStorylineSwitchAgents;
                             break;
                         }
                         Logging.Log("AgentInteraction", "Start conversation [Start Mission]", Logging.White);
@@ -1075,7 +1078,7 @@ namespace Questor.Behaviors
                     Cache.Instance.SalvageAll = true;
                     Cache.Instance.OpenWrecks = true;
 
-                    EntityCache deadlyNPC = Cache.Instance.Entities.Where(t => t.Distance < (int)Distance.OnGridWithMe && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeCollidableStructure).OrderBy(t => t.Distance).FirstOrDefault();
+                    EntityCache deadlyNPC = Cache.Instance.Entities.Where(t => t.Distance < (int)Distance.OnGridWithMe && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeColidableStructure).OrderBy(t => t.Distance).FirstOrDefault();
                     if (deadlyNPC != null)
                     {
                         // found NPCs that will likely kill out fragile salvage boat!
@@ -1250,6 +1253,54 @@ namespace Questor.Behaviors
                         // We have reached a timeout, revert to ExecutePocketActions (e.g. most likely Activate)
                         _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.SalvageUseGate;
                     }
+                    break;
+
+                case CombatMissionsBehaviorState.PrepareStorylineSwitchAgents:
+                    if(Settings.Instance.MultiAgentSupport)
+                    {
+                        //
+                        // change agents to agent #1, so we can go there and use the storyline ships (transport, shuttle, etc)
+                        //
+                        Cache.Instance.CurrentAgent = Cache.Instance.SwitchAgent();
+                        Cache.Instance.CurrentAgentText = Cache.Instance.CurrentAgent.ToString(CultureInfo.InvariantCulture);
+                        Logging.Log("AgentInteraction", "new agent is " + Cache.Instance.CurrentAgent, Logging.Yellow);    
+                    }
+
+                    _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.PrepareStorylineGotoBase;
+                    break;
+
+                case CombatMissionsBehaviorState.PrepareStorylineGotoBase:
+                    if (Settings.Instance.DebugGotobase) Logging.Log("CombatMissionsBehavior", "PrepareStorylineGotoBase: AvoidBumpingThings()", Logging.White);
+
+                    if (Settings.Instance.AvoidBumpingThings)
+                    {
+                        if (Settings.Instance.DebugGotobase) Logging.Log("CombatMissionsBehavior", "PrepareStorylineGotoBase: if (Settings.Instance.AvoidBumpingThings)", Logging.White);
+                        NavigateOnGrid.AvoidBumpingThings(Cache.Instance.BigObjects.FirstOrDefault(), "CombatMissionsBehaviorState.PrepareStorylineGotoBase");
+                    }
+
+                    if (Settings.Instance.DebugGotobase) Logging.Log("CombatMissionsBehavior", "PrepareStorylineGotoBase: Traveler.TravelHome()", Logging.White);
+
+                    Traveler.TravelHome("CombatMissionsBehavior.TravelHome");
+
+                    if (_States.CurrentTravelerState == TravelerState.AtDestination && DateTime.UtcNow > Cache.Instance.LastInSpace.AddSeconds(5)) // || DateTime.UtcNow.Subtract(Cache.Instance.EnteredCloseQuestor_DateTime).TotalMinutes > 10)
+                    {
+                        if (Settings.Instance.DebugGotobase) Logging.Log("CombatMissionsBehavior", "PrepareStorylineGotoBase: We are at destination", Logging.White);
+                        Cache.Instance.GotoBaseNow = false; //we are there - turn off the 'forced' gotobase
+                        if (AgentID != 0)
+                        {
+                            try
+                            {
+                                Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID, true);
+                            }
+                            catch (Exception exception)
+                            {
+                                Logging.Log("CombatMissionsBehavior", "Cache.Instance.Mission = Cache.Instance.GetAgentMission(AgentID); [" + exception + "]", Logging.Teal);
+                            }
+                        }
+
+                        _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.Storyline;
+                    }
+
                     break;
 
                 case CombatMissionsBehaviorState.Storyline:

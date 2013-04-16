@@ -20,9 +20,9 @@ namespace Questor.Modules.Lookup
         GateActivationRange = 2200,
         CloseToGateActivationRange = GateActivationRange + 5000,
         WayTooClose = -10100, // This is usually used to determine how far inside the 'docking ring' of an acceleration gate we are.
-        OrbitDistanceCushion = 5000, // This is used to determine when to stop orbiting or approaching, if not speed tanking (orbit distance + orbitdistancecushion)
-        OptimalRangeCushion = 5000, // This is used to determine when to stop approaching, if not speed tanking (optimal distance + optimaldistancecushion)
-        InsideThisRangeIsLIkelyToBeMostlyFrigates = 9000, // 9k - overall this assumption works, use with caution
+        OrbitDistanceCushion = 5000, // This is used to determine when to stop orbiting or approaching, if not speed tanking (orbit distance + orbitDistanceCushion)
+        OptimalRangeCushion = 5000, // This is used to determine when to stop approaching, if not speed tanking (optimal distance + optimalDistanceCushion)
+        InsideThisRangeIsLikelyToBeMostlyFrigates = 9000, // 9k - overall this assumption works, use with caution
         DecloakRange = 1500,
         SafeToCloakDistance = 2300,
         DockingRange = 1900,

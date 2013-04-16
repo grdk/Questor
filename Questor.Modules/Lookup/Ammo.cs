@@ -39,12 +39,14 @@ namespace Questor.Modules.Lookup
 
         public Ammo Clone()
         {
-            var ammo = new Ammo();
-            ammo.TypeId = TypeId;
-            ammo.DamageType = DamageType;
-            ammo.Range = Range;
-            ammo.Quantity = Quantity;
-            ammo.Description = Description;
+            var ammo = new Ammo
+                {
+                    TypeId = TypeId,
+                    DamageType = DamageType,
+                    Range = Range,
+                    Quantity = Quantity,
+                    Description = Description
+                };
             return ammo;
         }
     }

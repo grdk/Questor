@@ -375,7 +375,7 @@ namespace Questor.Modules.BackgroundTasks
                     // Once we have warped off 500km, assume we are "safer"
                     if (_States.CurrentPanicState == PanicState.StartPanicking && Cache.Instance.DistanceFromMe(_lastNormalX, _lastNormalY, _lastNormalZ) > (int)Distance.PanicDistanceToConsiderSafelyWarpedOff)
                     {
-                        Logging.Log("Panic", "We've warped off:  Current ShipType: [" + Cache.Instance.DirectEve.ActiveShip.TypeName + "] Current ShipName [" + Cache.Instance.DirectEve.ActiveShip.GivenName + "]", Logging.White);
+                        Logging.Log("Panic", "We have warped off:  Current ShipType: [" + Cache.Instance.DirectEve.ActiveShip.TypeName + "] Current ShipName [" + Cache.Instance.DirectEve.ActiveShip.GivenName + "]", Logging.White);
                         _States.CurrentPanicState = PanicState.Panicking;
                     }
 
@@ -540,7 +540,7 @@ namespace Questor.Modules.BackgroundTasks
                         {
                             Cache.Instance.RepairAll = true;
                         }
-                        Logging.Log("Panic", "We've recovered, resume mission", Logging.Red);
+                        Logging.Log("Panic", "We have recovered, resume mission", Logging.Red);
                         _States.CurrentPanicState = _delayedResume ? PanicState.DelayedResume : PanicState.Resume;
                     }
 

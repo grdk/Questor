@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{647AD5C3-3BD5-4806-B093-0B13BDAD88D4}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TreeTest1</RootNamespace>
+    <AssemblyName>TreeTest1</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <OutputPath>$(SolutionDir)bin\$(Configuration)\</OutputPath>
+    <OutputPath Condition="'$(Platform)'!='AnyCPU'">$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutputPath>
+    <CodeAnalysisLogFile>$(SolutionDir)bin\$(Configuration)\TreeTest1.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisRuleSetDirectories>$(CodeAnalysisStaticAnalysisDirectory)Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisRuleDirectories>$(CodeAnalysisPath)Rules</CodeAnalysisRuleDirectories>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cache.cs" />
+    <None Include="app.config" />
+    <None Include="D3DDetour\D3D10.cs" />
+    <None Include="D3DDetour\D3D11.cs" />
+    <Compile Include="D3DDetour\D3D9.cs" />
+    <Compile Include="D3DDetour\D3DHook.cs" />
+    <None Include="D3DDetour\Example.cs" />
+    <Compile Include="D3DDetour\Pulse.cs" />
+    <Compile Include="Framework\Standalone.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WhiteMagic\Internals\DetourManager.cs" />
+    <Compile Include="WhiteMagic\Internals\Manager.cs" />
+    <Compile Include="WhiteMagic\Internals\PatchManager.cs" />
+    <Compile Include="WhiteMagic\Internals\PatternManager.cs" />
+    <Compile Include="WhiteMagic\Magic.cs" />
+    <Compile Include="WhiteMagic\MissingAttributeException.cs" />
+    <Compile Include="WhiteMagic\Native\PeHeaderParser.cs" />
+    <Compile Include="WhiteMagic\Native\Win32.cs" />
+    <Compile Include="WhiteMagic\Utilities.cs" />
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\directeve\DirectEve\DirectEve.csproj">
+      <Project>{e8585d05-804d-40ea-ae64-5dd4f3ec6e43}</Project>
+      <Name>DirectEve</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TreeSharp\TreeSharp\TreeSharp.csproj">
+      <Project>{8bfdd80e-9e64-4386-b676-ed3cfdf1b095}</Project>
+      <Name>TreeSharp</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="CopyToInnerSpace" BeforeTargets="AfterBuild">
+    <PropertyGroup>
+      <InnerSpacePath Condition="'$(InnerSpacePath)'==''">$(registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\App Paths\InnerSpace.exe@Path)</InnerSpacePath>
+      <InnerSpacePath Condition="'$(InnerSpacePath)'==''">$(registry:HKEY_CURRENT_USER\Software\Microsoft\IntelliPoint\AppSpecific\InnerSpace.exe@Path)</InnerSpacePath>
+      <InnerSpacePath Condition="'$(InnerSpacePath)'==''">$(registry:HKEY_CURRENT_USER\Software\Microsoft\IntelliType Pro\AppSpecific\InnerSpace.exe@Path)</InnerSpacePath>
+      <InnerSpacePath Condition="'$(InnerSpacePath.EndsWith(&quot;InnerSpace.exe&quot;))'=='True'">$(InnerSpacePath.Replace("InnerSpace.exe",""))</InnerSpacePath>
+    </PropertyGroup>
+    <Copy Condition="'$(InnerSpacePath)'!=''" SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(InnerSpacePath)\.NET Programs" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

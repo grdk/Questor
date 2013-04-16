@@ -25,7 +25,7 @@
                 case LocalWatchState.CheckLocal:
 
                     //
-                    // this ought to cache the name of the system, and the number of ppl in local (or similar)
+                    // this ought to cache the name of the system, and the number of people in local (or similar)
                     // and only query everyone in local for standings changes if something has changed...
                     //
                     Cache.Instance.LocalSafe(Settings.Instance.LocalBadStandingPilotsToTolerate, Settings.Instance.LocalBadStandingLevelToConsiderBad);

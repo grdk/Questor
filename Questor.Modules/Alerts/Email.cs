@@ -64,8 +64,8 @@ namespace Questor.Modules.Alerts
         {
             if (!QuestorRestartedEmailSent)
             {
-                string subject = "subject test";
-                string body = "body test";
+                const string subject = "subject test";
+                const string body = "body test";
                 if (SendEmail(subject, body))
                 {
                     QuestorRestartedEmailSent = true;

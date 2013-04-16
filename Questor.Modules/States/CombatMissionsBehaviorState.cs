@@ -33,5 +33,7 @@
         Traveler,
         Storyline,
         StorylinePanic,
+        PrepareStorylineSwitchAgents,
+        PrepareStorylineGotoBase,
     }
 }
