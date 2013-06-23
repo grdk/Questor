@@ -104,7 +104,7 @@ namespace Questor.Modules.Alerts
         private void ReportStatus(string statusMessage)
         {
             // If the caller passed in a message...
-            if ((statusMessage != null) && (statusMessage != String.Empty))
+            if (!string.IsNullOrEmpty(statusMessage))
             {
                 // ...post the caller's message to the status bar.
                 this._statusBar.Panels[0].Text = statusMessage;

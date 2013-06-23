@@ -170,7 +170,7 @@ namespace Questor.Modules.Actions
             if (localUndockBookmark != null)
             {
                 double distance = Cache.Instance.DistanceFromMe(localUndockBookmark.X ?? 0, localUndockBookmark.Y ?? 0, localUndockBookmark.Z ?? 0);
-                if (distance < (int)Distance.WarptoDistance)
+                if (distance < (int)Distances.WarptoDistance)
                 {
                     Logging.Log("TravelerDestination.BookmarkDestination", "Arrived at undock bookmark [" + Logging.Yellow + localUndockBookmark.Title + Logging.Green + "]", Logging.White);
                     localUndockBookmark = null;
@@ -195,7 +195,7 @@ namespace Questor.Modules.Actions
                 return false;
             }
 
-            if (entity.Distance < (int)Distance.DockingRange)
+            if (entity.Distance < (int)Distances.DockingRange)
             {
                 if (DateTime.UtcNow > Cache.Instance.NextDockAction)
                 {
@@ -205,7 +205,7 @@ namespace Questor.Modules.Actions
                     return false;
                 }
             }
-            else if (entity.Distance < (int)Distance.WarptoDistance)
+            else if (entity.Distance < (int)Distances.WarptoDistance)
             {
                 if (DateTime.UtcNow > Cache.Instance.NextApproachAction)
                 {
@@ -337,7 +337,7 @@ namespace Questor.Modules.Actions
             if (undockBookmark != null)
             {
                 double distanceToUndockBookmark = Cache.Instance.DistanceFromMe(bookmark.X ?? 0, bookmark.Y ?? 0, bookmark.Z ?? 0);
-                if (distanceToUndockBookmark < (int)Distance.WarptoDistance)
+                if (distanceToUndockBookmark < (int)Distances.WarptoDistance)
                 {
                     Logging.Log("TravelerDestination.BookmarkDestination", "Arrived at undock bookmark [" + Logging.Yellow + undockBookmark.Title + Logging.Green + "]", Logging.Green);
                     undockBookmark = null;
@@ -370,7 +370,7 @@ namespace Questor.Modules.Actions
             if (nextAction > DateTime.UtcNow)
                 return false;
 
-            if (Math.Round((distance / 1000)) < (int)Distance.MaxPocketsDistanceKm && Cache.Instance.AccelerationGates.Count() != 0)
+            if (Math.Round((distance / 1000)) < (int)Distances.MaxPocketsDistanceKm && Cache.Instance.AccelerationGates.Count() != 0)
             {
                 Logging.Log("QuestorManager.BookmarkDestination",
                 "Warp to bookmark in same pocket requested but acceleration gate found delaying."
@@ -460,7 +460,7 @@ namespace Questor.Modules.Actions
         public override bool PerformFinalDestinationTask()
         {
             DirectBookmark undockBookmark = UndockBookmark;
-            bool arrived = BookmarkDestination.PerformFinalDestinationTask(GetMissionBookmark(AgentId, Title), (int)Distance.MissionWarpLimit, ref _nextMissionBookmarkAction, ref undockBookmark);
+            bool arrived = BookmarkDestination.PerformFinalDestinationTask(GetMissionBookmark(AgentId, Title), (int)Distances.MissionWarpLimit, ref _nextMissionBookmarkAction, ref undockBookmark);
             UndockBookmark = undockBookmark;
             return arrived;// Mission bookmarks have a 1.000.000 distance warp-to limit (changed it to 150.000.000 as there are some bugged missions around)
         }

@@ -24,7 +24,7 @@ namespace Questor.Modules.Lookup
         public int AfterburnerDelay_milliseconds = 3500;                    //
         public int RepModuleDelay_milliseconds = 2500;                      //
         public int ApproachDelay_seconds = 15;                              //
-        public int TargetDelay_milliseconds = 400;                          //
+        public int TargetDelay_milliseconds = 1200;                          //
         public int DelayBetweenSalvagingSessions_minutes = 10;              //
         public int OrbitDelay_seconds = 15;                                 // This is the delay between orbit commands, units: seconds. Default is 15
         public int DockingDelay_seconds = 5;                                // This is the delay between docking attempts, units: seconds. Default is 5

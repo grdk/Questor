@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Questor", "Questor\Questor.csproj", "{0E528457-6A20-441F-94BB-84F6FC0EEE70}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValueDump", "ValueDump\ValueDump.csproj", "{4E4C340D-0D20-4C96-A44B-55B86C5CEA77}"
@@ -22,6 +22,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Injector", "Injector\Injector.csproj", "{E01B9141-8006-46D5-A76C-E80A8FC81CFC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InjectorLib", "InjectorLib\InjectorLib.vcxproj", "{EEA7D95B-97F3-40E2-941C-0DC4F4598DE2}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GridMon", "GridMon\GridMon.csproj", "{4727F3DC-CBD6-42A9-819D-7830FBED4714}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoToBM", "GoToBM\GoToBM.csproj", "{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}"
@@ -171,21 +172,25 @@ Global
 		{4727F3DC-CBD6-42A9-819D-7830FBED4714}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{4727F3DC-CBD6-42A9-819D-7830FBED4714}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{4727F3DC-CBD6-42A9-819D-7830FBED4714}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{4727F3DC-CBD6-42A9-819D-7830FBED4714}.Debug|Win32.ActiveCfg = Debug|x86
 		{4727F3DC-CBD6-42A9-819D-7830FBED4714}.Debug|x86.ActiveCfg = Debug|x86
 		{4727F3DC-CBD6-42A9-819D-7830FBED4714}.Debug|x86.Build.0 = Debug|x86
 		{4727F3DC-CBD6-42A9-819D-7830FBED4714}.Release|Any CPU.ActiveCfg = Release|x86
 		{4727F3DC-CBD6-42A9-819D-7830FBED4714}.Release|Mixed Platforms.ActiveCfg = Release|x86
 		{4727F3DC-CBD6-42A9-819D-7830FBED4714}.Release|Mixed Platforms.Build.0 = Release|x86
+		{4727F3DC-CBD6-42A9-819D-7830FBED4714}.Release|Win32.ActiveCfg = Release|x86
 		{4727F3DC-CBD6-42A9-819D-7830FBED4714}.Release|x86.ActiveCfg = Release|x86
 		{4727F3DC-CBD6-42A9-819D-7830FBED4714}.Release|x86.Build.0 = Release|x86
 		{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}.Debug|Win32.ActiveCfg = Debug|x86
 		{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}.Debug|x86.ActiveCfg = Debug|x86
 		{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}.Debug|x86.Build.0 = Debug|x86
 		{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}.Release|Any CPU.ActiveCfg = Release|x86
 		{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}.Release|Mixed Platforms.ActiveCfg = Release|x86
 		{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}.Release|Mixed Platforms.Build.0 = Release|x86
+		{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}.Release|Win32.ActiveCfg = Release|x86
 		{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}.Release|x86.ActiveCfg = Release|x86
 		{8BD36F36-B7EB-47E7-AACF-66CBD74A4940}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection

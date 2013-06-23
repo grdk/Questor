@@ -9,7 +9,7 @@
 // -------------------------------------------------------------------------------
 namespace Questor.Modules.Lookup
 {
-    public enum Distance : long
+    public enum Distances : long
     {
         ScoopRange = 2490,
         SafeScoopRange = ScoopRange - 700,

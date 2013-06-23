@@ -15,17 +15,20 @@
   <debugBlackList>false</debugBlackList>
   <debugCargoHold>false</debugCargoHold>
   <debugCleanup>false</debugCleanup>
+  <debugClearPocket>false</debugClearPocket>
   <debugCourierMissions>false</debugCourierMissions>
   <debugDecline>false</debugDecline>
   <debugDefense>false</debugDefense>
   <debugDroneHealth>false</debugDroneHealth>
   <debugExceptions>false</debugExceptions>
   <debugFittingMgr>false</debugFittingMgr>
+  <debugGetBestTarget>false</debugGetBestTarget>
   <debugGotobase>false</debugGotobase>
   <debugGreyList>false</debugGreyList>
   <debugHangars>false</debugHangars>
   <debugIdle>false</debugIdle>
   <debugItemHangar>false</debugItemHangar>
+  <debugKillTargets>true</debugKillTargets>
   <debugLoadScripts>false</debugLoadScripts>
   <debugLogging>false</debugLogging>
   <debugLootWrecks>false</debugLootWrecks>
@@ -44,6 +47,7 @@
   <debugStates>false</debugStates>
   <debugStatistics>false</debugStatistics>
   <debugStorylineMissions>false</debugStorylineMissions>
+  <debugTargetCombatants>true</debugTargetCombatants>
   <debugTargetWrecks>false</debugTargetWrecks>
   <debugTraveler>false</debugTraveler>
   <debugTractorBeams>false</debugTractorBeams>
@@ -108,7 +112,7 @@
   <!-- AGENT AND MISSION SETTINGS -->
   <!--                                                         -->
   
-  <!-- Wait for you agents mission decline timer to expire before declining again -->
+  <!-- Wait for your agents mission decline timer to expire before declining again -->
   <waitDecline>false</waitDecline>
   <!-- MinAgentBlackListStandings is a number between -10 and 10, if your standings have gone below MinAgentBlackListStandings you will wait between declines for the agent cooldown timer to expire -->
   <minAgentBlackListStandings>5.5</minAgentBlackListStandings>
@@ -195,7 +199,7 @@
   <unloadLootAtStation>false</unloadLootAtStation><!-- default is false -->
   <!-- Amount of cargo capacity to reserve, should be at least 80m3 if you are salvaging -->
   <reserveCargoCapacity>100</reserveCargoCapacity>
-  <!-- maximum number of wreck targets, at least 1 is required for salvager or tractor beam to work -->
+  <!-- maximum number of wreck targets, at least 1 is required for salvager or tractor beam to work, this will work better set to 3 but you need multitasking trained and enough targeting slots to accomidate this plus the high and low value slots all at once -->
   <maximumWreckTargets>2</maximumWreckTargets>
   <!-- if the mission does not despawn (ninja looters?) and the accel gates are still present: use gates! -->
   <useGatesInSalvage>true</useGatesInSalvage><!-- default is true -->
@@ -334,18 +338,56 @@
   <capBoosterToLoad>15</capBoosterToLoad>
   <!-- Weapon group (508 = Siege, 506 = Cruise, 771 = HAM, etc of the Launcher / Guns / Lasors, NOT the Ammo, *the weapon*) -->
   <weaponGroupId>508</weaponGroupId>
-  <!-- Use PrimaryWeapons on WarpScramblers, if you do not want to shoot warp dcramblers with your primary weapons, set this to false. -->
-  <shootWarpScramblersWithPrimaryWeapons>true</shootWarpScramblersWithPrimaryWeapons>
   <!--  BOTH distance and speed have to be met before the NPC Frigate will be removed from the PrimaryWeapons PriorityTarget List... (under the distance, over the speed) -->
   <!--  If you wish to effectively turn this off you can set the speedTargetsShouldBeIgnoredByMainWeapons to a very high number like: 9999999 -->
   <speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>300</speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
   <distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>7000</distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
+
+  <!-- If an NPC gets inside this range do not consider it within optimal range anymore (targets within optimal are chosen first) -->
+  <insideThisRangeIsHardToTrack>15000</insideThisRangeIsHardToTrack>
+  
+  <!--                                                                            -->  
+  <!--  ECM PrimaryWeapon PriorityTarget Options--> 
+  <!--                                                                            -->  
+  <!-- Use PrimaryWeapons on Targets that use Sensor Dampners, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addDampenersToPrimaryWeaponsPriorityTargetList>true</addDampenersToPrimaryWeaponsPriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use ECMs, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addECMsToPrimaryWeaponsPriorityTargetList>true</addECMsToPrimaryWeaponsPriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Neutralizers, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addNeutralizersToPrimaryWeaponsPriorityTargetList>true</addNeutralizersToPrimaryWeaponsPriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Target Painters, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addTargetPaintersToPrimaryWeaponsPriorityTargetList>true</addTargetPaintersToPrimaryWeaponsPriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Tracking Disruptors, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addTrackingDisruptorsToPrimaryWeaponsPriorityTargetList>true</addTrackingDisruptorsToPrimaryWeaponsPriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Warp Disruptors / Scramblers, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addWarpScramblersToPrimaryWeaponsPriorityTargetList>true</addWarpScramblersToPrimaryWeaponsPriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Webifiers, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addWebifiersToPrimaryWeaponsPriorityTargetList>true</addWebifiersToPrimaryWeaponsPriorityTargetList>
+  
+  <!--                                                                            -->  
+  <!--  ECM Drone PriorityTarget Options--> 
+  <!--                                                                            -->  
+  <!-- Use PrimaryWeapons on Targets that use Sensor Dampners, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addDampenersToDronePriorityTargetList>true</addDampenersToDronePriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use ECMs, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addECMsToDroneTargetList>true</addECMsToDroneTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Neutralizers, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addNeutralizersToDronePriorityTargetList>true</addNeutralizersToDronePriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Target Painters, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addTargetPaintersToDronePriorityTargetList>true</addTargetPaintersToDronePriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Tracking Disruptors, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addTrackingDisruptorsToDronePriorityTargetList>true</addTrackingDisruptorsToDronePriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Warp Disruptors / Scramblers, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addWarpScramblersToDronePriorityTargetList>true</addWarpScramblersToDronePriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Webifiers, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addWebifiersToDronePriorityTargetList>true</addWebifiersToDronePriorityTargetList>
+    
   <!-- MaxRange we should use NOS / Neuts -->
   <NosDistance>38000</NosDistance>
   
-  <!-- Maximum number of targets per value -->
-  <maximumHighValueTargets>4</maximumHighValueTargets><!-- default is 4 -->
-  <maximumLowValueTargets>3</maximumLowValueTargets><!-- default is 3 -->
+  <!-- Maximum number of targets per value, these will work better set to a higher number but you need multitasking trained and enough targeting slots to accomidate these high and low value slots plus the maximumWreckTarget slots  all at once -->
+  <maximumHighValueTargets>3</maximumHighValueTargets><!-- default is 3 -->
+  <maximumLowValueTargets>2</maximumLowValueTargets><!-- default is 2 -->
 
   <!--                                                -->
   <!--      SCRIPT SETTINGS         -->
@@ -430,15 +472,17 @@
   <safeArmorPct>0</safeArmorPct>
   <!-- Amount of capacitor that is seen as "safe" to return to the mission -->
   <safeCapacitorPct>65</safeCapacitorPct>
-
+  <!-- All safespot bookmarks will be prefixed by this string, default: safespot: -->
+  <safeSpotBookmarkPrefix>safespot</safeSpotBookmarkPrefix><!-- default is safespot: -->
+  
   <!--                                                -->
   <!--        DRONE SETTINGS          -->
   <!--                                                -->
   
   <!-- Use drones, disable on ships without a drone bay! -->
   <useDrones>true</useDrones>
-  <!-- Drone type id to load (set to 0 to not reload drones) -->
-  <droneTypeId>2488</droneTypeId>
+  <!-- Drone type id to load (has to be set if using drones) -->
+  <droneTypeId>2488</droneTypeId> 
   <!-- Maximum drone control range -->
   <droneControlRange>50000</droneControlRange>
   <!-- Do not launch drones if below this shield percentage -->
@@ -465,13 +509,20 @@
   <!--                                                        -->
   <!-- EMAIL SETTINGS                         -->
   <!--                                                        -->
-  <emailSupport>false</emailSupport>
-  <emailAddress></emailAddress>
-  <emailPassword></emailPassword>
-  <emailSMTPServer></emailSMTPServer> <!--  ex: mail.myEmailProvider.com-->
-  <emailSMTPPort>25</emailSMTPPort>
-  <emailAddressToSendAlerts></emailAddressToSendAlerts>
-  <emailEnableSSL>false</emailEnableSSL>
+  <emailSupport>false</emailSupport> <!-- Questor Email Support:  on or off -->
+  <emailAddress></emailAddress> <!-- your email account name, used to authenticate to send email mail: i.e. EmailAddressTheseEmailsAreFrom@myEmailServerDomain.org -->
+  <emailPassword></emailPassword> <!-- your email accounts password, used to authenticate to send email mail -->
+  <emailSMTPServer></emailSMTPServer> <!--  ex: mail.myEmailServerDomain.com-->
+  <emailSMTPPort>25</emailSMTPPort> <!-- port to use for outgoing mail (smtp) -->
+  <emailAddressToSendAlerts></emailAddressToSendAlerts> <!-- email address to send these alert emails to: i.e. QuestorEmailAlerts@myEmailServerDomain.org -->
+  <emailEnableSSL>false</emailEnableSSL> <!-- enable SSL encryption (if needed for the email server you are using) --> 
+  
+  
+  <standingsNeededToAccessLevel1Agent>-11</standingsNeededToAccessLevel1Agent>
+  <standingsNeededToAccessLevel2Agent>1</standingsNeededToAccessLevel2Agent>
+  <standingsNeededToAccessLevel3Agent>3</standingsNeededToAccessLevel3Agent>
+  <standingsNeededToAccessLevel4Agent>5</standingsNeededToAccessLevel4Agent>
+  <standingsNeededToAccessLevel5Agent>7</standingsNeededToAccessLevel5Agent>
   
   <!--                                                        -->
   <!-- SKILL TRAINING SETTINGS       -->

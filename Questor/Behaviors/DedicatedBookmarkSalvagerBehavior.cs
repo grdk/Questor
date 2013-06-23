@@ -575,7 +575,7 @@ namespace Questor.Behaviors
                     Cache.Instance.SalvageAll = true;
                     Cache.Instance.OpenWrecks = true;
 
-                    const int distanceToCheck = (int)Distance.OnGridWithMe;
+                    const int distanceToCheck = (int)Distances.OnGridWithMe;
 
                     // is there any NPCs within distanceToCheck?
                     EntityCache deadlyNPC = Cache.Instance.Entities.Where(t => t.Distance < distanceToCheck && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeColidableStructure).OrderBy(t => t.Distance).FirstOrDefault();

@@ -130,6 +130,7 @@
             this.txtCmdLine = new System.Windows.Forms.TextBox();
             this.cbxSellOrder = new System.Windows.Forms.CheckBox();
             this.cbxCorpOrder = new System.Windows.Forms.CheckBox();
+            this.StartQuestor = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -166,6 +167,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.StartQuestor);
             this.tabPage1.Controls.Add(this.button4);
             this.tabPage1.Controls.Add(this.cmbXML);
             this.tabPage1.Controls.Add(this.bttnSaveTask);
@@ -1136,6 +1138,7 @@
             this.cbxSellOrder.TabIndex = 27;
             this.cbxSellOrder.Text = "Use Order";
             this.cbxSellOrder.UseVisualStyleBackColor = true;
+            // StartQuestor
             // 
             // cbxCorpOrder
             // 
@@ -1146,6 +1149,13 @@
             this.cbxCorpOrder.TabIndex = 28;
             this.cbxCorpOrder.Text = "Corp Order";
             this.cbxCorpOrder.UseVisualStyleBackColor = true;
+            this.StartQuestor.Location = new System.Drawing.Point(454, 0);
+            this.StartQuestor.Name = "StartQuestor";
+            this.StartQuestor.Size = new System.Drawing.Size(133, 23);
+            this.StartQuestor.TabIndex = 31;
+            this.StartQuestor.Text = "Close QM Start Questor";
+            this.StartQuestor.UseVisualStyleBackColor = true;
+            this.StartQuestor.Click += new System.EventHandler(this.StartQuestor_Click);
             // 
             // QuestorManagerUI
             // 
@@ -1285,5 +1295,6 @@
         private System.Windows.Forms.Button button4;
         public System.Windows.Forms.CheckBox cbxCorpOrder;
         public System.Windows.Forms.CheckBox cbxSellOrder;
+        private System.Windows.Forms.Button StartQuestor;
     }
 }

@@ -69,95 +69,95 @@ namespace QuestorSettings
                 cmbwaitDecline.Text = (string)xml.Element("waitDecline");
                 txtminStandings.Text = (string)xml.Element("minStandings");
                 cmblootEverything.Text = (string)xml.Element("lootEverything");
+
+                txtfactionblacklist.Text = "";
+                XElement factionblacklist = xml.Element("factionblacklist");
+                if (factionblacklist != null)
+                    foreach (XElement faction in factionblacklist.Elements("faction"))
+                        txtfactionblacklist.Text += ((string)faction) + "\r\n";
+
+                txtblacklist.Text = "";
+                XElement blacklist = xml.Element("blacklist");
+                if (blacklist != null)
+                    foreach (XElement mission in blacklist.Elements("mission"))
+                        txtblacklist.Text += ((string)mission) + "\r\n";
+
+                txtcombatShipName.Text = (string)xml.Element("combatShipName");
+                txtmaximumHighValueTargets.Text = (string)xml.Element("maximumHighValueTargets");
+                txtmaximumLowValueTargets.Text = (string)xml.Element("maximumLowValueTargets");
+                txtorbitDistance.Text = (string)xml.Element("orbitDistance") ?? "";
+                txtminimumAmmoCharges.Text = (string)xml.Element("minimumAmmoCharges");
+                txtweaponGroupId.Text = (string)xml.Element("weaponGroupId");
+                txtreserveCargoCapacity.Text = (string)xml.Element("reserveCargoCapacity");
+                cmbspeedTank.Text = (string)xml.Element("speedTank") ?? "";
+                txtmaximumWreckTargets.Text = (string)xml.Element("maximumWreckTargets");
+                txtminimumPropulsionModuleDistance.Text = (string)xml.Element("minimumPropulsionModuleDistance");
+                txtminimumPropulsionModuleCapacitor.Text = (string)xml.Element("minimumPropulsionModuleCapacitor");
+
+                int i = -1;
+                XElement ammoTypes = xml.Element("ammoTypes");
+                DGV.Rows.Clear();
+                if (ammoTypes != null)
+                    foreach (XElement ammo in ammoTypes.Elements("ammoType"))
+                    {
+                        i = i + 1;
+                        DGV.Rows.Add();
+                        DGV.Rows[i].Cells["Column1"].Value = (string)ammo.Attribute("typeId");
+                        DGV.Rows[i].Cells["Column2"].Value = (string)ammo.Attribute("damageType");
+                        DGV.Rows[i].Cells["Column3"].Value = (string)ammo.Attribute("range");
+                        DGV.Rows[i].Cells["Column4"].Value = (string)ammo.Attribute("quantity");
+                    }
+
+                int q = -1;
+                XElement factionfittings = xml.Element("factionfittings");
+                DGV1.Rows.Clear();
+                if (factionfittings != null)
+                    foreach (XElement fittings in factionfittings.Elements("factionfitting"))
+                    {
+                        q = q + 1;
+                        DGV1.Rows.Add();
+                        DGV1.Rows[q].Cells["Column5"].Value = (string)fittings.Attribute("faction");
+                        DGV1.Rows[q].Cells["Column6"].Value = (string)fittings.Attribute("fitting");
+                    }
+
+                txtsalvageShipName.Text = (string)xml.Element("salvageShipName");
+                txtlootHangar.Text = (string)xml.Element("lootHangar");
+                txtammoHangar.Text = (string)xml.Element("ammoHangar");
+                cmbcreateSalvageBookmarks.Text = (string)xml.Element("createSalvageBookmarks");
+                txtbookmarkPrefix.Text = (string)xml.Element("bookmarkPrefix");
+                txtminimumWreckCount.Text = (string)xml.Element("minimumWreckCount");
+                cmbafterMissionSalvaging.Text = (string)xml.Element("afterMissionSalvaging");
+                cmbunloadLootAtStation.Text = (string)xml.Element("unloadLootAtStation");
+
+                txtactivateRepairModules.Text = (string)xml.Element("activateRepairModules");
+                txtdeactivateRepairModules.Text = (string)xml.Element("deactivateRepairModules");
+                txtminimumShieldPct.Text = (string)xml.Element("minimumShieldPct");
+                txtminimumArmorPct.Text = (string)xml.Element("minimumArmorPct");
+                txtminimumCapacitorPct.Text = (string)xml.Element("minimumCapacitorPct");
+                txtsafeShieldPct.Text = (string)xml.Element("safeShieldPct");
+                txtsafeArmorPct.Text = (string)xml.Element("safeArmorPct");
+                txtsafeCapacitorPct.Text = (string)xml.Element("safeCapacitorPct");
+
+                cmbuseDrones.Text = (string)xml.Element("useDrones");
+                txtdroneTypeId.Text = (string)xml.Element("droneTypeId");
+                txtdroneControlRange.Text = (string)xml.Element("droneControlRange");
+                txtdroneMinimumShieldPct.Text = (string)xml.Element("droneMinimumShieldPct");
+                txtdroneMinimumArmorPct.Text = (string)xml.Element("droneMinimumArmorPct");
+                txtdroneMinimumCapacitorPct.Text = (string)xml.Element("droneMinimumCapacitorPct");
+                txtdroneRecallShieldPct.Text = (string)xml.Element("droneRecallShieldPct");
+                txtdroneRecallArmorPct.Text = (string)xml.Element("droneRecallArmorPct");
+                txtdroneRecallCapacitorPct.Text = (string)xml.Element("droneRecallCapacitorPct");
+                txtlongRangeDroneRecallShieldPct.Text = (string)xml.Element("longRangeDroneRecallShieldPct");
+                txtlongRangeDroneRecallArmorPct.Text = (string)xml.Element("longRangeDroneRecallArmorPct");
+                txtlongRangeDroneRecallCapacitorPct.Text = (string)xml.Element("longRangeDroneRecallCapacitorPct");
+
+                txtinvasionMinimumDelay.Text = (string)xml.Element("invasionMinimumDelay");
+                txtinvasionRandomDelay.Text = (string)xml.Element("invasionRandomDelay");
+                txtfrigateInvasionLimit.Text = (string)xml.Element("frigateInvasionLimit");
+                txtcruiserInvasionLimit.Text = (string)xml.Element("cruiserInvasionLimit");
+                txtbattlecruiserInvasionLimit.Text = (string)xml.Element("battlecruiserInvasionLimit");
+                txtbattleshipInvasionLimit.Text = (string)xml.Element("battleshipInvasionLimit");
             }
-
-            txtfactionblacklist.Text = "";
-            XElement factionblacklist = xml.Element("factionblacklist");
-            if (factionblacklist != null)
-                foreach (XElement faction in factionblacklist.Elements("faction"))
-                    txtfactionblacklist.Text += ((string)faction) + "\r\n";
-
-            txtblacklist.Text = "";
-            XElement blacklist = xml.Element("blacklist");
-            if (blacklist != null)
-                foreach (XElement mission in blacklist.Elements("mission"))
-                    txtblacklist.Text += ((string)mission) + "\r\n";
-
-            txtcombatShipName.Text = (string)xml.Element("combatShipName");
-            txtmaximumHighValueTargets.Text = (string)xml.Element("maximumHighValueTargets");
-            txtmaximumLowValueTargets.Text = (string)xml.Element("maximumLowValueTargets");
-            txtorbitDistance.Text = (string)xml.Element("orbitDistance") ?? "";
-            txtminimumAmmoCharges.Text = (string)xml.Element("minimumAmmoCharges");
-            txtweaponGroupId.Text = (string)xml.Element("weaponGroupId");
-            txtreserveCargoCapacity.Text = (string)xml.Element("reserveCargoCapacity");
-            cmbspeedTank.Text = (string)xml.Element("speedTank") ?? "";
-            txtmaximumWreckTargets.Text = (string)xml.Element("maximumWreckTargets");
-            txtminimumPropulsionModuleDistance.Text = (string)xml.Element("minimumPropulsionModuleDistance");
-            txtminimumPropulsionModuleCapacitor.Text = (string)xml.Element("minimumPropulsionModuleCapacitor");
-
-            int i = -1;
-            XElement ammoTypes = xml.Element("ammoTypes");
-            DGV.Rows.Clear();
-            if (ammoTypes != null)
-                foreach (XElement ammo in ammoTypes.Elements("ammoType"))
-                {
-                    i = i + 1;
-                    DGV.Rows.Add();
-                    DGV.Rows[i].Cells["Column1"].Value = (string)ammo.Attribute("typeId");
-                    DGV.Rows[i].Cells["Column2"].Value = (string)ammo.Attribute("damageType");
-                    DGV.Rows[i].Cells["Column3"].Value = (string)ammo.Attribute("range");
-                    DGV.Rows[i].Cells["Column4"].Value = (string)ammo.Attribute("quantity");
-                }
-
-            int q = -1;
-            XElement factionfittings = xml.Element("factionfittings");
-            DGV1.Rows.Clear();
-            if (factionfittings != null)
-                foreach (XElement fittings in factionfittings.Elements("factionfitting"))
-                {
-                    q = q + 1;
-                    DGV1.Rows.Add();
-                    DGV1.Rows[q].Cells["Column5"].Value = (string)fittings.Attribute("faction");
-                    DGV1.Rows[q].Cells["Column6"].Value = (string)fittings.Attribute("fitting");
-                }
-
-            txtsalvageShipName.Text = (string)xml.Element("salvageShipName");
-            txtlootHangar.Text = (string)xml.Element("lootHangar");
-            txtammoHangar.Text = (string)xml.Element("ammoHangar");
-            cmbcreateSalvageBookmarks.Text = (string)xml.Element("createSalvageBookmarks");
-            txtbookmarkPrefix.Text = (string)xml.Element("bookmarkPrefix");
-            txtminimumWreckCount.Text = (string)xml.Element("minimumWreckCount");
-            cmbafterMissionSalvaging.Text = (string)xml.Element("afterMissionSalvaging");
-            cmbunloadLootAtStation.Text = (string)xml.Element("unloadLootAtStation");
-
-            txtactivateRepairModules.Text = (string)xml.Element("activateRepairModules");
-            txtdeactivateRepairModules.Text = (string)xml.Element("deactivateRepairModules");
-            txtminimumShieldPct.Text = (string)xml.Element("minimumShieldPct");
-            txtminimumArmorPct.Text = (string)xml.Element("minimumArmorPct");
-            txtminimumCapacitorPct.Text = (string)xml.Element("minimumCapacitorPct");
-            txtsafeShieldPct.Text = (string)xml.Element("safeShieldPct");
-            txtsafeArmorPct.Text = (string)xml.Element("safeArmorPct");
-            txtsafeCapacitorPct.Text = (string)xml.Element("safeCapacitorPct");
-
-            cmbuseDrones.Text = (string)xml.Element("useDrones");
-            txtdroneTypeId.Text = (string)xml.Element("droneTypeId");
-            txtdroneControlRange.Text = (string)xml.Element("droneControlRange");
-            txtdroneMinimumShieldPct.Text = (string)xml.Element("droneMinimumShieldPct");
-            txtdroneMinimumArmorPct.Text = (string)xml.Element("droneMinimumArmorPct");
-            txtdroneMinimumCapacitorPct.Text = (string)xml.Element("droneMinimumCapacitorPct");
-            txtdroneRecallShieldPct.Text = (string)xml.Element("droneRecallShieldPct");
-            txtdroneRecallArmorPct.Text = (string)xml.Element("droneRecallArmorPct");
-            txtdroneRecallCapacitorPct.Text = (string)xml.Element("droneRecallCapacitorPct");
-            txtlongRangeDroneRecallShieldPct.Text = (string)xml.Element("longRangeDroneRecallShieldPct");
-            txtlongRangeDroneRecallArmorPct.Text = (string)xml.Element("longRangeDroneRecallArmorPct");
-            txtlongRangeDroneRecallCapacitorPct.Text = (string)xml.Element("longRangeDroneRecallCapacitorPct");
-
-            txtinvasionMinimumDelay.Text = (string)xml.Element("invasionMinimumDelay");
-            txtinvasionRandomDelay.Text = (string)xml.Element("invasionRandomDelay");
-            txtfrigateInvasionLimit.Text = (string)xml.Element("frigateInvasionLimit");
-            txtcruiserInvasionLimit.Text = (string)xml.Element("cruiserInvasionLimit");
-            txtbattlecruiserInvasionLimit.Text = (string)xml.Element("battlecruiserInvasionLimit");
-            txtbattleshipInvasionLimit.Text = (string)xml.Element("battleshipInvasionLimit");
         }
 
         private void cmdSave_Click(object sender, EventArgs e)

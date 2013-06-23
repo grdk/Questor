@@ -59,6 +59,12 @@
             this.label25 = new System.Windows.Forms.Label();
             this.label26 = new System.Windows.Forms.Label();
             this.tabMiscInfo = new System.Windows.Forms.TabPage();
+            this.DataCurrentDroneTarget = new System.Windows.Forms.Label();
+            this.DataCurrentCombatTarget = new System.Windows.Forms.Label();
+            this.lblCurrentDroneTarget = new System.Windows.Forms.Label();
+            this.lvlCurrentPrimaryWeaponsTarget = new System.Windows.Forms.Label();
+            this.DronePriorityTargetListBox = new System.Windows.Forms.ListBox();
+            this.PrimaryWeaponsPriorityTargetListBox = new System.Windows.Forms.ListBox();
             this.AutostartData = new System.Windows.Forms.Label();
             this.Autostartlbl = new System.Windows.Forms.Label();
             this.UnlootedContainersData = new System.Windows.Forms.Label();
@@ -842,6 +848,12 @@
             // 
             // tabMiscInfo
             // 
+            this.tabMiscInfo.Controls.Add(this.DataCurrentDroneTarget);
+            this.tabMiscInfo.Controls.Add(this.DataCurrentCombatTarget);
+            this.tabMiscInfo.Controls.Add(this.lblCurrentDroneTarget);
+            this.tabMiscInfo.Controls.Add(this.lvlCurrentPrimaryWeaponsTarget);
+            this.tabMiscInfo.Controls.Add(this.DronePriorityTargetListBox);
+            this.tabMiscInfo.Controls.Add(this.PrimaryWeaponsPriorityTargetListBox);
             this.tabMiscInfo.Controls.Add(this.AutostartData);
             this.tabMiscInfo.Controls.Add(this.Autostartlbl);
             this.tabMiscInfo.Controls.Add(this.UnlootedContainersData);
@@ -880,10 +892,62 @@
             this.tabMiscInfo.Text = "MiscInfo";
             this.tabMiscInfo.UseVisualStyleBackColor = true;
             // 
+            // DataCurrentDroneTarget
+            // 
+            this.DataCurrentDroneTarget.AutoSize = true;
+            this.DataCurrentDroneTarget.Location = new System.Drawing.Point(425, 33);
+            this.DataCurrentDroneTarget.Name = "DataCurrentDroneTarget";
+            this.DataCurrentDroneTarget.Size = new System.Drawing.Size(24, 13);
+            this.DataCurrentDroneTarget.TabIndex = 232;
+            this.DataCurrentDroneTarget.Text = "n/a";
+            // 
+            // DataCurrentCombatTarget
+            // 
+            this.DataCurrentCombatTarget.AutoSize = true;
+            this.DataCurrentCombatTarget.Location = new System.Drawing.Point(191, 33);
+            this.DataCurrentCombatTarget.Name = "DataCurrentCombatTarget";
+            this.DataCurrentCombatTarget.Size = new System.Drawing.Size(24, 13);
+            this.DataCurrentCombatTarget.TabIndex = 231;
+            this.DataCurrentCombatTarget.Text = "n/a";
+            // 
+            // lblCurrentDroneTarget
+            // 
+            this.lblCurrentDroneTarget.AutoSize = true;
+            this.lblCurrentDroneTarget.Location = new System.Drawing.Point(425, 7);
+            this.lblCurrentDroneTarget.Name = "lblCurrentDroneTarget";
+            this.lblCurrentDroneTarget.Size = new System.Drawing.Size(110, 13);
+            this.lblCurrentDroneTarget.TabIndex = 230;
+            this.lblCurrentDroneTarget.Text = "Current Drone Target:";
+            // 
+            // lvlCurrentPrimaryWeaponsTarget
+            // 
+            this.lvlCurrentPrimaryWeaponsTarget.AutoSize = true;
+            this.lvlCurrentPrimaryWeaponsTarget.Location = new System.Drawing.Point(191, 7);
+            this.lvlCurrentPrimaryWeaponsTarget.Name = "lvlCurrentPrimaryWeaponsTarget";
+            this.lvlCurrentPrimaryWeaponsTarget.Size = new System.Drawing.Size(117, 13);
+            this.lvlCurrentPrimaryWeaponsTarget.TabIndex = 229;
+            this.lvlCurrentPrimaryWeaponsTarget.Text = "Current Combat Target:";
+            // 
+            // DronePriorityTargetListBox
+            // 
+            this.DronePriorityTargetListBox.FormattingEnabled = true;
+            this.DronePriorityTargetListBox.Location = new System.Drawing.Point(428, 59);
+            this.DronePriorityTargetListBox.Name = "DronePriorityTargetListBox";
+            this.DronePriorityTargetListBox.Size = new System.Drawing.Size(221, 186);
+            this.DronePriorityTargetListBox.TabIndex = 228;
+            // 
+            // PrimaryWeaponsPriorityTargetListBox
+            // 
+            this.PrimaryWeaponsPriorityTargetListBox.FormattingEnabled = true;
+            this.PrimaryWeaponsPriorityTargetListBox.Location = new System.Drawing.Point(194, 59);
+            this.PrimaryWeaponsPriorityTargetListBox.Name = "PrimaryWeaponsPriorityTargetListBox";
+            this.PrimaryWeaponsPriorityTargetListBox.Size = new System.Drawing.Size(214, 186);
+            this.PrimaryWeaponsPriorityTargetListBox.TabIndex = 227;
+            // 
             // AutostartData
             // 
             this.AutostartData.AutoSize = true;
-            this.AutostartData.Location = new System.Drawing.Point(266, 28);
+            this.AutostartData.Location = new System.Drawing.Point(132, 209);
             this.AutostartData.Name = "AutostartData";
             this.AutostartData.Size = new System.Drawing.Size(24, 13);
             this.AutostartData.TabIndex = 226;
@@ -892,7 +956,7 @@
             // Autostartlbl
             // 
             this.Autostartlbl.AutoSize = true;
-            this.Autostartlbl.Location = new System.Drawing.Point(211, 28);
+            this.Autostartlbl.Location = new System.Drawing.Point(73, 209);
             this.Autostartlbl.Name = "Autostartlbl";
             this.Autostartlbl.Size = new System.Drawing.Size(49, 13);
             this.Autostartlbl.TabIndex = 225;
@@ -901,7 +965,7 @@
             // UnlootedContainersData
             // 
             this.UnlootedContainersData.AutoSize = true;
-            this.UnlootedContainersData.Location = new System.Drawing.Point(132, 217);
+            this.UnlootedContainersData.Location = new System.Drawing.Point(132, 196);
             this.UnlootedContainersData.Name = "UnlootedContainersData";
             this.UnlootedContainersData.Size = new System.Drawing.Size(24, 13);
             this.UnlootedContainersData.TabIndex = 224;
@@ -910,7 +974,7 @@
             // UnlootedContainerslbl
             // 
             this.UnlootedContainerslbl.AutoSize = true;
-            this.UnlootedContainerslbl.Location = new System.Drawing.Point(22, 217);
+            this.UnlootedContainerslbl.Location = new System.Drawing.Point(22, 196);
             this.UnlootedContainerslbl.Name = "UnlootedContainerslbl";
             this.UnlootedContainerslbl.Size = new System.Drawing.Size(100, 13);
             this.UnlootedContainerslbl.TabIndex = 223;
@@ -919,7 +983,7 @@
             // WrecksData
             // 
             this.WrecksData.AutoSize = true;
-            this.WrecksData.Location = new System.Drawing.Point(132, 204);
+            this.WrecksData.Location = new System.Drawing.Point(132, 183);
             this.WrecksData.Name = "WrecksData";
             this.WrecksData.Size = new System.Drawing.Size(24, 13);
             this.WrecksData.TabIndex = 222;
@@ -928,7 +992,7 @@
             // Wreckslbl
             // 
             this.Wreckslbl.AutoSize = true;
-            this.Wreckslbl.Location = new System.Drawing.Point(81, 204);
+            this.Wreckslbl.Location = new System.Drawing.Point(81, 183);
             this.Wreckslbl.Name = "Wreckslbl";
             this.Wreckslbl.Size = new System.Drawing.Size(44, 13);
             this.Wreckslbl.TabIndex = 221;
@@ -937,7 +1001,7 @@
             // AgentData
             // 
             this.AgentData.AutoSize = true;
-            this.AgentData.Location = new System.Drawing.Point(131, 191);
+            this.AgentData.Location = new System.Drawing.Point(131, 170);
             this.AgentData.Name = "AgentData";
             this.AgentData.Size = new System.Drawing.Size(24, 13);
             this.AgentData.TabIndex = 220;
@@ -946,7 +1010,7 @@
             // Agentlbl
             // 
             this.Agentlbl.AutoSize = true;
-            this.Agentlbl.Location = new System.Drawing.Point(90, 191);
+            this.Agentlbl.Location = new System.Drawing.Point(90, 170);
             this.Agentlbl.Name = "Agentlbl";
             this.Agentlbl.Size = new System.Drawing.Size(35, 13);
             this.Agentlbl.TabIndex = 219;
@@ -955,7 +1019,7 @@
             // AgentIdData
             // 
             this.AgentIdData.AutoSize = true;
-            this.AgentIdData.Location = new System.Drawing.Point(131, 178);
+            this.AgentIdData.Location = new System.Drawing.Point(131, 157);
             this.AgentIdData.Name = "AgentIdData";
             this.AgentIdData.Size = new System.Drawing.Size(24, 13);
             this.AgentIdData.TabIndex = 218;
@@ -964,7 +1028,7 @@
             // AgentIdlbl
             // 
             this.AgentIdlbl.AutoSize = true;
-            this.AgentIdlbl.Location = new System.Drawing.Point(81, 178);
+            this.AgentIdlbl.Location = new System.Drawing.Point(81, 157);
             this.AgentIdlbl.Name = "AgentIdlbl";
             this.AgentIdlbl.Size = new System.Drawing.Size(44, 13);
             this.AgentIdlbl.TabIndex = 217;
@@ -973,7 +1037,7 @@
             // AgentStationIDData
             // 
             this.AgentStationIDData.AutoSize = true;
-            this.AgentStationIDData.Location = new System.Drawing.Point(132, 162);
+            this.AgentStationIDData.Location = new System.Drawing.Point(132, 141);
             this.AgentStationIDData.Name = "AgentStationIDData";
             this.AgentStationIDData.Size = new System.Drawing.Size(24, 13);
             this.AgentStationIDData.TabIndex = 216;
@@ -982,7 +1046,7 @@
             // AgentStationIDlbl
             // 
             this.AgentStationIDlbl.AutoSize = true;
-            this.AgentStationIDlbl.Location = new System.Drawing.Point(46, 162);
+            this.AgentStationIDlbl.Location = new System.Drawing.Point(46, 141);
             this.AgentStationIDlbl.Name = "AgentStationIDlbl";
             this.AgentStationIDlbl.Size = new System.Drawing.Size(79, 13);
             this.AgentStationIDlbl.TabIndex = 215;
@@ -991,7 +1055,7 @@
             // IsMissionPocketDoneData
             // 
             this.IsMissionPocketDoneData.AutoSize = true;
-            this.IsMissionPocketDoneData.Location = new System.Drawing.Point(132, 149);
+            this.IsMissionPocketDoneData.Location = new System.Drawing.Point(132, 128);
             this.IsMissionPocketDoneData.Name = "IsMissionPocketDoneData";
             this.IsMissionPocketDoneData.Size = new System.Drawing.Size(24, 13);
             this.IsMissionPocketDoneData.TabIndex = 214;
@@ -1000,7 +1064,7 @@
             // IsMissionPocketDonelbl
             // 
             this.IsMissionPocketDonelbl.AutoSize = true;
-            this.IsMissionPocketDonelbl.Location = new System.Drawing.Point(15, 148);
+            this.IsMissionPocketDonelbl.Location = new System.Drawing.Point(15, 127);
             this.IsMissionPocketDonelbl.Name = "IsMissionPocketDonelbl";
             this.IsMissionPocketDonelbl.Size = new System.Drawing.Size(110, 13);
             this.IsMissionPocketDonelbl.TabIndex = 213;
@@ -1009,7 +1073,7 @@
             // OrbitDistanceData
             // 
             this.OrbitDistanceData.AutoSize = true;
-            this.OrbitDistanceData.Location = new System.Drawing.Point(132, 132);
+            this.OrbitDistanceData.Location = new System.Drawing.Point(132, 111);
             this.OrbitDistanceData.Name = "OrbitDistanceData";
             this.OrbitDistanceData.Size = new System.Drawing.Size(24, 13);
             this.OrbitDistanceData.TabIndex = 212;
@@ -1018,7 +1082,7 @@
             // OrbitDistancelbl
             // 
             this.OrbitDistancelbl.AutoSize = true;
-            this.OrbitDistancelbl.Location = new System.Drawing.Point(54, 132);
+            this.OrbitDistancelbl.Location = new System.Drawing.Point(54, 111);
             this.OrbitDistancelbl.Name = "OrbitDistancelbl";
             this.OrbitDistancelbl.Size = new System.Drawing.Size(71, 13);
             this.OrbitDistancelbl.TabIndex = 211;
@@ -1027,7 +1091,7 @@
             // WeaponRangeData
             // 
             this.WeaponRangeData.AutoSize = true;
-            this.WeaponRangeData.Location = new System.Drawing.Point(132, 118);
+            this.WeaponRangeData.Location = new System.Drawing.Point(132, 97);
             this.WeaponRangeData.Name = "WeaponRangeData";
             this.WeaponRangeData.Size = new System.Drawing.Size(24, 13);
             this.WeaponRangeData.TabIndex = 210;
@@ -1036,7 +1100,7 @@
             // WeaponRangelbl
             // 
             this.WeaponRangelbl.AutoSize = true;
-            this.WeaponRangelbl.Location = new System.Drawing.Point(45, 119);
+            this.WeaponRangelbl.Location = new System.Drawing.Point(45, 98);
             this.WeaponRangelbl.Name = "WeaponRangelbl";
             this.WeaponRangelbl.Size = new System.Drawing.Size(80, 13);
             this.WeaponRangelbl.TabIndex = 209;
@@ -1045,7 +1109,7 @@
             // DamageTypeData
             // 
             this.DamageTypeData.AutoSize = true;
-            this.DamageTypeData.Location = new System.Drawing.Point(132, 100);
+            this.DamageTypeData.Location = new System.Drawing.Point(132, 79);
             this.DamageTypeData.Name = "DamageTypeData";
             this.DamageTypeData.Size = new System.Drawing.Size(24, 13);
             this.DamageTypeData.TabIndex = 208;
@@ -1054,7 +1118,7 @@
             // DamageTypelbl
             // 
             this.DamageTypelbl.AutoSize = true;
-            this.DamageTypelbl.Location = new System.Drawing.Point(51, 100);
+            this.DamageTypelbl.Location = new System.Drawing.Point(51, 79);
             this.DamageTypelbl.Name = "DamageTypelbl";
             this.DamageTypelbl.Size = new System.Drawing.Size(71, 13);
             this.DamageTypelbl.TabIndex = 207;
@@ -1063,7 +1127,7 @@
             // PriorityTargetsData
             // 
             this.PriorityTargetsData.AutoSize = true;
-            this.PriorityTargetsData.Location = new System.Drawing.Point(132, 87);
+            this.PriorityTargetsData.Location = new System.Drawing.Point(132, 66);
             this.PriorityTargetsData.Name = "PriorityTargetsData";
             this.PriorityTargetsData.Size = new System.Drawing.Size(24, 13);
             this.PriorityTargetsData.TabIndex = 206;
@@ -1072,7 +1136,7 @@
             // PriorityTargetslbl
             // 
             this.PriorityTargetslbl.AutoSize = true;
-            this.PriorityTargetslbl.Location = new System.Drawing.Point(51, 87);
+            this.PriorityTargetslbl.Location = new System.Drawing.Point(51, 66);
             this.PriorityTargetslbl.Name = "PriorityTargetslbl";
             this.PriorityTargetslbl.Size = new System.Drawing.Size(74, 13);
             this.PriorityTargetslbl.TabIndex = 205;
@@ -1081,7 +1145,7 @@
             // DamagedDronesData
             // 
             this.DamagedDronesData.AutoSize = true;
-            this.DamagedDronesData.Location = new System.Drawing.Point(132, 70);
+            this.DamagedDronesData.Location = new System.Drawing.Point(132, 49);
             this.DamagedDronesData.Name = "DamagedDronesData";
             this.DamagedDronesData.Size = new System.Drawing.Size(24, 13);
             this.DamagedDronesData.TabIndex = 204;
@@ -1090,7 +1154,7 @@
             // DamagedDroneslbl
             // 
             this.DamagedDroneslbl.AutoSize = true;
-            this.DamagedDroneslbl.Location = new System.Drawing.Point(38, 70);
+            this.DamagedDroneslbl.Location = new System.Drawing.Point(38, 49);
             this.DamagedDroneslbl.Name = "DamagedDroneslbl";
             this.DamagedDroneslbl.Size = new System.Drawing.Size(87, 13);
             this.DamagedDroneslbl.TabIndex = 203;
@@ -1099,7 +1163,7 @@
             // ApproachingData
             // 
             this.ApproachingData.AutoSize = true;
-            this.ApproachingData.Location = new System.Drawing.Point(132, 57);
+            this.ApproachingData.Location = new System.Drawing.Point(132, 36);
             this.ApproachingData.Name = "ApproachingData";
             this.ApproachingData.Size = new System.Drawing.Size(24, 13);
             this.ApproachingData.TabIndex = 202;
@@ -1108,7 +1172,7 @@
             // Approachinglbl
             // 
             this.Approachinglbl.AutoSize = true;
-            this.Approachinglbl.Location = new System.Drawing.Point(58, 54);
+            this.Approachinglbl.Location = new System.Drawing.Point(58, 33);
             this.Approachinglbl.Name = "Approachinglbl";
             this.Approachinglbl.Size = new System.Drawing.Size(67, 13);
             this.Approachinglbl.TabIndex = 201;
@@ -1117,7 +1181,7 @@
             // ActiveDronesData
             // 
             this.ActiveDronesData.AutoSize = true;
-            this.ActiveDronesData.Location = new System.Drawing.Point(132, 41);
+            this.ActiveDronesData.Location = new System.Drawing.Point(132, 20);
             this.ActiveDronesData.Name = "ActiveDronesData";
             this.ActiveDronesData.Size = new System.Drawing.Size(24, 13);
             this.ActiveDronesData.TabIndex = 200;
@@ -1126,7 +1190,7 @@
             // AvtiveDroneslbl
             // 
             this.AvtiveDroneslbl.AutoSize = true;
-            this.AvtiveDroneslbl.Location = new System.Drawing.Point(54, 41);
+            this.AvtiveDroneslbl.Location = new System.Drawing.Point(54, 20);
             this.AvtiveDroneslbl.Name = "AvtiveDroneslbl";
             this.AvtiveDroneslbl.Size = new System.Drawing.Size(71, 13);
             this.AvtiveDroneslbl.TabIndex = 199;
@@ -1135,7 +1199,7 @@
             // MaxRangeData
             // 
             this.MaxRangeData.AutoSize = true;
-            this.MaxRangeData.Location = new System.Drawing.Point(132, 28);
+            this.MaxRangeData.Location = new System.Drawing.Point(132, 7);
             this.MaxRangeData.Name = "MaxRangeData";
             this.MaxRangeData.Size = new System.Drawing.Size(24, 13);
             this.MaxRangeData.TabIndex = 198;
@@ -1144,7 +1208,7 @@
             // MaxRangelbl
             // 
             this.MaxRangelbl.AutoSize = true;
-            this.MaxRangelbl.Location = new System.Drawing.Point(66, 28);
+            this.MaxRangelbl.Location = new System.Drawing.Point(66, 7);
             this.MaxRangelbl.Name = "MaxRangelbl";
             this.MaxRangelbl.Size = new System.Drawing.Size(59, 13);
             this.MaxRangelbl.TabIndex = 197;
@@ -2348,7 +2412,7 @@
             this.label27.Size = new System.Drawing.Size(460, 13);
             this.label27.TabIndex = 169;
             this.label27.Text = "These values are used this session only and will be overwritten if questor restar" +
-                "ts for ANY reason";
+    "ts for ANY reason";
             // 
             // ScheduleWarninglabel1
             // 
@@ -2358,7 +2422,7 @@
             this.ScheduleWarninglabel1.Size = new System.Drawing.Size(460, 13);
             this.ScheduleWarninglabel1.TabIndex = 168;
             this.ScheduleWarninglabel1.Text = "These values are used this session only and will be overwritten if questor restar" +
-                "ts for ANY reason";
+    "ts for ANY reason";
             // 
             // ExitWhenIdleCheckBox
             // 
@@ -2471,7 +2535,7 @@
             this.label19.Size = new System.Drawing.Size(400, 13);
             this.label19.TabIndex = 168;
             this.label19.Text = "it is a very bad idea to change these states unless you understand what will happ" +
-                "en";
+    "en";
             // 
             // label11
             // 
@@ -2481,7 +2545,7 @@
             this.label11.Size = new System.Drawing.Size(400, 13);
             this.label11.TabIndex = 167;
             this.label11.Text = "it is a very bad idea to change these states unless you understand what will happ" +
-                "en";
+    "en";
             // 
             // panel2
             // 
@@ -6080,7 +6144,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
-            this.ClientSize = new System.Drawing.Size(356, 96);
+            this.ClientSize = new System.Drawing.Size(360, 97);
             this.Controls.Add(this.label26);
             this.Controls.Add(this.label25);
             this.Controls.Add(this.buttonQuestormanager);
@@ -6700,6 +6764,12 @@
         private System.Windows.Forms.Button bttnUserDefinedScript3;
         private System.Windows.Forms.Button bttnUserDefinedScript2;
         private System.Windows.Forms.Button bttnUserDefinedScript1;
+        private System.Windows.Forms.ListBox DronePriorityTargetListBox;
+        private System.Windows.Forms.ListBox PrimaryWeaponsPriorityTargetListBox;
+        private System.Windows.Forms.Label lblCurrentDroneTarget;
+        private System.Windows.Forms.Label lvlCurrentPrimaryWeaponsTarget;
+        private System.Windows.Forms.Label DataCurrentDroneTarget;
+        private System.Windows.Forms.Label DataCurrentCombatTarget;
     }
 }
 

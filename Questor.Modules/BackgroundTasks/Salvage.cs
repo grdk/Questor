@@ -46,9 +46,9 @@ namespace Questor.Modules.BackgroundTasks
         public static void MoveIntoRangeOfWrecks() // DO NOT USE THIS ANYWHERE EXCEPT A PURPOSEFUL SALVAGE BEHAVIOR! - if you use this while in combat it will make you go poof quickly.
         {
             EntityCache closestWreck = Cache.Instance.UnlootedContainers.OrderBy(o => o.Distance).FirstOrDefault();
-            if (closestWreck != null && (Math.Round(closestWreck.Distance, 0) > (int)Distance.SafeScoopRange && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closestWreck.Id)))
+            if (closestWreck != null && (Math.Round(closestWreck.Distance, 0) > (int)Distances.SafeScoopRange && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closestWreck.Id)))
             {
-                if (closestWreck.Distance > (int)Distance.WarptoDistance)
+                if (closestWreck.Distance > (int)Distances.WarptoDistance)
                 {
                     if (DateTime.UtcNow > Cache.Instance.NextWarpTo)
                     {
@@ -65,12 +65,12 @@ namespace Questor.Modules.BackgroundTasks
                     }
                 }
             }
-            else if (closestWreck != null && (closestWreck.Distance <= (int)Distance.SafeScoopRange && Cache.Instance.Approaching != null))
+            else if (closestWreck != null && (closestWreck.Distance <= (int)Distances.SafeScoopRange && Cache.Instance.Approaching != null))
             {
                 if (Cache.Instance.NextApproachAction < DateTime.UtcNow)
                 {
                     if (Cache.Instance.MyShipEntity.Velocity != 0) Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
-                    Logging.Log("Salvage.NavigateIntorangeOfWrecks", "Stop ship, ClosestWreck [" + Math.Round(closestWreck.Distance, 0) + "] is in scooprange + [" + (int)Distance.SafeScoopRange + "] and we were approaching", Logging.White);
+                    Logging.Log("Salvage.NavigateIntorangeOfWrecks", "Stop ship, ClosestWreck [" + Math.Round(closestWreck.Distance, 0) + "] is in scooprange + [" + (int)Distances.SafeScoopRange + "] and we were approaching", Logging.White);
                 }
             }
         }
@@ -133,7 +133,7 @@ namespace Questor.Modules.BackgroundTasks
 
                 // If the wreck no longer exists, or its within loot range then disable the tractor beam
                 // If the wreck no longer exist, beam should be deactivated automatically. Without our interaction.
-                if (tractorBeam.IsActive && (wreck == null || (wreck.Distance <= (int)Distance.SafeScoopRange && !currentWreckUnlooted)))
+                if (tractorBeam.IsActive && (wreck == null || (wreck.Distance <= (int)Distances.SafeScoopRange && !currentWreckUnlooted)))
                 {
                     tractorBeam.Click();
                     tractorsProcessedThisTick++;
@@ -160,7 +160,7 @@ namespace Questor.Modules.BackgroundTasks
                 }
 
                 // Is this wreck within range?
-                if (wreck.Distance < (int)Distance.SafeScoopRange)
+                if (wreck.Distance < (int)Distances.SafeScoopRange)
                 {
                     continue;
                 }
@@ -295,7 +295,7 @@ namespace Questor.Modules.BackgroundTasks
 
                 if (!Cache.Instance.SalvageAll)
                 {
-                    if (Settings.Instance.WreckBlackList.Any(a => a == wreck.TypeId) && (wreck.Distance < (int)Distance.SafeScoopRange || wreck.IsWreckEmpty))
+                    if (Settings.Instance.WreckBlackList.Any(a => a == wreck.TypeId) && (wreck.Distance < (int)Distances.SafeScoopRange || wreck.IsWreckEmpty))
                     {
                         Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] within loot range,wreck is empty, or wreck is on our blacklist, unlocking container.", Logging.White);
                         wreck.UnlockTarget("Salvage");
@@ -311,7 +311,7 @@ namespace Questor.Modules.BackgroundTasks
                 }
 
                 // Unlock if within loot range
-                if (wreck.Distance < (int)Distance.SafeScoopRange)
+                if (wreck.Distance < (int)Distances.SafeScoopRange)
                 {
                     Logging.Log("Salvage", "Cargo Container [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "] within loot range, unlocking container.", Logging.White);
                     wreck.UnlockTarget("Salvage");
@@ -364,7 +364,7 @@ namespace Questor.Modules.BackgroundTasks
                 }
 
                 // No need to tractor a non-wreck within loot range
-                if (wreck.GroupId != (int)Group.Wreck && wreck.Distance < (int)Distance.SafeScoopRange)
+                if (wreck.GroupId != (int)Group.Wreck && wreck.Distance < (int)Distances.SafeScoopRange)
                 {
                     if (Settings.Instance.DebugTargetWrecks) Logging.Log("Salvage.TargetWrecks", "Debug: if (wreck.GroupId != (int)Group.Wreck && wreck.Distance < (int)Distance.SafeScoopRange)", Logging.Teal);
                     continue;
@@ -372,7 +372,7 @@ namespace Questor.Modules.BackgroundTasks
 
                 if (!Cache.Instance.SalvageAll)
                 {
-                    if (Settings.Instance.WreckBlackList.Any(a => a == wreck.TypeId) && (wreck.IsWreckEmpty || wreck.Distance < (int)Distance.SafeScoopRange))
+                    if (Settings.Instance.WreckBlackList.Any(a => a == wreck.TypeId) && (wreck.IsWreckEmpty || wreck.Distance < (int)Distances.SafeScoopRange))
                     {
                         //if (Settings.Instance.DebugTargetWrecks) Logging.Log("Salvage.TargetWrecks", "Debug: if (Settings.Instance.WreckBlackList.Any(a => a == wreck.TypeId) && (wreck.IsWreckEmpty || wreck.Distance < (int)Distance.SafeScoopRange))", Logging.Teal);
                         continue;
@@ -402,7 +402,7 @@ namespace Questor.Modules.BackgroundTasks
                     }
 
                     // Ignore wrecks already in loot range
-                    if (wreck.Distance < (int)Distance.SafeScoopRange)
+                    if (wreck.Distance < (int)Distances.SafeScoopRange)
                     {
                         if (Settings.Instance.DebugTargetWrecks) Logging.Log("Salvage.TargetWrecks", "Debug: Ignoring Entity that is already in loot range ID [" + wreck.Id + "]", Logging.Teal);
                         continue;
@@ -411,7 +411,7 @@ namespace Questor.Modules.BackgroundTasks
 
                 Logging.Log("Salvage", "Locking [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "][" + Math.Round(wreck.Distance / 1000, 0) + "k away]", Logging.White);
 
-                wreck.LockTarget();
+                wreck.LockTarget("Salvage");
                 wreckTargets.Add(wreck);
                 wrecksProcessedThisTick++;
                 if (Settings.Instance.DebugSalvage) Logging.Log("Salvage", "wrecksProcessedThisTick [" + wrecksProcessedThisTick + "]", Logging.Teal);
@@ -457,7 +457,7 @@ namespace Questor.Modules.BackgroundTasks
             
             // Open a container in range
             int containersProcessedThisTick = 0;
-            List<EntityCache> containersInRange = Cache.Instance.Containers.Where(e => e.Distance <= (int)Distance.SafeScoopRange).ToList();
+            List<EntityCache> containersInRange = Cache.Instance.Containers.Where(e => e.Distance <= (int)Distances.SafeScoopRange).ToList();
 
             foreach (EntityCache containerEntity in containersInRange)
             {
@@ -485,7 +485,7 @@ namespace Questor.Modules.BackgroundTasks
                 }
 
                 // Don't even try to open a wreck if you are speed tanking and you are not processing a loot action
-                if (Settings.Instance.SpeedTank && Cache.Instance.OpenWrecks == false)
+                if (Settings.Instance.SpeedTank && !Cache.Instance.MyShipEntity.IsBattleship && Cache.Instance.OpenWrecks == false)
                 {
                     if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "SpeedTank is true and OpenWrecks is false [" + containerEntity.Id + "]", Logging.White);
                     continue;
@@ -765,7 +765,7 @@ namespace Questor.Modules.BackgroundTasks
             }
 
             // When in warp there's nothing we can do, so ignore everything
-            if (Cache.Instance.InWarp)
+            if (Cache.Instance.InSpace && Cache.Instance.InWarp)
             {
                 _States.CurrentSalvageState = SalvageState.Idle;
                 return;
@@ -824,11 +824,11 @@ namespace Questor.Modules.BackgroundTasks
 
                 case SalvageState.Idle:
                     if (Cache.Instance.InSpace &&
-                        Cache.Instance.DirectEve.ActiveShip.Entity != null &&
+                        (Cache.Instance.DirectEve.ActiveShip.Entity != null &&
                         !Cache.Instance.DirectEve.ActiveShip.Entity.IsCloaked &&
                         (Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() != Settings.Instance.CombatShipName.ToLower() ||
                         Cache.Instance.DirectEve.ActiveShip.GivenName.ToLower() != Settings.Instance.SalvageShipName.ToLower()) &&
-                        !Cache.Instance.InWarp)
+                        !Cache.Instance.InWarp))
                     {
                         _States.CurrentSalvageState = SalvageState.TargetWrecks;
                         return;

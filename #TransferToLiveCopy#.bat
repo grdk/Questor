@@ -107,6 +107,12 @@ if not exist "%innerspacedotnetdirectory%InvIgnore.xml" copy /y ".\output\InvIgn
 @Echo.
 @Echo *** only copy Schedules.xml if one does not already exist (it contains the schedule your toons will use to logoff and login if you start eve early)
 if not exist "%innerspacedotnetdirectory%Schedules.xml" copy /y ".\output\Schedules.xml" "%innerspacedotnetdirectory%"
+@Echo.
+@Echo *** only copy StartingQuestorSafetyScript.iss if one does not already exist
+if not exist "%innerspacedotnetdirectory%..\scripts\StartingQuestorSafetyScript.iss" copy /y ".\output\StartingQuestorSafetyScript.iss" "%innerspacedotnetdirectory%..\scripts\"
+@Echo.
+@Echo *** only copy ISXStealth.dll if one does not already exist
+if not exist "%innerspacedotnetdirectory%..\Extensions\ISXStealth.dll" copy /y ".\ISXStealth\ISXStealth.dll" "%innerspacedotnetdirectory%..\Extensions\"
 @Echo off
 
 goto :done

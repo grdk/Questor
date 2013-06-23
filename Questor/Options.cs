@@ -1411,11 +1411,13 @@ namespace Mono.Options
                             start = -1;
                         }
                         break;
+
                     case ':':
                         if (start < 0)
                             goto default;
                         start = i + 1;
                         break;
+
                     default:
                         if (start < 0)
                             sb.Append(description[i]);
@@ -1431,4 +1433,3 @@ namespace Mono.Options
         }
     }
 }
-

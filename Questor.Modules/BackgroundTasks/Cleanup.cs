@@ -30,7 +30,7 @@
             //Cleanup.CloseQuestor();
         }
 
-        public static bool CloseQuestor()
+        public static bool CloseQuestor(string Reason)
         {
             // 30 seconds + 1 to 60 seconds + 1 to 60 seconds before restarting (this should make each instance a bit more spread out over 2 min)
             int secRestart = (300 * 1) + Cache.Instance.RandomNumber(10, 600) + Cache.Instance.RandomNumber(10, 600);
@@ -385,14 +385,6 @@
 
             _lastCleanupProcessState = DateTime.UtcNow;
 
-            // When in warp there's nothing we can do, so ignore everything
-            if (Cache.Instance.InWarp)
-            {
-                if (Settings.Instance.DebugCleanup) Logging.Log("Cleanup", "Processstate: we are in warp: do nothing", Logging.Teal);
-                _States.CurrentSalvageState = SalvageState.Idle;
-                return;
-            }
-
             if (DateTime.UtcNow < Cache.Instance.LastSessionChange.AddSeconds(10))
             {
                 if (Settings.Instance.DebugCleanup) Logging.Log("Cleanup", "last session change was at [" + Cache.Instance.LastSessionChange + "] waiting until 20 sec have passed", Logging.Teal);
@@ -401,6 +393,14 @@
 
             if (Cache.Instance.InSpace)
             {
+                // When in warp there's nothing we can do, so ignore everything
+                if (Cache.Instance.InWarp)
+                {
+                    if (Settings.Instance.DebugCleanup) Logging.Log("Cleanup", "Processstate: we are in warp: do nothing", Logging.Teal);
+                    _States.CurrentSalvageState = SalvageState.Idle;
+                    return;
+                }
+
                 if (Settings.Instance.DebugCleanup) Logging.Log("Cleanup", "Processstate: we are in space", Logging.Teal);
                 if (DateTime.UtcNow < Cache.Instance.LastInStation.AddSeconds(10))
                 {
@@ -448,7 +448,7 @@
                         Logging.Log("Cleanup", Cache.Instance.ReasonToStopQuestor, Logging.White);
                         Settings.Instance.SecondstoWaitAfterExitingCloseQuestorBeforeExitingEVE = 0;
                         Cache.Instance.SessionState = "Quitting";
-                        Cleanup.CloseQuestor();
+                        Cleanup.CloseQuestor(Cache.Instance.ReasonToStopQuestor);
                         return;
                     }
 
@@ -611,7 +611,7 @@
                                 Cache.Instance.ReasonToStopQuestor = "A message from ccp indicated we were disconnected";
                                 Settings.Instance.SecondstoWaitAfterExitingCloseQuestorBeforeExitingEVE = 0;
                                 Cache.Instance.SessionState = "Quitting";
-                                Cleanup.CloseQuestor();
+                                Cleanup.CloseQuestor(Cache.Instance.ReasonToStopQuestor);
                                 return;
                             }
 
@@ -626,7 +626,7 @@
                                 Cache.Instance.SessionState = "Quitting";
                                 Settings.Instance.SecondstoWaitAfterExitingCloseQuestorBeforeExitingEVE = 30;
                                 window.Close();
-                                Cleanup.CloseQuestor();
+                                Cleanup.CloseQuestor(Cache.Instance.ReasonToStopQuestor);
                                 return;
                             }
 
@@ -745,13 +745,13 @@
                     {
                         Logging.Log("Cleanup", "DebugInfo:  Settings.Instance.CharacterName [" + Settings.Instance.CharacterName + "]", Logging.White);
                         Logging.Log("Cleanup", "DebugInfo: Cache.Instance.DirectEve.Me.Name [" + Cache.Instance.DirectEve.Me.Name + "]", Logging.White);
-
+                        Cache.Instance.ReasonToStopQuestor = "CharacterName not defined! - Are we still logged in? Did we lose connection to eve? Questor should be restarting here.";
                         Logging.Log("Cleanup", "CharacterName not defined! - Are we still logged in? Did we lose connection to eve? Questor should be restarting here.", Logging.White);
                         Settings.Instance.CharacterName = "NoCharactersLoggedInAnymore";
                         Cache.Instance.EnteredCloseQuestor_DateTime = DateTime.UtcNow;
                         Cache.Instance.SessionState = "Quitting";
                         _States.CurrentQuestorState = QuestorState.CloseQuestor;
-                        Cleanup.CloseQuestor();
+                        Cleanup.CloseQuestor(Cache.Instance.ReasonToStopQuestor);
                         return;
                     }
 

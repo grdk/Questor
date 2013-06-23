@@ -652,7 +652,7 @@ namespace Questor.Behaviors
                         Cache.Instance.MissionSolarSystem = Cache.Instance.DirectEve.Navigation.GetLocation(Traveler.Destination.SolarSystemId);
                     }
 
-                    if (Cache.Instance.PrimaryWeaponPriorityTargets.Any(pt => pt != null && pt.IsValid) || Cache.Instance.DronePriorityTargets.Any(pt => pt != null && pt.IsValid))
+                    if (Cache.Instance.potentialCombatTargets.Any())
                     {
                         Logging.Log("CombatMissionsBehavior.GotoMission", "Priority targets found, engaging!", Logging.White);
                         _combat.ProcessState();
@@ -807,9 +807,22 @@ namespace Questor.Behaviors
                         if (DateTime.UtcNow > Cache.Instance.LastInStation.AddSeconds(5) && Cache.Instance.InStation) //do not proceed until we have ben docked for at least a few seconds
                             return;
 
-                        //Logging.Log("CombatMissionsBehavior: Starting: Statistics.WriteDroneStatsLog");
-                        if (!Statistics.WriteDroneStatsLog()) break;
-
+                        if (Settings.Instance.UseDrones)
+                        {
+                            if (Cache.Instance.InvTypesById.ContainsKey(Settings.Instance.DroneTypeId))
+                            {
+                                if (!Cache.Instance.OpenDroneBay("Statistics: WriteDroneStatsLog")) return;
+                                InvType drone = Cache.Instance.InvTypesById[Settings.Instance.DroneTypeId];
+                                Statistics.Instance.LostDrones = (int)Math.Floor((Cache.Instance.DroneBay.Capacity - Cache.Instance.DroneBay.UsedCapacity) / drone.Volume);
+                                //Logging.Log("CombatMissionsBehavior: Starting: Statistics.WriteDroneStatsLog");
+                                if (!Statistics.WriteDroneStatsLog()) break;
+                            }
+                            else
+                            {
+                                Logging.Log("DroneStats", "Could not find the drone TypeID specified in the character settings xml; this should not happen!", Logging.White);
+                            }
+                        }
+                        
                         //Logging.Log("CombatMissionsBehavior: Starting: Statistics.AmmoConsumptionStatistics");
                         if (!Statistics.AmmoConsumptionStatistics()) break;
 
@@ -839,7 +852,7 @@ namespace Questor.Behaviors
                         }
                         else
                         {
-                            Logging.Log("CurrentCombatMissionBehavior.CompleteMission", "Skipping statistics: We did not yet complete the mission", Logging.Teal);
+                            Logging.Log("CurrentCombatMissionBehavior.CompleteMission", "Skipping statistics: We have not yet completed a mission", Logging.Teal);
                             _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.UnloadLoot;
                         }
                         return;
@@ -1078,7 +1091,7 @@ namespace Questor.Behaviors
                     Cache.Instance.SalvageAll = true;
                     Cache.Instance.OpenWrecks = true;
 
-                    EntityCache deadlyNPC = Cache.Instance.Entities.Where(t => t.Distance < (int)Distance.OnGridWithMe && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeColidableStructure).OrderBy(t => t.Distance).FirstOrDefault();
+                    EntityCache deadlyNPC = Cache.Instance.Entities.Where(t => t.Distance < (int)Distances.OnGridWithMe && !t.IsEntityIShouldLeaveAlone && !t.IsContainer && t.IsNpc && t.CategoryId == (int)CategoryID.Entity && t.GroupId != (int)Group.LargeColidableStructure).OrderBy(t => t.Distance).FirstOrDefault();
                     if (deadlyNPC != null)
                     {
                         // found NPCs that will likely kill out fragile salvage boat!
@@ -1195,7 +1208,7 @@ namespace Questor.Behaviors
                     _lastZ = Cache.Instance.DirectEve.ActiveShip.Entity.Z;
 
                     EntityCache closest = Cache.Instance.AccelerationGates.OrderBy(t => t.Distance).FirstOrDefault();
-                    if (closest.Distance < (int)Distance.DecloakRange)
+                    if (closest.Distance < (int)Distances.DecloakRange)
                     {
                         Logging.Log("CombatMissionsBehavior.Salvage", "Acceleration gate found - GroupID=" + closest.GroupId, Logging.White);
 
@@ -1210,7 +1223,7 @@ namespace Questor.Behaviors
                         return;
                     }
 
-                    if (closest.Distance < (int)Distance.WarptoDistance)
+                    if (closest.Distance < (int)Distances.WarptoDistance)
                     {
                         // Move to the target
                         if (Cache.Instance.NextApproachAction < DateTime.UtcNow && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closest.Id))
@@ -1234,7 +1247,7 @@ namespace Questor.Behaviors
                 case CombatMissionsBehaviorState.SalvageNextPocket:
                     Cache.Instance.OpenWrecks = true;
                     double distance = Cache.Instance.DistanceFromMe(_lastX, _lastY, _lastZ);
-                    if (distance > (int)Distance.NextPocketDistance)
+                    if (distance > (int)Distances.NextPocketDistance)
                     {
                         //we know we are connected here...
                         Cache.Instance.LastKnownGoodConnectedTime = DateTime.UtcNow;
@@ -1331,7 +1344,7 @@ namespace Questor.Behaviors
 
                 case CombatMissionsBehaviorState.Traveler:
                     Cache.Instance.OpenWrecks = false;
-                    List<long> destination = Cache.Instance.DirectEve.Navigation.GetDestinationPath();
+                    List<int> destination = Cache.Instance.DirectEve.Navigation.GetDestinationPath();
                     if (destination == null || destination.Count == 0)
                     {
                         // happens if autopilot is not set and this QuestorState is chosen manually
@@ -1386,11 +1399,11 @@ namespace Questor.Behaviors
                     break;
 
                 case CombatMissionsBehaviorState.GotoNearestStation:
-                    if (!Cache.Instance.InSpace || Cache.Instance.InWarp) return;
+                    if (!Cache.Instance.InSpace || (Cache.Instance.InSpace && Cache.Instance.InWarp)) return;
                     var station = Cache.Instance.Stations.OrderBy(x => x.Distance).FirstOrDefault();
                     if (station != null)
                     {
-                        if (station.Distance > (int)Distance.WarptoDistance)
+                        if (station.Distance > (int)Distances.WarptoDistance)
                         {
                             Logging.Log("CombatMissionsBehavior.GotoNearestStation", "[" + station.Name + "] which is [" + Math.Round(station.Distance / 1000, 0) + "k away]", Logging.White);
                             station.WarpToAndDock();

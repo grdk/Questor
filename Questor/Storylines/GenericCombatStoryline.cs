@@ -252,7 +252,7 @@
                         Traveler.Destination = new MissionBookmarkDestination(Cache.Instance.GetMissionBookmark(Cache.Instance.CurrentStorylineAgentId, nameOfBookmark));
                     }
 
-                    if (Cache.Instance.PrimaryWeaponPriorityTargets.Any(pt => pt != null && pt.IsValid) || Cache.Instance.DronePriorityTargets.Any(pt => pt != null && pt.IsValid))
+                    if (Cache.Instance.potentialCombatTargets.Any())
                     {
                         Logging.Log("GenericCombatStoryline", "Priority targets found while traveling, engaging!", Logging.White);
                         _combat.ProcessState();

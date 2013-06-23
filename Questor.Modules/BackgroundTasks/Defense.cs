@@ -397,7 +397,7 @@ namespace Questor.Modules.BackgroundTasks
                         continue;
                     }
                     EntityCache stuffThatMayDecloakMe = Cache.Instance.Entities.Where(t => t.Name != Cache.Instance.DirectEve.Me.Name || t.IsBadIdea || t.IsContainer || t.IsNpc || t.IsPlayer).OrderBy(t => t.Distance).FirstOrDefault();
-                    if (stuffThatMayDecloakMe != null && (stuffThatMayDecloakMe.Distance <= (int)Distance.SafeToCloakDistance)) //if their is anything within 2300m do not attempt to cloak
+                    if (stuffThatMayDecloakMe != null && (stuffThatMayDecloakMe.Distance <= (int)Distances.SafeToCloakDistance)) //if their is anything within 2300m do not attempt to cloak
                     {
                         if ((int)stuffThatMayDecloakMe.Distance != 0)
                         {
@@ -505,8 +505,8 @@ namespace Questor.Modules.BackgroundTasks
                     {
                         perc = Cache.Instance.DirectEve.ActiveShip.ArmorPercentage;
                         Logging.Log("Defense", "Armor: [" + Math.Round(perc, 0) + "%] Cap: [" + Math.Round(cap, 0) + "%] Armor Repairer: [" + ModuleNumber + "] activated", Logging.White);
-                        int aggressiveEntities = Cache.Instance.Entities.Count(e => e.Distance < (int)Distance.OnGridWithMe && e.IsAttacking && e.IsPlayer);
-                        if (aggressiveEntities == 0 && Cache.Instance.Entities.Count(e => e.Distance < (int)Distance.OnGridWithMe && e.IsStation) == 1)
+                        int aggressiveEntities = Cache.Instance.Entities.Count(e => e.Distance < (int)Distances.OnGridWithMe && e.IsAttacking && e.IsPlayer);
+                        if (aggressiveEntities == 0 && Cache.Instance.Entities.Count(e => e.Distance < (int)Distances.OnGridWithMe && e.IsStation) == 1)
                         {
                             Cache.Instance.NextDockAction = DateTime.UtcNow.AddSeconds(15);
                             Logging.Log("Defense", "Repairing Armor outside station with no aggro (yet): delaying docking for [15]seconds", Logging.White);
@@ -564,16 +564,16 @@ namespace Questor.Modules.BackgroundTasks
                     continue;
 
                 // Should we activate the module
-                bool activate = Cache.Instance.IsApproachingOrOrbiting;
+                bool activate = Cache.Instance.IsApproachingOrOrbiting(0);
                 activate &= !module.IsActive;
 
                 // Should we deactivate the module?
-                bool deactivate = !Cache.Instance.IsApproaching;
+                bool deactivate = !Cache.Instance.IsApproaching(0);
                 deactivate &= module.IsActive;
                 deactivate &= ((!Cache.Instance.Entities.Any(e => e.IsAttacking) && DateTime.UtcNow > Statistics.Instance.StartedPocket.AddSeconds(60)) || !Settings.Instance.SpeedTank);
 
                 // This only applies when not speed tanking
-                if (!Settings.Instance.SpeedTank && Cache.Instance.IsApproachingOrOrbiting)
+                if (!Settings.Instance.SpeedTank && Cache.Instance.IsApproachingOrOrbiting(0))
                 {
                     // Activate if target is far enough
                     if (Cache.Instance.Approaching != null)
@@ -635,7 +635,7 @@ namespace Questor.Modules.BackgroundTasks
                 return;
             }
 
-            if (DateTime.UtcNow.Subtract(_lastSessionChange).TotalSeconds < 7)
+            if (DateTime.UtcNow.Subtract(_lastSessionChange).TotalSeconds < 15)
             {
                 if (Settings.Instance.DebugDefense) Logging.Log("Defense", "we just completed a session change less than 7 seconds ago... waiting.", Logging.White);
                 return;

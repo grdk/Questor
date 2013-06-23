@@ -140,7 +140,7 @@ namespace Questor.Modules.BackgroundTasks
                 //    continue;
 
                 // No need to tractor a non-wreck within loot range
-                if (wreck.GroupId != (int)Group.Wreck && wreck.Distance < (int)Distance.SafeScoopRange)
+                if (wreck.GroupId != (int)Group.Wreck && wreck.Distance < (int)Distances.SafeScoopRange)
                     continue;
 
                 if (wreck.GroupId != (int)Group.Wreck && wreck.GroupId != (int)Group.CargoContainer)
@@ -159,7 +159,7 @@ namespace Questor.Modules.BackgroundTasks
 
                 Logging.Log("Salvage", "Locking [" + wreck.Name + "][ID: " + Cache.Instance.MaskedID(wreck.Id) + "][" + Math.Round(wreck.Distance / 1000, 0) + "k away]", Logging.White);
 
-                wreck.LockTarget();
+                wreck.LockTarget("Salvage");
                 wreckTargets.Add(wreck);
 
                 if (wreckTargets.Count >= MaximumWreckTargets)
@@ -191,7 +191,7 @@ namespace Questor.Modules.BackgroundTasks
                 EntityCache containerEntity = Cache.Instance.EntityById(window.ItemId);
 
                 // Does it no longer exist or is it out of transfer range or its looted
-                if (containerEntity == null || containerEntity.Distance > (int)Distance.SafeScoopRange || Cache.Instance.LootedContainers.Contains(containerEntity.Id))
+                if (containerEntity == null || containerEntity.Distance > (int)Distances.SafeScoopRange || Cache.Instance.LootedContainers.Contains(containerEntity.Id))
                 {
                     Logging.Log("Salvage", "Closing loot window [" + window.ItemId + "]", Logging.White);
                     window.Close();
@@ -334,7 +334,7 @@ namespace Questor.Modules.BackgroundTasks
             }
 
             // Open a container in range
-            foreach (EntityCache containerEntity in Cache.Instance.UnlootedWrecksAndSecureCans.Where(e => e.Distance <= (int)Distance.SafeScoopRange))
+            foreach (EntityCache containerEntity in Cache.Instance.UnlootedWrecksAndSecureCans.Where(e => e.Distance <= (int)Distances.SafeScoopRange))
             {
                 // Empty wreck, ignore
                 if (containerEntity.GroupId == (int)Group.Wreck && containerEntity.IsWreckEmpty)

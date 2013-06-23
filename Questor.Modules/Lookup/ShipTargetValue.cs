@@ -24,7 +24,7 @@ namespace Questor.Modules.Lookup
                 GroupId = (int)element.Attribute("groupid");
                 TargetValue = (int)element.Attribute("targetvalue");
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 //add logging here
             }

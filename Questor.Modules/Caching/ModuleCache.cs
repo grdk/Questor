@@ -199,7 +199,9 @@ namespace Questor.Modules.Caching
             get
             {
                 if (Cache.Instance.LastModuleTargetIDs.ContainsKey(ItemId))
+                {
                     return Cache.Instance.LastModuleTargetIDs[ItemId];
+                }
 
                 return -1;
             }

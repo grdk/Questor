@@ -29,7 +29,7 @@ namespace Questor.Modules.BackgroundTasks
                     //EntityCache thisBigObject = Cache.Instance.BigObjects.FirstOrDefault();
                     if (thisBigObject != null)
                     {
-                        if (thisBigObject.Distance >= (int)Distance.TooCloseToStructure)
+                        if (thisBigObject.Distance >= (int)Distances.TooCloseToStructure)
                         {
                             //we are no longer "too close" and can proceed.
                             AvoidBumpingThingsTimeStamp = DateTime.UtcNow;
@@ -66,8 +66,8 @@ namespace Questor.Modules.BackgroundTasks
                                         Cache.Instance.SessionState = "Quitting";
                                     }
                                 }
-                                thisBigObject.Orbit((int)Distance.SafeDistancefromStructure * SafeDistanceFromStructureMultiplier);
-                                Logging.Log(module, ": initiating Orbit of [" + thisBigObject.Name + "] orbiting at [" + ((int)Distance.SafeDistancefromStructure * SafeDistanceFromStructureMultiplier) + "]", Logging.White);
+                                thisBigObject.Orbit((int)Distances.SafeDistancefromStructure * SafeDistanceFromStructureMultiplier);
+                                Logging.Log(module, ": initiating Orbit of [" + thisBigObject.Name + "] orbiting at [" + ((int)Distances.SafeDistancefromStructure * SafeDistanceFromStructureMultiplier) + "]", Logging.White);
                             }
                             return;
                             //we are still too close, do not continue through the rest until we are not "too close" anymore
@@ -90,8 +90,9 @@ namespace Questor.Modules.BackgroundTasks
                 if (target.Distance + Cache.Instance.OrbitDistance < Cache.Instance.MaxRange - 5000)
                 {
                     if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "if (target.Distance + Cache.Instance.OrbitDistance < Cache.Instance.MaxRange - 5000)", Logging.White);
+
                     //Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction] ,"StartOrbiting: Target in range");
-                    if (!Cache.Instance.IsApproachingOrOrbiting)
+                    if (!Cache.Instance.IsApproachingOrOrbiting(target.Id))
                     {
                         if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("CombatMissionCtrl.NavigateIntoRange", "We are not approaching nor orbiting", Logging.Teal);
 
@@ -107,13 +108,13 @@ namespace Questor.Modules.BackgroundTasks
 
                         if (structure == null)
                         {
-                            structure = Cache.Instance.Entities.Where(i => i.Name.Contains("Gate")).OrderBy(t => t.Distance).FirstOrDefault();    
+                            structure = Cache.Instance.Entities.Where(i => i.Name.Contains("Gate")).OrderBy(t => t.Distance).FirstOrDefault();
                         }
-                        
+
                         if (Settings.Instance.OrbitStructure && structure != null)
                         {
                             structure.Orbit(Cache.Instance.OrbitDistance);
-                            Logging.Log(module, "Initiating Orbit [" + structure.Name + "][at " + Math.Round((double)Cache.Instance.OrbitDistance/1000, 0) + "k][ID: " + Cache.Instance.MaskedID(structure.Id) + "]", Logging.Teal);
+                            Logging.Log(module, "Initiating Orbit [" + structure.Name + "][at " + Math.Round((double)Cache.Instance.OrbitDistance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(structure.Id) + "]", Logging.Teal);
                             return;
                         }
 
@@ -123,7 +124,7 @@ namespace Questor.Modules.BackgroundTasks
                         if (Settings.Instance.SpeedTank)
                         {
                             target.Orbit(Cache.Instance.OrbitDistance);
-                            Logging.Log(module, "Initiating Orbit [" + target.Name + "][at " + Math.Round((double)Cache.Instance.OrbitDistance/1000,0) + "/][ID: " + Cache.Instance.MaskedID(target.Id) + "]", Logging.Teal);
+                            Logging.Log(module, "Initiating Orbit [" + target.Name + "][at " + Math.Round((double)Cache.Instance.OrbitDistance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(target.Id) + "]", Logging.Teal);
                             return;
                         }
 
@@ -133,8 +134,7 @@ namespace Questor.Modules.BackgroundTasks
                         //
                         if (Cache.Instance.MyShipEntity.Velocity < 300) //this will spam a bit until we know what "mode" our activeship is when aligning
                         {
-                            if (Settings.Instance.WeaponGroupId == (int)Group.HybridWeapon ||
-                                Settings.Instance.WeaponGroupId == (int)Group.ProjectileWeapon)
+                            if (Cache.Instance.DoWeCurrentlyHaveTurretsMounted())
                             {
                                 if (DateTime.UtcNow > Cache.Instance.NextAlign)
                                 {
@@ -143,15 +143,7 @@ namespace Questor.Modules.BackgroundTasks
                                     return;
                                 }
                             }
-
-                            target.Orbit(Cache.Instance.OrbitDistance);
-                            Logging.Log(module, "Initiating Orbit [" + target.Name + "][at " + Math.Round((double)Cache.Instance.OrbitDistance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(target.Id) + "]", Logging.Teal);
-                            return;
                         }
-
-                        target.Orbit(Cache.Instance.OrbitDistance);
-                        Logging.Log(module, "Initiating Orbit [" + target.Name + "][at " + Math.Round((double)Cache.Instance.OrbitDistance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(target.Id) + "]", Logging.Teal);
-                        return;
                     }
                 }
                 else
@@ -166,9 +158,9 @@ namespace Questor.Modules.BackgroundTasks
             }
         }
 
-        public static void NavigateIntoRange(EntityCache target, string module)
+        public static void NavigateIntoRange(EntityCache target, string module, bool moveMyShip)
         {
-            if (Cache.Instance.InWarp || Cache.Instance.InStation)
+            if (!Cache.Instance.InSpace || (Cache.Instance.InSpace && Cache.Instance.InWarp) || !moveMyShip)
                 return;
 
             if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange Started", Logging.White);
@@ -192,8 +184,18 @@ namespace Questor.Modules.BackgroundTasks
 
             if (Settings.Instance.SpeedTank)
             {
-                if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange: speedtank: orbitdistance is [" + Cache.Instance.OrbitDistance + "]", Logging.White);
-                OrbitGateorTarget(target, module);
+                if (target.Distance > Cache.Instance.MaxRange && !Cache.Instance.IsApproaching(target.Id))
+                {
+                    target.Approach((int)(Cache.Instance.MaxRange * 0.8d));
+                    if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange: speedtank: Moving into weapons range before initiating orbit", Logging.Teal);
+                    return;
+                }
+                if (target.Distance < Cache.Instance.MaxRange && !Cache.Instance.IsOrbiting(target.Id))
+                {
+                    if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange: speedtank: orbitdistance is [" + Cache.Instance.OrbitDistance + "]", Logging.White);
+                    OrbitGateorTarget(target, module);
+                    return;
+                }
                 return;
             }
             else //if we are not speed tanking then check optimalrange setting, if that is not set use the less of targeting range and weapons range to dictate engagement range
@@ -205,9 +207,9 @@ namespace Questor.Modules.BackgroundTasks
                     {
                         if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange: OptimalRange [ " + Cache.Instance.OptimalRange + "] Current Distance to [" + target.Name + "] is [" + Math.Round(target.Distance / 1000, 0) + "]", Logging.White);
 
-                        if (target.Distance > Cache.Instance.OptimalRange + (int)Distance.OptimalRangeCushion && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != target.Id))
+                        if (target.Distance > Cache.Instance.OptimalRange + (int)Distances.OptimalRangeCushion && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != target.Id))
                         {
-                            if (target.IsNPCFrigate)
+                            if (target.IsNPCFrigate && Cache.Instance.DoWeCurrentlyHaveTurretsMounted())
                             {
                                 if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange: target is NPC Frigate [" + target.Name + "][" + Math.Round(target.Distance / 1000, 0) + "]", Logging.White);
                                 OrbitGateorTarget(target, module);
@@ -221,17 +223,18 @@ namespace Questor.Modules.BackgroundTasks
 
                         if (target.Distance <= Cache.Instance.OptimalRange)
                         {
-                            if ((target.IsNPCFrigate) && (Cache.Instance.Approaching == null || Cache.Instance.MyShipEntity.Velocity < 100))
+                            if (target.IsNPCFrigate && ((Cache.Instance.Approaching != null && Cache.Instance.Approaching.Id != target.Id) || Cache.Instance.Approaching == null) && Cache.Instance.DoWeCurrentlyHaveTurretsMounted())
                             {
-                                if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange: target is NPC Frigate [" + target.Name + "][" + target.Distance + "]", Logging.White);
-                                OrbitGateorTarget(target, module);
+                                Logging.Log(module, "Target is NPC Frigate and we got Turrets. Keeping target at Range to hit it.", Logging.Teal);
+                                target.Approach(Settings.Instance.OptimalRange);
+                                Logging.Log(module, "Initiating KeepAtRange [" + target.Name + "][at " + Math.Round((double)Settings.Instance.OptimalRange / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(target.Id) + "]", Logging.Teal);
                                 return;
                             }
-
-                            if (Cache.Instance.Approaching != null && Cache.Instance.MyShipEntity.Velocity != 0)
+                            else if (Cache.Instance.Approaching != null && Cache.Instance.MyShipEntity.Velocity != 0)
                             {
-                                Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
-                                Cache.Instance.Approaching = null;
+                                if (target.IsNPCFrigate && Cache.Instance.DoWeCurrentlyHaveTurretsMounted()) return;
+
+                                StopMyShip();
                                 Logging.Log(module, "Using Optimal Range: Stop ship, target at [" + Math.Round(target.Distance / 1000, 0) + "k away] is inside optimal", Logging.Teal);
                                 return;
                             }
@@ -248,35 +251,34 @@ namespace Questor.Modules.BackgroundTasks
 
                         if (target.Distance > Cache.Instance.MaxRange && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != target.Id))
                         {
-                            if (target.IsNPCFrigate)
+                            if (target.IsNPCFrigate && Cache.Instance.DoWeCurrentlyHaveTurretsMounted())
                             {
                                 if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange: target is NPC Frigate [" + target.Name + "][" + target.Distance + "]", Logging.White);
                                 OrbitGateorTarget(target, module);
                                 return;
                             }
-                            target.Approach((int)(Cache.Instance.WeaponRange * 0.8d));
-                            Logging.Log(module, "Using Weapons Range * 0.8d [" + Math.Round(Cache.Instance.WeaponRange * 0.8d / 1000, 0) + " k]: Approaching target [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
+                            target.Approach((int)(Cache.Instance.MaxRange * 0.8d));
+                            Logging.Log(module, "Using Weapons Range * 0.8d [" + Math.Round(Cache.Instance.MaxRange * 0.8d / 1000, 0) + " k]: Approaching target [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                             return;
                         }
 
                         //I think when approach distance will be reached ship will be stopped so this is not needed
                         if (target.Distance <= Cache.Instance.MaxRange - 5000 && Cache.Instance.Approaching != null)
                         {
-                            if (target.IsNPCFrigate)
+                            if (target.IsNPCFrigate && Cache.Instance.DoWeCurrentlyHaveTurretsMounted())
                             {
                                 if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange: target is NPC Frigate [" + target.Name + "][" + target.Distance + "]", Logging.White);
                                 OrbitGateorTarget(target, module);
                                 return;
                             }
-                            if (Cache.Instance.MyShipEntity.Velocity != 0) Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
-                            Cache.Instance.Approaching = null;
+                            if (Cache.Instance.MyShipEntity.Velocity != 0) StopMyShip();
                             Logging.Log(module, "Using Weapons Range: Stop ship, target is more than 5k inside weapons range", Logging.Teal);
                             return;
                         }
 
                         if (target.Distance <= Cache.Instance.MaxRange && Cache.Instance.Approaching == null)
                         {
-                            if (target.IsNPCFrigate)
+                            if (target.IsNPCFrigate && Cache.Instance.DoWeCurrentlyHaveTurretsMounted())
                             {
                                 if (Settings.Instance.DebugNavigateOnGrid) Logging.Log("NavigateOnGrid", "NavigateIntoRange: target is NPC Frigate [" + target.Name + "][" + target.Distance + "]", Logging.White);
                                 OrbitGateorTarget(target, module);
@@ -289,6 +291,16 @@ namespace Questor.Modules.BackgroundTasks
             }
         }
 
+        public static void StopMyShip()
+        {
+            if (DateTime.UtcNow > Cache.Instance.NextApproachAction)
+            {
+                Cache.Instance.NextApproachAction = DateTime.UtcNow.AddSeconds(Time.Instance.ApproachDelay_seconds);
+                Cache.Instance.DirectEve.ExecuteCommand(DirectCmd.CmdStopShip);
+                Cache.Instance.Approaching = null;
+            }
+        }
+
         public static void NavigateToObject(EntityCache target, string module)  //this needs to accept a distance parameter....
         {
             if (Settings.Instance.SpeedTank)
@@ -298,7 +310,7 @@ namespace Questor.Modules.BackgroundTasks
                     if (target.Distance + Cache.Instance.OrbitDistance < Cache.Instance.MaxRange)
                     {
                         Logging.Log(module, "StartOrbiting: Target in range", Logging.Teal);
-                        if (!Cache.Instance.IsApproachingOrOrbiting)
+                        if (!Cache.Instance.IsApproachingOrOrbiting(target.Id))
                         {
                             Logging.Log("CombatMissionCtrl.NavigateToObject", "We are not approaching nor orbiting", Logging.Teal);
                             bool orbitStructure = Settings.Instance.OrbitStructure;
@@ -336,7 +348,7 @@ namespace Questor.Modules.BackgroundTasks
                     //
                     if (target.Distance > Cache.Instance.MaxRange && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != target.Id))
                     {
-                        target.Approach((int)(Distance.SafeDistancefromStructure));
+                        target.Approach((int)(Distances.SafeDistancefromStructure));
                         Logging.Log(module, "Using SafeDistanceFromStructure: Approaching target [" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away]", Logging.Teal);
                     }
                     return;

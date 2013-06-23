@@ -196,7 +196,7 @@ namespace Questor
                         NextDroneBayActionData.Text = Cache.Instance.NextDroneBayAction.ToLongTimeString();
                         NextOpenHangarActionData.Text = Cache.Instance.NextOpenHangarAction.ToLongTimeString();
                         NextOpenCargoActionData.Text = Cache.Instance.NextOpenCargoAction.ToLongTimeString();
-                        LastActionData.Text = Cache.Instance.LastAction.ToLongTimeString();
+                        LastActionData.Text = "";
                         NextArmActionData.Text = Cache.Instance.NextArmAction.ToLongTimeString();
                         NextSalvageActionData.Text = Cache.Instance.NextSalvageAction.ToLongTimeString();
                         NextLootActionData.Text = Cache.Instance.NextLootAction.ToLongTimeString();
@@ -291,6 +291,13 @@ namespace Questor
                         DataAmmoHangarName.Text = Settings.Instance.AmmoHangar;
                         DataLootHangarID.Text = Cache.Instance.LootHangarID.ToString(CultureInfo.InvariantCulture);
                         DataLootHangarName.Text = Settings.Instance.LootHangar;
+                        PrimaryWeaponsPriorityTargetListBox.DataSource = null;
+                        PrimaryWeaponsPriorityTargetListBox.DataSource = Cache.Instance.PrimaryWeaponPriorityTargets;
+                        DronePriorityTargetListBox.DataSource = null;
+                        DronePriorityTargetListBox.DataSource = Cache.Instance.DronePriorityTargets;
+                        lvlCurrentPrimaryWeaponsTarget.Text = Cache.Instance.PreferredPrimaryWeaponTarget.ToString();
+                        lblCurrentDroneTarget.Text = Cache.Instance.PreferredDroneTarget.ToString();
+
                     }
                 }
                 catch (Exception ex)
@@ -688,7 +695,12 @@ namespace Questor
             {
                 if (_States.CurrentQuestorState != QuestorState.CloseQuestor)
                 {
-                    Cleanup.CloseQuestor();
+                    if (Cache.Instance.ReasonToStopQuestor == string.Empty)
+                    {
+                        Cache.Instance.ReasonToStopQuestor = "Cache.Instance.SessionState == Quitting";
+                    }
+
+                    Cleanup.CloseQuestor(Cache.Instance.ReasonToStopQuestor);
                 }
             }
 
@@ -801,9 +813,9 @@ namespace Questor
             //
             // Right Group
             //
-            if ((string)CombatMissionCtrlStateComboBox.SelectedItem != text && !CombatMissionCtrlStateComboBox.DroppedDown)
+            if ((string)CombatMissionCtrlStateComboBox.SelectedItem != _States.CurrentCombatMissionCtrlState.ToString() && !CombatMissionCtrlStateComboBox.DroppedDown)
             {
-                CombatMissionCtrlStateComboBox.SelectedItem = text;
+                CombatMissionCtrlStateComboBox.SelectedItem = _States.CurrentCombatMissionCtrlState.ToString();
             }
 
             if ((string)StorylineStateComboBox.SelectedItem != _States.CurrentStorylineState.ToString() && !StorylineStateComboBox.DroppedDown)
@@ -1034,11 +1046,11 @@ namespace Questor
                 if (DateTime.UtcNow.Subtract(Cache.Instance.LastLogMessage).TotalSeconds > 30)
                 {
                     Logging.Log("QuestorUI", "The Last UI Frame Drawn by EVE was [" + Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastFrame).TotalSeconds, 0) + "] seconds ago! This is bad. - Exiting EVE", Logging.Red);
-
+                    Cache.Instance.ReasonToStopQuestor = "The Last UI Frame Drawn by EVE was [" + Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastFrame).TotalSeconds, 0) + "] seconds ago! This is bad. - Exiting EVE";
                     //
                     // closing eve would be a very good idea here
                     //
-                    Cleanup.CloseQuestor();
+                    Cleanup.CloseQuestor(Cache.Instance.ReasonToStopQuestor);
 
                     //Application.Exit();
                 }
@@ -1050,7 +1062,8 @@ namespace Questor
                 if (DateTime.UtcNow.Subtract(Cache.Instance.LastLogMessage).TotalSeconds > 60)
                 {
                     Logging.Log("QuestorUI", "The Last Session.IsReady = true was [" + Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastSessionIsReady).TotalSeconds, 0) + "] seconds ago! This is bad. - Exiting EVE", Logging.Red);
-                    Cleanup.CloseQuestor();
+                    Cache.Instance.ReasonToStopQuestor = "The Last Session.IsReady = true was [" + Math.Round(DateTime.UtcNow.Subtract(Cache.Instance.LastSessionIsReady).TotalSeconds, 0) + "] seconds ago! This is bad. - Exiting EVE";
+                    Cleanup.CloseQuestor(Cache.Instance.ReasonToStopQuestor);
 
                     //Application.Exit();
                 }
@@ -1325,6 +1338,8 @@ namespace Questor
                 {
                     Logging.Log("QuestorUI", "Launching [ dotnet QuestorManager QuestorManager ]", Logging.White);
                     LavishScript.ExecuteCommand("dotnet QuestorManager QuestorManager");
+                    Cache.Instance.ReasonToStopQuestor = "Stating QuestorManager: closing questor";
+                    Cleanup.CloseQuestor(Cache.Instance.ReasonToStopQuestor);
                 }
                 else
                 {

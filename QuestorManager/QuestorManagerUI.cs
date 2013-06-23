@@ -8,6 +8,8 @@
 //   </copyright>
 // -------------------------------------------------------------------------------
 
+using System.Globalization;
+
 namespace QuestorManager
 {
     using System;
@@ -263,7 +265,7 @@ namespace QuestorManager
             // Cleanup State: ProcessState
 
             // When in warp there's nothing we can do, so ignore everything
-            if (Cache.Instance.InWarp) return;
+            if (Cache.Instance.InSpace && Cache.Instance.InWarp) return;
 
             InitializeTraveler();
 
@@ -1434,8 +1436,8 @@ namespace QuestorManager
                                 {
                                     ListViewItem listItem = new ListViewItem("BuyOrder");
                                     listItem.SubItems.Add(item.Name);
-                                    listItem.Tag = item.Id.ToString();
-                                    listItem.SubItems.Add(surplus.ToString());
+                                    listItem.Tag = item.Id.ToString(CultureInfo.InvariantCulture);
+                                    listItem.SubItems.Add(surplus.ToString(CultureInfo.InvariantCulture));
                                     LstTask.Items.Add(listItem);
                                     count++;
                                 }
@@ -1445,6 +1447,28 @@ namespace QuestorManager
                 }
             }
             System.Windows.Forms.MessageBox.Show("Added " + count + " Tasks to your list.");
+        }
+
+        private void StartQuestor_Click(object sender, EventArgs e)
+        {
+            string questorPath = Path.Combine(Settings.Instance.Path, "Questor.exe");
+            if (File.Exists(questorPath))
+            {
+                if (Settings.Instance.UseInnerspace)
+                {
+                    Logging.Log("QuestorManagerUI", "Launching [ dotnet q1 questor.exe ]", Logging.White);
+                    LavishScript.ExecuteCommand("dotnet q1 questor.exe");
+                    Application.Exit();
+                }
+                else
+                {
+                    Logging.Log("QuestorUI", "Launching [ dotnet QuestorManager QuestorManager ] - fix me", Logging.White);
+                }
+            }
+            else
+            {
+                Logging.Log("QuestorUI", "Unable to launch Questor from [" + questorPath + "] file not found", Logging.Orange);
+            }
         }
     }
 }

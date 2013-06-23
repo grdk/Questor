@@ -29,3 +29,5 @@ _ReSharper*/
 [Tt]est[Rr]esult*
 output/*.dll
 output/*.exe
+Questor.opensdf
+Questor.sdf

@@ -77,6 +77,10 @@ namespace Questor.Modules.Activities
                     missionItem = "Large EMP Smartbomb I";
                     break;
 
+                case "Pot and Kettle - Making Amends (5 of 5)":       //lvl4 courier
+                    missionItem = "Mexallon";
+                    break;
+
                 case "Technological Secrets (2 of 3)":               //lvl4 courier
                     missionItem = "DNA Sample"; //typeid: 13288	 groupID: 314
                     break;

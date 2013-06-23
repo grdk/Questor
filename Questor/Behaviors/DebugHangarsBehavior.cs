@@ -193,7 +193,7 @@ namespace Questor.Behaviors
                 EntityCache thisBigObject = Cache.Instance.BigObjects.FirstOrDefault();
                 if (thisBigObject != null)
                 {
-                    if (thisBigObject.Distance >= (int)Distance.TooCloseToStructure)
+                    if (thisBigObject.Distance >= (int)Distances.TooCloseToStructure)
                     {
                         //we are no longer "too close" and can proceed.
                     }
@@ -201,13 +201,14 @@ namespace Questor.Behaviors
                     {
                         if (DateTime.UtcNow > Cache.Instance.NextOrbit)
                         {
-                            thisBigObject.Orbit((int)Distance.SafeDistancefromStructure);
+                            thisBigObject.Orbit((int)Distances.SafeDistancefromStructure);
                             Logging.Log("DebugHangarsBehavior", _States.CurrentDebugHangarBehaviorState +
                                         ": initiating Orbit of [" + thisBigObject.Name +
-                                        "] orbiting at [" + Distance.SafeDistancefromStructure + "]", Logging.White);
+                                        "] orbiting at [" + Distances.SafeDistancefromStructure + "]", Logging.White);
                             Cache.Instance.NextOrbit = DateTime.UtcNow.AddSeconds(Time.Instance.OrbitDelay_seconds);
                         }
                         return;
+
                         //we are still too close, do not continue through the rest until we are not "too close" anymore
                     }
                 }
@@ -451,7 +452,7 @@ namespace Questor.Behaviors
 
                 case DebugHangarsBehaviorState.Traveler:
                     Cache.Instance.OpenWrecks = false;
-                    List<long> destination = Cache.Instance.DirectEve.Navigation.GetDestinationPath();
+                    List<int> destination = Cache.Instance.DirectEve.Navigation.GetDestinationPath();
                     if (destination == null || destination.Count == 0)
                     {
                         // happens if autopilot is not set and this QuestorState is chosen manually
@@ -513,7 +514,7 @@ namespace Questor.Behaviors
                     var station = Cache.Instance.Stations.OrderBy(x => x.Distance).FirstOrDefault();
                     if (station != null)
                     {
-                        if (station.Distance > (int)Distance.WarptoDistance)
+                        if (station.Distance > (int)Distances.WarptoDistance)
                         {
                             Logging.Log("DebugHangarsBehavior.GotoNearestStation", "[" + station.Name + "] which is [" + Math.Round(station.Distance / 1000, 0) + "k away]", Logging.White);
                             station.WarpToAndDock();
