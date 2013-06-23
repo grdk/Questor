@@ -42,7 +42,7 @@ namespace Questor.Modules.Combat
         private double _structurePctTotal;
         public bool Recall; //false
         public bool WarpScrambled; //false
-        private DateTime _lastDronesProcessState;
+        private DateTime _nextDroneAction = DateTime.UtcNow;
         private DateTime _nextWarpScrambledWarning = DateTime.MinValue;
 
         private void GetDamagedDrones()
@@ -143,12 +143,9 @@ namespace Questor.Modules.Combat
 
         public void ProcessState()
         {
-            if (DateTime.UtcNow < _lastDronesProcessState.AddMilliseconds(100)) //if it has not been 100ms since the last time we ran this ProcessState return. We can't do anything that close together anyway
-            {
-                return;
-            }
-
-            _lastDronesProcessState = DateTime.UtcNow;
+            if (_nextDroneAction > DateTime.UtcNow) return;
+            
+            _nextDroneAction = DateTime.UtcNow.AddMilliseconds(400);
 
             if (Cache.Instance.InStation ||                             // There is really no combat in stations (yet)
                 !Cache.Instance.InSpace ||                              // if we are not in space yet, wait...
@@ -481,6 +478,7 @@ namespace Questor.Modules.Combat
                         _lastRecall = DateTime.UtcNow;
                         Recall = false;
                         TargetingCache.CurrentDronesTarget = null;
+                        _nextDroneAction = DateTime.UtcNow.AddSeconds(3);
                         _States.CurrentDroneState = DroneState.WaitingForTargets;
                         break;
                     }

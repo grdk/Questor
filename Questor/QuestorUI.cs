@@ -196,7 +196,7 @@ namespace Questor
                         NextDroneBayActionData.Text = Cache.Instance.NextDroneBayAction.ToLongTimeString();
                         NextOpenHangarActionData.Text = Cache.Instance.NextOpenHangarAction.ToLongTimeString();
                         NextOpenCargoActionData.Text = Cache.Instance.NextOpenCargoAction.ToLongTimeString();
-                        LastActionData.Text = Cache.Instance.LastAction.ToLongTimeString();
+                        LastActionData.Text = "";
                         NextArmActionData.Text = Cache.Instance.NextArmAction.ToLongTimeString();
                         NextSalvageActionData.Text = Cache.Instance.NextSalvageAction.ToLongTimeString();
                         NextLootActionData.Text = Cache.Instance.NextLootAction.ToLongTimeString();

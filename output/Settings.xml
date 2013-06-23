@@ -21,6 +21,7 @@
   <debugDroneHealth>false</debugDroneHealth>
   <debugExceptions>false</debugExceptions>
   <debugFittingMgr>false</debugFittingMgr>
+  <debugGetBestTarget>false</debugGetBestTarget>
   <debugGotobase>false</debugGotobase>
   <debugGreyList>false</debugGreyList>
   <debugHangars>false</debugHangars>
@@ -108,7 +109,7 @@
   <!-- AGENT AND MISSION SETTINGS -->
   <!--                                                         -->
   
-  <!-- Wait for you agents mission decline timer to expire before declining again -->
+  <!-- Wait for your agents mission decline timer to expire before declining again -->
   <waitDecline>false</waitDecline>
   <!-- MinAgentBlackListStandings is a number between -10 and 10, if your standings have gone below MinAgentBlackListStandings you will wait between declines for the agent cooldown timer to expire -->
   <minAgentBlackListStandings>5.5</minAgentBlackListStandings>
@@ -334,12 +335,50 @@
   <capBoosterToLoad>15</capBoosterToLoad>
   <!-- Weapon group (508 = Siege, 506 = Cruise, 771 = HAM, etc of the Launcher / Guns / Lasors, NOT the Ammo, *the weapon*) -->
   <weaponGroupId>508</weaponGroupId>
-  <!-- Use PrimaryWeapons on WarpScramblers, if you do not want to shoot warp dcramblers with your primary weapons, set this to false. -->
-  <shootWarpScramblersWithPrimaryWeapons>true</shootWarpScramblersWithPrimaryWeapons>
   <!--  BOTH distance and speed have to be met before the NPC Frigate will be removed from the PrimaryWeapons PriorityTarget List... (under the distance, over the speed) -->
   <!--  If you wish to effectively turn this off you can set the speedTargetsShouldBeIgnoredByMainWeapons to a very high number like: 9999999 -->
   <speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>300</speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
   <distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>7000</distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons>
+
+  <!-- If an NPC gets inside this range do not consider it within optimal range anymore (targets within optimal are chosen first) -->
+  <insideThisRangeIsHardToTrack>15000</insideThisRangeIsHardToTrack>
+  
+  <!--                                                                            -->  
+  <!--  ECM PrimaryWeapon PriorityTarget Options--> 
+  <!--                                                                            -->  
+  <!-- Use PrimaryWeapons on Targets that use Sensor Dampners, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addDampenersToPrimaryWeaponsPriorityTargetList>true</addDampenersToPrimaryWeaponsPriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use ECMs, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addECMsToPrimaryWeaponsPriorityTargetList>true</addECMsToPrimaryWeaponsPriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Neutralizers, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addNeutralizersToPrimaryWeaponsPriorityTargetList>true</addNeutralizersToPrimaryWeaponsPriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Target Painters, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addTargetPaintersToPrimaryWeaponsPriorityTargetList>true</addTargetPaintersToPrimaryWeaponsPriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Tracking Disruptors, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addTrackingDisruptorsToPrimaryWeaponsPriorityTargetList>true</addTrackingDisruptorsToPrimaryWeaponsPriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Warp Disruptors / Scramblers, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addWarpScramblersToPrimaryWeaponsPriorityTargetList>true</addWarpScramblersToPrimaryWeaponsPriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Webifiers, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addWebifiersToPrimaryWeaponsPriorityTargetList>true</addWebifiersToPrimaryWeaponsPriorityTargetList>
+  
+  <!--                                                                            -->  
+  <!--  ECM Drone PriorityTarget Options--> 
+  <!--                                                                            -->  
+  <!-- Use PrimaryWeapons on Targets that use Sensor Dampners, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addDampenersToDronePriorityTargetList>true</addDampenersToDronePriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use ECMs, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addECMsToDroneTargetList>true</addECMsToDroneTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Neutralizers, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addNeutralizersToDronePriorityTargetList>true</addNeutralizersToDronePriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Target Painters, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addTargetPaintersToDronePriorityTargetList>true</addTargetPaintersToDronePriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Tracking Disruptors, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addTrackingDisruptorsToDronePriorityTargetList>true</addTrackingDisruptorsToDronePriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Warp Disruptors / Scramblers, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addWarpScramblersToDronePriorityTargetList>true</addWarpScramblersToDronePriorityTargetList>
+  <!-- Use PrimaryWeapons on Targets that use Webifiers, if you do not want to make them a primary weapons priority, set this to false. -->
+  <addWebifiersToDronePriorityTargetList>true</addWebifiersToDronePriorityTargetList>
+    
   <!-- MaxRange we should use NOS / Neuts -->
   <NosDistance>38000</NosDistance>
   
@@ -430,15 +469,17 @@
   <safeArmorPct>0</safeArmorPct>
   <!-- Amount of capacitor that is seen as "safe" to return to the mission -->
   <safeCapacitorPct>65</safeCapacitorPct>
-
+  <!-- All safespot bookmarks will be prefixed by this string, default: safespot: -->
+  <safeSpotBookmarkPrefix>safespot</safeSpotBookmarkPrefix><!-- default is safespot: -->
+  
   <!--                                                -->
   <!--        DRONE SETTINGS          -->
   <!--                                                -->
   
   <!-- Use drones, disable on ships without a drone bay! -->
   <useDrones>true</useDrones>
-  <!-- Drone type id to load (set to 0 to not reload drones) -->
-  <droneTypeId>2488</droneTypeId>
+  <!-- Drone type id to load (has to be set if using drones) -->
+  <droneTypeId>2488</droneTypeId> 
   <!-- Maximum drone control range -->
   <droneControlRange>50000</droneControlRange>
   <!-- Do not launch drones if below this shield percentage -->
@@ -472,6 +513,13 @@
   <emailSMTPPort>25</emailSMTPPort>
   <emailAddressToSendAlerts></emailAddressToSendAlerts>
   <emailEnableSSL>false</emailEnableSSL>
+  
+  
+  <standingsNeededToAccessLevel1Agent>-11</standingsNeededToAccessLevel1Agent>
+  <standingsNeededToAccessLevel2Agent>1</standingsNeededToAccessLevel2Agent>
+  <standingsNeededToAccessLevel3Agent>3</standingsNeededToAccessLevel3Agent>
+  <standingsNeededToAccessLevel4Agent>5</standingsNeededToAccessLevel4Agent>
+  <standingsNeededToAccessLevel5Agent>7</standingsNeededToAccessLevel5Agent>
   
   <!--                                                        -->
   <!-- SKILL TRAINING SETTINGS       -->

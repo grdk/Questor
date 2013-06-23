@@ -59,7 +59,7 @@ namespace Injector
 
         private void UpdateStatus(string message, bool isError = true)
         {
-            txtStatus.Text = message;;
+            txtStatus.Text = message;
             if (isError)
                 txtStatus.Background = new LinearGradientBrush(Color.FromRgb(255, 0, 0), Color.FromRgb(200, 0, 0), 90.0);
             else

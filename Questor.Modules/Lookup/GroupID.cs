@@ -12,9 +12,11 @@ namespace Questor.Modules.Lookup
     public enum Group
     {
         Star = 6,
-        Station = 15,
-        Stargate = 10,
+        Planet = 7,
+        Moon = 8,
         AsteroidBelt = 9,
+        Stargate = 10,
+        Station = 15,
         AccelerationGate = 366,
         JumpBridge = 707,
 
@@ -107,6 +109,7 @@ namespace Questor.Modules.Lookup
         Livestock = 283, //this includes most CommonMissionCompletionitems like Militants and Marines
         MiscSpecialMissionItems = 314, //Misc special mission items that should not be on the market and not available from random missions.
 
+        CustomsOffice = 1025,
         ConcordDrone = 301,
         PoliceDrone = 182,
         CustomsOfficial = 446,
@@ -114,6 +117,7 @@ namespace Questor.Modules.Lookup
         Merchant = 297,
         Mission_Merchant = 1006, //dread pirate scarlet
         FactionWarfareNPC = 288,
+        GasCloud = 227,
 
         Shuttle = 31,
         Industrial = 28,

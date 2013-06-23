@@ -13,12 +13,12 @@ namespace Questor.Storylines
 {
     public class GenericCourier : IStoryline
     {
-        private DateTime _nextGenericCourioerStorylineAction;
+        private DateTime _nextGenericCourierStorylineAction;
         private GenericCourierStorylineState _state;
 
         public StorylineState Arm(Storyline storyline)
         {
-            if (_nextGenericCourioerStorylineAction > DateTime.UtcNow) return StorylineState.Arm;
+            if (_nextGenericCourierStorylineAction > DateTime.UtcNow) return StorylineState.Arm;
 
             if (!Cache.Instance.OpenShipsHangar("Arm")) return StorylineState.Arm;
 
@@ -30,7 +30,7 @@ namespace Questor.Storylines
             // Open the ship hangar
             if (!Cache.Instance.OpenShipsHangar("GenericCourierStoryline: Arm"))
             {
-                _nextGenericCourioerStorylineAction = DateTime.UtcNow.AddSeconds(5);
+                _nextGenericCourierStorylineAction = DateTime.UtcNow.AddSeconds(5);
                 return StorylineState.Arm;
             }
 
@@ -75,7 +75,7 @@ namespace Questor.Storylines
                     {
                         Logging.Log("Arm", "Making [" + ship.GivenName + "] active", Logging.White);
                         ship.ActivateShip();
-                        _nextGenericCourioerStorylineAction = DateTime.UtcNow.AddSeconds(Time.Instance.SwitchShipsDelay_seconds);
+                        _nextGenericCourierStorylineAction = DateTime.UtcNow.AddSeconds(Time.Instance.SwitchShipsDelay_seconds);
                         return StorylineState.Arm;
                     }
 
@@ -160,7 +160,7 @@ namespace Questor.Storylines
                 Logging.Log("GenericCourier", "Moving [" + item.TypeName + "][" + item.ItemId + "] to " + (pickup ? "cargo" : "hangar"), Logging.White);
                 to.Add(item, item.Stacksize);
             }
-            _nextGenericCourioerStorylineAction = DateTime.UtcNow.AddSeconds(10);
+            _nextGenericCourierStorylineAction = DateTime.UtcNow.AddSeconds(10);
             return false;
         }
 
@@ -175,7 +175,7 @@ namespace Questor.Storylines
         /// <returns></returns>
         public StorylineState ExecuteMission(Storyline storyline)
         {
-            if (_nextGenericCourioerStorylineAction > DateTime.UtcNow)
+            if (_nextGenericCourierStorylineAction > DateTime.UtcNow)
                 return StorylineState.ExecuteMission;
 
             switch (_state)

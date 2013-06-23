@@ -30,7 +30,7 @@ namespace Questor.Modules.Activities
         //private static DateTime _nextSetEVENavDestination = DateTime.MinValue;
         //private static DateTime _nextGetDestinationPath = DateTime.MinValue;
 
-        private static List<long> _destinationRoute;
+        private static List<int> _destinationRoute;
         public static DirectLocation _location;
         private static IEnumerable<DirectBookmark> myHomeBookmarks;
         private static string _locationName;
@@ -199,7 +199,7 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            if (MyNextStargate != null && MyNextStargate.Distance < (int)Distance.WarptoDistance)
+            if (MyNextStargate != null && MyNextStargate.Distance < (int)Distance.WarptoDistance && MyNextStargate.Distance != 0)
             {
                 if (DateTime.UtcNow > Cache.Instance.NextApproachAction && !Cache.Instance.IsApproaching)
                 {

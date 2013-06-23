@@ -110,17 +110,15 @@ namespace Questor.Modules.Logging
                 }
                 catch (Exception ex)
                 {
-                    Logging.Log("Statistics", "PocketObjectStatistics: is cache.Instance.MissionName null?: exception was [" + ex.Message + "]",
-                                Logging.White);
+                    Logging.Log("Statistics", "PocketObjectStatistics: is cache.Instance.MissionName null?: exception was [" + ex.Message + "]", Logging.White);
                 }
 
                 Settings.Instance.PocketObjectStatisticsFile = Path.Combine(
-                    Settings.Instance.PocketObjectStatisticsPath,
-                    Cache.Instance.FilterPath(Cache.Instance.DirectEve.Me.Name) + " - " + currentPocketName + " - " +
-                    Cache.Instance.PocketNumber + " - ObjectStatistics.csv");
-                Logging.Log("Statistics.ObjectStatistics",
-                            "Logging info on the [" + things.Count + "] objects in this pocket to [" +
-                            Settings.Instance.PocketObjectStatisticsFile + "]", Logging.White);
+                        Settings.Instance.PocketObjectStatisticsPath,
+                        Cache.Instance.FilterPath(Cache.Instance.DirectEve.Me.Name) + " - " + currentPocketName + " - " +
+                        Cache.Instance.PocketNumber + " - ObjectStatistics.csv");
+                
+                Logging.Log("Statistics.ObjectStatistics", "Logging info on the [" + things.Count + "] objects in this pocket to [" + Settings.Instance.PocketObjectStatisticsFile + "]", Logging.White);
 
                 if (File.Exists(Settings.Instance.PocketObjectStatisticsFile))
                 {
@@ -208,13 +206,21 @@ namespace Questor.Modules.Logging
 
             IEnumerable<Ammo> correctAmmo1 = Settings.Instance.Ammo.Where(a => a.DamageType == Cache.Instance.DamageType);
             IEnumerable<DirectItem> ammoCargo = Cache.Instance.CargoHold.Items.Where(i => correctAmmo1.Any(a => a.TypeId == i.TypeId));
-            foreach (DirectItem item in ammoCargo)
+            try
             {
-                Ammo ammo1 = Settings.Instance.Ammo.FirstOrDefault(a => a.TypeId == item.TypeId);
-                InvType ammoType = Cache.Instance.InvTypesById[item.TypeId];
-                if (ammo1 != null) Statistics.Instance.AmmoConsumption = (ammo1.Quantity - item.Quantity);
-                Statistics.Instance.AmmoValue = ((int?)ammoType.MedianSell ?? 0) * Statistics.Instance.AmmoConsumption;
+                foreach (DirectItem item in ammoCargo)
+                {
+                    Ammo ammo1 = Settings.Instance.Ammo.FirstOrDefault(a => a.TypeId == item.TypeId);
+                    InvType ammoType = Cache.Instance.InvTypesById[item.TypeId];
+                    if (ammo1 != null) Statistics.Instance.AmmoConsumption = (ammo1.Quantity - item.Quantity);
+                    Statistics.Instance.AmmoValue = ((int?)ammoType.MedianSell ?? 0) * Statistics.Instance.AmmoConsumption;
+                }
             }
+            catch (Exception exception)
+            {
+                Logging.Log("Statistics.AmmoConsumptionStatistics","Exception: " + exception,Logging.Debug);
+            }
+
             return true;
         }
 
@@ -241,29 +247,18 @@ namespace Questor.Modules.Logging
                      Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.TransportShip &&
                      Cache.Instance.DirectEve.ActiveShip.GroupId != (int)Group.Freighter)
                 {
-                    if (Cache.Instance.InvTypesById.ContainsKey(Settings.Instance.DroneTypeId))
+                    if (!File.Exists(Settings.Instance.DroneStatslogFile))
                     {
-                        if (!Cache.Instance.OpenDroneBay("Statistics: WriteDroneStatsLog")) return false;
-                        if (!Cache.Instance.DroneBay.IsValid) return true; //if the dronebay does not exist, assume we cant log any drone stats
-
-                        InvType drone = Cache.Instance.InvTypesById[Settings.Instance.DroneTypeId];
-                        Statistics.Instance.LostDrones = (int)Math.Floor((Cache.Instance.DroneBay.Capacity - Cache.Instance.DroneBay.UsedCapacity) / drone.Volume);
-                        Logging.Log("Statistics: WriteDroneStatsLog", "Logging the number of lost drones: " + Statistics.Instance.LostDrones.ToString(CultureInfo.InvariantCulture), Logging.White);
-
-                        if (!File.Exists(Settings.Instance.DroneStatslogFile))
-                            File.AppendAllText(Settings.Instance.DroneStatslogFile, "Date;Mission;Number of lost drones;# of Recalls\r\n");
-                        string droneline = DateTimeForLogs.ToShortDateString() + ";";
-                        droneline += DateTimeForLogs.ToShortTimeString() + ";";
-                        droneline += Cache.Instance.MissionName + ";";
-                        droneline += Statistics.Instance.LostDrones + ";";
-                        droneline += +Statistics.Instance.DroneRecalls + ";\r\n";
-                        File.AppendAllText(Settings.Instance.DroneStatslogFile, droneline);
-                        Statistics.Instance.DroneLoggingCompleted = true;
+                        File.AppendAllText(Settings.Instance.DroneStatslogFile, "Date;Mission;Number of lost drones;# of Recalls\r\n");
                     }
-                    else
-                    {
-                        Logging.Log("DroneStats", "Could not find the drone TypeID specified in the character settings xml; this should not happen!", Logging.White);
-                    }
+
+                    string droneline = DateTimeForLogs.ToShortDateString() + ";";
+                    droneline += DateTimeForLogs.ToShortTimeString() + ";";
+                    droneline += Cache.Instance.MissionName + ";";
+                    droneline += Statistics.Instance.LostDrones + ";";
+                    droneline += +Statistics.Instance.DroneRecalls + ";\r\n";
+                    File.AppendAllText(Settings.Instance.DroneStatslogFile, droneline);
+                    Statistics.Instance.DroneLoggingCompleted = true;
                 }
                 else
                 {
@@ -297,27 +292,31 @@ namespace Questor.Modules.Logging
                     //
                     // Get the path
                     if (!Directory.Exists(Settings.Instance.SessionsLogPath))
+                    {
                         Directory.CreateDirectory(Settings.Instance.SessionsLogPath);
+                    }
 
                     // Write the header
                     if (!File.Exists(Settings.Instance.SessionsLogFile))
+                    {
                         File.AppendAllText(Settings.Instance.SessionsLogFile, "Date;RunningTime;SessionState;LastMission;WalletBalance;MemoryUsage;Reason;IskGenerated;LootGenerated;LPGenerated;Isk/Hr;Loot/Hr;LP/HR;Total/HR;\r\n");
+                    }
 
                     // Build the line
                     var line = DateTimeForLogs + ";";                           //Date
-                    line += "0" + ";";                                       //RunningTime
-                    line += Cache.Instance.SessionState + ";";               //SessionState
-                    line += "" + ";";                                        //LastMission
-                    line += Cache.Instance.MyWalletBalance + ";";        //WalletBalance
-                    line += Cache.Instance.TotalMegaBytesOfMemoryUsed + ";"; //MemoryUsage
-                    line += "Starting" + ";";                                //Reason
-                    line += ";";                                             //IskGenerated
-                    line += ";";                                             //LootGenerated
-                    line += ";";                                             //LPGenerated
-                    line += ";";                                             //Isk/Hr
-                    line += ";";                                             //Loot/Hr
-                    line += ";";                                             //LP/HR
-                    line += ";\r\n";                                         //Total/HR
+                    line += "0" + ";";                                          //RunningTime
+                    line += Cache.Instance.SessionState + ";";                  //SessionState
+                    line += "" + ";";                                           //LastMission
+                    line += Cache.Instance.MyWalletBalance + ";";               //WalletBalance
+                    line += Cache.Instance.TotalMegaBytesOfMemoryUsed + ";";    //MemoryUsage
+                    line += "Starting" + ";";                                   //Reason
+                    line += ";";                                                //IskGenerated
+                    line += ";";                                                //LootGenerated
+                    line += ";";                                                //LPGenerated
+                    line += ";";                                                //Isk/Hr
+                    line += ";";                                                //Loot/Hr
+                    line += ";";                                                //LP/HR
+                    line += ";\r\n";                                            //Total/HR
 
                     // The mission is finished
                     File.AppendAllText(Settings.Instance.SessionsLogFile, line);
@@ -428,17 +427,17 @@ namespace Questor.Modules.Logging
                     File.AppendAllText(Settings.Instance.PocketStatisticsFile, "Date and Time;Mission Name ;Pocket;Time to complete;Isk;panics;LowestShields;LowestArmor;LowestCapacitor;RepairCycles;Wrecks\r\n");
 
                 // Build the line
-                string pocketstatsLine = DateTimeForLogs + ";";                                          //Date
-                pocketstatsLine += currentPocketName + ";";                                           //Mission Name
-                pocketstatsLine += "pocket" + (Cache.Instance.PocketNumber) + ";";                                        //Pocket number
-                pocketstatsLine += ((int)DateTime.UtcNow.Subtract(Statistics.Instance.StartedMission).TotalMinutes) + ";";    //Time to Complete
-                pocketstatsLine += Cache.Instance.MyWalletBalance - Cache.Instance.WealthatStartofPocket + ";";       //Isk
-                pocketstatsLine += Cache.Instance.PanicAttemptsThisPocket + ";";               //Panics
-                pocketstatsLine += ((int)Cache.Instance.LowestShieldPercentageThisPocket) + ";";      //LowestShields
-                pocketstatsLine += ((int)Cache.Instance.LowestArmorPercentageThisPocket) + ";";       //LowestArmor
-                pocketstatsLine += ((int)Cache.Instance.LowestCapacitorPercentageThisPocket) + ";";   //LowestCapacitor
-                pocketstatsLine += Cache.Instance.RepairCycleTimeThisPocket + ";";             //repairCycles
-                pocketstatsLine += Cache.Instance.WrecksThisPocket + ";";
+                string pocketstatsLine = DateTimeForLogs + ";";                                                            //Date
+                pocketstatsLine += currentPocketName + ";";                                                                //Mission Name
+                pocketstatsLine += "pocket" + (Cache.Instance.PocketNumber) + ";";                                         //Pocket number
+                pocketstatsLine += ((int)DateTime.UtcNow.Subtract(Statistics.Instance.StartedMission).TotalMinutes) + ";"; //Time to Complete
+                pocketstatsLine += Cache.Instance.MyWalletBalance - Cache.Instance.WealthatStartofPocket + ";";            //Isk
+                pocketstatsLine += Cache.Instance.PanicAttemptsThisPocket + ";";                                           //Panics
+                pocketstatsLine += ((int)Cache.Instance.LowestShieldPercentageThisPocket) + ";";                           //LowestShields
+                pocketstatsLine += ((int)Cache.Instance.LowestArmorPercentageThisPocket) + ";";                            //LowestArmor
+                pocketstatsLine += ((int)Cache.Instance.LowestCapacitorPercentageThisPocket) + ";";                        //LowestCapacitor
+                pocketstatsLine += Cache.Instance.RepairCycleTimeThisPocket + ";";                                         //repairCycles
+                pocketstatsLine += Cache.Instance.WrecksThisPocket + ";";                                                  //wrecksThisPocket
                 pocketstatsLine += "\r\n";
 
                 // The old pocket is finished
@@ -466,7 +465,9 @@ namespace Questor.Modules.Logging
             string missionDetailsHtmlFile = Path.Combine(Settings.Instance.MissionDetailsHtmlPath, missionName + " - " + "mission-description-html.txt");
             
             if (!Directory.Exists(Settings.Instance.MissionDetailsHtmlPath))
+            {
                 Directory.CreateDirectory(Settings.Instance.MissionDetailsHtmlPath);
+            }
 
             // Write the file
             if (!File.Exists(missionDetailsHtmlFile))
@@ -606,11 +607,15 @@ namespace Questor.Modules.Logging
             if (Settings.Instance.MissionStats1Log)
             {
                 if (!Directory.Exists(Settings.Instance.MissionStats1LogPath))
+                {
                     Directory.CreateDirectory(Settings.Instance.MissionStats1LogPath);
+                }
 
                 // Write the header
                 if (!File.Exists(Settings.Instance.MissionStats1LogFile))
+                {
                     File.AppendAllText(Settings.Instance.MissionStats1LogFile, "Date;Mission;TimeMission;TimeSalvage;TotalTime;Isk;Loot;LP;\r\n");
+                }
 
                 // Build the line
                 string line = DateTimeForLogs + ";";                                                                                        // Date
@@ -632,11 +637,15 @@ namespace Questor.Modules.Logging
             if (Settings.Instance.MissionStats2Log)
             {
                 if (!Directory.Exists(Settings.Instance.MissionStats2LogPath))
+                {
                     Directory.CreateDirectory(Settings.Instance.MissionStats2LogPath);
+                }
 
                 // Write the header
                 if (!File.Exists(Settings.Instance.MissionStats2LogFile))
+                {
                     File.AppendAllText(Settings.Instance.MissionStats2LogFile, "Date;Mission;Time;Isk;Loot;LP;LostDrones;AmmoConsumption;AmmoValue\r\n");
+                }
 
                 // Build the line
                 string line2 = string.Format("{0:MM/dd/yyyy HH:mm:ss}", DateTimeForLogs) + ";";                                      // Date
@@ -659,11 +668,15 @@ namespace Questor.Modules.Logging
             if (Settings.Instance.MissionStats3Log)
             {
                 if (!Directory.Exists(Settings.Instance.MissionStats3LogPath))
+                {
                     Directory.CreateDirectory(Settings.Instance.MissionStats3LogPath);
+                }
 
                 // Write the header
                 if (!File.Exists(Settings.Instance.MissionStats3LogFile))
+                {
                     File.AppendAllText(Settings.Instance.MissionStats3LogFile, "Date;Mission;Time;Isk;Loot;LP;DroneRecalls;LostDrones;AmmoConsumption;AmmoValue;Panics;LowestShield;LowestArmor;LowestCap;RepairCycles;AfterMissionsalvageTime;TotalMissionTime;MissionXMLAvailable;Faction;SolarSystem;DungeonID;OutOfDronesCount;\r\n");
+                }
 
                 // Build the line
                 string line3 = DateTimeForLogs + ";";                                                                                        // Date
@@ -700,11 +713,15 @@ namespace Questor.Modules.Logging
             if (Settings.Instance.MissionDungeonIdLog)
             {
                 if (!Directory.Exists(Settings.Instance.MissionDungeonIdLogPath))
+                {
                     Directory.CreateDirectory(Settings.Instance.MissionDungeonIdLogPath);
+                }
 
                 // Write the header
                 if (!File.Exists(Settings.Instance.MissionDungeonIdLogFile))
+                {
                     File.AppendAllText(Settings.Instance.MissionDungeonIdLogFile, "Mission;Faction;DungeonID;\r\n");
+                }
 
                 // Build the line
                 string line4 = DateTimeForLogs + ";";              // Date

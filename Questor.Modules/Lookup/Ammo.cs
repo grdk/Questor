@@ -39,7 +39,7 @@ namespace Questor.Modules.Lookup
 
         public Ammo Clone()
         {
-            var ammo = new Ammo
+            Ammo _ammo = new Ammo
                 {
                     TypeId = TypeId,
                     DamageType = DamageType,
@@ -47,7 +47,7 @@ namespace Questor.Modules.Lookup
                     Quantity = Quantity,
                     Description = Description
                 };
-            return ammo;
+            return _ammo;
         }
     }
 }

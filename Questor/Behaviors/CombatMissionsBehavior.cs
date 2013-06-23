@@ -807,9 +807,22 @@ namespace Questor.Behaviors
                         if (DateTime.UtcNow > Cache.Instance.LastInStation.AddSeconds(5) && Cache.Instance.InStation) //do not proceed until we have ben docked for at least a few seconds
                             return;
 
-                        //Logging.Log("CombatMissionsBehavior: Starting: Statistics.WriteDroneStatsLog");
-                        if (!Statistics.WriteDroneStatsLog()) break;
-
+                        if (Settings.Instance.UseDrones)
+                        {
+                            if (Cache.Instance.InvTypesById.ContainsKey(Settings.Instance.DroneTypeId))
+                            {
+                                if (!Cache.Instance.OpenDroneBay("Statistics: WriteDroneStatsLog")) return;
+                                InvType drone = Cache.Instance.InvTypesById[Settings.Instance.DroneTypeId];
+                                Statistics.Instance.LostDrones = (int)Math.Floor((Cache.Instance.DroneBay.Capacity - Cache.Instance.DroneBay.UsedCapacity) / drone.Volume);
+                                //Logging.Log("CombatMissionsBehavior: Starting: Statistics.WriteDroneStatsLog");
+                                if (!Statistics.WriteDroneStatsLog()) break;
+                            }
+                            else
+                            {
+                                Logging.Log("DroneStats", "Could not find the drone TypeID specified in the character settings xml; this should not happen!", Logging.White);
+                            }
+                        }
+                        
                         //Logging.Log("CombatMissionsBehavior: Starting: Statistics.AmmoConsumptionStatistics");
                         if (!Statistics.AmmoConsumptionStatistics()) break;
 
@@ -839,7 +852,7 @@ namespace Questor.Behaviors
                         }
                         else
                         {
-                            Logging.Log("CurrentCombatMissionBehavior.CompleteMission", "Skipping statistics: We did not yet complete the mission", Logging.Teal);
+                            Logging.Log("CurrentCombatMissionBehavior.CompleteMission", "Skipping statistics: We have not yet completed a mission", Logging.Teal);
                             _States.CurrentCombatMissionBehaviorState = CombatMissionsBehaviorState.UnloadLoot;
                         }
                         return;
@@ -1331,7 +1344,7 @@ namespace Questor.Behaviors
 
                 case CombatMissionsBehaviorState.Traveler:
                     Cache.Instance.OpenWrecks = false;
-                    List<long> destination = Cache.Instance.DirectEve.Navigation.GetDestinationPath();
+                    List<int> destination = Cache.Instance.DirectEve.Navigation.GetDestinationPath();
                     if (destination == null || destination.Count == 0)
                     {
                         // happens if autopilot is not set and this QuestorState is chosen manually

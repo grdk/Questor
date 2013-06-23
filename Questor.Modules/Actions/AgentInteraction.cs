@@ -75,6 +75,33 @@ namespace Questor.Modules.Actions
             AmmoToLoad.AddRange(Settings.Instance.Ammo.Where(a => damageTypes.Contains(a.DamageType)).Select(a => a.Clone()));
         }
 
+        private void MyStandingsAreTooLowSwitchAgentsOrPause()
+        {
+            Cache.Instance.AgentEffectiveStandingtoMe = Cache.Instance.DirectEve.Standings.EffectiveStanding(AgentId, Cache.Instance.DirectEve.Session.CharacterId ?? -1);
+            Cache.Instance.AgentCorpEffectiveStandingtoMe = Cache.Instance.DirectEve.Standings.EffectiveStanding(Agent.CorpId, Cache.Instance.DirectEve.Session.CharacterId ?? -1);
+            Cache.Instance.AgentFactionEffectiveStandingtoMe = Cache.Instance.DirectEve.Standings.EffectiveStanding(Agent.FactionId, Cache.Instance.DirectEve.Session.CharacterId ?? -1);
+
+            Cache.Instance.StandingUsedToAccessAgent = Math.Max(Cache.Instance.AgentEffectiveStandingtoMe, Math.Max(Cache.Instance.AgentCorpEffectiveStandingtoMe, Cache.Instance.AgentFactionEffectiveStandingtoMe));
+            AgentsList currentAgent = Settings.Instance.AgentsList.FirstOrDefault(i => i.Name == Cache.Instance.CurrentAgent);
+
+            if (Settings.Instance.MultiAgentSupport)
+            {
+                //
+                //Change Agents
+                //
+                if (currentAgent != null) currentAgent.DeclineTimer = DateTime.UtcNow.AddHours(999);
+                CloseConversation();
+                Cache.Instance.CurrentAgent = Cache.Instance.SwitchAgent();
+                Cache.Instance.CurrentAgentText = Cache.Instance.CurrentAgent.ToString(CultureInfo.InvariantCulture);
+                Logging.Log("AgentInteraction", "new agent is " + Cache.Instance.CurrentAgent, Logging.Yellow);
+                _States.CurrentAgentInteractionState = AgentInteractionState.ChangeAgent;
+                return;
+            }
+
+            Logging.Log("AgentInteraction.StartConversation", "", Logging.Orange);
+            Cache.Instance.Paused = true;
+        }
+
         private void StartConversation(string module)
         {
             Cache.Instance.AgentEffectiveStandingtoMe = Cache.Instance.DirectEve.Standings.EffectiveStanding(AgentId, Cache.Instance.DirectEve.Session.CharacterId ?? -1);
@@ -82,7 +109,8 @@ namespace Questor.Modules.Actions
             Cache.Instance.AgentFactionEffectiveStandingtoMe = Cache.Instance.DirectEve.Standings.EffectiveStanding(Agent.FactionId, Cache.Instance.DirectEve.Session.CharacterId ?? -1);
 
             Cache.Instance.StandingUsedToAccessAgent = Math.Max(Cache.Instance.AgentEffectiveStandingtoMe,Math.Max(Cache.Instance.AgentCorpEffectiveStandingtoMe,Cache.Instance.AgentFactionEffectiveStandingtoMe));
-            
+            AgentsList currentAgent = Settings.Instance.AgentsList.FirstOrDefault(i => i.Name == Cache.Instance.CurrentAgent);
+
             Cache.Instance.AgentEffectiveStandingtoMeText = Cache.Instance.StandingUsedToAccessAgent.ToString("0.00");
 
             //
@@ -101,6 +129,57 @@ namespace Questor.Modules.Actions
                     Logging.Log("AgentInteraction.StandingsCheck", " Agent [" + Cache.Instance.DirectEve.GetAgentById(AgentId).Name + "] Standings show as [" + Cache.Instance.StandingUsedToAccessAgent + " and must not yet be available. retrying for [" + Math.Round((double)_agentStandingsCheckTimeOut.Subtract(DateTime.UtcNow).Seconds, 0) + " sec]", Logging.Yellow);
                     return;
                 }
+            }
+
+            switch (Agent.Level)
+            {
+                //
+                // what do tutorial mission agents show as?
+                //
+                case 1: //lvl1 agent
+                    if (Cache.Instance.StandingUsedToAccessAgent < Settings.Instance.StandingsNeededToAccessLevel1Agent)
+                    {
+                        Logging.Log("AgentInteraction.StartConversation", "Our Standings to [" + Agent.Name + "] are [" + Cache.Instance.StandingUsedToAccessAgent + "] < [" + Settings.Instance.StandingsNeededToAccessLevel1Agent + "]", Logging.Orange);
+                        MyStandingsAreTooLowSwitchAgentsOrPause();
+                        return;
+                    }
+                    break;
+             
+                case 2: //lvl2 agent
+                    if (Cache.Instance.StandingUsedToAccessAgent < Settings.Instance.StandingsNeededToAccessLevel2Agent)
+                    {
+                        Logging.Log("AgentInteraction.StartConversation", "Our Standings to [" + Agent.Name + "] are [" + Cache.Instance.StandingUsedToAccessAgent + "] < [" + Settings.Instance.StandingsNeededToAccessLevel2Agent + "]", Logging.Orange);
+                        MyStandingsAreTooLowSwitchAgentsOrPause();
+                        return;
+                    }
+                    break;
+
+                case 3: //lvl3 agent
+                    if (Cache.Instance.StandingUsedToAccessAgent < Settings.Instance.StandingsNeededToAccessLevel3Agent)
+                    {
+                        Logging.Log("AgentInteraction.StartConversation", "Our Standings to [" + Agent.Name + "] are [" + Cache.Instance.StandingUsedToAccessAgent + "] < [" + Settings.Instance.StandingsNeededToAccessLevel3Agent + "]", Logging.Orange);
+                        MyStandingsAreTooLowSwitchAgentsOrPause();
+                        return;
+                    }
+                    break;
+
+                case 4: //lvl4 agent
+                    if (Cache.Instance.StandingUsedToAccessAgent < Settings.Instance.StandingsNeededToAccessLevel4Agent)
+                    {
+                        Logging.Log("AgentInteraction.StartConversation", "Our Standings to [" + Agent.Name + "] are [" + Cache.Instance.StandingUsedToAccessAgent + "] < [" + Settings.Instance.StandingsNeededToAccessLevel4Agent + "]", Logging.Orange);
+                        MyStandingsAreTooLowSwitchAgentsOrPause();
+                        return;
+                    }
+                    break;
+
+                case 5: //lvl5 agent
+                    if (Cache.Instance.StandingUsedToAccessAgent < Settings.Instance.StandingsNeededToAccessLevel5Agent)
+                    {
+                        Logging.Log("AgentInteraction.StartConversation", "Our Standings to [" + Agent.Name + "] are [" + Cache.Instance.StandingUsedToAccessAgent + "] < [" + Settings.Instance.StandingsNeededToAccessLevel5Agent + "]", Logging.Orange);
+                        MyStandingsAreTooLowSwitchAgentsOrPause();
+                        return;
+                    }
+                    break;
             }
 
             if (!Cache.Instance.OpenAgentWindow(module)) return;
@@ -326,9 +405,6 @@ namespace Questor.Modules.Actions
 
         private void GetDungeonId(string html)
         {
-            return;
-            /*
-             * 
             HtmlAgilityPack.HtmlDocument missionHtml = new HtmlAgilityPack.HtmlDocument();
             missionHtml.LoadHtml(html);
             try
@@ -350,8 +426,6 @@ namespace Questor.Modules.Actions
             {
                 Logging.Log("GetDungeonId", "if (nd.Attributes[href].Value.Contains(dungeonID=)) - Exception: [" + exception + "]", Logging.White);
             }
-            *
-            */
         }
 
         private void GetFactionName(string html)
