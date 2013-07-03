@@ -1228,7 +1228,7 @@ namespace Questor.Modules.Caching
                                                         && !e.IsContainer
                                                         && !e.IsFactionWarfareNPC
                                                         && !e.IsEntityIShouldLeaveAlone
-                                                        && (!e.IsBadIdea || e.IsBadIdea && e.IsAttacking)
+                                                        && !e.IsBadIdea // || e.IsBadIdea && e.IsAttacking)
                                                         && (!e.IsPlayer || e.IsPlayer && e.IsAttacking)
                                                         && !e.IsLargeCollidable
                                                         && !Cache.Instance.IgnoreTargets.Contains(e.Name.Trim())

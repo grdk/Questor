@@ -654,7 +654,7 @@ namespace Questor.Behaviors
 
                     if (Cache.Instance.potentialCombatTargets.Any())
                     {
-                        Logging.Log("CombatMissionsBehavior.GotoMission", "Priority targets found, engaging!", Logging.White);
+                        Logging.Log("CombatMissionsBehavior.GotoMission", "[" + Cache.Instance.potentialCombatTargets.Count() + "] potentialCombatTargets found , Running combat.ProcessState", Logging.White);
                         _combat.ProcessState();
                     }
 

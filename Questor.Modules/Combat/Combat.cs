@@ -1315,9 +1315,20 @@ namespace Questor.Modules.Combat
             // Build a list of things not yet targeting me and not yet targetted
             //
             
-            NotYetTargetingMe = Cache.Instance.potentialCombatTargets.Where(t => t.IsNotYetTargetingMeAndNotYetTargeted)
-                                                            .OrderBy(t => t.Nearest5kDistance)
-                                                            .ToList();
+            NotYetTargetingMe = Cache.Instance.potentialCombatTargets.Where(e => e.CategoryId == (int)CategoryID.Entity
+                                                                        && (!e.IsSentry || (e.IsSentry && e.IsEwarTarget()) || (e.IsSentry && (Settings.Instance.KillSentries || (Cache.Instance.PreferredPrimaryWeaponTarget != null && e.Id == Cache.Instance.PreferredPrimaryWeaponTarget.Id))))
+                                                                        && (e.IsNpc || e.IsNpcByGroupID)
+                                                                        //&& !e.IsTarget
+                                                                        && !e.IsContainer
+                                                                        && !e.IsFactionWarfareNPC
+                                                                        && !e.IsEntityIShouldLeaveAlone
+                                                                        && !e.IsBadIdea // || e.IsBadIdea && e.IsAttacking)
+                                                                        && (!e.IsPlayer || e.IsPlayer && e.IsAttacking)
+                                                                        && !e.IsLargeCollidable
+                                                                        && !Cache.Instance.IgnoreTargets.Contains(e.Name.Trim())
+                                                                        && e.IsNotYetTargetingMeAndNotYetTargeted)
+                                                                        .OrderBy(t => t.Nearest5kDistance)
+                                                                        .ToList();
 
             if (NotYetTargetingMe.Any())
             {
@@ -1329,7 +1340,7 @@ namespace Questor.Modules.Combat
                     && TargetThisNotYetAggressiveNPC.Distance < Cache.Instance.MaxRange
                     && TargetThisNotYetAggressiveNPC.LockTarget("TargetCombatants.TargetThisNotYetAggressiveNPC"))
                 {
-                    Logging.Log("Combat", "Targeting non-aggressed NPC target [" + TargetThisNotYetAggressiveNPC.Name + "][ID: " + Cache.Instance.MaskedID(TargetThisNotYetAggressiveNPC.Id) + "][" + Math.Round(TargetThisNotYetAggressiveNPC.Distance / 1000, 0) + "k away]", Logging.Teal);
+                    Logging.Log("Combat", "Targeting non-aggressed NPC target [" + TargetThisNotYetAggressiveNPC.Name + "][GroupID: " + TargetThisNotYetAggressiveNPC.GroupId + "][TypeID: " + TargetThisNotYetAggressiveNPC.TypeId + "][ID: " + Cache.Instance.MaskedID(TargetThisNotYetAggressiveNPC.Id) + "][" + Math.Round(TargetThisNotYetAggressiveNPC.Distance / 1000, 0) + "k away]", Logging.Teal);
 
                     Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(4000);
                     return;
