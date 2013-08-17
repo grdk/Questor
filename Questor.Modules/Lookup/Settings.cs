@@ -23,6 +23,7 @@ namespace Questor.Modules.Lookup
     using Questor.Modules.Caching;
     using Questor.Modules.Logging;
     using Questor.Modules.States;
+    using System.Xml;
 
     public class Settings
     {
@@ -79,9 +80,11 @@ namespace Questor.Modules.Lookup
         public bool DebugCargoHold { get; set; }
         public bool DebugChat { get; set; }
         public bool DebugCleanup { get; set; }
+        public bool DebugClearPocket { get; set; }
         public bool DebugCourierMissions { get; set; }
         public bool DebugDecline { get; set; }
         public bool DebugDefense { get; set; }
+        public bool DebugDrones { get; set; }
         public bool DebugDroneHealth { get; set; }
         public bool DebugExceptions { get; set; }
         public bool DebugFittingMgr { get; set; }
@@ -89,7 +92,7 @@ namespace Questor.Modules.Lookup
         public bool DebugFleetSupportSlave { get; set; }
 
         public bool DebugFleetSupportMaster { get; set; }
-
+        public bool DebugGetBestTarget { get; set; }
         public bool DebugGotobase { get; set; }
         public bool DebugGreyList { get; set; }
         public bool DebugHangars { get; set; }
@@ -256,6 +259,8 @@ namespace Questor.Modules.Lookup
         public bool SalvageMultipleMissionsinOnePass { get; set; }
         public bool FirstSalvageBookmarksInSystem { get; set; }
         public string BookmarkPrefix { get; set; }
+        public string SafeSpotBookmarkPrefix { get; set; }
+        public string BookmarkFolder { get; set; }
 
         public string TravelToBookmarkPrefix { get; set; }
 
@@ -378,8 +383,24 @@ namespace Questor.Modules.Lookup
 
         public int DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons { get; set; } //also requires SpeedFrigatesShouldBeIgnoredByMainWeapons
         public int SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons { get; set; } //also requires DistanceFrigatesShouldBeIgnoredByMainWeapons
-        public bool ShootWarpScramblersWithPrimaryWeapons { get; set; }
+        
+        public bool AddWarpScramblersToPrimaryWeaponsPriorityTargetList { get; set; }
+        public bool AddWebifiersToPrimaryWeaponsPriorityTargetList { get; set; }
+        public bool AddDampenersToPrimaryWeaponsPriorityTargetList { get; set; }
+        public bool AddNeutralizersToPrimaryWeaponsPriorityTargetList { get; set; }
+        public bool AddTargetPaintersToPrimaryWeaponsPriorityTargetList { get; set; }
+        public bool AddECMsToPrimaryWeaponsPriorityTargetList { get; set; }
+        public bool AddTrackingDisruptorsToPrimaryWeaponsPriorityTargetList { get; set; }
 
+        public bool AddWarpScramblersToDronePriorityTargetList { get; set; }
+        public bool AddWebifiersToDronePriorityTargetList { get; set; }
+        public bool AddDampenersToDronePriorityTargetList { get; set; }
+        public bool AddNeutralizersToDronePriorityTargetList { get; set; }
+        public bool AddTargetPaintersToDronePriorityTargetList { get; set; }
+        public bool AddECMsToDroneTargetList { get; set; }
+        public bool AddTrackingDisruptorsToDronePriorityTargetList { get; set; }
+
+        public double InsideThisRangeIsHardToTrack { get; set; }
         //
         // Script Settings - TypeIDs for the scripts you would like to use in these modules
         //
@@ -523,6 +544,12 @@ namespace Questor.Modules.Lookup
         public string UserDefinedLavishScriptScript4 { get; set; }
         public string UserDefinedLavishScriptScript4Description { get; set; }
 
+        public float StandingsNeededToAccessLevel1Agent { get; set; }
+        public float StandingsNeededToAccessLevel2Agent { get; set; }
+        public float StandingsNeededToAccessLevel3Agent { get; set; }
+        public float StandingsNeededToAccessLevel4Agent { get; set; }
+        public float StandingsNeededToAccessLevel5Agent { get; set; }
+
         //
         // path information - used to load the XML and used in other modules
         //
@@ -580,7 +607,7 @@ namespace Questor.Modules.Lookup
             bool reloadSettings = true;
             if (File.Exists(Settings.Instance.CharacterSettingsPath))
             {
-                reloadSettings = _lastModifiedDate != File.GetLastWriteTime(Settings.Instance.CharacterSettingsPath);   
+                reloadSettings = _lastModifiedDate != File.GetLastWriteTime(Settings.Instance.CharacterSettingsPath);
             }
 
             //if (File.Exists(Settings.Instance.CommonSettingsPath))
@@ -619,14 +646,17 @@ namespace Questor.Modules.Lookup
                 DebugCargoHold = false;
                 DebugChat = false;
                 DebugCleanup = false;
+                DebugClearPocket = false;
                 DebugCourierMissions = false;
                 DebugDecline = false;
                 DebugDefense = false;
+                DebugDrones = false;
                 DebugDroneHealth = false;
                 DebugExceptions = false;
                 DebugFittingMgr = false;
                 DebugFleetSupportSlave = false;
                 DebugFleetSupportMaster = false;
+                DebugGetBestTarget = false;
                 DebugGotobase = false;
                 DebugGreyList = false;
                 DebugHangars = false;
@@ -809,7 +839,7 @@ namespace Questor.Modules.Lookup
                 AmmoHangar = String.Empty;
                 BookmarkHangar = String.Empty;
                 LootContainer = String.Empty;
-                
+
                 //
                 // Loot and Salvage Settings
                 //
@@ -820,6 +850,8 @@ namespace Questor.Modules.Lookup
                 CreateSalvageBookmarksIn = "Player"; //Player or Corp
                 //other setting is "Corp"
                 BookmarkPrefix = "Salvage:";
+                SafeSpotBookmarkPrefix = "safespot";
+                BookmarkFolder = "Salvage";
                 TravelToBookmarkPrefix = "MeetHere:";
                 MinimumWreckCount = 1;
                 AfterMissionSalvaging = false;
@@ -861,8 +893,24 @@ namespace Questor.Modules.Lookup
                 DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage = 60;
                 DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons = 7000; //also requires SpeedFrigatesShouldBeIgnoredByMainWeapons
                 SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons = 300; //also requires DistanceFrigatesShouldBeIgnoredByMainWeapons
-                ShootWarpScramblersWithPrimaryWeapons = true;
 
+                AddDampenersToPrimaryWeaponsPriorityTargetList = true;
+                AddNeutralizersToPrimaryWeaponsPriorityTargetList = true;
+                AddWarpScramblersToPrimaryWeaponsPriorityTargetList = true;
+                AddWebifiersToPrimaryWeaponsPriorityTargetList = true;
+                AddTargetPaintersToPrimaryWeaponsPriorityTargetList = true;
+                AddECMsToPrimaryWeaponsPriorityTargetList = true;
+                AddTrackingDisruptorsToPrimaryWeaponsPriorityTargetList = true;
+
+                AddDampenersToDronePriorityTargetList = true;
+                AddNeutralizersToDronePriorityTargetList = true;
+                AddWarpScramblersToDronePriorityTargetList = true;
+                AddWebifiersToDronePriorityTargetList = true;
+                AddTargetPaintersToDronePriorityTargetList = true;
+                AddECMsToDroneTargetList = true;
+                AddTrackingDisruptorsToDronePriorityTargetList = true;
+
+                InsideThisRangeIsHardToTrack = 15000;
                 //
                 // Script Settings - TypeIDs for the scripts you would like to use in these modules
                 //
@@ -905,7 +953,7 @@ namespace Questor.Modules.Lookup
                 // If you enable the overloading of a slot it is HIGHLY recommended you actually have something overloadable in that slot =/ 
                 //
                 OverloadWeapons = false;
-                
+
                 //
                 // Speed and Movement Settings
                 //
@@ -983,12 +1031,17 @@ namespace Questor.Modules.Lookup
                 UserDefinedLavishScriptScript1 = "";
                 UserDefinedLavishScriptScript1Description = "";
                 UserDefinedLavishScriptScript2 = "";
-                UserDefinedLavishScriptScript2Description = ""; 
+                UserDefinedLavishScriptScript2Description = "";
                 UserDefinedLavishScriptScript3 = "";
-                UserDefinedLavishScriptScript3Description = ""; 
+                UserDefinedLavishScriptScript3Description = "";
                 UserDefinedLavishScriptScript4 = "";
                 UserDefinedLavishScriptScript4Description = "";
 
+                StandingsNeededToAccessLevel1Agent = -11;
+                StandingsNeededToAccessLevel2Agent = 1;
+                StandingsNeededToAccessLevel3Agent = 3;
+                StandingsNeededToAccessLevel4Agent = 5;
+                StandingsNeededToAccessLevel5Agent = 7;
                 //
                 // Clear various lists
                 //
@@ -1011,14 +1064,20 @@ namespace Questor.Modules.Lookup
             else //if the settings file exists - load the characters settings XML
             {
                 Settings.Instance.CharacterXMLExists = true;
-                XElement CharacterSettingsXml = XDocument.Load(Settings.Instance.CharacterSettingsPath).Root;
+                XElement CharacterSettingsXml;
+                using (var reader = new XmlTextReader(Settings.Instance.CharacterSettingsPath))
+                {
+                    reader.EntityHandling = EntityHandling.ExpandEntities;
+                    CharacterSettingsXml = XDocument.Load(reader).Root;
+                }
+
                 if (CharacterSettingsXml == null)
                 {
                     Logging.Log("Settings", "unable to find [" + Settings.Instance.CharacterSettingsPath + "] FATAL ERROR - use the provided settings.xml to create that file.", Logging.Red);
                 }
                 else
                 {
-                    Settings.Instance.CommonSettingsFileName = (string) CharacterSettingsXml.Element("commonSettingsFileName") ?? "common.xml";
+                    Settings.Instance.CommonSettingsFileName = (string)CharacterSettingsXml.Element("commonSettingsFileName") ?? "common.xml";
                     Settings.Instance.CommonSettingsPath = System.IO.Path.Combine(Settings.Instance.Path, Settings.Instance.CommonSettingsFileName);
 
                     XElement CommonSettingsXml;
@@ -1063,14 +1122,17 @@ namespace Questor.Modules.Lookup
                     DebugCargoHold = (bool?)CharacterSettingsXml.Element("debugCargoHold") ?? (bool?)CommonSettingsXml.Element("debugCargoHold") ?? false;
                     DebugChat = (bool?)CharacterSettingsXml.Element("debugChat") ?? (bool?)CommonSettingsXml.Element("debugChat") ?? false;
                     DebugCleanup = (bool?)CharacterSettingsXml.Element("debugCleanup") ?? (bool?)CommonSettingsXml.Element("debugCleanup") ?? false;
+                    DebugClearPocket = (bool?)CharacterSettingsXml.Element("debugClearPocket") ?? (bool?)CommonSettingsXml.Element("debugClearPocket") ?? false;
                     DebugCourierMissions = (bool?)CharacterSettingsXml.Element("debugCourierMissions") ?? (bool?)CommonSettingsXml.Element("debugCourierMissions") ?? false;
                     DebugDecline = (bool?)CharacterSettingsXml.Element("debugDecline") ?? (bool?)CommonSettingsXml.Element("debugDecline") ?? false;
                     DebugDefense = (bool?)CharacterSettingsXml.Element("debugDefense") ?? (bool?)CommonSettingsXml.Element("debugDefense") ?? false;
+                    DebugDrones = (bool?)CharacterSettingsXml.Element("debugDrones") ?? (bool?)CommonSettingsXml.Element("debugDrones") ?? false;
                     DebugDroneHealth = (bool?)CharacterSettingsXml.Element("debugDroneHealth") ?? (bool?)CommonSettingsXml.Element("debugDroneHealth") ?? false;
                     DebugExceptions = (bool?)CharacterSettingsXml.Element("debugExceptions") ?? (bool?)CommonSettingsXml.Element("debugExceptions") ?? false;
                     DebugFittingMgr = (bool?)CharacterSettingsXml.Element("debugFittingMgr") ?? (bool?)CommonSettingsXml.Element("debugFittingMgr") ?? false;
                     DebugFleetSupportSlave = (bool?)CharacterSettingsXml.Element("debugFleetSupportSlave") ?? (bool?)CommonSettingsXml.Element("debugFleetSupportSlave") ?? false;
                     DebugFleetSupportMaster = (bool?)CharacterSettingsXml.Element("debugFleetSupportMaster") ?? (bool?)CommonSettingsXml.Element("debugFleetSupportMaster") ?? false;
+                    DebugGetBestTarget = (bool?)CharacterSettingsXml.Element("debugGetBestTarget") ?? (bool?)CommonSettingsXml.Element("debugGetBestTarget") ?? false;
                     DebugGotobase = (bool?)CharacterSettingsXml.Element("debugGotobase") ?? (bool?)CommonSettingsXml.Element("debugGotobase") ?? false;
                     DebugGreyList = (bool?)CharacterSettingsXml.Element("debugGreyList") ?? (bool?)CommonSettingsXml.Element("debugGreyList") ?? false;
                     DebugHangars = (bool?)CharacterSettingsXml.Element("debugHangars") ?? (bool?)CommonSettingsXml.Element("debugHangars") ?? false;
@@ -1167,19 +1229,19 @@ namespace Questor.Modules.Lookup
                     //
                     //if (Settings.Instance.CharacterMode.ToLower() == "Combat Missions".ToLower())
                     //{
-                        MinAgentBlackListStandings = (float?)CharacterSettingsXml.Element("minAgentBlackListStandings") ?? (float?)CommonSettingsXml.Element("minAgentBlackListStandings") ?? (float)6.0;
-                        MinAgentGreyListStandings = (float?)CharacterSettingsXml.Element("minAgentGreyListStandings") ?? (float?)CommonSettingsXml.Element("minAgentGreyListStandings") ?? (float)5.0;
-                        WaitDecline = (bool?)CharacterSettingsXml.Element("waitDecline") ?? (bool?)CommonSettingsXml.Element("waitDecline") ?? false;
+                    MinAgentBlackListStandings = (float?)CharacterSettingsXml.Element("minAgentBlackListStandings") ?? (float?)CommonSettingsXml.Element("minAgentBlackListStandings") ?? (float)6.0;
+                    MinAgentGreyListStandings = (float?)CharacterSettingsXml.Element("minAgentGreyListStandings") ?? (float?)CommonSettingsXml.Element("minAgentGreyListStandings") ?? (float)5.0;
+                    WaitDecline = (bool?)CharacterSettingsXml.Element("waitDecline") ?? (bool?)CommonSettingsXml.Element("waitDecline") ?? false;
 
-                        var relativeMissionsPath = (string)CharacterSettingsXml.Element("missionsPath") ?? (string)CommonSettingsXml.Element("missionsPath");
-                        MissionsPath = System.IO.Path.Combine(Settings.Instance.Path, relativeMissionsPath);
-                        Logging.Log("Settings", "MissionsPath is: [" + MissionsPath + "]", Logging.White);
+                    var relativeMissionsPath = (string)CharacterSettingsXml.Element("missionsPath") ?? (string)CommonSettingsXml.Element("missionsPath");
+                    MissionsPath = System.IO.Path.Combine(Settings.Instance.Path, relativeMissionsPath);
+                    Logging.Log("Settings", "MissionsPath is: [" + MissionsPath + "]", Logging.White);
 
-                        RequireMissionXML = (bool?)CharacterSettingsXml.Element("requireMissionXML") ?? (bool?)CommonSettingsXml.Element("requireMissionXML") ?? false;
-                        AllowNonStorylineCourierMissionsInLowSec = (bool?)CharacterSettingsXml.Element("LowSecMissions") ?? (bool?)CommonSettingsXml.Element("LowSecMissions") ?? false;
-                        MaterialsForWarOreID = (int?)CharacterSettingsXml.Element("MaterialsForWarOreID") ?? (int?)CommonSettingsXml.Element("MaterialsForWarOreID") ?? 20;
-                        MaterialsForWarOreQty = (int?)CharacterSettingsXml.Element("MaterialsForWarOreQty") ?? (int?)CommonSettingsXml.Element("MaterialsForWarOreQty") ?? 8000;
-                        KillSentries = (bool?)CharacterSettingsXml.Element("killSentries") ?? (bool?)CommonSettingsXml.Element("killSentries") ?? false;
+                    RequireMissionXML = (bool?)CharacterSettingsXml.Element("requireMissionXML") ?? (bool?)CommonSettingsXml.Element("requireMissionXML") ?? false;
+                    AllowNonStorylineCourierMissionsInLowSec = (bool?)CharacterSettingsXml.Element("LowSecMissions") ?? (bool?)CommonSettingsXml.Element("LowSecMissions") ?? false;
+                    MaterialsForWarOreID = (int?)CharacterSettingsXml.Element("MaterialsForWarOreID") ?? (int?)CommonSettingsXml.Element("MaterialsForWarOreID") ?? 20;
+                    MaterialsForWarOreQty = (int?)CharacterSettingsXml.Element("MaterialsForWarOreQty") ?? (int?)CommonSettingsXml.Element("MaterialsForWarOreQty") ?? 8000;
+                    KillSentries = (bool?)CharacterSettingsXml.Element("killSentries") ?? (bool?)CommonSettingsXml.Element("killSentries") ?? false;
                     //}
 
                     //
@@ -1341,6 +1403,8 @@ namespace Questor.Modules.Lookup
                         //Player or Corp
                         //other setting is "Corp"
                         BookmarkPrefix = (string)CharacterSettingsXml.Element("bookmarkPrefix") ?? (string)CommonSettingsXml.Element("bookmarkPrefix") ?? "Salvage:";
+                        SafeSpotBookmarkPrefix = (string)CharacterSettingsXml.Element("safeSpotBookmarkPrefix") ?? (string)CommonSettingsXml.Element("safeSpotBookmarkPrefix") ?? "safespot";
+                        BookmarkFolder = (string)CharacterSettingsXml.Element("bookmarkFolder") ?? (string)CommonSettingsXml.Element("bookmarkFolder") ?? "Salvage:";
                         TravelToBookmarkPrefix = (string)CharacterSettingsXml.Element("travelToBookmarkPrefix") ?? (string)CommonSettingsXml.Element("travelToBookmarkPrefix") ?? "MeetHere:";
                         MinimumWreckCount = (int?)CharacterSettingsXml.Element("minimumWreckCount") ?? (int?)CommonSettingsXml.Element("minimumWreckCount") ?? 1;
                         AfterMissionSalvaging = (bool?)CharacterSettingsXml.Element("afterMissionSalvaging") ?? (bool?)CommonSettingsXml.Element("afterMissionSalvaging") ?? false;
@@ -1438,7 +1502,24 @@ namespace Questor.Modules.Lookup
                     DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage = (int?)CharacterSettingsXml.Element("doNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage") ?? (int?)CommonSettingsXml.Element("doNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage") ?? 60;
                     DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons = (int?)CharacterSettingsXml.Element("distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons") ?? (int?)CommonSettingsXml.Element("distanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons") ?? 7000; //also requires SpeedFrigatesShouldBeIgnoredByMainWeapons
                     SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons = (int?)CharacterSettingsXml.Element("speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons") ?? (int?)CommonSettingsXml.Element("speedNPCFrigatesShouldBeIgnoredByPrimaryWeapons") ?? 300; //also requires DistanceFrigatesShouldBeIgnoredByMainWeapons
-                    ShootWarpScramblersWithPrimaryWeapons = (bool?)CharacterSettingsXml.Element("shootWarpScramblersWithPrimaryWeapons") ?? (bool?)CommonSettingsXml.Element("shootWarpScramblersWithPrimaryWeapons") ?? true;
+
+                    AddDampenersToPrimaryWeaponsPriorityTargetList = (bool?)CharacterSettingsXml.Element("addDampenersToPrimaryWeaponsPriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addDampenersToPrimaryWeaponsPriorityTargetList") ?? true;
+                    AddECMsToPrimaryWeaponsPriorityTargetList = (bool?)CharacterSettingsXml.Element("addECMsToPrimaryWeaponsPriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addECMsToPrimaryWeaponsPriorityTargetList") ?? true;
+                    AddNeutralizersToPrimaryWeaponsPriorityTargetList = (bool?)CharacterSettingsXml.Element("addNeutralizersToPrimaryWeaponsPriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addNeutralizersToPrimaryWeaponsPriorityTargetList") ?? true;
+                    AddTargetPaintersToPrimaryWeaponsPriorityTargetList = (bool?)CharacterSettingsXml.Element("addTargetPaintersToPrimaryWeaponsPriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addTargetPaintersToPrimaryWeaponsPriorityTargetList") ?? true;
+                    AddTrackingDisruptorsToPrimaryWeaponsPriorityTargetList = (bool?)CharacterSettingsXml.Element("addTrackingDisruptorsToPrimaryWeaponsPriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addTrackingDisruptorsToPrimaryWeaponsPriorityTargetList") ?? true; 
+                    AddWarpScramblersToPrimaryWeaponsPriorityTargetList = (bool?)CharacterSettingsXml.Element("addWarpScramblersToPrimaryWeaponsPriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addWarpScramblersToPrimaryWeaponsPriorityTargetList") ?? true;
+                    AddWebifiersToPrimaryWeaponsPriorityTargetList = (bool?)CharacterSettingsXml.Element("addWebifiersToPrimaryWeaponsPriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addWebifiersToPrimaryWeaponsPriorityTargetList") ?? true;
+
+                    AddDampenersToDronePriorityTargetList = (bool?)CharacterSettingsXml.Element("addDampenersToDronePriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addDampenersToDronePriorityTargetList") ?? true;
+                    AddECMsToDroneTargetList = (bool?)CharacterSettingsXml.Element("addECMsToDroneTargetList") ?? (bool?)CommonSettingsXml.Element("addECMsToDroneTargetList") ?? true;
+                    AddNeutralizersToDronePriorityTargetList = (bool?)CharacterSettingsXml.Element("addNeutralizersToDronePriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addNeutralizersToDronePriorityTargetList") ?? true;
+                    AddTargetPaintersToDronePriorityTargetList = (bool?)CharacterSettingsXml.Element("addTargetPaintersToDronePriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addTargetPaintersToDronePriorityTargetList") ?? true;
+                    AddTrackingDisruptorsToDronePriorityTargetList = (bool?)CharacterSettingsXml.Element("addTrackingDisruptorsToDronePriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addTrackingDisruptorsToDronePriorityTargetList") ?? true;
+                    AddWarpScramblersToDronePriorityTargetList = (bool?)CharacterSettingsXml.Element("addWarpScramblersToDronePriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addWarpScramblersToDronePriorityTargetList") ?? true;
+                    AddWebifiersToDronePriorityTargetList = (bool?)CharacterSettingsXml.Element("addWebifiersToDronePriorityTargetList") ?? (bool?)CommonSettingsXml.Element("addWebifiersToDronePriorityTargetList") ?? true;
+
+                    InsideThisRangeIsHardToTrack = (double?)CharacterSettingsXml.Element("insideThisRangeIsHardToTrack") ?? (double?)CommonSettingsXml.Element("insideThisRangeIsHardToTrack") ?? 15000;
 
                     //
                     // Script Settings - TypeIDs for the scripts you would like to use in these modules
@@ -1482,7 +1563,7 @@ namespace Questor.Modules.Lookup
                     // If you enable the overloading of a slot it is HIGHLY recommended you actually have something overloadable in that slot =/ 
                     //
                     OverloadWeapons = (bool?)CharacterSettingsXml.Element("overloadWeapons") ?? (bool?)CommonSettingsXml.Element("overloadWeapons") ?? false;
-                    
+
                     //
                     // Speed and Movement Settings
                     //
@@ -1548,7 +1629,7 @@ namespace Questor.Modules.Lookup
                     ThisToonShouldBeTrainingSkills = (bool?)CharacterSettingsXml.Element("thisToonShouldBeTrainingSkills") ?? (bool?)CommonSettingsXml.Element("thisToonShouldBeTrainingSkills") ?? true;
                     //This needs to be in your "Innerspace\Scripts\" Directory
                     SkillTrainerScript = (string)CharacterSettingsXml.Element("skillTrainerScript") ?? (string)CommonSettingsXml.Element("skillTrainerScript") ?? "skilltrainer.iss";
-                    
+
                     //
                     // User Defined LavishScript Scripts that tie to buttons in the UI
                     //
@@ -1560,6 +1641,15 @@ namespace Questor.Modules.Lookup
                     UserDefinedLavishScriptScript3Description = (string)CharacterSettingsXml.Element("userDefinedLavishScriptScript3Description") ?? (string)CommonSettingsXml.Element("userDefinedLavishScriptScript3Description") ?? "";
                     UserDefinedLavishScriptScript4 = (string)CharacterSettingsXml.Element("userDefinedLavishScriptScript4") ?? (string)CommonSettingsXml.Element("userDefinedLavishScriptScript4") ?? "";
                     UserDefinedLavishScriptScript4Description = (string)CharacterSettingsXml.Element("userDefinedLavishScriptScript4Description") ?? (string)CommonSettingsXml.Element("userDefinedLavishScriptScript4Description") ?? "";
+
+                    //
+                    // agent standing requirements
+                    //
+                    StandingsNeededToAccessLevel1Agent = (float?)CharacterSettingsXml.Element("standingsNeededToAccessLevel1Agent") ?? (float?)CommonSettingsXml.Element("standingsNeededToAccessLevel1Agent") ?? -11;
+                    StandingsNeededToAccessLevel2Agent = (float?)CharacterSettingsXml.Element("standingsNeededToAccessLevel2Agent") ?? (float?)CommonSettingsXml.Element("standingsNeededToAccessLevel2Agent") ?? 1;
+                    StandingsNeededToAccessLevel3Agent = (float?)CharacterSettingsXml.Element("standingsNeededToAccessLevel3Agent") ?? (float?)CommonSettingsXml.Element("standingsNeededToAccessLevel3Agent") ?? 3;
+                    StandingsNeededToAccessLevel4Agent = (float?)CharacterSettingsXml.Element("standingsNeededToAccessLevel4Agent") ?? (float?)CommonSettingsXml.Element("standingsNeededToAccessLevel4Agent") ?? 5;
+                    StandingsNeededToAccessLevel5Agent = (float?)CharacterSettingsXml.Element("standingsNeededToAccessLevel5Agent") ?? (float?)CommonSettingsXml.Element("standingsNeededToAccessLevel5Agent") ?? 7;
 
                     //
                     // number of days of console logs to keep (anything older will be deleted on startup)
@@ -1587,37 +1677,37 @@ namespace Questor.Modules.Lookup
                     //
                     //if (Settings.Instance.CharacterMode.ToLower() == "Combat Missions".ToLower())
                     //{
-                        AgentsList.Clear();
-                        XElement agentList = CharacterSettingsXml.Element("agentsList") ?? CommonSettingsXml.Element("agentsList");
-                        
-                        if (agentList != null)
+                    AgentsList.Clear();
+                    XElement agentList = CharacterSettingsXml.Element("agentsList") ?? CommonSettingsXml.Element("agentsList");
+
+                    if (agentList != null)
+                    {
+                        if (agentList.HasElements)
                         {
-                            if (agentList.HasElements)
+                            int i = 0;
+                            foreach (XElement agent in agentList.Elements("agentList"))
                             {
-                                int i = 0;
-                                foreach (XElement agent in agentList.Elements("agentList"))
-                                {
-                                    AgentsList.Add(new AgentsList(agent));
-                                    i++;
-                                }
-                                if (i >= 2)
-                                {
-                                    MultiAgentSupport = true;
-                                    Logging.Log("Settings", "Found more than one agent in your character XML: MultiAgentSupport is [" + MultiAgentSupport.ToString(CultureInfo.InvariantCulture) + "]", Logging.White);
-                                }
-                                else
-                                {
-                                    MultiAgentSupport = false;
-                                    Logging.Log("Settings", "Found only one agent in your character XML: MultiAgentSupport is [" + MultiAgentSupport.ToString(CultureInfo.InvariantCulture) + "]", Logging.White);
-                                }
+                                AgentsList.Add(new AgentsList(agent));
+                                i++;
+                            }
+                            if (i >= 2)
+                            {
+                                MultiAgentSupport = true;
+                                Logging.Log("Settings", "Found more than one agent in your character XML: MultiAgentSupport is [" + MultiAgentSupport.ToString(CultureInfo.InvariantCulture) + "]", Logging.White);
                             }
                             else
                             {
-                                Logging.Log("Settings", "agentList exists in your characters config but no agents were listed.", Logging.Red);
+                                MultiAgentSupport = false;
+                                Logging.Log("Settings", "Found only one agent in your character XML: MultiAgentSupport is [" + MultiAgentSupport.ToString(CultureInfo.InvariantCulture) + "]", Logging.White);
                             }
                         }
                         else
-                            Logging.Log("Settings", "Error! No Agents List specified.", Logging.Red);
+                        {
+                            Logging.Log("Settings", "agentList exists in your characters config but no agents were listed.", Logging.Red);
+                        }
+                    }
+                    else
+                        Logging.Log("Settings", "Error! No Agents List specified.", Logging.Red);
 
                     //}
 
@@ -1683,45 +1773,45 @@ namespace Questor.Modules.Lookup
 
                     //if (Settings.Instance.CharacterMode.ToLower() == "Combat Missions".ToLower())
                     //{
-                        //
-                        // Mission Blacklist
-                        //
-                        MissionBlacklist.Clear();
-                        XElement xmlElementBlackListSection = CharacterSettingsXml.Element("blacklist") ?? CommonSettingsXml.Element("blacklist");
-                        if (xmlElementBlackListSection != null)
+                    //
+                    // Mission Blacklist
+                    //
+                    MissionBlacklist.Clear();
+                    XElement xmlElementBlackListSection = CharacterSettingsXml.Element("blacklist") ?? CommonSettingsXml.Element("blacklist");
+                    if (xmlElementBlackListSection != null)
+                    {
+                        Logging.Log("Settings", "Loading Mission Blacklist", Logging.White);
+                        int i = 1;
+                        foreach (XElement BlacklistedMission in xmlElementBlackListSection.Elements("mission"))
                         {
-                            Logging.Log("Settings", "Loading Mission Blacklist", Logging.White);
-                            int i = 1;
-                            foreach (XElement BlacklistedMission in xmlElementBlackListSection.Elements("mission"))
-                            {
-                                MissionBlacklist.Add((string) BlacklistedMission);
-                                if (Settings.Instance.DebugBlackList) Logging.Log("Settings.LoadBlackList", "[" + i + "] Blacklisted mission Name [" + (string) BlacklistedMission + "]", Logging.Teal);
-                                i++;
-                            }
-                            Logging.Log("Settings", "        Mission Blacklist now has [" + MissionBlacklist.Count + "] entries", Logging.White);
+                            MissionBlacklist.Add((string)BlacklistedMission);
+                            if (Settings.Instance.DebugBlackList) Logging.Log("Settings.LoadBlackList", "[" + i + "] Blacklisted mission Name [" + (string)BlacklistedMission + "]", Logging.Teal);
+                            i++;
                         }
+                        Logging.Log("Settings", "        Mission Blacklist now has [" + MissionBlacklist.Count + "] entries", Logging.White);
+                    }
                     //}
 
                     //if (Settings.Instance.CharacterMode.ToLower() == "Combat Missions".ToLower())
                     //{
-                        //
-                        // Mission Greylist
-                        //
-                        MissionGreylist.Clear();
-                        XElement xmlElementGreyListSection = CharacterSettingsXml.Element("greylist") ?? CommonSettingsXml.Element("greylist");
+                    //
+                    // Mission Greylist
+                    //
+                    MissionGreylist.Clear();
+                    XElement xmlElementGreyListSection = CharacterSettingsXml.Element("greylist") ?? CommonSettingsXml.Element("greylist");
 
-                        if (xmlElementGreyListSection != null)
+                    if (xmlElementGreyListSection != null)
+                    {
+                        Logging.Log("Settings", "Loading Mission Greylist", Logging.White);
+                        int i = 1;
+                        foreach (XElement GreylistedMission in xmlElementGreyListSection.Elements("mission"))
                         {
-                            Logging.Log("Settings", "Loading Mission Greylist", Logging.White);
-                            int i = 1;
-                            foreach (XElement GreylistedMission in xmlElementGreyListSection.Elements("mission"))
-                            {
-                                MissionGreylist.Add((string) GreylistedMission);
-                                if (Settings.Instance.DebugGreyList) Logging.Log("Settings.LoadGreyList", "[" + i + "] Greylisted mission Name [" + (string) GreylistedMission + "]", Logging.Teal);
-                                i++;
-                            }
-                            Logging.Log("Settings", "        Mission Greylist now has [" + MissionGreylist.Count + "] entries", Logging.White);
+                            MissionGreylist.Add((string)GreylistedMission);
+                            if (Settings.Instance.DebugGreyList) Logging.Log("Settings.LoadGreyList", "[" + i + "] Greylisted mission Name [" + (string)GreylistedMission + "]", Logging.Teal);
+                            i++;
                         }
+                        Logging.Log("Settings", "        Mission Greylist now has [" + MissionGreylist.Count + "] entries", Logging.White);
+                    }
                     //}
 
                     //
@@ -1838,7 +1928,7 @@ namespace Questor.Modules.Lookup
                     SettingsLoadedICount++;
                     if (Settings.Instance.CommonXMLExists) Logging.Log("Settings", "[" + SettingsLoadedICount + "] Done Loading Settings from [" + Settings.Instance.CommonSettingsPath + "] and", Logging.Green);
                     Logging.Log("Settings", "[" + SettingsLoadedICount + "] Done Loading Settings from [" + Settings.Instance.CharacterSettingsPath + "]", Logging.Green);
-                    
+
                     SettingsLoaded(this, new EventArgs());
                 }
             }

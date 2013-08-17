@@ -98,10 +98,11 @@
                         {
                             if (Settings.Instance.DebugQuestorManager) Logging.Log("Drop", "Item TypeID is [" + Item + "]",Logging.Debug);
                             
-                            int x = 1;
+                            int iCount = 1;
                             foreach (DirectItem ItemTest in Cache.Instance.CargoHold.Items)
                             {
-                                if (Settings.Instance.DebugQuestorManager) Logging.Log("Drop", "[" + x + "] ItemName: [" + ItemTest.TypeName + "]", Logging.Debug);
+                                iCount++;
+                                if (Settings.Instance.DebugQuestorManager) Logging.Log("Drop", "[" + iCount + "] ItemName: [" + ItemTest.TypeName + "]", Logging.Debug);
                             }
 
                             if (Cache.Instance.CargoHold.Items.Any(i => i.TypeId == Item))

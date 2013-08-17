@@ -17,7 +17,7 @@ namespace Questor.Modules.Lookup
 {
     public class InvType
     {
-        public static List<string> Minerals = new List<string>()
+        public static List<string> Minerals = new List<string>
                                                {
                                                   "Morphite",
                                                   "Megacyte",

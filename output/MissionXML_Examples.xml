@@ -48,7 +48,7 @@
 		<parameter name="distance">30000</parameter> <!-- default distance is your maxRange, use this if you only want to clear aggro within 30k -->
 	  </action> <!-- This is used in combination with MoveToBackground, only NPCs in weapons range will be killed/cleared, because of the nature of this command no movement commands are given to the ship, you only kill what is in range thus you may need to add a regular clearpocket after this command to cleanup anything possibly out of range -->
 
-      <action name="ClearWithinWeaponsRangeAggroOnly"> <!-- This is used in combination with MoveToBackground, only NPCs in weapons range who are targeting us will be killed/cleared, because of the nature of this command no movement commands are given to the ship, you only kill what is in range thus you may need to add a regular clearpocket after this command to cleanup anything possibly out of range -->
+      <action name="ClearWithinWeaponsRangewAggroOnly"> <!-- This is used in combination with MoveToBackground, only NPCs in weapons range who are targeting us will be killed/cleared, because of the nature of this command no movement commands are given to the ship, you only kill what is in range thus you may need to add a regular clearpocket after this command to cleanup anything possibly out of range -->
 	  	<parameter name="distance">30000</parameter> <!-- default distance is your maxRange, use this if you only want to clear aggro within 30k -->
 	  </action> 
 

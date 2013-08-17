@@ -42,7 +42,7 @@ namespace Questor.Modules.Combat
         private double _structurePctTotal;
         public bool Recall; //false
         public bool WarpScrambled; //false
-        private DateTime _lastDronesProcessState;
+        private DateTime _nextDroneAction = DateTime.UtcNow;
         private DateTime _nextWarpScrambledWarning = DateTime.MinValue;
 
         private void GetDamagedDrones()
@@ -143,12 +143,9 @@ namespace Questor.Modules.Combat
 
         public void ProcessState()
         {
-            if (DateTime.UtcNow < _lastDronesProcessState.AddMilliseconds(100)) //if it has not been 100ms since the last time we ran this ProcessState return. We can't do anything that close together anyway
-            {
-                return;
-            }
-
-            _lastDronesProcessState = DateTime.UtcNow;
+            if (_nextDroneAction > DateTime.UtcNow) return;
+            
+            _nextDroneAction = DateTime.UtcNow.AddMilliseconds(400);
 
             if (Cache.Instance.InStation ||                             // There is really no combat in stations (yet)
                 !Cache.Instance.InSpace ||                              // if we are not in space yet, wait...
@@ -197,11 +194,11 @@ namespace Questor.Modules.Combat
                         launch &= Cache.Instance.DirectEve.ActiveShip.CapacitorPercentage >= Settings.Instance.DroneMinimumCapacitorPct;
 
                         // yes if there are targets to kill
-                        launch &= Cache.Instance.TargetedBy.Count(e => !e.IsSentry && e.CategoryId == (int)CategoryID.Entity && e.IsNpc && !e.IsContainer && e.GroupId != (int)Group.LargeCollidableStructure && e.Distance < Settings.Instance.DroneControlRange) > 0;
+                        launch &= Cache.Instance.TargetedBy.Count(e => !e.IsSentry && e.CategoryId == (int)CategoryID.Entity && e.IsNpc && !e.IsContainer && e.GroupId != (int)Group.LargeColidableStructure && e.Distance < Settings.Instance.DroneControlRange) > 0;
 
                         if (_States.CurrentQuestorState != QuestorState.CombatMissionsBehavior)
                         {
-                            launch &= Cache.Instance.Entities.Count(e => !e.IsSentry && !e.IsBadIdea && e.CategoryId == (int)CategoryID.Entity && e.IsNpc && !e.IsContainer && e.GroupId != (int)Group.LargeCollidableStructure && e.Distance < Settings.Instance.DroneControlRange) > 0;
+                            launch &= Cache.Instance.Entities.Count(e => !e.IsSentry && !e.IsBadIdea && e.CategoryId == (int)CategoryID.Entity && e.IsNpc && !e.IsContainer && e.GroupId != (int)Group.LargeColidableStructure && e.Distance < Settings.Instance.DroneControlRange) > 0;
                         }
 
                         // If drones get aggro'd within 30 seconds, then wait (5 * _recallCount + 5) seconds since the last recall
@@ -481,6 +478,7 @@ namespace Questor.Modules.Combat
                         _lastRecall = DateTime.UtcNow;
                         Recall = false;
                         TargetingCache.CurrentDronesTarget = null;
+                        _nextDroneAction = DateTime.UtcNow.AddSeconds(3);
                         _States.CurrentDroneState = DroneState.WaitingForTargets;
                         break;
                     }

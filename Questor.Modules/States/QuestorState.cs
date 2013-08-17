@@ -21,6 +21,7 @@ namespace Questor.Modules.States
         //CourierMissionBehavior,
         CombatHelperBehavior,
         Mining,
+        //BackgroundBehavior,
         //CheckEVEStatus,
         CloseQuestor,
         Error,

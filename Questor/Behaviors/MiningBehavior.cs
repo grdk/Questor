@@ -553,7 +553,7 @@ namespace Questor.Behaviors
                             }
                             _isJammed = false;
 
-                            _targetAsteroid.LockTarget();
+                            _targetAsteroid.LockTarget("Mining.targetAsteroid");
                             Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                         }
                     } //check 10K distance

@@ -16,7 +16,7 @@ namespace Questor.Modules.Logging
     using System.Windows.Forms;
     using Questor.Modules.Caching;
     using Questor.Modules.Lookup;
-    using Questor.Modules.States;
+    //using Questor.Modules.States;
     using InnerSpaceAPI;
     using LavishScriptAPI;
 
@@ -56,7 +56,7 @@ namespace Questor.Modules.Logging
         //public static void Log(string module, string line, string color = Logging.White)
         public static void Log(string module, string line, string color)
         {
-            //if (Settings.Instance.DateTimeForLogs = EVETIme)
+            //if (Settings.Instance.DateTimeForLogs = EveTime)
             //{
             //    DateTimeForLogs = DateTime.UtcNow;
             //}
