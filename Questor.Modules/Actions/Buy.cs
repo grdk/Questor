@@ -99,9 +99,14 @@
                         IEnumerable<DirectOrder> orders = marketWindow.BuyOrders.Where(o => o.StationId == Cache.Instance.DirectEve.Session.StationId);
 
                         DirectOrder order = orders.OrderByDescending(o => o.Price).FirstOrDefault();
-                        double price = order.Price + 0.01;
-
-                        Cache.Instance.DirectEve.Buy((int)Cache.Instance.DirectEve.Session.StationId , Item, price, Unit, DirectOrderRange.Station, 1, 30);
+                        if (order != null)
+                        {
+                            double price = order.Price + 0.01;
+                            if (Cache.Instance.DirectEve.Session.StationId != null)
+                            {
+                                Cache.Instance.DirectEve.Buy((int)Cache.Instance.DirectEve.Session.StationId , Item, price, Unit, DirectOrderRange.Station, 1, 30);
+                            }
+                        }
                         useOrders = false;
                         _States.CurrentBuyState = BuyState.Done;
                     }

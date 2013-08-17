@@ -44,8 +44,12 @@ namespace Questor
             {
                 if (!System.Diagnostics.Debugger.IsAttached)
                 {
-                    Logging.Log("QuestorUI", "VS Debugger is not yet attached: System.Diagnostics.Debugger.Launch()", Logging.Teal);
-                    System.Diagnostics.Debugger.Launch();
+                    //
+                    // this is temporarily disabled as CCP is crazy and is now detecting that a debugger is attached (thinking it is a way to catch bots? no idea but odd)
+                    //
+
+                    //Logging.Log("QuestorUI", "VS Debugger is not yet attached: System.Diagnostics.Debugger.Launch()", Logging.Teal);
+                    //System.Diagnostics.Debugger.Launch();
                 }
             }
         }
@@ -192,7 +196,7 @@ namespace Questor
                         NextDroneBayActionData.Text = Cache.Instance.NextDroneBayAction.ToLongTimeString();
                         NextOpenHangarActionData.Text = Cache.Instance.NextOpenHangarAction.ToLongTimeString();
                         NextOpenCargoActionData.Text = Cache.Instance.NextOpenCargoAction.ToLongTimeString();
-                        LastActionData.Text = Cache.Instance.LastAction.ToLongTimeString();
+                        LastActionData.Text = "";
                         NextArmActionData.Text = Cache.Instance.NextArmAction.ToLongTimeString();
                         NextSalvageActionData.Text = Cache.Instance.NextSalvageAction.ToLongTimeString();
                         NextLootActionData.Text = Cache.Instance.NextLootAction.ToLongTimeString();

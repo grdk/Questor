@@ -159,7 +159,7 @@ namespace Questor.Modules.BackgroundTasks
 
                 Logging.Log("Salvage", "Locking [" + wreck.Name + "][ID: " + Cache.Instance.MaskedID(wreck.Id) + "][" + Math.Round(wreck.Distance / 1000, 0) + "k away]", Logging.White);
 
-                wreck.LockTarget();
+                wreck.LockTarget("Salvage");
                 wreckTargets.Add(wreck);
 
                 if (wreckTargets.Count >= MaximumWreckTargets)
@@ -336,7 +336,7 @@ namespace Questor.Modules.BackgroundTasks
             // Open a container in range
             foreach (EntityCache containerEntity in Cache.Instance.UnlootedWrecksAndSecureCans.Where(e => e.Distance <= (int)Distance.SafeScoopRange))
             {
-                // Emptry wreck, ignore
+                // Empty wreck, ignore
                 if (containerEntity.GroupId == (int)Group.Wreck && containerEntity.IsWreckEmpty)
                     continue;
 
@@ -433,7 +433,8 @@ namespace Questor.Modules.BackgroundTasks
                     break;
 
                 case ScoopState.Error:
-                    // Wait indefinately...
+
+                    // Wait indefinitely
                     break;
 
                 default:

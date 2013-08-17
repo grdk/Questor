@@ -43,7 +43,8 @@ namespace Questor.Modules.Lookup
         //Amarr Rookie Ship
         //Caldari Rookie Ship
         //Gallente Rookie Ship
-
+        Tengu = 29984,
+        
         //Polaris = 9856,
         //Polaris = 9855 //wtf
 

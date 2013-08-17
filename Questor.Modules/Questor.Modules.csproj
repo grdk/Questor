@@ -15,6 +15,7 @@
     <CodeAnalysisLogFile>$(ProjectDir)..\bin\$(Configuration)\$(TargetName).$(TargetExt).CodeAnalysisLog.xml</CodeAnalysisLogFile>
     <CodeAnalysisRuleSetDirectories>$(CodeAnalysisStaticAnalysisDirectory)Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisRuleDirectories>$(CodeAnalysisPath)Rules</CodeAnalysisRuleDirectories>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -168,6 +169,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

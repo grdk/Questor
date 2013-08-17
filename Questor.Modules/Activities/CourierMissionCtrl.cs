@@ -13,7 +13,7 @@ namespace Questor.Modules.Activities
     public class CourierMissionCtrl
     {
         //private DateTime _nextCourierAction;
-        private readonly Traveler _traveler;
+        //private readonly Traveler _traveler;
         private readonly AgentInteraction _agentInteraction;
         private int moveItemRetryCounter;
         private DateTime _nextCourierMissionCtrlPulse = DateTime.UtcNow.AddDays(-30);
@@ -24,7 +24,7 @@ namespace Questor.Modules.Activities
         ///
         public CourierMissionCtrl()
         {
-            _traveler = new Traveler();
+            //_traveler = new Traveler();
             _agentInteraction = new AgentInteraction();
         }
 
@@ -77,6 +77,10 @@ namespace Questor.Modules.Activities
                     missionItem = "Large EMP Smartbomb I";
                     break;
 
+                case "Pot and Kettle - Making Amends (5 of 5)":       //lvl4 courier
+                    missionItem = "Mexallon";
+                    break;
+
                 case "Technological Secrets (2 of 3)":               //lvl4 courier
                     missionItem = "DNA Sample"; //typeid: 13288	 groupID: 314
                     break;
@@ -118,7 +122,7 @@ namespace Questor.Modules.Activities
                     //
                     // be flexible on the "from" as we might have the item needed in the ammohangar or loothangar if it is not available in the itemhangar
                     //
-                    from = Cache.Instance.ItemHangar;
+                    //from = Cache.Instance.ItemHangar;
                     if (Cache.Instance.ItemHangar.Items.OrderBy(i => i.IsSingleton).ThenBy(i => i.Quantity).Any(i => i.TypeName == missionItem))
                     {
                         from = Cache.Instance.ItemHangar;

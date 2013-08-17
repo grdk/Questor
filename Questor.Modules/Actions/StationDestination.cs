@@ -114,7 +114,7 @@ namespace Questor.Modules.Actions
             {
                 if (DateTime.UtcNow > Cache.Instance.NextApproachAction)
                 {
-                    Logging.Log("TravelerDestintion.StationDestination", "Approaching [" + entity.Name + "] which is [" + Math.Round(entity.Distance / 1000, 0) + "k away]", Logging.White);
+                    Logging.Log("TravelerDestination.StationDestination", "Approaching [" + entity.Name + "] which is [" + Math.Round(entity.Distance / 1000, 0) + "k away]", Logging.White);
                     entity.Approach();
 
                     return false;

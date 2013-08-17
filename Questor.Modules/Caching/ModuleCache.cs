@@ -11,7 +11,7 @@
 namespace Questor.Modules.Caching
 {
     using System;
-    using System.Collections.Generic;
+    //using System.Collections.Generic;
     using DirectEve;
     using Questor.Modules.Lookup;
 
@@ -199,7 +199,9 @@ namespace Questor.Modules.Caching
             get
             {
                 if (Cache.Instance.LastModuleTargetIDs.ContainsKey(ItemId))
+                {
                     return Cache.Instance.LastModuleTargetIDs[ItemId];
+                }
 
                 return -1;
             }

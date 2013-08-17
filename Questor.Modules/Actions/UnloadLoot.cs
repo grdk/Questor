@@ -44,7 +44,7 @@ namespace Questor.Modules.Actions
         {
             if (DateTime.UtcNow < _nextUnloadAction)
             {
-                Logging.Log("UnloadLoot.MoveAmmo", "will Continue in [ " + Math.Round(_nextUnloadAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + " ] sec", Logging.White);
+                if (Settings.Instance.DebugUnloadLoot) Logging.Log("UnloadLoot.MoveAmmo", "will Continue in [ " + Math.Round(_nextUnloadAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + " ] sec", Logging.Debug);
                 return false;
             }
 
@@ -163,6 +163,8 @@ namespace Questor.Modules.Actions
                         //Cache.Instance.InvTypesById.ContainsKey(i.TypeId)
                         commonMissionCompletionItemsToMove = Cache.Instance.CargoHold.Items.Where(i => i.GroupId == (int)Group.Livestock
                                                                                                     || i.GroupId == (int)Group.MiscSpecialMissionItems
+                                                                                                    || i.GroupId == (int)Group.Kernite
+                                                                                                    || i.GroupId == (int)Group.Omber
                                                                                                     || (i.GroupId == (int)Group.Commodities && i.TypeId != (int)TypeID.MetalScraps && i.TypeId != (int)TypeID.ReinforcedMetalScraps)
                                                                                                     && !Cache.Instance.UnloadLootTheseItemsAreLootById.ContainsKey(i.TypeId)
                                                                                                     ).ToList();
@@ -257,7 +259,7 @@ namespace Questor.Modules.Actions
         {
             if (DateTime.UtcNow < _nextUnloadAction)
             {
-                if (Settings.Instance.DebugUnloadLoot) Logging.Log("UnloadLoot.MoveLoot", "will Continue in [ " + Math.Round(_nextUnloadAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + " ] sec", Logging.White);
+                if (Settings.Instance.DebugUnloadLoot) Logging.Log("UnloadLoot.MoveLoot", "will Continue in [ " + Math.Round(_nextUnloadAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + " ] sec", Logging.Debug);
                 return false;
             }
 
@@ -431,7 +433,7 @@ namespace Questor.Modules.Actions
                 case UnloadLootState.Begin:
                     if (DateTime.UtcNow < _nextUnloadAction)
                     {
-                        if (Settings.Instance.DebugUnloadLoot) Logging.Log("UnloadLoot", "will Continue in [ " + Math.Round(_nextUnloadAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + " ] sec", Logging.White);
+                        if (Settings.Instance.DebugUnloadLoot) Logging.Log("UnloadLoot", "will Continue in [ " + Math.Round(_nextUnloadAction.Subtract(DateTime.UtcNow).TotalSeconds, 0) + " ] sec", Logging.Debug);
                         break;
                     }
                     AmmoIsBeingMoved = false;

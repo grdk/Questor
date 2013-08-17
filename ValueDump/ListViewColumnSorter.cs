@@ -52,10 +52,10 @@ namespace ValueDump
                         //
                         if (f1 < f2)
                             return menor;
-                    
+
                         if (f1 == f2)
                             return 0;
-                    
+
                         return mayor;
                     }
                     catch
@@ -70,10 +70,10 @@ namespace ValueDump
                         decimal n2 = decimal.Parse(s2);
                         if (n1 < n2)
                             return menor;
-                    
+
                         if (n1 == n2)
                             return 0;
-                    
+
                         return mayor;
                     }
                     catch

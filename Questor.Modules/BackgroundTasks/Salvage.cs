@@ -46,7 +46,7 @@ namespace Questor.Modules.BackgroundTasks
         public static void MoveIntoRangeOfWrecks() // DO NOT USE THIS ANYWHERE EXCEPT A PURPOSEFUL SALVAGE BEHAVIOR! - if you use this while in combat it will make you go poof quickly.
         {
             EntityCache closestWreck = Cache.Instance.UnlootedContainers.OrderBy(o => o.Distance).FirstOrDefault();
-            if (Math.Round(closestWreck.Distance, 0) > (int)Distance.SafeScoopRange && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closestWreck.Id))
+            if (closestWreck != null && (Math.Round(closestWreck.Distance, 0) > (int)Distance.SafeScoopRange && (Cache.Instance.Approaching == null || Cache.Instance.Approaching.Id != closestWreck.Id)))
             {
                 if (closestWreck.Distance > (int)Distance.WarptoDistance)
                 {
@@ -65,7 +65,7 @@ namespace Questor.Modules.BackgroundTasks
                     }
                 }
             }
-            else if (closestWreck.Distance <= (int)Distance.SafeScoopRange && Cache.Instance.Approaching != null)
+            else if (closestWreck != null && (closestWreck.Distance <= (int)Distance.SafeScoopRange && Cache.Instance.Approaching != null))
             {
                 if (Cache.Instance.NextApproachAction < DateTime.UtcNow)
                 {
@@ -411,7 +411,7 @@ namespace Questor.Modules.BackgroundTasks
 
                 Logging.Log("Salvage", "Locking [" + wreck.Name + "][" + Math.Round(wreck.Distance / 1000, 0) + "k][ID: " + Cache.Instance.MaskedID(wreck.Id) + "][" + Math.Round(wreck.Distance / 1000, 0) + "k away]", Logging.White);
 
-                wreck.LockTarget();
+                wreck.LockTarget("Salvage");
                 wreckTargets.Add(wreck);
                 wrecksProcessedThisTick++;
                 if (Settings.Instance.DebugSalvage) Logging.Log("Salvage", "wrecksProcessedThisTick [" + wrecksProcessedThisTick + "]", Logging.Teal);
@@ -485,7 +485,7 @@ namespace Questor.Modules.BackgroundTasks
                 }
 
                 // Don't even try to open a wreck if you are speed tanking and you are not processing a loot action
-                if (Settings.Instance.SpeedTank && Cache.Instance.OpenWrecks == false)
+                if (Settings.Instance.SpeedTank && !Cache.Instance.MyShipEntity.IsBattleship && Cache.Instance.OpenWrecks == false)
                 {
                     if (Settings.Instance.DebugLootWrecks) Logging.Log("Salvage.LootWrecks", "SpeedTank is true and OpenWrecks is false [" + containerEntity.Id + "]", Logging.White);
                     continue;
